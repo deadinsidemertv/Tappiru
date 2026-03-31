@@ -16,9 +16,11 @@ namespace TappiruCS
             NativeWindowSettings nwSetting = NativeWindowSettings.Default;
             Game gamewindow = new Game(gwSetting, nwSetting);
 
-            TextureLoader.fontTexture = TextureLoader.Load("Textures/font.png");
+
+            TextureLoader.fontTexture = TextureManager.GetTexture("mainFont");
             
-            
+
+
 
             gamewindow.Run();
 

@@ -43,7 +43,7 @@ namespace TappiruCS
                     _textRenderer,
                     300, y, 150, 60,
                     "btn",
-                    folderPath   // показываем название папки как текст кнопки
+                    folderPath, Color4.Azure   // показываем название папки как текст кнопки
                 )
                 { Layer = 50 };
 

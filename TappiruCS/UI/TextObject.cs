@@ -24,6 +24,14 @@ namespace TappiruCS.UI
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
         }
+        public TextObject(TextRender textRender, string text, float x, float y, float scale,Color4 color)
+        {
+            _textRender = textRender;
+            Text = text;
+            Position = new Vector2(x, y);
+            Scale = new Vector2(scale, scale);
+            Color = color;
+        }
 
         public override void Draw(Matrix4 projection)
         {

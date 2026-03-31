@@ -17,6 +17,8 @@ namespace TappiruCS
 
         private readonly Scene _scene = new Scene();
 
+        
+
         public MenuState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
             _game = game;
@@ -38,14 +40,14 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                440, 300, 400, 90, "btn", "начать игру")   // "btn" — имя текстуры через TextureManager
+                440, 300, 400, 90, "btn", "начать игру",Color4.Azure)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 50
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                440, 420, 400, 90, "btn", "выход")
+                440, 420, 400, 90, "btn", "выход", Color4.Black)
             {
                 Layer = 50
             };

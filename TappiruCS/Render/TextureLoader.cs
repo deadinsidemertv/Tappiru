@@ -11,7 +11,7 @@ namespace TappiruCS.Render
     public static class TextureLoader
     {
         public static int fontTexture;
-        public static int background;
+        
 
         public static int textureWidth, textureHeight;
 
