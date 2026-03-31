@@ -40,9 +40,10 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                440, 300, 400, 90, "btn", "начать игру",Color4.Azure)   // "btn" — имя текстуры через TextureManager
+                440, 300, 400, 90, "btn", "начать игру", Color4.Azure)   // "btn" — имя текстуры через TextureManager
             {
-                Layer = 50
+                Layer = 50,
+                _TextColor = Color4.Azure
             };
 
             // 3. Кнопка "Выход"

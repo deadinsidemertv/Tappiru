@@ -8,9 +8,11 @@ using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
+using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.State;
+using TappiruCS.UI;
 using static System.Collections.Specialized.BitVector32;
 using static TappiruCS.Render.TextRender;
 
@@ -31,7 +33,10 @@ namespace TappiruCS
         private string _songPath;
 
         public int background;
-        
+
+        private readonly Scene _scene = new Scene();
+        public TextObject score;
+
         public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,string songPath)
         {
             _game = game;
@@ -78,13 +83,24 @@ namespace TappiruCS
             _audio.Play();
 
 
+            score = new TextObject(_textRenderer, session.totalScore.ToString(), 1230, 20, 0.4f)
+            {
+                Color = Color4.White,
+                Align = TextAlign.Right
+            };
+
+            
+            _scene.Add(score);
         }
         public void OnExit()
         {
+            _scene.Clear();
             Console.WriteLine("Вы вышли с мапы");
         }
         public void Update(double currentTime)
         {
+            Console.WriteLine(currentTime);
+            _scene.Update(currentTime);
             if (session != null)
             {
                 float cTime = _audio?.GetCurrentTime() ?? 0f;
@@ -93,9 +109,11 @@ namespace TappiruCS
                 if (cTime >= session.endTime)
                     _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, session));
 
-                Console.WriteLine(cTime + " / " + session.endTime);
+                
                 
             }
+            score.Text = session.totalScore.ToString() ;
+            
             
         }
         public void Render(Matrix4 projection)
@@ -113,7 +131,8 @@ namespace TappiruCS
 
             ComboDraw(session, projection, 10, 680);
             InputCharDraw(session, projection, Game.WindowWidth / 2, 360);
-            ScoreDraw(session, projection, 1270, 20);
+            //ScoreDraw(session, projection, 1270, 20);
+            _scene.Draw(projection);
         }
        
         public void HandleKeyDown(KeyboardKeyEventArgs e) 
@@ -126,7 +145,8 @@ namespace TappiruCS
 
         private void ScoreDraw(GameSession session, Matrix4 projection,float x,float y)
         {
-            _textRenderer.DrawString(session.totalScore.ToString(), x, y, 0.5f,0.7f, 1, 1, 1, 1, projection, TextAlign.Right);
+            //_textRenderer.DrawString(session.totalScore.ToString(), x, y, 0.5f, 0.7f, 1, 1, 1, 1, projection, TextAlign.Right);
+            //var score = new TextObject(_textRenderer, session.totalScore.ToString(), x, y, 0.7f,Color4.Bisque);
         }
 
         private void ComboDraw(GameSession session, Matrix4 projection, float x, float y)

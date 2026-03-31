@@ -20,7 +20,7 @@ namespace TappiruCS
         private readonly Color4 _pressColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f);
 
         private Color4 _currentColor;
-        private Color4 _TextColor;
+        public Color4 _TextColor { get; set; }= Color4.White;
 
         public event Action OnClick;
 
@@ -77,7 +77,7 @@ namespace TappiruCS
 
             float textX = Position.X + Scale.X / 2f;
             float textY = Position.Y + Scale.Y / 2f;
-            var buttonText = new TextObject(_textRenderer, _text, textX, textY, 0.45f,_TextColor);
+            var buttonText = new TextObject(_textRenderer, _text, textX, textY, 0.45f) { Color = _TextColor};
             buttonText.Draw(projection);
         }
     }

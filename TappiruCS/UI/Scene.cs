@@ -25,6 +25,16 @@ namespace TappiruCS.Core
                 obj.Update(deltaTime, mouse);   // вызываем перегрузку с mouse
             }
         }
+        public void Update(double deltaTime)
+        {
+            for (int i = 0; i < _objects.Count; i++)
+            {
+                var obj = _objects[i];
+                if (!obj.Active) continue;
+
+                obj.Update(deltaTime);   // вызываем перегрузку с mouse
+            }
+        }
 
         public void Draw(Matrix4 projection)
         {

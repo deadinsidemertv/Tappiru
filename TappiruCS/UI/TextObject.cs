@@ -14,6 +14,7 @@ namespace TappiruCS.UI
         public string Text { get; set; }
         public float Spacing { get; set; } = 0.77f;
         public Color4 Color { get; set; } = Color4.White;
+        public TextAlign Align { get; set; } = TextAlign.Center;
 
         private readonly TextRender _textRender;
 
@@ -24,14 +25,7 @@ namespace TappiruCS.UI
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
         }
-        public TextObject(TextRender textRender, string text, float x, float y, float scale,Color4 color)
-        {
-            _textRender = textRender;
-            Text = text;
-            Position = new Vector2(x, y);
-            Scale = new Vector2(scale, scale);
-            Color = color;
-        }
+        
 
         public override void Draw(Matrix4 projection)
         {
@@ -45,7 +39,7 @@ namespace TappiruCS.UI
                 Spacing,
                 Color.R, Color.G, Color.B, Color.A,
                 projection,
-                TextAlign.Center
+                Align
             );
         }
     }
