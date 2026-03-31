@@ -147,7 +147,7 @@ namespace TappiruCS.GameLogic
             {
                 // Неправильное нажатие
                 Console.WriteLine($"Ошибка: ожидался '{CurrentPhaseChars[CurrentCharIndex]}', получен '{inputChar}'");
-                Misses++;
+                //Misses++;
                 Combo = 0;
                 // Здесь можно добавить штраф здоровью, если нужно
                 // Health -= 10f;
