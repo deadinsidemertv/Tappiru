@@ -1,0 +1,22 @@
+# Visual Studio / .NET build folders
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Temporary files
+*.tmp
+*.log
+*.pdb
+
+# Rider / ReSharper
+.idea/
+*.DotSettings.user
+
+# Не игнорируем наши ассеты (они должны быть в репозитории)
+!Textures/
+!Songs/
+!bin/Debug/**/Textures/
+!bin/Debug/**/Songs/
