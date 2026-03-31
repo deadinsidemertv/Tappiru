@@ -36,6 +36,7 @@ namespace TappiruCS
 
         private readonly Scene _scene = new Scene();
         public TextObject score;
+        public TextObject Accuraci;
 
         public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,string songPath)
         {
@@ -83,13 +84,18 @@ namespace TappiruCS
             _audio.Play();
 
 
-            score = new TextObject(_textRenderer, session.totalScore.ToString(), 1230, 20, 0.4f)
+            score = new TextObject(_textRenderer, session.TotalScore.ToString(), 1230, 20, 0.4f)
+            {
+                Color = Color4.White,
+                Align = TextAlign.Right
+            };
+            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1230, 50, 0.2f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
 
-            
+            _scene.Add(Accuraci);
             _scene.Add(score);
         }
         public void OnExit()
@@ -99,7 +105,7 @@ namespace TappiruCS
         }
         public void Update(double currentTime)
         {
-            Console.WriteLine(currentTime);
+            
             _scene.Update(currentTime);
             if (session != null)
             {
@@ -109,17 +115,18 @@ namespace TappiruCS
                 if (cTime >= session.endTime)
                     _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, session));
 
-                
-                
+
+
             }
-            score.Text = session.totalScore.ToString() ;
-            
-            
+            score.Text = session.TotalScore.ToString();
+            Accuraci.Text = (Math.Round(session.Accuracy*100f)/100f).ToString();
+
+
         }
         public void Render(Matrix4 projection)
         {
-            string phrase = session.stringPhase;
-            int typed = session.currentCharIndex;
+            string phrase = session.CurrentPhaseText;
+            int typed = session.CurrentCharIndex;
 
             if (background != 0)
             {
@@ -156,7 +163,7 @@ namespace TappiruCS
             float largeScale = smallScale * 1.5f;
             _textRenderer.DrawString("х", x, y, smallScale, 1, 1, 1, 1, projection);
             float widthX = _textRenderer.charWidth * smallScale;
-            _textRenderer.DrawString(session.combo.ToString(), x + widthX, y - y * 0.01f, largeScale,0.7f, 1, 1, 1, 1, projection,TextAlign.Left);
+            _textRenderer.DrawString(session.Combo.ToString(), x + widthX, y - y * 0.01f, largeScale,0.7f, 1, 1, 1, 1, projection,TextAlign.Left);
 
         }
 
@@ -164,9 +171,9 @@ namespace TappiruCS
 
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
-            if (session.charArray == null) return;
+            if (session.CurrentPhaseChars == null) return;
             float scale = 0.4f;
-            char[] chars = session.charArray;
+            char[] chars = session.CurrentPhaseChars;
             float charWidth = this._textRenderer.charWidth * scale;
             float spacing = 0.77f;         // межсимвольный интервал (например, 0.3)
             float step = charWidth * spacing;
@@ -187,9 +194,9 @@ namespace TappiruCS
                 }
                 else
                 {
-                    if (i < session.currentCharIndex)
+                    if (i < session.CurrentCharIndex)
                         (r, g, b) = (0.6f, 0.8f, 1.0f);   // синий – уже набранные
-                    else if (i == session.currentCharIndex)
+                    else if (i == session.CurrentCharIndex)
                         (r, g, b) = (1.0f, 0.9f, 0.6f);   // жёлтый – текущий символ
                     else
                         (r, g, b) = (1, 1, 1);   // чёрный – ещё не набранные

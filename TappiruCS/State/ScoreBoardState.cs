@@ -31,6 +31,21 @@ namespace TappiruCS.State
         public void OnEnter() 
         {
             Console.WriteLine("Открылся ScoarBoard");
+        
+            Console.WriteLine("===== РЕЗУЛЬТАТЫ КАРТЫ =====");
+            //Console.WriteLine($"Название: {CurrentMap.title ?? "Не указано"}");
+            //Console.WriteLine($"Сложность: {CurrentMap.difficulty ?? "Не указана"}");
+            Console.WriteLine($"Итоговый счёт: {_session.TotalScore}");
+            Console.WriteLine($"Максимальное комбо: {_session.MaxCombo}");
+            Console.WriteLine($"Правильных нажатий: {_session.CorrectHits}");
+            Console.WriteLine($"Ошибок (мисов): {_session.Misses}");
+            Console.WriteLine($"Всего символов: {_session.TotalNotes}");
+            Console.WriteLine($"Точность: {_session.Accuracy:F2}%");
+            Console.WriteLine($"Успешно завершённых строк: {_session.CompletedPhases}");
+            Console.WriteLine($"Проваленных строк: {_session.FailedPhases}");
+            Console.WriteLine($"Оставшееся здоровье: {_session.Health:F1}");
+            Console.WriteLine("============================");
+        
         }
         public void OnExit() 
         {
