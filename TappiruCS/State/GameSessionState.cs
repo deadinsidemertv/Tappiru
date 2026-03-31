@@ -55,6 +55,8 @@ namespace TappiruCS
             string json = File.ReadAllText(mapdata.dataPath);
             JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json);
             mapdata.Events = tmp.events;
+            mapdata.endTime = tmp.endTime;
+            Console.WriteLine(mapdata.endTime + " endTime");
             return mapdata;
         }
         public void OnEnter()
@@ -87,12 +89,14 @@ namespace TappiruCS
             {
                 float cTime = _audio?.GetCurrentTime() ?? 0f;
                 session?.Update(cTime);        // ← передаём время в логику игры
+
+                if (cTime >= session.endTime)
+                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, session));
+
+                Console.WriteLine(cTime + " / " + session.endTime);
+                
             }
-            if (session.currentTime >= session.CurrentMap.Events[session.CurrentMap.Events.Count-1].time)
-            {
-                _audio.Stop();
-                _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio,session));
-            }
+            
         }
         public void Render(Matrix4 projection)
         {

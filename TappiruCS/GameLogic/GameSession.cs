@@ -20,6 +20,8 @@ namespace TappiruCS.GameLogic
         private double newPhaseStartTime;
         public bool PhaseComplete=false;
 
+        public double endTime;
+
         public  int currentKeyDownIndex;
         //------------Игровые показатели---------------//
         public int totalScore; //Общий скор
@@ -33,6 +35,8 @@ namespace TappiruCS.GameLogic
             this.totalScore = 0;
             this.combo = 0;
             this.health = 100;
+
+            endTime = mapData.endTime;
         }
 
 

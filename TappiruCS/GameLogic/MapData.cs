@@ -11,6 +11,8 @@ namespace TappiruCS.GameLogic
         public string backGroundPath { get; set; }
         public string dataPath { get; set; }
 
+        public double endTime { get; set; }
+
         
     }
     public class JsonMap 
@@ -21,6 +23,8 @@ namespace TappiruCS.GameLogic
         public double previewTime { get; set; }
         public string creator { get; set; }
         public string difficulty { get; set; }
+
+        public double endTime { get; set; }
 
     }
 }
