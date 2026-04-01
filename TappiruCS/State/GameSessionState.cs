@@ -112,8 +112,19 @@ namespace TappiruCS
                 float cTime = _audio?.GetCurrentTime() ?? 0f;
                 session?.Update(cTime);        // ← передаём время в логику игры
 
-                if (cTime >= session.endTime)
-                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, session));
+                if (cTime >= session.endTime) 
+                {
+                    PlayerScore playerscore = new PlayerScore();
+                    playerscore._accuraci = session.Accuracy;
+                    playerscore._score = session.TotalScore;
+                    playerscore._completeChar = session.CorrectHits;
+                    playerscore._failChar = session.Misses;
+                    playerscore._completePhase = session.CompletedPhases;
+                    playerscore._failPhase = session.FailedPhases;
+                    playerscore._maxCobmo = session.MaxCombo;
+                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore));
+                }
+                   
 
 
 
