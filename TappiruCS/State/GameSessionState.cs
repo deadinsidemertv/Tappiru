@@ -122,6 +122,7 @@ namespace TappiruCS
                     playerscore._completePhase = session.CompletedPhases;
                     playerscore._failPhase = session.FailedPhases;
                     playerscore._maxCobmo = session.MaxCombo;
+                    playerscore.textureBG = background;
                     _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore));
                 }
                    

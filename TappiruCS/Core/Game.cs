@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.State;
 
 
 
@@ -65,6 +66,7 @@ namespace TappiruCS
 
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
+           
             currentState.OnEnter();
             
         }

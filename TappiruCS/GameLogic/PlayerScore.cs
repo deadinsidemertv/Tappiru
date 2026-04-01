@@ -17,6 +17,8 @@ namespace TappiruCS.GameLogic
 
         public DateTime PlayedAt { get; set; }
 
+        public int textureBG;
+
 
     }
 }
