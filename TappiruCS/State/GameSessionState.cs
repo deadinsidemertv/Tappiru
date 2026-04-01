@@ -176,7 +176,7 @@ namespace TappiruCS
             float largeScale = smallScale * 1.5f;
             _textRenderer.DrawString("х", x, y, smallScale, 1, 1, 1, 1, projection);
             float widthX = _textRenderer.charWidth * smallScale;
-            _textRenderer.DrawString(session.Combo.ToString(), x + widthX, y - y * 0.01f, largeScale,0.7f, 1, 1, 1, 1, projection,TextAlign.Left);
+            _textRenderer.DrawString(session.Combo.ToString(), x + widthX, y - y * 0.01f, largeScale,1.1f, 1, 1, 1, 1, projection,TextAlign.Left);
 
         }
 
@@ -185,7 +185,7 @@ namespace TappiruCS
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
             if (session.CurrentPhaseChars == null) return;
-            float scale = 0.4f;
+            float scale = 0.3f;
             char[] chars = session.CurrentPhaseChars;
             float charWidth = this._textRenderer.charWidth * scale;
             float spacing = 0.77f;         // межсимвольный интервал (например, 0.3)

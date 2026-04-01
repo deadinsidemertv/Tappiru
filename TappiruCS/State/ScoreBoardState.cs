@@ -63,8 +63,8 @@ namespace TappiruCS.State
             { Align = TextAlign.Left };
             _dateText = new TextObject(_textRenderer, _playerScore.PlayedAt.ToString(), 20, 20, 0.7f)
             { Align = TextAlign.Left };
-            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 140, _scoreList.Position.Y + 515, 0.5f)
-            { Align = TextAlign.Left };
+            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 190, _scoreList.Position.Y + 515, 0.5f)
+            { Align = TextAlign.Right };
             _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +40, _maxCombo.Position.Y+10 , 0.3f)
             { Align = TextAlign.Left };
             _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 160, 0.5f)
