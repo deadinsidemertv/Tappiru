@@ -36,36 +36,36 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                400, 180, 600, 75, "btn", "Play", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+                400, 200, 600, 75, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                _TextColor = Color4.Azure,
+                _TextColor = Color4.White,
                 textXoffset = 50f,
                 textYoffset = -20f
 
             };
             var editButton = new Button(_spriteBatch, _textRenderer,
-                400, 250, 600, 75, "btn", "Edit", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+                400, 270, 600, 75, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 _TextColor = Color4.Azure,
-                textXoffset = 50f,
+                textXoffset = 45f,
                 textYoffset = -20f
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
-                400, 320, 600, 75, "btn", "Options", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+                400, 340, 600, 75, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 _TextColor = Color4.Azure,
-                textXoffset = 50f,
+                textXoffset = 85f,
                 textYoffset = -20f
 
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                400, 390, 600, 75, "btn", "exit", Color4.Azure)
+                400, 410, 600, 75, "btn", "exit", Color4.White)
             {
                 Layer = 0,
                 textXoffset = 50f,
@@ -80,7 +80,7 @@ namespace TappiruCS
 
             int _blackTexture = TextureManager.GetTexture("black");
             var blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, Game.WindowWidth, 110) { Color = new Color4(0f,0f,0f,0.5f) };
-            var blackBG2 = new SpriteObject(_spriteBatch, 0, 0, Game.WindowHeight-120, Game.WindowWidth, 120) { Color = new Color4(0f, 0f, 0f, 0.5f) };
+            var blackBG2 = new SpriteObject(_spriteBatch, 0, 0, Game.WindowHeight-100, Game.WindowWidth, 100) { Color = new Color4(0f, 0f, 0f, 0.5f) };
 
             // Подписываемся на клики
             playButton.OnClick += StartGame;

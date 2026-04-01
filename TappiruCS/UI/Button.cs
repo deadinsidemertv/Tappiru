@@ -14,7 +14,10 @@ namespace TappiruCS
         private readonly SpriteBatch _spriteBatch;
         private readonly TextRender _textRenderer;
         private readonly int _textureId;
+
+
         private readonly string _text;
+        public Color4 _TextColor { get; set; } = Color4.White;
 
 
         private readonly Color4 _normalColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -22,7 +25,7 @@ namespace TappiruCS
         private readonly Color4 _pressColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f);
 
         private Color4 _currentColor;
-        public Color4 _TextColor { get; set; }= Color4.White;
+        
 
         public event Action OnClick;
 
