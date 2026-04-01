@@ -123,6 +123,7 @@ namespace TappiruCS
                     playerscore._failPhase = session.FailedPhases;
                     playerscore._maxCobmo = session.MaxCombo;
                     playerscore.textureBG = background;
+                    playerscore.PlayedAt = DateTime.Now;
                     _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore));
                 }
                    

@@ -27,7 +27,7 @@ namespace TappiruCS.Render
             this.cols = cols;
 
             // Заполнение словаря (подправь под свой атлас, если нужно)
-            string chars = "0123456789абвгдеёжзийклмнопрстуфхцчшщъыьэюя ";
+            string chars = "0123456789абвгlдеёжзийклмнопрстуфхцчшщъыьэюя,./!?><;:'[]{}\\|@#$%^qwertyuiopasdfghjkzxcvbnm ";
             for (int i = 0; i < chars.Length; i++)
                 charToIndex[chars[i]] = i;
         }

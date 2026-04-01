@@ -60,7 +60,7 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            textRenderer = new TextRender(spriteBatch,TextureLoader.fontTexture,TextureLoader.textureWidth,TextureLoader.textureHeight, 8,6); // 8 6
+            textRenderer = new TextRender(spriteBatch,TextureLoader.fontTexture,TextureLoader.textureWidth,TextureLoader.textureHeight, 8,12); // 8 6
 
             audio = new AudioManager();
 
