@@ -28,7 +28,7 @@ namespace TappiruCS.Render
             this.charHeight = texHeight / rows;
             this.cols = cols;
 
-            string chars = "0123456789абвгдеёжзийклмнопрстуфхцчшщъыьэюя,./!?><;:'[]{}\\|@#$%^qwertyuiopasdfghjkzxcvbnm ";
+            string chars = "0123456789абвгдеёжзийклмнопрстуфхцчшщъыьэюя,./!?><;:'[]{}\\|@#$%^qwertyuiopasdfghjklzxcvbnm ";
             for (int i = 0; i < chars.Length; i++)
                 charToIndex[chars[i]] = i;
 

@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
+using System.Security.Cryptography.X509Certificates;
 using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.UI;
@@ -31,36 +32,76 @@ namespace TappiruCS
         {
             Console.WriteLine("Мы вошли в главное меню");
 
-            // 1. Заголовок
-            var title = new TextObject(_textRenderer, "таппиру", 640, 180, 0.75f)
-            {
-                Color = new Color4(1.0f, 0.95f, 0.7f, 1.0f),
-                Layer = 100
-            };
+
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                440, 300, 400, 90, "btn", "начать игру", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+                400, 180, 600, 75, "btn", "Play", Color4.Azure)   // "btn" — имя текстуры через TextureManager
             {
-                Layer = 50,
-                _TextColor = Color4.Azure
+                Layer = 0,
+                _TextColor = Color4.Azure,
+                textXoffset = 50f,
+                textYoffset = -20f
+
+            };
+            var editButton = new Button(_spriteBatch, _textRenderer,
+                400, 250, 600, 75, "btn", "Edit", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+            {
+                Layer = 0,
+                _TextColor = Color4.Azure,
+                textXoffset = 50f,
+                textYoffset = -20f
+
+            };
+            var optionButton = new Button(_spriteBatch, _textRenderer,
+                400, 320, 600, 75, "btn", "Options", Color4.Azure)   // "btn" — имя текстуры через TextureManager
+            {
+                Layer = 0,
+                _TextColor = Color4.Azure,
+                textXoffset = 50f,
+                textYoffset = -20f
+
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                440, 420, 400, 90, "btn", "выход", Color4.Black)
+                400, 390, 600, 75, "btn", "exit", Color4.Azure)
             {
-                Layer = 50
+                Layer = 0,
+                textXoffset = 50f,
+                textYoffset = -20f
             };
+
+            int _bgmenu = TextureManager.GetTexture("menubg");
+            var bgmenu = new SpriteObject(_spriteBatch, _bgmenu, 0, 0, Game.WindowWidth, Game.WindowHeight) { ScaleMultiply = 1f};
+
+            int _bgtexture = TextureManager.GetTexture("tappCycle");
+            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 150, 80, 1024, 1024) { ScaleMultiply = 0.55f};
+
+            int _blackTexture = TextureManager.GetTexture("black");
+            var blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, Game.WindowWidth, 110) { Color = new Color4(0f,0f,0f,0.5f) };
+            var blackBG2 = new SpriteObject(_spriteBatch, 0, 0, Game.WindowHeight-120, Game.WindowWidth, 120) { Color = new Color4(0f, 0f, 0f, 0.5f) };
 
             // Подписываемся на клики
             playButton.OnClick += StartGame;
             exitButton.OnClick += ExitGame;
 
             // Добавляем всё в сцену
-            _scene.Add(title);
+            _scene.Add(bgmenu);
+
+
             _scene.Add(playButton);
+            _scene.Add(editButton);
+            _scene.Add(optionButton);
             _scene.Add(exitButton);
+            
+
+
+            _scene.Add(bgCycle);
+            _scene.Add(blackBG);
+            _scene.Add(blackBG2);
+
+            
         }
 
         private void StartGame()

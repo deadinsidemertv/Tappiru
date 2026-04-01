@@ -185,7 +185,7 @@ namespace TappiruCS
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
             if (session.CurrentPhaseChars == null) return;
-            float scale = 0.3f;
+            float scale = 0.4f;
             char[] chars = session.CurrentPhaseChars;
             float charWidth = this._textRenderer.charWidth * scale;
             float spacing = 0.77f;         // межсимвольный интервал (например, 0.3)

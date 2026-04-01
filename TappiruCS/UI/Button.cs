@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
+using System.Runtime.InteropServices;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.UI;
@@ -15,6 +16,7 @@ namespace TappiruCS
         private readonly int _textureId;
         private readonly string _text;
 
+
         private readonly Color4 _normalColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
         private readonly Color4 _hoverColor = new Color4(1.15f, 1.15f, 1.05f, 1.0f);
         private readonly Color4 _pressColor = new Color4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -25,6 +27,9 @@ namespace TappiruCS
         public event Action OnClick;
 
         public bool IsHovered { get; private set; }
+
+        public float textXoffset { get; set; } = 0f;
+        public float textYoffset { get; set; } = 0f;
 
         public Button(SpriteBatch spriteBatch, TextRender textRenderer,
                       float x, float y, float width, float height,
@@ -75,8 +80,8 @@ namespace TappiruCS
 
             
 
-            float textX = Position.X + Scale.X / 2f;
-            float textY = Position.Y + Scale.Y / 2f;
+            float textX = (Position.X + Scale.X / 2f)+textXoffset;
+            float textY = (Position.Y + Scale.Y / 2f)+textYoffset;
             var buttonText = new TextObject(_textRenderer, _text, textX, textY, 0.45f) { Color = _TextColor};
             buttonText.Draw(projection);
         }
