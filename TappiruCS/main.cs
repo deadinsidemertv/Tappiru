@@ -17,7 +17,7 @@ namespace TappiruCS
             Game gamewindow = new Game(gwSetting, nwSetting);
 
 
-            TextureLoader.fontTexture = TextureManager.GetTexture("mainFont");
+            TextureLoader.fontTexture = TextureManager.GetTexture("mainFont2");
             
 
 

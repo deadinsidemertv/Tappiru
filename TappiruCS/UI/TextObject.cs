@@ -12,7 +12,7 @@ namespace TappiruCS.UI
     public class TextObject : GameObject
     {
         public string Text { get; set; }
-        public float Spacing { get; set; } = 0.77f;
+        public float Spacing { get; set; } = 1.1f;
         public Color4 Color { get; set; } = Color4.White;
         public TextAlign Align { get; set; } = TextAlign.Center;
 

@@ -132,7 +132,7 @@ namespace TappiruCS
 
             }
             score.Text = session.TotalScore.ToString("D9");
-            Accuraci.Text = (Math.Round(session.Accuracy*100f)/100f).ToString();
+            Accuraci.Text = (Math.Round(session.Accuracy*100f)/100f).ToString()+"%";
 
 
         }

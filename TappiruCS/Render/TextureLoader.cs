@@ -42,7 +42,7 @@ namespace TappiruCS.Render
                           PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
 
             // Параметры фильтрации (важно для качества)
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear); //Leanier
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
             // Wrapping (чтобы не было артефактов по краям)
