@@ -69,6 +69,8 @@ namespace TappiruCS
             JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json);
             mapdata.Events = tmp.events;
             mapdata.endTime = tmp.endTime;
+            foreach (var ev in mapdata.Events)
+    ev.text = ev.text.ToLowerInvariant();
             Console.WriteLine(mapdata.endTime + " endTime");
             return mapdata;
         }
@@ -179,10 +181,30 @@ namespace TappiruCS
             
             InputCharDraw(session, projection, 960, 540);
         }
-       
-        public void HandleKeyDown(KeyboardKeyEventArgs e) 
+
+        public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            session.HandleInput(KeyToChar(e));
+            if (session == null || !session._isActivePhase) return;
+
+            Keys key = e.Key;
+            if (!KeyToCharsMap.TryGetValue(key, out char[] possibleChars))
+                return; // клавиша не участвует в игре (например, F1)
+
+            int currentIndex = session.CurrentCharIndex;
+            if (currentIndex >= session.CurrentPhaseChars.Length) return;
+
+            char expectedChar = session.CurrentPhaseChars[currentIndex];
+
+            // Если ожидаемый символ есть среди допустимых для этой клавиши
+            if (Array.IndexOf(possibleChars, expectedChar) >= 0)
+            {
+                session.HandleInput(expectedChar); // правильное нажатие
+            }
+            else
+            {
+                // Неправильное нажатие – передаём любой символ, который не совпадёт
+                session.HandleInput('\0');
+            }
         }
 
 
@@ -247,55 +269,44 @@ namespace TappiruCS
             }
         }
 
-        public char KeyToChar(KeyboardKeyEventArgs e)
+        private static readonly Dictionary<Keys, char[]> KeyToCharsMap = new Dictionary<Keys, char[]>
         {
-            char ch = '\0';
-            switch (e.Key)
-            {
-                case Keys.A: return 'ф';
-                case Keys.B: return 'и';
-                case Keys.C: return 'с';
-                case Keys.D: return 'в';
-                case Keys.E: return 'у';
-                case Keys.F: return 'а';
-                case Keys.G: return 'п';
-                case Keys.H: return 'р';
-                case Keys.I: return 'ш';
-                case Keys.J: return 'о';
-                case Keys.K: return 'л';
-                case Keys.L: return 'д';
-                case Keys.M: return 'ь';
-                case Keys.N: return 'т';
-                case Keys.O: return 'щ';
-                case Keys.P: return 'з';
-                case Keys.Q: return 'й';
-                case Keys.R: return 'к';
-                case Keys.S: return 'ы';
-                case Keys.T: return 'е';
-                case Keys.U: return 'г';
-                case Keys.V: return 'м';
-                case Keys.W: return 'ц';
-                case Keys.X: return 'ч';
-                case Keys.Y: return 'н';
-                case Keys.Z: return 'я';
-
-                // Дополнительные буквы
-                case Keys.LeftBracket: return 'х';      // [
-                case Keys.RightBracket: return 'ъ';     // ]
-                case Keys.Semicolon: return 'ж';        // ;
-                case Keys.Apostrophe: return 'э';            // '
-                case Keys.Comma: return 'б';            // ,
-                case Keys.Period: return 'ю';           // .
-                case Keys.GraveAccent: return 'ё';      // ` (клавиша с ё)
-
-
-
-                case Keys.Space: return ' ';
-
-                default: return '\0';
-
-            }
-        }
+            { Keys.A,      new char[] { 'a', 'ф' } },
+            { Keys.B,      new char[] { 'b', 'и' } },
+            { Keys.C,      new char[] { 'c', 'с' } },
+            { Keys.D,      new char[] { 'd', 'в' } },
+            { Keys.E,      new char[] { 'e', 'у' } },
+            { Keys.F,      new char[] { 'f', 'а' } },
+            { Keys.G,      new char[] { 'g', 'п' } },
+            { Keys.H,      new char[] { 'h', 'р' } },
+            { Keys.I,      new char[] { 'i', 'ш' } },
+            { Keys.J,      new char[] { 'j', 'о' } },
+            { Keys.K,      new char[] { 'k', 'л' } },
+            { Keys.L,      new char[] { 'l', 'д' } },
+            { Keys.M,      new char[] { 'm', 'ь' } },
+            { Keys.N,      new char[] { 'n', 'т' } },
+            { Keys.O,      new char[] { 'o', 'щ' } },
+            { Keys.P,      new char[] { 'p', 'з' } },
+            { Keys.Q,      new char[] { 'q', 'й' } },
+            { Keys.R,      new char[] { 'r', 'к' } },
+            { Keys.S,      new char[] { 's', 'ы' } },
+            { Keys.T,      new char[] { 't', 'е' } },
+            { Keys.U,      new char[] { 'u', 'г' } },
+            { Keys.V,      new char[] { 'v', 'м' } },
+            { Keys.W,      new char[] { 'w', 'ц' } },
+            { Keys.X,      new char[] { 'x', 'ч' } },
+            { Keys.Y,      new char[] { 'y', 'н' } },
+            { Keys.Z,      new char[] { 'z', 'я' } },
+            { Keys.LeftBracket,  new char[] { '[', 'х' } },
+            { Keys.RightBracket, new char[] { ']', 'ъ' } },
+            { Keys.Semicolon,    new char[] { ';', 'ж' } },
+            { Keys.Apostrophe,   new char[] { '\'', 'э' } },
+            { Keys.Comma,        new char[] { ',', 'б' } },
+            { Keys.Period,       new char[] { '.', 'ю' } },
+            { Keys.GraveAccent,  new char[] { '`', 'ё' } },
+            { Keys.Space,        new char[] { ' ' } },
+            // при необходимости добавьте цифры, знаки препинания и т.д.
+        };
 
     }
 }
