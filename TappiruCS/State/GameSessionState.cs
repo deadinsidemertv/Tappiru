@@ -185,61 +185,66 @@ namespace TappiruCS
             session.HandleInput(KeyToChar(e));
         }
 
-      
 
 
-       
 
-       
+
+
+
 
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
             if (session.CurrentPhaseChars == null) return;
-            
+
             char[] chars = session.CurrentPhaseChars;
-            float scaleX = 0.6f;
-            float scaleY = 0.6f;
-            if (chars.Length < 10)
-            {
-                scaleX = 1.4f;
-                scaleY = 1.4f;
-            }else if (chars.Length > 10 && chars.Length < 20)
-            {
-                scaleX = 0.6f;
-                scaleY = 0.6f;
-            }
-            
-            float charWidth = this._textRenderer.charWidth * scaleX;
-            float spacing = 0.77f;         // межсимвольный интервал (например, 0.3)
-            float step = charWidth * spacing;
-            // Общая ширина строки: (кол-во символов - 1) * шаг + ширина последнего символа
-            float totalWidth = (chars.Length - 1) * step + charWidth;
+            int length = chars.Length;
+            if (length == 0) return;
+
+            float baseCharWidth = this._textRenderer.charWidth; // ширина символа при масштабе 1
+            float spacing = 0.77f;
+            float maxWidth = _game.ClientSize.X * 0.85f; // максимальная ширина строки (85% окна)
+            float minScale = 0.3f;
+            float maxScale = 1.5f;
+
+            // Вычисляем масштаб, чтобы строка поместилась в maxWidth
+            float requiredScale = maxWidth / (baseCharWidth * length * spacing);
+            float scale = Math.Clamp(requiredScale, minScale, maxScale);
+
+            float charWidthScaled = baseCharWidth * scale;
+            float step = charWidthScaled * spacing;
+            float totalWidth = (length - 1) * step + charWidthScaled;
             float startX = centerX - totalWidth / 2;
 
             float currentX = startX;
-            for (int i = 0; i < chars.Length; i++)
+            for (int i = 0; i < length; i++)
             {
-                
                 // Определяем цвет
                 float r, g, b;
-                
                 if (session.PhaseComplete)
                 {
-                        (r, g, b) = (0.6f, 1.0f, 0.6f);
+                    //(r, g, b) = (0.6f, 1.0f, 0.6f);
+                    (r, g, b) = (0.2f, 1.0f, 0.8f);
                 }
                 else
                 {
                     if (i < session.CurrentCharIndex)
-                        (r, g, b) = (0.6f, 0.8f, 1.0f);   // синий – уже набранные
+                        (r, g, b) = (0.4f, 0.2f, 1.0f);
+                        //(r, g, b) = (0.6f, 0.8f, 1.0f);
                     else if (i == session.CurrentCharIndex)
-                        (r, g, b) = (1.0f, 0.9f, 0.6f);   // жёлтый – текущий символ
+                        (r, g, b) = (1.0f, 0.3f, 0.6f);
+                        //(r, g, b) = (1.0f, 0.9f, 0.6f);
                     else
-                        (r, g, b) = (1, 1, 1);   // чёрный – ещё не набранные
+                        (r, g, b) = (1, 1, 1);
                 }
-                _textRenderer.DrawString(chars[i].ToString(), currentX*_scene.CanvasScale.X, y * _scene.CanvasScale.Y, scaleX * _scene.CanvasScale.X, scaleY * _scene.CanvasScale.Y, r, g, b, 1, projection);
+
+                float drawX = currentX * _scene.CanvasScale.X;
+                float drawY = y * _scene.CanvasScale.Y;
+                float drawScaleX = scale * _scene.CanvasScale.X;
+                float drawScaleY = scale * _scene.CanvasScale.Y;
+
+                _textRenderer.DrawString(chars[i].ToString(), drawX, drawY, drawScaleX, drawScaleY, r, g, b, 1, projection);
                 currentX += step;
             }
-            
         }
 
         public char KeyToChar(KeyboardKeyEventArgs e)
