@@ -46,8 +46,12 @@ namespace TappiruCS
 
                 // Меняем текст кнопки (способ зависит от реализации Button)
                 list.buttons[i]._text = folderName;        // если поле публичное
+                list.buttons[i].TextBtnScale = 0.3f;
+                list.buttons[i].textXoffset -= 300f;
+                list.buttons[i].textYoffset -= 35f;
+                list.buttons[i].textAlign = TextRender.TextAlign.Left;
                 
-                                                           // или list.buttons[i].SetText(folderName); // если есть метод
+                // или list.buttons[i].SetText(folderName); // если есть метод
 
                 // Привязываем обработчик с ЗАХВАТОМ пути (важно!)
                 string capturedPath = folderPath;
