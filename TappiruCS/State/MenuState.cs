@@ -17,7 +17,9 @@ namespace TappiruCS
         private readonly AudioManager _audio;
 
         private readonly Scene _scene = new Scene();
-        
+
+        public SpriteObject blackBG;
+        public SpriteObject blackBG2;
 
 
 
@@ -37,51 +39,56 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                400, 200, 600, 75, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                760, 280, 700, 120, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
                 textXoffset = 50f,
-                textYoffset = -20f
+                textYoffset = -20f,
+                TextBtnScale = 0.8f
+                
 
             };
             var editButton = new Button(_spriteBatch, _textRenderer,
-                400, 270, 600, 75, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
+                800, 390, 700, 120, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
                 textXoffset = 45f,
-                textYoffset = -20f
+                textYoffset = -20f,
+                TextBtnScale = 0.8f
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
-                400, 340, 600, 75, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
+                840, 500, 700, 120, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
                 textXoffset = 85f,
-                textYoffset = -20f
+                textYoffset = -20f,
+                TextBtnScale = 0.8f
 
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                400, 410, 600, 75, "btn", "exit", Color4.White)
+                800, 610, 700, 120, "btn", "exit", Color4.White)
             {
                 Layer = 0,
                 textXoffset = 50f,
-                textYoffset = -20f
+                textYoffset = -20f,
+                TextBtnScale = 0.8f
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");
-            var bgmenu = new SpriteObject(_spriteBatch, _bgmenu, 0, 0, Game.WindowWidth, Game.WindowHeight) { ScaleMultiply = 1f};
+            var bgmenu = new Background(_spriteBatch, _bgmenu,_game);
 
             int _bgtexture = TextureManager.GetTexture("tappCycle");
-            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 150, 80, 1024, 1024) { ScaleMultiply = 0.55f};
+            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 150, 80, 1024, 1024) { ScaleMultiply = 0.9f};
 
             int _blackTexture = TextureManager.GetTexture("black");
-            var blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, Game.WindowWidth, 110) { Color = new Color4(0f,0f,0f,0.5f) };
-            var blackBG2 = new SpriteObject(_spriteBatch, 0, 0, Game.WindowHeight-100, Game.WindowWidth, 100) { Color = new Color4(0f, 0f, 0f, 0.5f) };
+            blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, _game.ClientSize.X, _game.ClientSize.Y/8) { Color = new Color4(0f,0f,0f,0.5f),AutoScale = false };
+            blackBG2 = new SpriteObject(_spriteBatch, 0, 0, _game.ClientSize.Y - _game.ClientSize.Y / 8, _game.ClientSize.X, _game.ClientSize.Y/8) { Color = new Color4(0f, 0f, 0f, 0.5f),AutoScale = false };
 
             // Подписываемся на клики
             playButton.OnClick += StartGame;
@@ -118,16 +125,28 @@ namespace TappiruCS
         }
 
         // ====================== UPDATE ======================
+        
         public void Update(double deltaTime)
         {
             
             var mouse = _game.MouseState;   // ← предполагаем, что в классе Game есть MouseState
-             
+            BlackBarUpdate();
 
             // Важно: передаём MouseState только объектам, которым он нужен
             _scene.Update(deltaTime, mouse,_game);
         }
 
+        public void BlackBarUpdate()
+        {
+            
+            float blackbarYscale = _game.ClientSize.Y/8;
+            float bbYpos = _game.ClientSize.Y-_game.ClientSize.Y/8;
+
+            blackBG2.Position = new Vector2(0,bbYpos);
+            blackBG.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
+            blackBG2.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
+
+        }
         // ====================== RENDER ======================
         public void Render(Matrix4 projection)
         {

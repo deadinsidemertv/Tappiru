@@ -35,10 +35,15 @@ namespace TappiruCS
         public int background;
 
         private readonly Scene _scene = new Scene();
+        public Background bg;
+        public Background Fade;
         
 
         public TextObject score;
         public TextObject Accuraci;
+
+        public TextObject combo;
+        public TextObject comboApof;
 
         public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,string songPath)
         {
@@ -80,25 +85,35 @@ namespace TappiruCS
             }
 
             background = TextureLoader.Load(_mapData.backGroundPath);
-            
+            bg = new Background(_spriteBatch, background, _game);
+
+            Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
+
 
             _audio.LoadMusic(_mapData.audioPath);
             _audio.Play();
 
 
-            score = new TextObject(_textRenderer, session.TotalScore.ToString(), 1230, 20, 0.4f)
+            score = new TextObject(_textRenderer, session.TotalScore.ToString(), 1900, 20, 0.7f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
-            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1230, 50, 0.2f)
+            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1900, score.Position.Y+50, 0.4f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
+            combo = new TextObject(_textRenderer, session.Combo.ToString(), 70, 990, 0.7f) { Align = TextAlign.Left};
+            comboApof = new TextObject(_textRenderer, "x", combo.Position.X-15, combo.Position.Y+15, 0.4f);
+
+            _scene.Add(bg);
+            _scene.Add(Fade);
 
             _scene.Add(Accuraci);
             _scene.Add(score);
+            _scene.Add(combo);
+            _scene.Add(comboApof);
         }
         public void OnExit()
         {
@@ -134,8 +149,12 @@ namespace TappiruCS
 
 
             }
+            comboApof.Position = new Vector2(combo.Position.X - 15, combo.Position.Y + 15);
+
             score.Text = session.TotalScore.ToString("D9");
+            
             Accuraci.Text = (Math.Round(session.Accuracy*100f)/100f).ToString()+"%";
+            combo.Text = session.Combo.ToString();
 
 
         }
@@ -144,18 +163,21 @@ namespace TappiruCS
             string phrase = session.CurrentPhaseText;
             int typed = session.CurrentCharIndex;
 
-            if (background != 0)
-            {
-                _spriteBatch.Draw(background, 0, 0, Game.WindowWidth, Game.WindowHeight, 0, 0, 1, 1, 1, 1, 1, 1, projection);
-                // Затемнение (чёрный полупрозрачный квадрат)
-                _spriteBatch.Draw(background, 0, 0, Game.WindowWidth, Game.WindowHeight, 0, 0, 1, 1, 0, 0, 0, 0.5f, projection);
-            }
+           
+            bg = new Background(_spriteBatch, background, _game);
+
+            bg = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f};
 
 
-            ComboDraw(session, projection, 10, 680);
-            InputCharDraw(session, projection, Game.WindowWidth / 2, 360);
+
+
+
+            
+            
             //ScoreDraw(session, projection, 1270, 20);
             _scene.Draw(projection);
+            
+            InputCharDraw(session, projection, Game.WindowWidth / 2, 360);
         }
        
         public void HandleKeyDown(KeyboardKeyEventArgs e) 
@@ -166,22 +188,7 @@ namespace TappiruCS
       
 
 
-        private void ScoreDraw(GameSession session, Matrix4 projection,float x,float y)
-        {
-            //_textRenderer.DrawString(session.totalScore.ToString(), x, y, 0.5f, 0.7f, 1, 1, 1, 1, projection, TextAlign.Right);
-            //var score = new TextObject(_textRenderer, session.totalScore.ToString(), x, y, 0.7f,Color4.Bisque);
-        }
-
-        private void ComboDraw(GameSession session, Matrix4 projection, float x, float y)
-        {
-            //Combo Render ------------------------------------------------------------
-            float smallScale = 0.3f;
-            float largeScale = smallScale * 1.5f;
-            _textRenderer.DrawString("х", x, y, smallScale, 1, 1, 1, 1, projection);
-            float widthX = _textRenderer.charWidth * smallScale;
-            _textRenderer.DrawString(session.Combo.ToString(), x + widthX, y - y * 0.01f, largeScale,1.1f, 1, 1, 1, 1, projection,TextAlign.Left);
-
-        }
+       
 
        
 

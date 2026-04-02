@@ -23,6 +23,7 @@ namespace TappiruCS
         public Color4 TextColor { get; set; } = Color4.White; //Цвет текста в кнопке
         public float textXoffset { get; set; } = 0f; //смещение относительно кнопки по X
         public float textYoffset { get; set; } = 0f; //смещение относительно кнопки по Y
+        public float TextBtnScale { get; set; } = 0.5f;
 
         //[Поля кнопки]
         private readonly Color4 _normalColor = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -88,7 +89,7 @@ namespace TappiruCS
 
             float textX = (Position.X + Scale.X / 2f)+textXoffset;
             float textY = (Position.Y + Scale.Y / 2f)+ textYoffset;
-            var buttonText = new TextObject(_textRenderer, _text, textX, textY, 0.45f) { Color = TextColor };
+            var buttonText = new TextObject(_textRenderer, _text, textX, textY, TextBtnScale) { Color = TextColor };
             buttonText.CanvasScale = new Vector2(CanvasScale.X, CanvasScale.Y);
             buttonText.Draw(projection);
         }

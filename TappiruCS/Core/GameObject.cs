@@ -15,6 +15,7 @@ namespace TappiruCS.Core
             public float Rotation { get; set; } = 0f;
             public int Layer { get; set; } = 0;
             public bool Active { get; set; } = true;
+            public bool AutoScale { get; set; } = true;
 
             public Vector2 CanvasScale { get; set; } = new Vector2(1f,1f);
 

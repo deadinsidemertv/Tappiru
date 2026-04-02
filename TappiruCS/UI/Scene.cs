@@ -36,7 +36,7 @@ namespace TappiruCS.Core
             {
                 var obj = _objects[i];
                 if (!obj.Active) continue;
-
+                obj.CanvasScale = CanvasScale;
                 obj.Update(deltaTime);   // вызываем перегрузку с mouse
             }
         }
@@ -49,7 +49,11 @@ namespace TappiruCS.Core
                 .ToList();
 
             foreach (var obj in sorted)
+            {
+                obj.CanvasScale = CanvasScale;
                 obj.Draw(projection);
+            }
+                
         }
     }
 }
