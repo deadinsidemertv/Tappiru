@@ -177,7 +177,7 @@ namespace TappiruCS
             //ScoreDraw(session, projection, 1270, 20);
             _scene.Draw(projection);
             
-            InputCharDraw(session, projection, Game.WindowWidth / 2, 360);
+            InputCharDraw(session, projection, 960, 540);
         }
        
         public void HandleKeyDown(KeyboardKeyEventArgs e) 
@@ -195,9 +195,21 @@ namespace TappiruCS
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
             if (session.CurrentPhaseChars == null) return;
-            float scale = 0.4f;
+            
             char[] chars = session.CurrentPhaseChars;
-            float charWidth = this._textRenderer.charWidth * scale;
+            float scaleX = 0.6f;
+            float scaleY = 0.6f;
+            if (chars.Length < 10)
+            {
+                scaleX = 1.4f;
+                scaleY = 1.4f;
+            }else if (chars.Length > 10 && chars.Length < 20)
+            {
+                scaleX = 0.6f;
+                scaleY = 0.6f;
+            }
+            
+            float charWidth = this._textRenderer.charWidth * scaleX;
             float spacing = 0.77f;         // межсимвольный интервал (например, 0.3)
             float step = charWidth * spacing;
             // Общая ширина строки: (кол-во символов - 1) * шаг + ширина последнего символа
@@ -224,7 +236,7 @@ namespace TappiruCS
                     else
                         (r, g, b) = (1, 1, 1);   // чёрный – ещё не набранные
                 }
-                _textRenderer.DrawString(chars[i].ToString(), currentX, y, scale, r, g, b, 1, projection);
+                _textRenderer.DrawString(chars[i].ToString(), currentX*_scene.CanvasScale.X, y * _scene.CanvasScale.Y, scaleX * _scene.CanvasScale.X, scaleY * _scene.CanvasScale.Y, r, g, b, 1, projection);
                 currentX += step;
             }
             
