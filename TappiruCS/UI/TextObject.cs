@@ -25,7 +25,6 @@ namespace TappiruCS.UI
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
         }
-        
 
         public override void Draw(Matrix4 projection)
         {
@@ -33,14 +32,16 @@ namespace TappiruCS.UI
 
             _textRender.DrawString(
                 Text,
-                Position.X,
-                Position.Y,
-                Scale.X,
+                Position.X*CanvasScale.X,
+                Position.Y*CanvasScale.Y,
+                Scale.X*CanvasScale.X,
+                Scale.Y*CanvasScale.Y,
                 Spacing,
                 Color.R, Color.G, Color.B, Color.A,
                 projection,
                 Align
             );
+            //Console.WriteLine("CanvasScale.X:" + CanvasScale.X + "   CanvasScale.Y: " + CanvasScale.Y);
         }
     }
 

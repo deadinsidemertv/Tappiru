@@ -17,8 +17,9 @@ namespace TappiruCS
         private readonly AudioManager _audio;
 
         private readonly Scene _scene = new Scene();
-
         
+
+
 
         public MenuState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
@@ -39,7 +40,7 @@ namespace TappiruCS
                 400, 200, 600, 75, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                _TextColor = Color4.White,
+                TextColor = Color4.White,
                 textXoffset = 50f,
                 textYoffset = -20f
 
@@ -48,7 +49,7 @@ namespace TappiruCS
                 400, 270, 600, 75, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                _TextColor = Color4.Azure,
+                TextColor = Color4.Azure,
                 textXoffset = 45f,
                 textYoffset = -20f
 
@@ -57,7 +58,7 @@ namespace TappiruCS
                 400, 340, 600, 75, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                _TextColor = Color4.Azure,
+                TextColor = Color4.Azure,
                 textXoffset = 85f,
                 textYoffset = -20f
 
@@ -119,10 +120,12 @@ namespace TappiruCS
         // ====================== UPDATE ======================
         public void Update(double deltaTime)
         {
+            
             var mouse = _game.MouseState;   // ← предполагаем, что в классе Game есть MouseState
+             
 
             // Важно: передаём MouseState только объектам, которым он нужен
-            _scene.Update(deltaTime, mouse);
+            _scene.Update(deltaTime, mouse,_game);
         }
 
         // ====================== RENDER ======================

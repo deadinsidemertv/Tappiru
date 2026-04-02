@@ -68,7 +68,7 @@ namespace TappiruCS
         public void Update(double currentTime)
         {
             var mouse = _game.MouseState;
-            _scene.Update(currentTime, mouse);
+            _scene.Update(currentTime, mouse, _game);
         }
         public void Render(Matrix4 projection)
         {

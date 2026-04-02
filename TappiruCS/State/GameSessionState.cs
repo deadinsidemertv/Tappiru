@@ -35,6 +35,8 @@ namespace TappiruCS
         public int background;
 
         private readonly Scene _scene = new Scene();
+        
+
         public TextObject score;
         public TextObject Accuraci;
 
@@ -106,7 +108,8 @@ namespace TappiruCS
         public void Update(double currentTime)
         {
             
-            _scene.Update(currentTime);
+            var mouse = _game.MouseState;
+            _scene.Update(currentTime, mouse, _game);
             if (session != null)
             {
                 float cTime = _audio?.GetCurrentTime() ?? 0f;

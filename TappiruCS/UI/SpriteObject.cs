@@ -28,7 +28,7 @@ namespace TappiruCS.UI
         public override void Draw(Matrix4 projection)
         {
             _spriteBatch.Draw(_textureId,
-                 Position.X, Position.Y, Scale.X*ScaleMultiply, Scale.Y*ScaleMultiply,
+                 Position.X*CanvasScale.X, Position.Y*CanvasScale.Y, Scale.X*ScaleMultiply*CanvasScale.X, Scale.Y*ScaleMultiply*CanvasScale.Y,
                  0, 0, 1, 1,
                  Color.R, Color.G, Color.B, Color.A,
                  projection);

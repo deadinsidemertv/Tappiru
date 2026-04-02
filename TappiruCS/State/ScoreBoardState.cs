@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
+using System.Reflection;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
@@ -100,10 +101,11 @@ namespace TappiruCS.State
 
         public void Update(double currentTime)
         {
-            _scene.Update(currentTime);
+            
 
             var mouseState = _game.MouseState;
-            
+            _scene.Update(currentTime, mouseState, _game);
+
         }
 
        

@@ -16,6 +16,8 @@ namespace TappiruCS.Core
             public int Layer { get; set; } = 0;
             public bool Active { get; set; } = true;
 
+            public Vector2 CanvasScale { get; set; } = new Vector2(1f,1f);
+
             // Базовая реализация (для большинства объектов)
             public virtual void Update(double deltaTime) { }
 
