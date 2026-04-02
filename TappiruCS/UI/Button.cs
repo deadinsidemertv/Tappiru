@@ -19,7 +19,7 @@ namespace TappiruCS
         public float ScaleMultiply = 1f;
 
         //[Поля текста кнопки]
-        private readonly string _text; //Текст кнопки
+        public string _text; //Текст кнопки
         public Color4 TextColor { get; set; } = Color4.White; //Цвет текста в кнопке
         public float textXoffset { get; set; } = 0f; //смещение относительно кнопки по X
         public float textYoffset { get; set; } = 0f; //смещение относительно кнопки по Y

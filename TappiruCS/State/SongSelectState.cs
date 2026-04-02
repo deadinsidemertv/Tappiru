@@ -5,6 +5,7 @@ using System.Reflection;
 using TappiruCS.Core;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;     // если нужно для SpriteBatch и TextRender
+using TappiruCS.UI;
 
 namespace TappiruCS
 {
@@ -16,6 +17,7 @@ namespace TappiruCS
         private readonly AudioManager _audio;
 
         private readonly Scene _scene = new Scene();
+        public ListButtons list;
 
         public string songPath = "Songs/TestSong";
         public int songCount;
@@ -31,26 +33,27 @@ namespace TappiruCS
         public void OnEnter()
         {
             Console.WriteLine("Открыт выбор песни (SongSelectState)");
+
             songCount = Directory.GetDirectories("Songs/").Length;
+            string[] folders = Directory.GetDirectories("Songs/");
+
+
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 0, 0, 700, 100, "btn", "lol");
             for (int i = 0; i < songCount; i++)
             {
-                string folderPath = Directory.GetDirectories("Songs/")[i];  // полный путь к папке
+                string folderPath = folders[i];
+                string folderName = Path.GetFileName(folderPath); // имя папки
 
-                float y = 150 + i * 75;
+                // Меняем текст кнопки (способ зависит от реализации Button)
+                list.buttons[i]._text = folderName;        // если поле публичное
+                                                           // или list.buttons[i].SetText(folderName); // если есть метод
 
-                var button = new Button(
-                    _spriteBatch,
-                    _textRenderer,
-                    300, y, 150, 60,
-                    "btn",
-                    folderPath, Color4.Azure   // показываем название папки как текст кнопки
-                )
-                { Layer = 50 };
-
-                button.OnClick += () => PlaySong(folderPath);   // передаём именно этот путь
-
-                _scene.Add(button);
+                // Привязываем обработчик с ЗАХВАТОМ пути (важно!)
+                string capturedPath = folderPath;
+                list.buttons[i].OnClick += () => PlaySong(capturedPath);
             }
+
+            _scene.Add(list);
 
         }
 
