@@ -58,10 +58,10 @@ namespace TappiruCS
         // ←←← Вот правильная перегрузка
         public override void Update(double deltaTime, MouseState mouse)
         {
-            float left = Position.X * CanvasScale.X;
-            float right = left + Scale.X * CanvasScale.X;
-            float top = Position.Y * CanvasScale.Y;
-            float bottom = top + Scale.Y * CanvasScale.Y;
+            float left = Position.X * CanvasScale.X*ScaleMultiply;
+            float right = left + Scale.X * CanvasScale.X * ScaleMultiply;
+            float top = Position.Y * CanvasScale.Y * ScaleMultiply;
+            float bottom = top + Scale.Y * CanvasScale.Y * ScaleMultiply;
 
             // Мышь уже в пикселях окна, не нужно умножать на CanvasScale
             IsHovered = mouse.X >= left && mouse.X <= right && mouse.Y >= top && mouse.Y <= bottom;

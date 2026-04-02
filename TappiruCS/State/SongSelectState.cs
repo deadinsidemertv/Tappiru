@@ -38,7 +38,7 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 0, 0, 700, 100, "btn", "lol");
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1240, 0, 700, 100, "btn", "lol") { ScaleMultiplyList = 0.3f};
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -46,6 +46,7 @@ namespace TappiruCS
 
                 // Меняем текст кнопки (способ зависит от реализации Button)
                 list.buttons[i]._text = folderName;        // если поле публичное
+                
                                                            // или list.buttons[i].SetText(folderName); // если есть метод
 
                 // Привязываем обработчик с ЗАХВАТОМ пути (важно!)
@@ -72,17 +73,20 @@ namespace TappiruCS
         {
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
+            
         }
         public void Render(Matrix4 projection)
         {
-            // Просто выводим текст на экран
-           // _textRenderer.DrawString("выбор песни", 450, 200, 0.5f, 0.7f, 1f, 1f, 0f, 1f, projection);
-           // _textRenderer.DrawString("пока здесь будет список карт", 320, 380, 0.5f, 0.7f, 1f, 0f, 1f, 1f, projection);
-           // _textRenderer.DrawString("бекспейс назад в меню", 380, 450, 0.5f, 0.7f, 0.7f, 0.7f, 0.7f, 1f, projection);
-
+            
             _scene.Draw(projection);
         }
-        
+        public void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            // e.OffsetY — это значение прокрутки (обычно ±1, иногда больше на высокоточных мышах)
+            //list.Scroll(e.OffsetY);
+            list.Scroll(e.Offset.Y);
+            Console.WriteLine("offset: "+e.Offset.Y);
+        }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {

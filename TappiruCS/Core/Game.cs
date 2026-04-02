@@ -96,7 +96,16 @@ namespace TappiruCS
 
 
 
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
 
+            // Передаём событие в текущий игровой стейт
+            if (currentState is SongSelectState songSelect)
+            {
+                songSelect.OnMouseWheel(e);
+            }
+        }
 
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
