@@ -16,6 +16,8 @@ namespace TappiruCS.UI
         public Color4 Color { get; set; } = Color4.White;
         public TextAlign Align { get; set; } = TextAlign.Center;
 
+        public float ScaleMultiply=1f;
+
         private readonly TextRender _textRender;
 
         public TextObject(TextRender textRender, string text, float x, float y, float scale)
@@ -34,8 +36,8 @@ namespace TappiruCS.UI
                 Text,
                 Position.X*CanvasScale.X,
                 Position.Y*CanvasScale.Y,
-                Scale.X*CanvasScale.X,
-                Scale.Y*CanvasScale.Y,
+                Scale.X*CanvasScale.X*ScaleMultiply,
+                Scale.Y*CanvasScale.Y*ScaleMultiply,
                 Spacing,
                 Color.R, Color.G, Color.B, Color.A,
                 projection,

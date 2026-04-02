@@ -16,7 +16,7 @@ namespace TappiruCS
 
         private readonly int _textureId;
 
-        
+        public float ScaleMultiply = 1f;
 
         //[Поля текста кнопки]
         private readonly string _text; //Текст кнопки
@@ -81,15 +81,15 @@ namespace TappiruCS
         public override void Draw(Matrix4 projection)
         {
             _spriteBatch.Draw(_textureId,
-                Position.X*CanvasScale.X, Position.Y*CanvasScale.Y, Scale.X*CanvasScale.X, Scale.Y*CanvasScale.Y,
+                Position.X*CanvasScale.X*ScaleMultiply, Position.Y*CanvasScale.Y * ScaleMultiply, Scale.X*CanvasScale.X*ScaleMultiply, Scale.Y*CanvasScale.Y*ScaleMultiply,
                 0, 0, 1, 1,
                 _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A,
                 projection);
             
 
-            float textX = (Position.X + Scale.X / 2f)+textXoffset;
-            float textY = (Position.Y + Scale.Y / 2f)+ textYoffset;
-            var buttonText = new TextObject(_textRenderer, _text, textX, textY, TextBtnScale) { Color = TextColor };
+            float textX = ((Position.X + Scale.X / 2f)+textXoffset)*ScaleMultiply;
+            float textY = ((Position.Y + Scale.Y / 2f)+ textYoffset)*ScaleMultiply;
+            var buttonText = new TextObject(_textRenderer, _text, textX, textY, TextBtnScale) { Color = TextColor, ScaleMultiply = ScaleMultiply};
             buttonText.CanvasScale = new Vector2(CanvasScale.X, CanvasScale.Y);
             buttonText.Draw(projection);
         }

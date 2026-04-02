@@ -5,6 +5,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using TappiruCS.Core;
 using TappiruCS.Render;
+using TappiruCS.State;
 using TappiruCS.UI;
 
 namespace TappiruCS
@@ -93,6 +94,7 @@ namespace TappiruCS
             // Подписываемся на клики
             playButton.OnClick += StartGame;
             exitButton.OnClick += ExitGame;
+            editButton.OnClick += GoEdit;
 
             // Добавляем всё в сцену
             _scene.Add(bgmenu);
@@ -124,6 +126,10 @@ namespace TappiruCS
             _game.Close();
         }
 
+        private void GoEdit()
+        {
+            _game.ChangeState(new EditState(_game, _spriteBatch, _textRenderer, _audio));
+        }
         // ====================== UPDATE ======================
         
         public void Update(double deltaTime)
