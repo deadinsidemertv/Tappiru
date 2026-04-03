@@ -55,27 +55,27 @@ namespace TappiruCS
                 Console.WriteLine(folderPath);
                 if (bgImagePath != null)
                 {
-                    list.buttons[i].ButtonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
+                    list.Buttons[i].ButtonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
                 }
                 else
                 {
                     
-                    list.buttons[i].ButtonImage = 0;
+                    list.Buttons[i].ButtonImage = 0;
                 }
 
-                list.buttons[i].Text = folderName;
-                list.buttons[i].TextScale = 0.3f;
-                list.buttons[i].TextAlign = TextRender.TextAlign.Left;
-                list.buttons[i].IsImaged = true;
-                list.buttons[i].TextOffset = new Vector2(5.4f, 4.2f);
-                list.buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
-                list.buttons[i].ImagePadding = new Vector2(19f, 27f);
-                list.buttons[i].ScaleMultiply = 0.8f;
+                list.Buttons[i].Text = folderName;
+                list.Buttons[i].TextScale = 0.3f;
+                list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
+                list.Buttons[i].IsImaged = true;
+                list.Buttons[i].TextOffset = new Vector2(5.4f, 4.2f);
+                list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
+                list.Buttons[i].ImagePadding = new Vector2(19f, 27f);
+                list.Buttons[i].ScaleMultiply = 0.8f;
 
 
 
                 string capturedPath = folderPath;
-                list.buttons[i].OnClick += () => PlaySong(capturedPath);
+                list.Buttons[i].OnClick += () => PlaySong(capturedPath);
             }
 
 
@@ -83,13 +83,13 @@ namespace TappiruCS
             SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -520,1920, 1600) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
 
 
             _scene.Add(list);
 
             _scene.Add(SelectionMode);
-            _scene.Add(SongSelectorTop);
+            //_scene.Add(SongSelectorTop);
             
 
         }
