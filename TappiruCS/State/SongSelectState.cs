@@ -20,8 +20,8 @@ namespace TappiruCS
 
         public ListButtons list;
 
-        public SpriteObject blackBG;
-        public SpriteObject blackBG2;
+        public SpriteObject SongSelectorTop;
+        public SpriteObject SelectionMode;
 
 
 
@@ -44,7 +44,7 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 120, 1000, _game.ClientSize.Y/6, "btn", "lol") ;
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 0, 1400, 212, "SongButton", "lol") ;
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -55,19 +55,22 @@ namespace TappiruCS
                 Console.WriteLine(folderPath);
                 if (bgImagePath != null)
                 {
-                    list.buttons[i].buttonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
+                    list.buttons[i].ButtonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
                 }
                 else
                 {
                     
-                    list.buttons[i].buttonImage = 0;
+                    list.buttons[i].ButtonImage = 0;
                 }
 
-                list.buttons[i]._text = folderName;
-                list.buttons[i].TextBtnScale = 0.3f;
-                list.buttons[i].textAlign = TextRender.TextAlign.Left;
+                list.buttons[i].Text = folderName;
+                list.buttons[i].TextScale = 0.3f;
+                list.buttons[i].TextAlign = TextRender.TextAlign.Left;
                 list.buttons[i].IsImaged = true;
-                list.buttons[i].textOffest = new Vector2(5.8f, 4.2f);
+                list.buttons[i].TextOffset = new Vector2(5.4f, 4.2f);
+                list.buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
+                list.buttons[i].ImagePadding = new Vector2(19f, 27f);
+                list.buttons[i].ScaleMultiply = 0.8f;
 
 
 
@@ -75,15 +78,19 @@ namespace TappiruCS
                 list.buttons[i].OnClick += () => PlaySong(capturedPath);
             }
 
-            int _blackTexture = TextureManager.GetTexture("black");
-            blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, _game.ClientSize.X, _game.ClientSize.Y / 8) { Color = new Color4(0f, 0f, 0f, 1f), AutoScale = false };
-            blackBG2 = new SpriteObject(_spriteBatch, 0, 0, _game.ClientSize.Y - _game.ClientSize.Y / 8, _game.ClientSize.X, _game.ClientSize.Y / 8) { Color = new Color4(0f, 0f, 0f, 1f), AutoScale = false };
+
+            int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
+            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
+
+            int _selectionmode = TextureManager.GetTexture("SelectionMode");
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -520,1920, 1600) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
 
 
             _scene.Add(list);
 
-            _scene.Add(blackBG);
-            _scene.Add(blackBG2);
+            _scene.Add(SelectionMode);
+            _scene.Add(SongSelectorTop);
+            
 
         }
 
@@ -100,23 +107,13 @@ namespace TappiruCS
         }
         public void Update(double currentTime)
         {
-            BlackBarUpdate();
+            
 
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
             
         }
-        public void BlackBarUpdate()
-        {
-
-            float blackbarYscale = _game.ClientSize.Y / 8;
-            float bbYpos = _game.ClientSize.Y - _game.ClientSize.Y / 8;
-
-            blackBG2.Position = new Vector2(0, bbYpos);
-            blackBG.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
-            blackBG2.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
-
-        }
+        
         public void Render(Matrix4 projection)
         {
             

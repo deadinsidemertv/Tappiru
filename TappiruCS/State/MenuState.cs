@@ -44,8 +44,8 @@ namespace TappiruCS
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                textOffest = new Vector2(2f,2f),
-                TextBtnScale = 0.8f
+                TextOffset = new Vector2(2f,2f),
+                TextScale = 0.8f
                 
 
             };
@@ -54,8 +54,8 @@ namespace TappiruCS
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
-                textOffest = new Vector2(2f, 2f),
-                TextBtnScale = 0.8f
+                TextOffset = new Vector2(2f, 2f),
+                TextScale = 0.8f
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
@@ -63,8 +63,8 @@ namespace TappiruCS
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
-                textOffest = new Vector2(2f, 2f),
-                TextBtnScale = 0.8f
+                TextOffset = new Vector2(2f, 2f),
+                TextScale = 0.8f
 
             };
 
@@ -73,8 +73,8 @@ namespace TappiruCS
                 610, 730, 700, 120, "btn", "exit", Color4.White)
             {
                 Layer = 0,
-                textOffest = new Vector2(2f, 2f),
-                TextBtnScale = 0.8f
+                TextOffset = new Vector2(2f, 2f),
+                TextScale = 0.8f
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");
