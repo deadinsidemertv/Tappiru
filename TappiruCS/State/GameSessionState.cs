@@ -225,8 +225,8 @@ namespace TappiruCS
             float baseCharWidth = this._textRenderer.charWidth; // ширина символа при масштабе 1
             float spacing = 0.77f;
             float maxWidth = _game.ClientSize.X * 0.85f; // максимальная ширина строки (85% окна)
-            float minScale = 0.3f;
-            float maxScale = 1.5f;
+            float minScale = 0.5f;
+            float maxScale = 1.8f;
 
             // Вычисляем масштаб, чтобы строка поместилась в maxWidth
             float requiredScale = maxWidth / (baseCharWidth * length * spacing);

@@ -27,7 +27,7 @@ namespace TappiruCS.UI
             buttons = new List<Button>(count);
             for(int i = 0; i < count; i++)
             {
-                buttons.Add(new Button(spriteBatch, textRenderer, x, y + height * i + 10, width, height, textureid, text, Color4.White) { ScaleMultiply = ScaleMultiplyList });
+                buttons.Add(new Button(spriteBatch, textRenderer, x, y + height * i *1.05f, width, height, textureid, text, Color4.White) { ScaleMultiply = ScaleMultiplyList });
                 
             }
         }

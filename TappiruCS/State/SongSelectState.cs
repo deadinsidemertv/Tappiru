@@ -17,7 +17,13 @@ namespace TappiruCS
         private readonly AudioManager _audio;
 
         private readonly Scene _scene = new Scene();
+
         public ListButtons list;
+
+        public SpriteObject blackBG;
+        public SpriteObject blackBG2;
+
+
 
         public string songPath = "Songs/TestSong";
         public int songCount;
@@ -38,27 +44,46 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1240, 0, 700, 100, "btn", "lol") { ScaleMultiplyList = 0.3f};
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 120, 1000, _game.ClientSize.Y/6, "btn", "lol") ;
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
-                string folderName = Path.GetFileName(folderPath); // имя папки
+                string folderName = Path.GetFileName(folderPath);
 
-                // Меняем текст кнопки (способ зависит от реализации Button)
-                list.buttons[i]._text = folderName;        // если поле публичное
+                string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
+                             ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
+                Console.WriteLine(folderPath);
+                if (bgImagePath != null)
+                {
+                    list.buttons[i].buttonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
+                }
+                else
+                {
+                    
+                    list.buttons[i].buttonImage = 0;
+                }
+
+                list.buttons[i]._text = folderName;
                 list.buttons[i].TextBtnScale = 0.3f;
-                list.buttons[i].textXoffset -= 300f;
-                list.buttons[i].textYoffset -= 35f;
                 list.buttons[i].textAlign = TextRender.TextAlign.Left;
-                
-                // или list.buttons[i].SetText(folderName); // если есть метод
+                list.buttons[i].IsImaged = true;
+                list.buttons[i].textOffest = new Vector2(5.8f, 4.2f);
 
-                // Привязываем обработчик с ЗАХВАТОМ пути (важно!)
+
+
                 string capturedPath = folderPath;
                 list.buttons[i].OnClick += () => PlaySong(capturedPath);
             }
 
+            int _blackTexture = TextureManager.GetTexture("black");
+            blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, _game.ClientSize.X, _game.ClientSize.Y / 8) { Color = new Color4(0f, 0f, 0f, 1f), AutoScale = false };
+            blackBG2 = new SpriteObject(_spriteBatch, 0, 0, _game.ClientSize.Y - _game.ClientSize.Y / 8, _game.ClientSize.X, _game.ClientSize.Y / 8) { Color = new Color4(0f, 0f, 0f, 1f), AutoScale = false };
+
+
             _scene.Add(list);
+
+            _scene.Add(blackBG);
+            _scene.Add(blackBG2);
 
         }
 
@@ -75,9 +100,22 @@ namespace TappiruCS
         }
         public void Update(double currentTime)
         {
+            BlackBarUpdate();
+
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
             
+        }
+        public void BlackBarUpdate()
+        {
+
+            float blackbarYscale = _game.ClientSize.Y / 8;
+            float bbYpos = _game.ClientSize.Y - _game.ClientSize.Y / 8;
+
+            blackBG2.Position = new Vector2(0, bbYpos);
+            blackBG.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
+            blackBG2.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
+
         }
         public void Render(Matrix4 projection)
         {

@@ -17,7 +17,8 @@ namespace TappiruCS.State
         private readonly AudioManager _audio;
 
         private readonly Scene _scene = new Scene();
-        public ListButtons list;
+        
+        public InputField inputField;
 
         public EditState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
@@ -28,9 +29,9 @@ namespace TappiruCS.State
         }
         public void OnEnter()
         {
-            list = new ListButtons(_spriteBatch, _textRenderer, 10, 0, 0, 700, 100, "btn", "lol");
+            
 
-            _scene.Add(list);
+           
         }
         public void OnExit() { }
         public void Update(double currentTime) { }

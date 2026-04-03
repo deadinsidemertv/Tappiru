@@ -40,52 +40,48 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                760, 280, 700, 120, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                610, 400, 700, 120, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                textXoffset = 50f,
-                textYoffset = -20f,
+                textOffest = new Vector2(2f,2f),
                 TextBtnScale = 0.8f
                 
 
             };
             var editButton = new Button(_spriteBatch, _textRenderer,
-                800, 390, 700, 120, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
+                610, 510, 700, 120, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
-                textXoffset = 45f,
-                textYoffset = -20f,
+                textOffest = new Vector2(2f, 2f),
                 TextBtnScale = 0.8f
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
-                840, 500, 700, 120, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
+                610, 620, 700, 120, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.Azure,
-                textXoffset = 85f,
-                textYoffset = -20f,
+                textOffest = new Vector2(2f, 2f),
                 TextBtnScale = 0.8f
 
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                800, 610, 700, 120, "btn", "exit", Color4.White)
+                610, 730, 700, 120, "btn", "exit", Color4.White)
             {
                 Layer = 0,
-                textXoffset = 50f,
-                textYoffset = -20f,
+                textOffest = new Vector2(2f, 2f),
                 TextBtnScale = 0.8f
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");
             var bgmenu = new Background(_spriteBatch, _bgmenu,_game);
 
-            int _bgtexture = TextureManager.GetTexture("tappCycle");
-            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 150, 80, 1024, 1024) { ScaleMultiply = 0.9f};
+            int _bgtexture = TextureManager.GetTexture("logo");
+            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 680, 150, 606, 256) { ScaleMultiply = 0.9f};
 
             int _blackTexture = TextureManager.GetTexture("black");
             blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, _game.ClientSize.X, _game.ClientSize.Y/8) { Color = new Color4(0f,0f,0f,0.5f),AutoScale = false };
