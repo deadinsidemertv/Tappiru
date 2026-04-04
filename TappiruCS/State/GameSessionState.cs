@@ -89,7 +89,7 @@ namespace TappiruCS
             background = TextureLoader.Load(_mapData.backGroundPath);
             bg = new Background(_spriteBatch, background, _game);
 
-            Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
+            Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.7f };
 
 
             _audio.LoadMusic(_mapData.audioPath);
@@ -101,7 +101,7 @@ namespace TappiruCS
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
-            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1900, score.Position.Y+50, 0.4f)
+            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1900, score.Position.Y+100, 0.35f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
@@ -179,7 +179,7 @@ namespace TappiruCS
             //ScoreDraw(session, projection, 1270, 20);
             _scene.Draw(projection);
             
-            InputCharDraw(session, projection, 960, 540);
+            InputCharDraw(session, projection, 960, 440);
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
@@ -240,11 +240,11 @@ namespace TappiruCS
             for (int i = 0; i < text.Length; i++)
             {
                 if (session.PhaseComplete)
-                    colors[i] = new Color4(0.2f, 1.0f, 0.8f, 1.0f);
+                    colors[i] = new Color4(0.2f, 0.8f, 0.2f,1f);
                 else if (i < session.CurrentCharIndex)
-                    colors[i] = new Color4(0.4f, 0.2f, 1.0f, 1.0f);
+                    colors[i] = new Color4(0.6f, 0.8f, 1.0f, 1.0f); 
                 else if (i == session.CurrentCharIndex)
-                    colors[i] = new Color4(1.0f, 0.3f, 0.6f, 1.0f);
+                    colors[i] = new Color4(1.0f, 0.7f, 0.2f, 1.0f);
                 else
                     colors[i] = Color4.White;
             }

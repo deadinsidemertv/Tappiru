@@ -131,8 +131,8 @@ namespace TappiruCS
             }
 
             // ==================== Текст кнопки ====================
-            float textX = (Position.X + Scale.X / TextOffset.X) * ScaleMultiply;
-            float textY = (Position.Y + Scale.Y / TextOffset.Y) * ScaleMultiply;
+            float textX = (Position.X + Scale.X / 10+TextOffset.X) * ScaleMultiply;
+            float textY = (Position.Y + Scale.Y / 10+TextOffset.Y) * ScaleMultiply;
 
             var buttonText = new TextObject(_textRenderer, Text, textX, textY, TextScale)
             {

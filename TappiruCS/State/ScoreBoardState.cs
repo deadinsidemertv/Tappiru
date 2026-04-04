@@ -26,7 +26,7 @@ namespace TappiruCS.State
 
 
         private SpriteObject _scoreList;
-        private SpriteObject _black;
+        private SpriteObject _topBlack;
 
         private TextObject _scoreText;
         private TextObject _dateText;
@@ -54,31 +54,32 @@ namespace TappiruCS.State
 
             _scoreListTexture = TextureManager.GetTexture("scoreList");
             _blackTexture = TextureManager.GetTexture("black");
-            var background = new SpriteObject(_spriteBatch, _playerScore.textureBG, 0, 0, Game.WindowWidth, Game.WindowHeight);
-            _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 0, 120, 640f, 500f) { ScaleMultiply = 1.1f};
-            _black = new SpriteObject(_spriteBatch, _blackTexture, -100, -20, Game.WindowWidth+200, 120);
+            var background = new SpriteObject(_spriteBatch, _playerScore.textureBG, 0, 0, 1920, 1080);
+            _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 0, _game.ClientSize.Y / 6 + 20, 640, 500) { ScaleMultiply = 1.8f};
+            _topBlack = new SpriteObject(_spriteBatch, 0, 0, 0, 1920, _game.ClientSize.Y/6) { Color = new Color4(0f, 0f, 0f, 0.5f) };
+            
 
-            _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X + 20, _scoreList.Position.Y + 20, 0.7f) 
+            _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X + 70, _scoreList.Position.Y + 20, 1f) 
             { Align =TextAlign.Left};
-            _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X + 440, _scoreList.Position.Y + 515, 0.5f)
+            _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X + 720, _scoreList.Position.Y + 740, 1f)
             { Align = TextAlign.Left };
-            _dateText = new TextObject(_textRenderer, _playerScore.PlayedAt.ToString(), 20, 20, 0.7f)
+            _dateText = new TextObject(_textRenderer, _playerScore.PlayedAt.ToString(), 20, 20, 0.6f)
             { Align = TextAlign.Left };
-            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 190, _scoreList.Position.Y + 515, 0.5f)
+            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 300, _scoreList.Position.Y + 740, 1f)
             { Align = TextAlign.Right };
             _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +40, _maxCombo.Position.Y+10 , 0.3f)
             { Align = TextAlign.Left };
-            _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 160, 0.5f)
+            _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 215, 1f)
             { Align = TextAlign.Left };
-            _completePhase = new TextObject(_textRenderer, _playerScore._completePhase.ToString(), _scoreList.Position.X + 400, _scoreList.Position.Y + 160, 0.5f)
+            _completePhase = new TextObject(_textRenderer, _playerScore._completePhase.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 390, 1f)
             { Align = TextAlign.Left };
-            _failChar = new TextObject(_textRenderer, _playerScore._failChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 260, 0.5f)
+            _failChar = new TextObject(_textRenderer, _playerScore._failChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 560, 1f)
             { Align = TextAlign.Left };
 
 
             _scene.Add(background);
             _scene.Add(_scoreList);
-            _scene.Add(_black);
+            _scene.Add(_topBlack);
 
             _scene.Add(_scoreText);
             _scene.Add(_dateText);

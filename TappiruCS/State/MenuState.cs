@@ -44,7 +44,7 @@ namespace TappiruCS
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(2f,2f),
+                TextOffset = new Vector2(270f,-19f),
                 TextScale = 0.8f
                 
 
@@ -53,8 +53,8 @@ namespace TappiruCS
                 610, 510, 700, 120, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                TextColor = Color4.Azure,
-                TextOffset = new Vector2(2f, 2f),
+                TextColor = Color4.White,
+                TextOffset = new Vector2(270f, -19f),
                 TextScale = 0.8f
 
             };
@@ -62,8 +62,8 @@ namespace TappiruCS
                 610, 620, 700, 120, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
-                TextColor = Color4.Azure,
-                TextOffset = new Vector2(2f, 2f),
+                TextColor = Color4.White,
+                TextOffset = new Vector2(270f, -19f),
                 TextScale = 0.8f
 
             };
@@ -73,7 +73,8 @@ namespace TappiruCS
                 610, 730, 700, 120, "btn", "exit", Color4.White)
             {
                 Layer = 0,
-                TextOffset = new Vector2(2f, 2f),
+                TextColor = Color4.White,
+                TextOffset = new Vector2(270f, -19f),
                 TextScale = 0.8f
             };
 

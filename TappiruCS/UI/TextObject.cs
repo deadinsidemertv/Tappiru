@@ -10,11 +10,11 @@ namespace TappiruCS.UI
         public Color4 Color { get; set; } = Color4.White;
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
-        public float ScaleMultiply { get; set; } = 1.0f;
+        public float ScaleMultiply { get; set; } = 1f;
 
         private readonly TextRender _textRender;
 
-        public TextObject(TextRender textRender, string text, float x, float y, float scale = 1.0f)
+        public TextObject(TextRender textRender, string text, float x, float y, float scale = 1f)
         {
             _textRender = textRender;
             Text = text;
@@ -26,21 +26,17 @@ namespace TappiruCS.UI
         {
             if (string.IsNullOrEmpty(Text)) return;
 
+            // Применяем CanvasScale здесь (как было в твоей старой версии)
             _textRender.DrawString(
                 Text,
-                Position.X,
-                Position.Y,
-                Scale.X * ScaleMultiply,
-                Scale.Y * ScaleMultiply,
+                Position.X * CanvasScale.X,
+                Position.Y * CanvasScale.Y,
+                Scale.X * CanvasScale.X * ScaleMultiply,
+                Scale.Y * CanvasScale.Y * ScaleMultiply,
                 Color.R, Color.G, Color.B, Color.A,
                 projection,
                 Align
             );
         }
-
-        // Удобная перегрузка для быстрого создания
-        public TextObject(TextRender textRender, string text, Vector2 position, float scale = 1.0f)
-            : this(textRender, text, position.X, position.Y, scale)
-        { }
     }
 }

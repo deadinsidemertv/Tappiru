@@ -44,7 +44,7 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 0, 1400, 212, "SongButton", "lol") ;
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") ;
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -67,7 +67,7 @@ namespace TappiruCS
                 list.Buttons[i].TextScale = 0.3f;
                 list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
                 list.Buttons[i].IsImaged = true;
-                list.Buttons[i].TextOffset = new Vector2(5.4f, 4.2f);
+                list.Buttons[i].TextOffset = new Vector2(150f, 2f);
                 list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
                 list.Buttons[i].ImagePadding = new Vector2(19f, 27f);
                 list.Buttons[i].ScaleMultiply = 0.8f;
@@ -89,7 +89,7 @@ namespace TappiruCS
             _scene.Add(list);
 
             _scene.Add(SelectionMode);
-            //_scene.Add(SongSelectorTop);
+            _scene.Add(SongSelectorTop);
             
 
         }
