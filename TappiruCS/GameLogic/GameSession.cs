@@ -68,10 +68,9 @@ namespace TappiruCS.GameLogic
 
         public void Update(double currentTime)
         {
-            Accuracy = TotalNotes > 0
-                ? (1 - (float)Misses / TotalNotes) * 100
+            Accuracy = (CorrectHits + Misses) > 0
+                ? (CorrectHits / (float)(CorrectHits + Misses)) * 100f
                 : 100f;
-
             // Если карта уже завершена — больше ничего не делаем (ждём конца музыки)
             if (IsMapCompleted)
                 return;
