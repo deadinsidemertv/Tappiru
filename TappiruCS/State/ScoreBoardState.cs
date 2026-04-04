@@ -29,6 +29,7 @@ namespace TappiruCS.State
         private SpriteObject _topBlack;
         
 
+
         private TextObject _scoreText;
         private TextObject _dateText;
         private TextObject _accuraciText;
@@ -87,6 +88,31 @@ namespace TappiruCS.State
             int _hit0tx = TextureManager.GetTexture("hit0");
             var hit0 = new SpriteObject(_spriteBatch, _hit0tx, _failChar.Position.X - 195, _failChar.Position.Y-5, 100, 100);
 
+            int[] gradetx = new int[6];
+            for (int i = 0; i < 6; i++)
+            {
+                gradetx[i] = TextureManager.GetTexture("grade" + i);
+            }
+
+            float acc = _playerScore._accuraci;
+            int failChars = _playerScore._failChar;
+            int rank;
+
+            if (acc == 100f && failChars == 0)          // 100% accuracy, ни одного промаха
+                rank = 5;                                 // SS
+            else if (acc > 90.0f && failChars == 0)       // >90% и нет промахов
+                rank = 4;                                 // S
+            else if ((acc > 80.0f && failChars == 0) || (acc > 90.0f))   // (>80% без промахов) ИЛИ (>90% с любыми промахами)
+                rank = 3;                                 // A
+            else if ((acc > 70.0f && failChars == 0) || (acc > 80.0f))   // (>70% без промахов) ИЛИ (>80% с любыми промахами)
+                rank = 2;                                 // B
+            else if (acc > 60.0f)                         // >60% (с любыми промахами)
+                rank = 1;                                 // C
+            else
+                rank = 0;                                 // D (всё остальное)
+
+
+            var _grade = new SpriteObject(_spriteBatch, gradetx[rank], 1200, 100, 80, 100) { ScaleMultiply = 8f};
 
             _scene.Add(background);
             _scene.Add(_scoreList);
@@ -103,6 +129,7 @@ namespace TappiruCS.State
             _scene.Add(hit0);
             _scene.Add(hit300);
             _scene.Add(hit100);
+            _scene.Add(_grade);
 
         }
 
