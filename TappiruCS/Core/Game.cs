@@ -35,7 +35,7 @@ namespace TappiruCS
         {
             
             this.ClientSize = new Vector2i(1280, 720);
-            this.WindowState = WindowState.Fullscreen;
+            this.WindowState = WindowState.Normal;
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
         }
 
@@ -61,7 +61,7 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            textRenderer = new TextRender(spriteBatch,TextureLoader.fontTexture,TextureLoader.textureWidth,TextureLoader.textureHeight, 8,12); // 8 6
+            textRenderer = new TextRender(spriteBatch, "Textures\\Font\\main.fnt"); // 8 6
 
             audio = new AudioManager();
 

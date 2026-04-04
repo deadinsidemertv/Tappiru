@@ -216,57 +216,51 @@ namespace TappiruCS
 
         private void InputCharDraw(GameSession session, Matrix4 projection, float centerX, float y)
         {
-            if (session.CurrentPhaseChars == null) return;
+            if (session.CurrentPhaseChars == null || session.CurrentPhaseChars.Length == 0)
+                return;
 
-            char[] chars = session.CurrentPhaseChars;
-            int length = chars.Length;
-            if (length == 0) return;
+            string text = new string(session.CurrentPhaseChars);
 
-            float baseCharWidth = this._textRenderer.charWidth; // ширина символа при масштабе 1
-            float spacing = 0.77f;
-            float maxWidth = _game.ClientSize.X * 0.85f; // максимальная ширина строки (85% окна)
-            float minScale = 0.5f;
-            float maxScale = 1.8f;
+            float maxPixelWidth = _game.ClientSize.X * 0.85f;
 
-            // Вычисляем масштаб, чтобы строка поместилась в maxWidth
-            float requiredScale = maxWidth / (baseCharWidth * length * spacing);
-            float scale = Math.Clamp(requiredScale, minScale, maxScale);
-
-            float charWidthScaled = baseCharWidth * scale;
-            float step = charWidthScaled * spacing;
-            float totalWidth = (length - 1) * step + charWidthScaled;
-            float startX = centerX - totalWidth / 2;
-
-            float currentX = startX;
-            for (int i = 0; i < length; i++)
+            // Автоскейл
+            float bestScale = 1.8f;
+            for (float testScale = 1.8f; testScale >= 0.5f; testScale -= 0.02f)
             {
-                // Определяем цвет
-                float r, g, b;
-                if (session.PhaseComplete)
+                float estimatedWidth = _textRenderer.CalculateTextWidth(text, testScale * _scene.CanvasScale.X); // используем текущий CanvasScale
+                if (estimatedWidth <= maxPixelWidth)
                 {
-                    //(r, g, b) = (0.6f, 1.0f, 0.6f);
-                    (r, g, b) = (0.2f, 1.0f, 0.8f);
+                    bestScale = testScale;
+                    break;
                 }
-                else
-                {
-                    if (i < session.CurrentCharIndex)
-                        (r, g, b) = (0.4f, 0.2f, 1.0f);
-                        //(r, g, b) = (0.6f, 0.8f, 1.0f);
-                    else if (i == session.CurrentCharIndex)
-                        (r, g, b) = (1.0f, 0.3f, 0.6f);
-                        //(r, g, b) = (1.0f, 0.9f, 0.6f);
-                    else
-                        (r, g, b) = (1, 1, 1);
-                }
-
-                float drawX = currentX * _scene.CanvasScale.X;
-                float drawY = y * _scene.CanvasScale.Y;
-                float drawScaleX = scale * _scene.CanvasScale.X;
-                float drawScaleY = scale * _scene.CanvasScale.Y;
-
-                _textRenderer.DrawString(chars[i].ToString(), drawX, drawY, drawScaleX, drawScaleY, r, g, b, 1, projection);
-                currentX += step;
             }
+
+            // Цвета
+            Color4[] colors = new Color4[text.Length];
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (session.PhaseComplete)
+                    colors[i] = new Color4(0.2f, 1.0f, 0.8f, 1.0f);
+                else if (i < session.CurrentCharIndex)
+                    colors[i] = new Color4(0.4f, 0.2f, 1.0f, 1.0f);
+                else if (i == session.CurrentCharIndex)
+                    colors[i] = new Color4(1.0f, 0.3f, 0.6f, 1.0f);
+                else
+                    colors[i] = Color4.White;
+            }
+
+            // Главный вызов — передаём актуальный CanvasScale
+            _textRenderer.DrawStringWithCharColorsScaled(
+                text,
+                centerX,
+                y,
+                _scene.CanvasScale,      // ← вот сюда передаём текущее значение
+                bestScale,
+                1.0f,                    // ScaleMultiply
+                colors,
+                projection,
+                TextAlign.Center
+            );
         }
 
         private static readonly Dictionary<Keys, char[]> KeyToCharsMap = new Dictionary<Keys, char[]>

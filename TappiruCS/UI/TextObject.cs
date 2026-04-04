@@ -1,26 +1,20 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TappiruCS.Core;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
-using static TappiruCS.Render.TextRender;
 
 namespace TappiruCS.UI
 {
     public class TextObject : GameObject
     {
-        public string Text { get; set; }
-        public float Spacing { get; set; } = 1.1f;
+        public string Text { get; set; } = "";
         public Color4 Color { get; set; } = Color4.White;
-        public TextAlign Align { get; set; } = TextAlign.Center;
+        public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
-        public float ScaleMultiply=1f;
+        public float ScaleMultiply { get; set; } = 1.0f;
 
         private readonly TextRender _textRender;
 
-        public TextObject(TextRender textRender, string text, float x, float y, float scale)
+        public TextObject(TextRender textRender, string text, float x, float y, float scale = 1.0f)
         {
             _textRender = textRender;
             Text = text;
@@ -34,17 +28,19 @@ namespace TappiruCS.UI
 
             _textRender.DrawString(
                 Text,
-                Position.X*CanvasScale.X,
-                Position.Y*CanvasScale.Y,
-                Scale.X*CanvasScale.X*ScaleMultiply,
-                Scale.Y*CanvasScale.Y*ScaleMultiply,
-                Spacing,
+                Position.X,
+                Position.Y,
+                Scale.X * ScaleMultiply,
+                Scale.Y * ScaleMultiply,
                 Color.R, Color.G, Color.B, Color.A,
                 projection,
                 Align
             );
-            //Console.WriteLine("CanvasScale.X:" + CanvasScale.X + "   CanvasScale.Y: " + CanvasScale.Y);
         }
-    }
 
+        // Удобная перегрузка для быстрого создания
+        public TextObject(TextRender textRender, string text, Vector2 position, float scale = 1.0f)
+            : this(textRender, text, position.X, position.Y, scale)
+        { }
+    }
 }
