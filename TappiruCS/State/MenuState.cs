@@ -40,42 +40,46 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                610, 400, 700, 120, "btn", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                850, 550, 700, 120, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(270f,-19f),
-                TextScale = 0.8f
-                
+                TextOffset = new Vector2(250f, -19f),
+                TextScale = 0.8f,
+                ScaleMultiply = 0.8f
+
 
             };
             var editButton = new Button(_spriteBatch, _textRenderer,
-                610, 510, 700, 120, "btn", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
+                850, 700, 700, 120, "button", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(270f, -19f),
-                TextScale = 0.8f
+                TextOffset = new Vector2(250f, -19f),
+                TextScale = 0.8f,
+                ScaleMultiply = 0.8f
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
-                610, 620, 700, 120, "btn", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
+                850, 850, 700, 120, "button", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(270f, -19f),
-                TextScale = 0.8f
+                TextOffset = new Vector2(250f, -19f),
+                TextScale = 0.8f,
+                ScaleMultiply =0.8f
 
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                610, 730, 700, 120, "btn", "exit", Color4.White)
+                850, 1000, 700, 120, "button", "exit", Color4.White)
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(270f, -19f),
-                TextScale = 0.8f
+                TextOffset = new Vector2(250f, -19f),
+                TextScale = 0.8f,
+                ScaleMultiply = 0.8f
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");

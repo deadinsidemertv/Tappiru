@@ -27,6 +27,7 @@ namespace TappiruCS.State
 
         private SpriteObject _scoreList;
         private SpriteObject _topBlack;
+        
 
         private TextObject _scoreText;
         private TextObject _dateText;
@@ -36,6 +37,7 @@ namespace TappiruCS.State
         private TextObject _completeChar;
         private TextObject _completePhase;
         private TextObject _failChar;
+
 
 
         public ScoreBoardState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio, PlayerScore playerscore)
@@ -52,29 +54,38 @@ namespace TappiruCS.State
             Console.WriteLine("Открылся ScoreBoard");
             PrintResultsToConsole();
 
-            _scoreListTexture = TextureManager.GetTexture("scoreList");
+            _scoreListTexture = TextureManager.GetTexture("ranking-panel");
             _blackTexture = TextureManager.GetTexture("black");
             var background = new SpriteObject(_spriteBatch, _playerScore.textureBG, 0, 0, 1920, 1080);
-            _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 0, _game.ClientSize.Y / 6 + 20, 640, 500) { ScaleMultiply = 1.7f};
-            _topBlack = new SpriteObject(_spriteBatch, 0, 0, 0, 1920, _game.ClientSize.Y/6) { Color = new Color4(0f, 0f, 0f, 0.5f) };
-            
+            _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 25, 150, 1400, 667) { ScaleMultiply = 1.4f};
+            _topBlack = new SpriteObject(_spriteBatch, 0, 0, 0, 1920, _game.ClientSize.Y/7) { Color = new Color4(0f, 0f, 0f, 0.5f) };
 
-            _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X + 70, _scoreList.Position.Y , 1f) 
-            { Align =TextAlign.Left};
-            _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X + 720, _scoreList.Position.Y + 710, 1f)
+
+            _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X + 480, _scoreList.Position.Y+20, 0.6f) 
+            { Align =TextAlign.Center};
+            _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X + 440, _scoreList.Position.Y + 585, 0.5f)
             { Align = TextAlign.Left };
             _dateText = new TextObject(_textRenderer, _playerScore.PlayedAt.ToString(), 20, 20, 0.6f)
             { Align = TextAlign.Left };
-            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 300, _scoreList.Position.Y + 710, 1f)
+            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 120, _scoreList.Position.Y + 585, 0.5f)
             { Align = TextAlign.Right };
-            _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +40, _maxCombo.Position.Y+10 , 0.3f)
+            _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 0.3f)
             { Align = TextAlign.Left };
-            _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 195, 1f)
+
+            _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X + 235, _scoreList.Position.Y + 310, 0.5f)
             { Align = TextAlign.Left };
-            _completePhase = new TextObject(_textRenderer, _playerScore._completePhase.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 360, 1f)
+            int _hit100tx = TextureManager.GetTexture("hit100");
+            var hit100 = new SpriteObject(_spriteBatch, _hit100tx, _completeChar.Position.X - 185, _completeChar.Position.Y +10, 75, 75);
+
+            _completePhase = new TextObject(_textRenderer, _playerScore._completePhase.ToString(), _scoreList.Position.X + 235, _scoreList.Position.Y + 170, 0.5f)
             { Align = TextAlign.Left };
-            _failChar = new TextObject(_textRenderer, _playerScore._failChar.ToString(), _scoreList.Position.X + 100, _scoreList.Position.Y + 530, 1f)
+            int _hit300tx = TextureManager.GetTexture("hit300");
+            var hit300 = new SpriteObject(_spriteBatch, _hit300tx, _completePhase.Position.X - 185, _completePhase.Position.Y + 10, 75, 75);
+
+            _failChar = new TextObject(_textRenderer, _playerScore._failChar.ToString(), _scoreList.Position.X + 235, _scoreList.Position.Y + 440, 0.5f)
             { Align = TextAlign.Left };
+            int _hit0tx = TextureManager.GetTexture("hit0");
+            var hit0 = new SpriteObject(_spriteBatch, _hit0tx, _failChar.Position.X - 195, _failChar.Position.Y-5, 100, 100);
 
 
             _scene.Add(background);
@@ -89,6 +100,9 @@ namespace TappiruCS.State
             _scene.Add(_completeChar);
             _scene.Add(_completePhase);
             _scene.Add(_failChar);
+            _scene.Add(hit0);
+            _scene.Add(hit300);
+            _scene.Add(hit100);
 
         }
 
