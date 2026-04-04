@@ -77,6 +77,7 @@ namespace TappiruCS
         public void OnEnter()
         {
             Console.WriteLine("Запуск уровня");
+            
             _mapData = MapLoad(_songPath);
 
             session = new GameSession(_mapData);
@@ -106,7 +107,7 @@ namespace TappiruCS
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
-            combo = new TextObject(_textRenderer, session.Combo.ToString(), 70, 990, 0.7f) { Align = TextAlign.Left};
+            combo = new TextObject(_textRenderer, session.Combo.ToString(), 70, 900, 0.7f) { Align = TextAlign.Left};
             comboApof = new TextObject(_textRenderer, "x", combo.Position.X-15, combo.Position.Y+15, 0.4f);
 
             _scene.Add(bg);
@@ -119,6 +120,7 @@ namespace TappiruCS
         }
         public void OnExit()
         {
+            _audio.Stop();
             _scene.Clear();
             Console.WriteLine("Вы вышли с мапы");
         }
@@ -144,6 +146,8 @@ namespace TappiruCS
                     playerscore._maxCobmo = session.MaxCombo;
                     playerscore.textureBG = background;
                     playerscore.PlayedAt = DateTime.Now;
+                    _audio.Stop();
+                    
                     _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore));
                 }
                    

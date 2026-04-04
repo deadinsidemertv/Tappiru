@@ -28,13 +28,26 @@ namespace TappiruCS.Render
 
         public void LoadMusic(string filePath)
         {
+            Stop(); // Останавливаем воспроизведение
+
+            // 1. Отвязываем текущий буфер от источника
+            AL.Source(source, ALSourcei.Buffer, 0);
+
+            // 2. Удаляем старый буфер (если он существует)
+            if (buffer != 0)
+                AL.DeleteBuffer(buffer);
+
+            // 3. Создаём новый буфер
+            buffer = AL.GenBuffer();
+
+            // 4. Загружаем новые аудиоданные из файла
             using (var reader = new Mp3FileReader(filePath))
             {
                 var waveFormat = reader.WaveFormat;
                 byte[] data = new byte[reader.Length];
-                int bytesRead = reader.Read(data, 0, data.Length);
+                reader.Read(data, 0, data.Length);
                 var format = GetALFormat(waveFormat);
-                // Фиксируем массив для получения указателя
+
                 GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 try
                 {
@@ -46,7 +59,12 @@ namespace TappiruCS.Render
                 }
                 duration = (float)reader.TotalTime.TotalSeconds;
             }
+
+            // 5. Привязываем новый буфер к источнику
             AL.Source(source, ALSourcei.Buffer, buffer);
+
+            // 6. Сбрасываем смещение (на всякий случай)
+            AL.Source(source, ALSourcef.SecOffset, 0.0f);
         }
 
         private ALFormat GetALFormat(WaveFormat format)

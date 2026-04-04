@@ -25,7 +25,7 @@ namespace TappiruCS
 
 
 
-        public string songPath = "Songs/TestSong";
+        public string songPath = "";
         public int songCount;
 
         public SongSelectState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
@@ -39,6 +39,7 @@ namespace TappiruCS
         public void OnEnter()
         {
             Console.WriteLine("Открыт выбор песни (SongSelectState)");
+            
 
             songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
@@ -75,7 +76,7 @@ namespace TappiruCS
 
 
                 string capturedPath = folderPath;
-                list.Buttons[i].OnClick += () => PlaySong(capturedPath);
+                list.Buttons[i].OnClick += () => PlaySong(folderPath);
             }
 
 
@@ -124,7 +125,7 @@ namespace TappiruCS
             // e.OffsetY — это значение прокрутки (обычно ±1, иногда больше на высокоточных мышах)
             //list.Scroll(e.OffsetY);
             list.Scroll(e.Offset.Y);
-            Console.WriteLine("offset: "+e.Offset.Y);
+            
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
@@ -133,10 +134,7 @@ namespace TappiruCS
             {
                 _game.ChangeState(new MenuState(_game, _spriteBatch, _textRenderer, _audio));
             }
-            if (e.Key == Keys.Enter)
-            {
-                _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio,songPath));
-            }
+
         }
     }
 }
