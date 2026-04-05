@@ -17,6 +17,11 @@ namespace TappiruCS.Core
             public bool Active { get; set; } = true;
             public bool AutoScale { get; set; } = true;
 
+            public float ScaleMultiply = 1f;
+            public bool IsHovered { get; set; } = false;
+
+            public bool AllowHover = true;
+
             public Vector2 CanvasScale { get; set; } = new Vector2(1f,1f);
 
             // Базовая реализация (для большинства объектов)
@@ -29,6 +34,28 @@ namespace TappiruCS.Core
             }
 
             public abstract void Draw(Matrix4 projection);
+
+            public virtual void SetHover(bool hover)
+            {
+                IsHovered = hover;
+            }
+
+            public virtual bool IsPointInside(float worldX, float worldY)  // worldX/Y — уже в дизайн-координатах (виртуальных)
+            {
+                // Учитываем ScaleMultiply для всего объекта
+                float scaledPosX = Position.X * ScaleMultiply;
+                float scaledPosY = Position.Y * ScaleMultiply;
+                float scaledWidth = Scale.X * ScaleMultiply;
+                float scaledHeight = Scale.Y * ScaleMultiply;
+
+                float left = scaledPosX;
+                float right = scaledPosX + scaledWidth;
+                float top = scaledPosY;
+                float bottom = scaledPosY + scaledHeight;
+
+                return worldX >= left && worldX <= right &&
+                       worldY >= top && worldY <= bottom;
+            }
         }
     }
 }

@@ -19,19 +19,26 @@ namespace TappiruCS.Core
         public void Clear() => _objects.Clear();
 
         // Новая версия Update с MouseState
-        public void Update(double deltaTime, MouseState mouse,Game _game)
+        public void Update(double deltaTime, MouseState mouse, Game _game)
         {
-            for (int i = 0 ; i < _objects.Count ; i++)
+            for (int i = 0; i < _objects.Count; i++)
             {
                 var obj = _objects[i];
                 if (!obj.Active) continue;
                 obj.CanvasScale = CanvasScale;
-                obj.Update(deltaTime, mouse);   // вызываем перегрузку с mouse
+                obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
             }
-            CanvasScale = new Vector2(_game.ClientSize.X/DesignWidth,_game.ClientSize.Y/ DesignHeight);
+            
+
+            CanvasScale = new Vector2(_game.ClientSize.X / DesignWidth,
+                                      _game.ClientSize.Y / DesignHeight);
+            var virtualMouse = GetVirtualMousePosition(mouse);
+            UpdateHover(virtualMouse.X, virtualMouse.Y);
+
         }
         public void Update(double deltaTime)
         {
+            
             for (int i = 0; i < _objects.Count; i++)
             {
                 var obj = _objects[i];
@@ -55,6 +62,42 @@ namespace TappiruCS.Core
                 obj.Draw(projection);
             }
                 
+        }
+
+        public void UpdateHover(float virtualMouseX, float virtualMouseY)
+        {
+            GameObject top = null;
+            int topLayer = int.MinValue;
+
+            foreach (var obj in _objects)
+            {
+                if (!obj.Active) continue;
+                if (!obj.AllowHover) continue; // пропускаем объекты, которые не должны получать hover
+
+                if (obj.IsPointInside(virtualMouseX, virtualMouseY))
+                {
+                    if (obj.Layer > topLayer)
+                    {
+                        topLayer = obj.Layer;
+                        top = obj;
+                    }
+                }
+            }
+
+            // Сбрасываем у всех
+            foreach (var obj in _objects)
+                obj.SetHover(false);
+
+            if (top != null)
+                top.SetHover(true);
+        }
+
+        private Vector2 GetVirtualMousePosition(MouseState mouse)
+        {
+            return new Vector2(
+                mouse.X / CanvasScale.X,
+                mouse.Y / CanvasScale.Y
+            );
         }
     }
 }

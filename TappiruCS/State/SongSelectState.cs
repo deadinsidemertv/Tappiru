@@ -48,10 +48,10 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            bg = new Background(_spriteBatch, _bgPreview, _game);
+            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0,AllowHover = false};
             _scene.Add(bg);
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") ;
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") { Layer =1} ;
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -78,24 +78,26 @@ namespace TappiruCS
                 list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
                 list.Buttons[i].ImagePadding = new Vector2(19f, 27f);
                 list.Buttons[i].ScaleMultiply = 0.8f;
+                list.Buttons[i].Layer = list.Layer;
 
 
 
                 string capturedPath = folderPath;
                 list.Buttons[i].OnClick += () => SelectSong(folderPath);
+                _scene.Add(list.Buttons[i]);
             }
 
 
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
-            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
+            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
             var playButton = new Button(_spriteBatch, _textRenderer,
                 2050, 1000, 260, 240, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
-                Layer = 0,
+                Layer = 2,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(70f, 45f),
                 TextScale = 0.8f,
@@ -105,8 +107,8 @@ namespace TappiruCS
             };
             playButton.OnClick += () => PlaySong(songPath);
 
-            _scene.Add(list);
 
+            _scene.Add(list);
             _scene.Add(SelectionMode);
             _scene.Add(SongSelectorTop);
             _scene.Add(playButton);

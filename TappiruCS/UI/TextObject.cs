@@ -11,8 +11,6 @@ namespace TappiruCS.UI
         public Color4 Color { get; set; } = Color4.White;
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
-        public float ScaleMultiply { get; set; } = 1f;
-
         private readonly TextRender _textRender;
 
         public TextObject(TextRender textRender, string text, float x, float y, float scale = 1f)

@@ -15,43 +15,32 @@ namespace TappiruCS
 
         private readonly int _textureId;
 
-        public float ScaleMultiply = 1f;
-
         // ==================== Поля текста кнопки ====================
-        public string Text { get; set; }
-        public Color4 TextColor { get; set; } = Color4.White;
-        public Vector2 TextOffset { get; set; } = new Vector2(1f, 1f);
-        public float TextScale { get; set; } = 0.5f;
-        public TextAlign TextAlign { get; set; } = TextAlign.Center;
+        public string Text { get; set; }                                //Текст кнопки
+        public Color4 TextColor { get; set; } = Color4.White;              //Цвет текста
+        public Vector2 TextOffset { get; set; } = new Vector2(1f, 1f);           //Смещение текса внутри кнопки
+        public float TextScale { get; set; } = 0.5f;                              //Scale текста внутри кнопки
+        public TextAlign TextAlign { get; set; } = TextAlign.Center;              //Центрирование текста
 
         // ==================== Поля картинки на кнопке ====================
-        public int ButtonImage { get; set; } = 0;
+        public int ButtonImage { get; set; } = 0;                                   //Картинка внутри кнопки
 
-        /// <summary>
-        /// Отступ картинки от краёв кнопки (в пикселях относительно размера кнопки)
-        /// X — горизонтальный паддинг, Y — вертикальный паддинг
-        /// </summary>
-        public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);
+        public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);               //Отступ картинки внутри кнопки
 
-        /// <summary>
-        /// Ручное смещение картинки (используется в приоритете, если нужно точное позиционирование)
-        /// </summary>
-        public Vector2 ImageOffset { get; set; } = Vector2.Zero;
+        public Vector2 ImageOffset { get; set; } = Vector2.Zero;                        //Смещение внутри кнопки
 
-        public Vector2 ImageScale { get; set; } = new Vector2(0.18f, 1f);
+        public Vector2 ImageScale { get; set; } = new Vector2(0.18f, 1f);                 //Размер картинки внутри кнопки
 
-        public bool IsImaged { get; set; } = false;
+        public bool IsImaged { get; set; } = false;                                       //Включена ли картинка
 
         // ==================== Поля состояний кнопки (цвета) ====================
-        public Color4 NormalColor { get; set; } = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
-        public Color4 HoverColor { get; set; } = new Color4(1.15f, 1.15f, 1.05f, 1.0f);
+        public Color4 NormalColor { get; set; } = new Color4(1.0f, 1.0f, 1.0f, 1.0f);           
+        public Color4 HoverColor { get; set; } = new Color4(1.15f, 1.15f, 1.05f, 0f);
         public Color4 PressColor { get; set; } = new Color4(0.75f, 0.75f, 0.75f, 1.0f);
 
         private Color4 _currentColor;
 
         public event Action OnClick;
-
-        public bool IsHovered { get; private set; }
 
         public bool IsFocused { get; set; } = false;
 
@@ -75,12 +64,6 @@ namespace TappiruCS
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-            float left = Position.X * CanvasScale.X * ScaleMultiply;
-            float right = left + Scale.X * CanvasScale.X * ScaleMultiply;
-            float top = Position.Y * CanvasScale.Y * ScaleMultiply;
-            float bottom = top + Scale.Y * CanvasScale.Y * ScaleMultiply;
-
-            IsHovered = mouse.X >= left && mouse.X <= right && mouse.Y >= top && mouse.Y <= bottom;
 
             bool isPressed = IsHovered && mouse.IsButtonDown(MouseButton.Left);
 
@@ -93,6 +76,11 @@ namespace TappiruCS
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
+            if (IsHovered)
+            {
+                Console.WriteLine(this.Text + " HOVERED");
+            }
+            
         }
 
         public override void Draw(Matrix4 projection)
@@ -116,9 +104,6 @@ namespace TappiruCS
                 float imageX = (Position.X + offset.X) * ScaleMultiply;
                 float imageY = (Position.Y + offset.Y) * ScaleMultiply;
 
-                // Размер картинки зависит ТОЛЬКО от ImageScale и размера кнопки
-                // ImageScale.X — множитель ширины кнопки
-                // ImageScale.Y — множитель высоты кнопки
                 float imageWidth = Scale.X*ImageScale.X;
                 float imageHeight = Scale.Y*ImageScale.Y ;
 
@@ -145,6 +130,15 @@ namespace TappiruCS
             };
 
             buttonText.Draw(projection);
+        }
+
+        public override void SetHover(bool hover)
+        {
+            base.SetHover(hover);
+            if (hover)
+                _currentColor = HoverColor;
+            else
+                _currentColor = NormalColor;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace TappiruCS.UI
     {
         public SpriteBatch _spriteBatch;
         public int _textureId;
-        public float ScaleMultiply { get; set; } = 1.0f;
         public Color4 Color { get; set; } = Color4.White;
 
 
