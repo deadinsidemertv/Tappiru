@@ -22,7 +22,7 @@ namespace TappiruCS.UI
         private readonly TextObject PlaceHolder;
 
         public string PlaceHolderText = "Введите текст...";
-        private string _input = "";
+        public string _input = "";
 
         public bool IsPassword=false;
 

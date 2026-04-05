@@ -5,6 +5,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using TappiruCS.Core;
 using TappiruCS.Render;
+using TappiruCS.Server;
 using TappiruCS.State;
 using TappiruCS.UI;
 
@@ -44,6 +45,28 @@ namespace TappiruCS
             {
                 TextScale = 0.4f,
                 TextOffset = new Vector2(88f, 1f)
+            };
+
+            loginButton.OnClick += async () =>
+            {
+                bool success = await Auth.Login(InputField.Text, InputFieldPassword.Text);
+                if (success) 
+                {
+
+                    Console.WriteLine("Вход выполнен");
+                    bool userDataOk = await User.FetchCurrentUser();
+                    if (userDataOk)
+                    {
+                        var welcomeText = new TextObject(_textRenderer, $"Игрок: {User.UserName} | Рейтинг: {User.Rating}", 0, 0, 0.3f) { Align = TextRender.TextAlign.Left };
+                        _scene.Add(welcomeText);
+                    }
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка входа");
+                }
+
             };
 
             // 2. Кнопка "Начать игру"
