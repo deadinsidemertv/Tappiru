@@ -37,7 +37,8 @@ namespace TappiruCS
             Console.WriteLine("Мы вошли в главное меню");
 
             
-            var InputField = new InputField(_spriteBatch, _textRenderer, 100, 500, 500, 70) { PlaceHolderText = "Login"};
+            var InputField = new InputField(_spriteBatch, _textRenderer, 100, 500, 500, 70) { PlaceHolderText = "login"};
+            var InputFieldPassword = new InputField(_spriteBatch, _textRenderer, 100, 580, 500, 70) { PlaceHolderText = "password" };
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
@@ -107,6 +108,7 @@ namespace TappiruCS
             _scene.Add(optionButton);
             _scene.Add(exitButton);
             _scene.Add(InputField);
+            _scene.Add(InputFieldPassword);
 
 
             _scene.Add(bgCycle);

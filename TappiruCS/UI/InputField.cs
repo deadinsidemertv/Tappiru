@@ -21,6 +21,8 @@ namespace TappiruCS.UI
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
 
+        
+
         public string PlaceHolderText = "Input your text";
         private string Input = "";
         
@@ -46,10 +48,11 @@ namespace TappiruCS.UI
 
             };
 
-            InputText = new TextObject(textRenderer, Input, InputBackground.Position.X*1.2f, InputBackground.Position.Y*1.02f, 1f)
-            {   
-                ScaleMultiply = 0.3f
-            }; ;
+            InputText = new TextObject(textRenderer, Input, InputBackground.Position.X * 1.2f, InputBackground.Position.Y * 1.02f, 1f)
+            {
+                ScaleMultiply = 0.3f,
+                Color = Color4.White
+            } ;
 
         }
 
@@ -73,7 +76,10 @@ namespace TappiruCS.UI
             if (IsFocused)
             {
                 InputText.Text = Input + (DateTime.Now.Millisecond % 800 < 400 ? "|" : "");
+
                 PlaceHolder.Active = false;
+                
+
             }
             else
             {
@@ -82,7 +88,10 @@ namespace TappiruCS.UI
             }
         }
 
-        
+        public char ReadKeys()
+        {
+           
+        }
 
         public override void Draw(Matrix4 projection)
         {
@@ -98,7 +107,7 @@ namespace TappiruCS.UI
 
             // Текст через TextObject
             InputText.CanvasScale = CanvasScale;
-            InputText.Text = Input;
+            
             InputText.Draw(projection);
 
             PlaceHolder.CanvasScale = CanvasScale;
