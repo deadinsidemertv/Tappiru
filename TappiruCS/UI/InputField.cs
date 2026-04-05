@@ -11,14 +11,19 @@ namespace TappiruCS.UI
     public class InputField : GameObject
     {
         private readonly SpriteBatch _spriteBatch;
-        private readonly int _bgTextureId;
-        private readonly TextObject _textObject;
+        private readonly TextRender _textRender;
 
-        public string Text
-        {
-            get => _textObject.Text;
-            set => _textObject.Text = value;
-        }
+
+        private readonly int _bgTextureId;
+
+        private readonly SpriteObject InputBackground;
+
+        private readonly TextObject InputText;
+        private readonly TextObject PlaceHolder;
+
+        public string PlaceHolderText = "Input your text";
+        public string Input = "";
+        
 
         public bool IsFocused { get; private set; } = false;
 
@@ -31,13 +36,11 @@ namespace TappiruCS.UI
             Position = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            // Внутренний TextObject для отображения текста
-            _textObject = new TextObject(textRenderer, "ку", x + 20, y + height * 0.5f, 0.75f)
-            {
-                Color = Color4.White,
-                Align = TextAlign.Left,
-                ScaleMultiply = 1f
-            };
+            InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height);
+
+            PlaceHolder = new TextObject(textRenderer, PlaceHolderText, InputBackground.Position.X, InputBackground.Position.Y, 1f);
+            InputText = new TextObject(textRenderer, Input, InputBackground.Position.X, InputBackground.Position.Y, 1f);
+
         }
 
         public override void Update(double deltaTime, MouseState mouse)
@@ -58,11 +61,11 @@ namespace TappiruCS.UI
             // Добавляем мигающий курсор
             if (IsFocused)
             {
-                _textObject.Text = Text + (DateTime.Now.Millisecond % 800 < 400 ? "|" : "");
+                InputText.Text = Input + (DateTime.Now.Millisecond % 800 < 400 ? "|" : "");
             }
             else
             {
-                _textObject.Text = Text;
+                InputText.Text = Input;
             }
         }
 
@@ -79,9 +82,9 @@ namespace TappiruCS.UI
                 projection);
 
             // Текст через TextObject
-            _textObject.CanvasScale = CanvasScale;
-            _textObject.Position = new Vector2(Position.X + 20, Position.Y + Scale.Y * 0.45f); // небольшой отступ
-            _textObject.Draw(projection);
+            InputText.CanvasScale = CanvasScale;
+            InputText.Position = new Vector2(Position.X + 20, Position.Y + Scale.Y * 0.45f); // небольшой отступ
+            InputText.Draw(projection);
         }
     }
 }
