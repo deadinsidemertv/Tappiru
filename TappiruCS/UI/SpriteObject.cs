@@ -27,22 +27,26 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            if (AutoScale)
+            if (Active)
             {
-                _spriteBatch.Draw(_textureId,
-                                 Position.X * CanvasScale.X, Position.Y * CanvasScale.Y, Scale.X * ScaleMultiply * CanvasScale.X, Scale.Y * ScaleMultiply * CanvasScale.Y,
-                                 0, 0, 1, 1,
-                                 Color.R, Color.G, Color.B, Color.A,
-                                 projection);
+                if (AutoScale)
+                {
+                    _spriteBatch.Draw(_textureId,
+                                     Position.X * CanvasScale.X, Position.Y * CanvasScale.Y, Scale.X * ScaleMultiply * CanvasScale.X, Scale.Y * ScaleMultiply * CanvasScale.Y,
+                                     0, 0, 1, 1,
+                                     Color.R, Color.G, Color.B, Color.A,
+                                     projection);
+                }
+                else
+                {
+                    _spriteBatch.Draw(_textureId,
+                     Position.X, Position.Y, Scale.X * ScaleMultiply, Scale.Y * ScaleMultiply,
+                     0, 0, 1, 1,
+                     Color.R, Color.G, Color.B, Color.A,
+                     projection);
+                }
             }
-            else
-            {
-                _spriteBatch.Draw(_textureId,
-                 Position.X , Position.Y , Scale.X * ScaleMultiply , Scale.Y * ScaleMultiply ,
-                 0, 0, 1, 1,
-                 Color.R, Color.G, Color.B, Color.A,
-                 projection);
-            }
+            
             
         }
 

@@ -22,24 +22,34 @@ namespace TappiruCS.UI
         private readonly TextObject PlaceHolder;
 
         public string PlaceHolderText = "Input your text";
-        public string Input = "";
+        private string Input = "";
         
 
         public bool IsFocused { get; private set; } = false;
 
-        public InputField(SpriteBatch spriteBatch, TextRender textRenderer, int bgTextureId,
+        public InputField(SpriteBatch spriteBatch, TextRender textRenderer,
                           float x, float y, float width, float height)
         {
             _spriteBatch = spriteBatch;
-            _bgTextureId = bgTextureId;
+            _bgTextureId = TextureManager.GetTexture("btn");
 
             Position = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
             InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height);
 
-            PlaceHolder = new TextObject(textRenderer, PlaceHolderText, InputBackground.Position.X, InputBackground.Position.Y, 1f);
-            InputText = new TextObject(textRenderer, Input, InputBackground.Position.X, InputBackground.Position.Y, 1f);
+            PlaceHolder = new TextObject(textRenderer, PlaceHolderText, InputBackground.Position.X * 1.2f, InputBackground.Position.Y * 1.02f, 1f)
+            {
+                Color = new Color4(0.1f, 0.1f, 0.1f, 1f),
+                ScaleMultiply = 0.3f,
+                Align = TextAlign.Left
+
+            };
+
+            InputText = new TextObject(textRenderer, Input, InputBackground.Position.X*1.2f, InputBackground.Position.Y*1.02f, 1f)
+            {   
+                ScaleMultiply = 0.3f
+            }; ;
 
         }
 
@@ -56,18 +66,23 @@ namespace TappiruCS.UI
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
                 IsFocused = hovered;
+                
             }
 
             // Добавляем мигающий курсор
             if (IsFocused)
             {
                 InputText.Text = Input + (DateTime.Now.Millisecond % 800 < 400 ? "|" : "");
+                PlaceHolder.Active = false;
             }
             else
             {
                 InputText.Text = Input;
+                PlaceHolder.Active = true;
             }
         }
+
+        
 
         public override void Draw(Matrix4 projection)
         {
@@ -83,8 +98,12 @@ namespace TappiruCS.UI
 
             // Текст через TextObject
             InputText.CanvasScale = CanvasScale;
-            InputText.Position = new Vector2(Position.X + 20, Position.Y + Scale.Y * 0.45f); // небольшой отступ
+            InputText.Text = Input;
             InputText.Draw(projection);
+
+            PlaceHolder.CanvasScale = CanvasScale;
+            PlaceHolder.Text = PlaceHolderText;
+            PlaceHolder.Draw(projection);
         }
     }
 }

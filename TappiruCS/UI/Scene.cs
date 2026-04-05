@@ -50,6 +50,7 @@ namespace TappiruCS.Core
 
             foreach (var obj in sorted)
             {
+                
                 obj.CanvasScale = CanvasScale;
                 obj.Draw(projection);
             }

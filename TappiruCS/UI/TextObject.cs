@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Reflection.Metadata.Ecma335;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
 
@@ -24,19 +25,24 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
+
             if (string.IsNullOrEmpty(Text)) return;
 
-            // Применяем CanvasScale здесь (как было в твоей старой версии)
-            _textRender.DrawString(
-                Text,
-                Position.X * CanvasScale.X,
-                Position.Y * CanvasScale.Y,
-                Scale.X * CanvasScale.X * ScaleMultiply,
-                Scale.Y * CanvasScale.Y * ScaleMultiply,
-                Color.R, Color.G, Color.B, Color.A,
-                projection,
-                Align
-            );
+            if (Active)
+            {
+                // Применяем CanvasScale здесь (как было в твоей старой версии)
+                _textRender.DrawString(
+                    Text,
+                    Position.X * CanvasScale.X,
+                    Position.Y * CanvasScale.Y,
+                    Scale.X * CanvasScale.X * ScaleMultiply,
+                    Scale.Y * CanvasScale.Y * ScaleMultiply,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection,
+                    Align
+                );
+            } 
+            
         }
     }
 }
