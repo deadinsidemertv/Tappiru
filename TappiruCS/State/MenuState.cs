@@ -37,8 +37,14 @@ namespace TappiruCS
             Console.WriteLine("Мы вошли в главное меню");
 
             
-            var InputField = new InputField(_spriteBatch, _textRenderer, 100, 500, 500, 70) { PlaceHolderText = "login"};
-            var InputFieldPassword = new InputField(_spriteBatch, _textRenderer, 100, 580, 500, 70) { PlaceHolderText = "password" };
+            var InputField = new InputField(_game,_spriteBatch, _textRenderer, 100, 500, 500, 70) { PlaceHolderText = "login"};
+            var InputFieldPassword = new InputField(_game,_spriteBatch, _textRenderer, 100, 580, 500, 70) { PlaceHolderText = "password", IsPassword = true};
+            var loginButton = new Button(_spriteBatch, _textRenderer, 225, 660, 250, 70,
+                                "button", "Войти", Color4.White)
+            {
+                TextScale = 0.4f,
+                TextOffset = new Vector2(88f, 1f)
+            };
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
@@ -109,6 +115,7 @@ namespace TappiruCS
             _scene.Add(exitButton);
             _scene.Add(InputField);
             _scene.Add(InputFieldPassword);
+            _scene.Add(loginButton);
 
 
             _scene.Add(bgCycle);
@@ -171,11 +178,7 @@ namespace TappiruCS
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            if (e.Key == Keys.Enter)
-                StartGame();
-
-            if (e.Key == Keys.Escape || e.Key == Keys.Backspace)
-                ExitGame();
+            
         }
     }
 }
