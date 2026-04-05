@@ -48,8 +48,7 @@ namespace TappiruCS
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0,AllowHover = false};
-            _scene.Add(bg);
+            
 
             list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") { Layer =1} ;
             for (int i = 0; i < songCount; i++)
@@ -87,6 +86,9 @@ namespace TappiruCS
                 _scene.Add(list.Buttons[i]);
             }
 
+
+            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false };
+            _scene.Add(bg);
 
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
             SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
