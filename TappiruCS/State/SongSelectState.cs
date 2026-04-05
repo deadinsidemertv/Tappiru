@@ -4,6 +4,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Reflection;
 using TappiruCS.Core;
 using TappiruCS.Core.TappiruCS.Core;
+using TappiruCS.GameLogic;
 using TappiruCS.Render;     // если нужно для SpriteBatch и TextRender
 using TappiruCS.UI;
 
@@ -22,8 +23,10 @@ namespace TappiruCS
 
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
+        public Background bg;
 
-
+        public int _bgPreview;
+        
 
         public string songPath = "";
         public int songCount;
@@ -44,6 +47,9 @@ namespace TappiruCS
             songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
 
+
+            bg = new Background(_spriteBatch, _bgPreview, _game);
+            _scene.Add(bg);
 
             list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") ;
             for (int i = 0; i < songCount; i++)
@@ -76,7 +82,7 @@ namespace TappiruCS
 
 
                 string capturedPath = folderPath;
-                list.Buttons[i].OnClick += () => PlaySong(folderPath);
+                list.Buttons[i].OnClick += () => SelectSong(folderPath);
             }
 
 
@@ -86,12 +92,24 @@ namespace TappiruCS
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
             SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true };
 
+            var playButton = new Button(_spriteBatch, _textRenderer,
+                2050, 1000, 260, 240, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+            {
+                Layer = 0,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(70f, 45f),
+                TextScale = 0.8f,
+                ScaleMultiply = 0.8f
+
+
+            };
+            playButton.OnClick += () => PlaySong(songPath);
 
             _scene.Add(list);
 
             _scene.Add(SelectionMode);
             _scene.Add(SongSelectorTop);
-            
+            _scene.Add(playButton);
 
         }
 
@@ -99,7 +117,21 @@ namespace TappiruCS
         public void PlaySong(string SongPath)
         {
             Console.WriteLine("игра началась");
-            _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio,SongPath));
+            _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SongPath));
+        }
+
+        public void SelectSong(string SP)
+        {
+            _audio.Stop();
+            songPath = SP;
+            string bgPath = Directory.GetFiles(SP, "*.jpg").FirstOrDefault()
+                             ?? Directory.GetFiles(SP, "*.png").FirstOrDefault();
+            _bgPreview = TextureLoader.Load(bgPath);
+            bg._textureId = _bgPreview;
+            _audio.LoadMusic(Directory.GetFiles(SP,"*.mp3").FirstOrDefault());
+            _audio.Play();
+
+
         }
         public void OnExit()
         {

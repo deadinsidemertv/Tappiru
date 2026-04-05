@@ -53,6 +53,8 @@ namespace TappiruCS
 
         public bool IsHovered { get; private set; }
 
+        public bool IsFocused { get; set; } = false;
+
         // ==================== Конструктор ====================
         public Button(SpriteBatch spriteBatch, TextRender textRenderer,
                       float x, float y, float width, float height,

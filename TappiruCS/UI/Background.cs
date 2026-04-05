@@ -11,7 +11,7 @@ namespace TappiruCS.UI
     public class Background : GameObject
     {
         private readonly SpriteBatch _spriteBatch;
-        private readonly int _textureId;
+        public  int _textureId;
         private readonly Game _game;
         public float Opacity = 1f;
         public Background(SpriteBatch spriteBatch, int textureId,Game game)
