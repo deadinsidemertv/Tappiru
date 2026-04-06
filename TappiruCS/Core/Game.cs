@@ -11,6 +11,7 @@ using System.Text.Json;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.State;
+using TappiruCS.UI;
 
 
 
@@ -28,6 +29,8 @@ namespace TappiruCS
         private AudioManager audio;
 
         private Matrix4 projection;
+
+        
 
         
 
@@ -66,6 +69,7 @@ namespace TappiruCS
 
             audio = new AudioManager();
 
+            
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
            
