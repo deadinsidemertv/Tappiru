@@ -150,7 +150,7 @@ namespace TappiruCS
                     playerscore.PlayedAt = DateTime.Now;
                     _audio.Stop();
                     
-                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore));
+                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore,_mapData));
                 }
                    
 

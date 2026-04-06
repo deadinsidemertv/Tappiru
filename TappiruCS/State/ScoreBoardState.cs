@@ -18,6 +18,7 @@ namespace TappiruCS.State
         private readonly TextRender _textRenderer;
         private readonly AudioManager _audio;
         private readonly PlayerScore _playerScore;
+        private readonly MapData _mapData;
 
         private readonly Scene _scene = new Scene();
 
@@ -38,16 +39,19 @@ namespace TappiruCS.State
         private TextObject _completeChar;
         private TextObject _completePhase;
         private TextObject _failChar;
+        private TextObject title;
+        private TextObject creator;
 
 
 
-        public ScoreBoardState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio, PlayerScore playerscore)
+        public ScoreBoardState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio, PlayerScore playerscore,MapData mapdata)
         {
             _game = game;
             _spriteBatch = spriteBatch;
             _textRenderer = textRenderer;
             _audio = audio;
             _playerScore = playerscore;
+            _mapData = mapdata;
         }
 
         public void OnEnter()
@@ -57,17 +61,24 @@ namespace TappiruCS.State
 
             _scoreListTexture = TextureManager.GetTexture("ranking-panel");
             _blackTexture = TextureManager.GetTexture("black");
-            var background = new SpriteObject(_spriteBatch, _playerScore.textureBG, 0, 0, 1920, 1080);
+            var background = new Background(_spriteBatch, _playerScore.textureBG, _game) {ParalaxEffect = true };
+            var backgroundopacity = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
             _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 25, 150, 1400, 667) { ScaleMultiply = 1.4f};
-            _topBlack = new SpriteObject(_spriteBatch, 0, 0, 0, 1920, _game.ClientSize.Y/7) { Color = new Color4(0f, 0f, 0f, 0.5f) };
+            _topBlack = new SpriteObject(_spriteBatch, 0, 0, 0, 1920, _game.ClientSize.Y/5) { Color = new Color4(0f, 0f, 0f, 0.7f) };
 
 
             _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X + 480, _scoreList.Position.Y+20, 0.6f) 
             { Align =TextAlign.Center};
             _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X + 440, _scoreList.Position.Y + 585, 0.5f)
             { Align = TextAlign.Left };
-            _dateText = new TextObject(_textRenderer, _playerScore.PlayedAt.ToString(), 20, 20, 0.6f)
-            { Align = TextAlign.Left };
+
+            title = new TextObject(_textRenderer, _mapData.title+$" - [{_mapData.artist}]", 0, 0, 0.5f) { Align = TextAlign.Left};
+
+            creator = new TextObject(_textRenderer, "Автор: "+_mapData.creator, 5, 60, 0.35f) { Align = TextAlign.Left };
+
+            _dateText = new TextObject(_textRenderer,"Played at "+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
+
+
             _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X + 120, _scoreList.Position.Y + 585, 0.5f)
             { Align = TextAlign.Right };
             _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 0.3f)
@@ -115,11 +126,14 @@ namespace TappiruCS.State
             var _grade = new SpriteObject(_spriteBatch, gradetx[rank], 1200, 100, 80, 100) { ScaleMultiply = 8f};
 
             _scene.Add(background);
-            _scene.Add(_scoreList);
+            _scene.Add(backgroundopacity);
+
+            
             _scene.Add(_topBlack);
 
+            _scene.Add(_scoreList);
+
             _scene.Add(_scoreText);
-            _scene.Add(_dateText);
             _scene.Add(_accuraciText);
             _scene.Add(_maxCombo);
             _scene.Add(_maxComboX);
@@ -131,6 +145,9 @@ namespace TappiruCS.State
             _scene.Add(hit100);
             _scene.Add(_grade);
 
+            _scene.Add(title);
+            _scene.Add(creator);
+            _scene.Add(_dateText);
         }
 
 
