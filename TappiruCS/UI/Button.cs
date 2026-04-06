@@ -15,36 +15,26 @@ namespace TappiruCS
 
         private readonly int _textureId;
 
-        // ==================== Поля текста кнопки ====================
-        public string Text { get; set; }                                //Текст кнопки
-        public Color4 TextColor { get; set; } = Color4.White;              //Цвет текста
-        public Vector2 TextOffset { get; set; } = new Vector2(1f, 1f);           //Смещение текса внутри кнопки
-        public float TextScale { get; set; } = 0.5f;                              //Scale текста внутри кнопки
-        public TextAlign TextAlign { get; set; } = TextAlign.Center;              //Центрирование текста
+        public string Text { get; set; }
+        public Color4 TextColor { get; set; } = Color4.White;
+        public Vector2 TextOffset { get; set; } = new Vector2(0f, 0f);   // по умолчанию 0
+        public float TextScale { get; set; } = 0.5f;
+        public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
-        // ==================== Поля картинки на кнопке ====================
-        public int ButtonImage { get; set; } = 0;                                   //Картинка внутри кнопки
+        public int ButtonImage { get; set; } = 0;
+        public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);
+        public Vector2 ImageOffset { get; set; } = Vector2.Zero;        // ← смещение в пикселях от ЦЕНТРА кнопки (при ScaleMultiply = 1)
+        public Vector2 ImageScale { get; set; } = new Vector2(0.18f, 1f);
+        public bool IsImaged { get; set; } = false;
 
-        public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);               //Отступ картинки внутри кнопки
-
-        public Vector2 ImageOffset { get; set; } = Vector2.Zero;                        //Смещение внутри кнопки
-
-        public Vector2 ImageScale { get; set; } = new Vector2(0.18f, 1f);                 //Размер картинки внутри кнопки
-
-        public bool IsImaged { get; set; } = false;                                       //Включена ли картинка
-
-        // ==================== Поля состояний кнопки (цвета) ====================
-        public Color4 NormalColor { get; set; } = new Color4(1.0f, 1.0f, 1.0f, 1.0f);           
-        public Color4 HoverColor { get; set; } = new Color4(1.15f, 1.15f, 1.05f, 0f);
-        public Color4 PressColor { get; set; } = new Color4(0.75f, 0.75f, 0.75f, 1.0f);
+        public Color4 NormalColor { get; set; } = new Color4(1f, 1f, 1f, 1f);
+        public Color4 HoverColor { get; set; } = new Color4(0.5f, 0.5f, 1.05f, 1f);
+        public Color4 PressColor { get; set; } = new Color4(0.75f, 0.75f, 0.75f, 1f);
 
         private Color4 _currentColor;
 
         public event Action OnClick;
 
-        public bool IsFocused { get; set; } = false;
-
-        // ==================== Конструктор ====================
         public Button(SpriteBatch spriteBatch, TextRender textRenderer,
                       float x, float y, float width, float height,
                       string textureName, string text, Color4 color)
@@ -60,11 +50,13 @@ namespace TappiruCS
 
             TextColor = color;
             _currentColor = NormalColor;
+
+            _originalScaleMultiply = ScaleMultiply;
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-
+            base.Update(deltaTime);
             bool isPressed = IsHovered && mouse.IsButtonDown(MouseButton.Left);
 
             if (isPressed)
@@ -76,69 +68,81 @@ namespace TappiruCS
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
-            if (IsHovered)
-            {
-                Console.WriteLine(this.Text + " HOVERED");
-            }
-            
         }
 
         public override void Draw(Matrix4 projection)
         {
             // Фон кнопки
+            var (dLeft, dTop, effW, effH) = GetDesignBounds();
+            float sLeft = dLeft * CanvasScale.X;
+            float sTop = dTop * CanvasScale.Y;
+            float sW = effW * CanvasScale.X;
+            float sH = effH * CanvasScale.Y;
+
             _spriteBatch.Draw(_textureId,
-                Position.X * CanvasScale.X * ScaleMultiply,
-                Position.Y * CanvasScale.Y * ScaleMultiply,
-                Scale.X * CanvasScale.X * ScaleMultiply,
-                Scale.Y * CanvasScale.Y * ScaleMultiply,
+                sLeft, sTop, sW, sH,
                 0, 0, 1, 1,
                 _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A,
                 projection);
 
-            // ==================== Картинка на кнопке ====================
-            if (IsImaged)
-            {
-                // Выбираем смещение: если ImageOffset задан — используем его, иначе ImagePadding
-                Vector2 offset = ImageOffset.LengthSquared > 0.0001f ? ImageOffset : ImagePadding;
-
-                float imageX = (Position.X + offset.X) * ScaleMultiply;
-                float imageY = (Position.Y + offset.Y) * ScaleMultiply;
-
-                float imageWidth = Scale.X*ImageScale.X;
-                float imageHeight = Scale.Y*ImageScale.Y ;
-
-                var imageBtn = new SpriteObject(_spriteBatch, ButtonImage, imageX, imageY, imageWidth, imageHeight)
-                {
-                    ScaleMultiply = ScaleMultiply,
-                    Layer = 2,
-                    CanvasScale = CanvasScale
-                };
-
-                imageBtn.Draw(projection);
-            }
-
             // ==================== Текст кнопки ====================
-            float textX = (Position.X + Scale.X / 10+TextOffset.X) * ScaleMultiply;
-            float textY = (Position.Y + Scale.Y / 10+TextOffset.Y) * ScaleMultiply;
+            float textDesignX = Position.X + TextOffset.X;
+            float textDesignY = Position.Y + TextOffset.Y;
 
-            var buttonText = new TextObject(_textRenderer, Text, textX, textY, TextScale)
+            var buttonText = new TextObject(_textRenderer, Text, textDesignX, textDesignY, TextScale)
             {
                 Color = TextColor,
                 ScaleMultiply = ScaleMultiply,
-                Align = TextAlign,
-                CanvasScale = CanvasScale
+                Align = TextAlign.Center,
+                CanvasScale = CanvasScale,
+                Pivot = new Vector2(0.5f, 0.5f)
             };
-
             buttonText.Draw(projection);
+
+            // ==================== Картинка на кнопке ====================
+            if (IsImaged)
+            {
+                Vector2 offset = ImageOffset.LengthSquared > 0.0001f ? ImageOffset : ImagePadding;
+
+                // ← КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ
+                // Offset теперь масштабируется вместе с кнопкой → картинка остаётся в рамке
+                float scaledOffsetX = offset.X * ScaleMultiply;
+                float scaledOffsetY = offset.Y * ScaleMultiply;
+
+                // Позиция ЦЕНТРА картинки в дизайн-координатах
+                float imageDesignX = Position.X + scaledOffsetX;
+                float imageDesignY = Position.Y + scaledOffsetY;
+
+                // Базовый размер картинки (до ScaleMultiply)
+                float imageBaseW = Scale.X * ImageScale.X;
+                float imageBaseH = Scale.Y * ImageScale.Y;
+
+                var imageBtn = new SpriteObject(_spriteBatch, ButtonImage, imageDesignX, imageDesignY, imageBaseW, imageBaseH)
+                {
+                    ScaleMultiply = ScaleMultiply,     // масштабируется вместе с кнопкой
+                    Layer = 2,
+                    CanvasScale = CanvasScale,
+                    Pivot = new Vector2(0.5f, 0.5f)    // центр картинки находится в imageDesignX/Y
+                };
+                imageBtn.Draw(projection);
+            }
         }
 
         public override void SetHover(bool hover)
         {
+            if (IsHovered == hover) return;
             base.SetHover(hover);
+
             if (hover)
+            {
+                ScaleAnim(1.15f, 0.18f);
                 _currentColor = HoverColor;
+            }
             else
+            {
+                ScaleAnim(1f, 0.22f);
                 _currentColor = NormalColor;
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System.Reflection.Metadata.Ecma335;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
 
@@ -19,28 +18,27 @@ namespace TappiruCS.UI
             Text = text;
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
+
+            // Для текста pivot по умолчанию — левый верхний угол (Align сам управляет выравниванием)
+            Pivot = new Vector2(0.5f, 0.5f);
         }
 
         public override void Draw(Matrix4 projection)
         {
+            if (string.IsNullOrEmpty(Text) || !Active) return;
 
-            if (string.IsNullOrEmpty(Text)) return;
+            var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
 
-            if (Active)
-            {
-                // Применяем CanvasScale здесь (как было в твоей старой версии)
-                _textRender.DrawString(
-                    Text,
-                    Position.X * CanvasScale.X,
-                    Position.Y * CanvasScale.Y,
-                    Scale.X * CanvasScale.X * ScaleMultiply,
-                    Scale.Y * CanvasScale.Y * ScaleMultiply,
-                    Color.R, Color.G, Color.B, Color.A,
-                    projection,
-                    Align
-                );
-            } 
-            
+            _textRender.DrawString(
+                Text,
+                dLeft * CanvasScale.X,
+                dTop * CanvasScale.Y,
+                effScaleX * CanvasScale.X,
+                effScaleY * CanvasScale.Y,
+                Color.R, Color.G, Color.B, Color.A,
+                projection,
+                Align
+            );
         }
     }
 }

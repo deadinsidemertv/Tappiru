@@ -1,10 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
-using static TappiruCS.Render.TextRender;
 
 namespace TappiruCS.UI
 {
@@ -14,8 +11,7 @@ namespace TappiruCS.UI
         public int _textureId;
         public Color4 Color { get; set; } = Color4.White;
 
-
-        public SpriteObject(SpriteBatch spriteBatch, int _textureID, float x, float y, float scaleX,float scaleY)
+        public SpriteObject(SpriteBatch spriteBatch, int _textureID, float x, float y, float scaleX, float scaleY)
         {
             _spriteBatch = spriteBatch;
             Position = new Vector2(x, y);
@@ -23,31 +19,34 @@ namespace TappiruCS.UI
             _textureId = _textureID;
         }
 
-
         public override void Draw(Matrix4 projection)
         {
-            if (Active)
-            {
-                if (AutoScale)
-                {
-                    _spriteBatch.Draw(_textureId,
-                                     Position.X * CanvasScale.X, Position.Y * CanvasScale.Y, Scale.X * ScaleMultiply * CanvasScale.X, Scale.Y * ScaleMultiply * CanvasScale.Y,
-                                     0, 0, 1, 1,
-                                     Color.R, Color.G, Color.B, Color.A,
-                                     projection);
-                }
-                else
-                {
-                    _spriteBatch.Draw(_textureId,
-                     Position.X, Position.Y, Scale.X * ScaleMultiply, Scale.Y * ScaleMultiply,
-                     0, 0, 1, 1,
-                     Color.R, Color.G, Color.B, Color.A,
-                     projection);
-                }
-            }
-            
-            
-        }
+            if (!Active) return;
 
+            var (dLeft, dTop, effW, effH) = GetDesignBounds();
+
+            if (AutoScale)
+            {
+                _spriteBatch.Draw(_textureId,
+                    dLeft * CanvasScale.X,
+                    dTop * CanvasScale.Y,
+                    effW * CanvasScale.X,
+                    effH * CanvasScale.Y,
+                    0, 0, 1, 1,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection);
+            }
+            else
+            {
+                _spriteBatch.Draw(_textureId,
+                    dLeft,
+                    dTop,
+                    effW,
+                    effH,
+                    0, 0, 1, 1,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection);
+            }
+        }
     }
 }

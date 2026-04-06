@@ -24,18 +24,13 @@ namespace TappiruCS.UI
         public string PlaceHolderText = "Введите текст...";
         public string _input = "";
 
-        public bool IsPassword=false;
-
+        public bool IsPassword = false;
         public bool IsFocused { get; private set; } = false;
 
         public string Text
         {
             get => _input;
-            set
-            {
-                _input = value ?? "";
-                UpdateDisplayedText();
-            }
+            set { _input = value ?? ""; UpdateDisplayedText(); }
         }
 
         public InputField(Game game, SpriteBatch spriteBatch, TextRender textRenderer,
@@ -47,45 +42,41 @@ namespace TappiruCS.UI
 
             _bgTextureId = TextureManager.GetTexture("btn");
 
-            Position = new Vector2(x, y);
+            Position = new Vector2(x, y);           // теперь центр!
             Scale = new Vector2(width, height);
 
-            // Фон
+            // Вычисляем top-left для корректного позиционирования текстов (чтобы визуал не изменился)
+            float topLeftX = x - width * 0.5f;
+            float topLeftY = y - height * 0.5f;
+
             InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height);
 
-            // Placeholder
             PlaceHolder = new TextObject(textRenderer, PlaceHolderText,
-                InputBackground.Position.X * 1.2f,
-                InputBackground.Position.Y * 1.02f, 1f)
+                topLeftX * 1.2f,
+                topLeftY * 1.02f, 1f)
             {
                 Color = new Color4(0.1f, 0.1f, 0.1f, 1f),
                 ScaleMultiply = 0.3f,
                 Align = TextAlign.Left
             };
 
-            // Основной текст
             InputText = new TextObject(textRenderer, "",
-                InputBackground.Position.X * 1.2f,
-                InputBackground.Position.Y * 1.02f, 1f)
+                topLeftX * 1.2f,
+                topLeftY * 1.02f, 1f)
             {
                 ScaleMultiply = 0.3f,
                 Color = Color4.White,
                 Align = TextAlign.Left
             };
 
-            // Подписка на события
             _game.KeyDown += HandleKeyDown;
-            _game.TextInput += HandleTextInput;   // ← адаптировано под Action<TextInputEventArgs>
+            _game.TextInput += HandleTextInput;
         }
 
-        // Обработчик под Action<TextInputEventArgs>
         private void HandleTextInput(TextInputEventArgs e)
         {
             if (!IsFocused) return;
-
             char c = (char)e.Unicode;
-
-            // Добавляем printable символы (русские буквы, пробел, знаки препинания и т.д.)
             if (c >= ' ')
             {
                 _input += c;
@@ -106,12 +97,10 @@ namespace TappiruCS.UI
                         UpdateDisplayedText();
                     }
                     break;
-
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
                     OnEnterPressed();
                     break;
-
                 case Keys.Escape:
                     IsFocused = false;
                     break;
@@ -127,20 +116,15 @@ namespace TappiruCS.UI
 
         public void OnEnterPressed()
         {
-            // Снимаем фокус при нажатии Enter (можно изменить поведение)
             IsFocused = false;
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-            // Определяем, находится ли курсор над полем
-            float left = Position.X * CanvasScale.X;
-            float right = left + Scale.X * CanvasScale.X;
-            float top = Position.Y * CanvasScale.Y;
-            float bottom = top + Scale.Y * CanvasScale.Y;
-
-            bool hovered = mouse.X >= left && mouse.X <= right &&
-                           mouse.Y >= top && mouse.Y <= bottom;
+            // Теперь используем общий IsPointInside с pivot
+            float designMouseX = mouse.X / CanvasScale.X;
+            float designMouseY = mouse.Y / CanvasScale.Y;
+            bool hovered = IsPointInside(designMouseX, designMouseY);
 
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
@@ -151,19 +135,7 @@ namespace TappiruCS.UI
             if (IsFocused)
             {
                 bool showCursor = DateTime.Now.Millisecond % 800 < 400;
-
-                string displayedText;
-
-                if (IsPassword)
-                {
-                    // Правильный и быстрый способ сделать маску ******
-                    displayedText = new string('*', _input.Length);
-                }
-                else
-                {
-                    displayedText = _input;
-                }
-
+                string displayedText = IsPassword ? new string('*', _input.Length) : _input;
                 InputText.Text = displayedText + (showCursor ? "|" : "");
                 PlaceHolder.Active = false;
             }
@@ -176,17 +148,18 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            // Фон
+            // Фон с учётом pivot
+            var (dLeft, dTop, effW, effH) = GetDesignBounds();
             _spriteBatch.Draw(_bgTextureId,
-                Position.X * CanvasScale.X,
-                Position.Y * CanvasScale.Y,
-                Scale.X * CanvasScale.X,
-                Scale.Y * CanvasScale.Y,
+                dLeft * CanvasScale.X,
+                dTop * CanvasScale.Y,
+                effW * CanvasScale.X,
+                effH * CanvasScale.Y,
                 0, 0, 1, 1,
                 1f, 1f, 1f, 1f,
                 projection);
 
-            // Текст
+            // Тексты
             InputText.CanvasScale = CanvasScale;
             InputText.Draw(projection);
 
@@ -195,7 +168,6 @@ namespace TappiruCS.UI
             PlaceHolder.Draw(projection);
         }
 
-        // Вызывай этот метод при удалении InputField, чтобы снять подписки
         public void Dispose()
         {
             _game.KeyDown -= HandleKeyDown;

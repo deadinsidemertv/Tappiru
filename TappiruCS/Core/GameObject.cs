@@ -21,16 +21,45 @@ namespace TappiruCS.Core
             public bool IsHovered { get; set; } = false;
 
             public bool AllowHover = true;
+            public Vector2 CanvasScale { get; set; } = new Vector2(1f, 1f);
 
-            public Vector2 CanvasScale { get; set; } = new Vector2(1f,1f);
+            // === PIVOT SYSTEM ===
+            public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f); // по умолчанию — центр
+
+            public float _originalScaleMultiply;
+
+            private readonly List<Tween> _tweens = new List<Tween>();
+
+            // ====================== PIVOT HELPERS ======================
+            protected (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
+            {
+                float effWidth = Scale.X * ScaleMultiply;
+                float effHeight = Scale.Y * ScaleMultiply;
+                float pivotOffsetX = effWidth * Pivot.X;
+                float pivotOffsetY = effHeight * Pivot.Y;
+
+                float designLeft = Position.X - pivotOffsetX;
+                float designTop = Position.Y - pivotOffsetY;
+
+                return (designLeft, designTop, effWidth, effHeight);
+            }
 
             // Базовая реализация (для большинства объектов)
-            public virtual void Update(double deltaTime) { }
+            public virtual void Update(double deltaTime)
+            {
+                for (int i = _tweens.Count - 1; i >= 0; i--)
+                {
+                    var tween = _tweens[i];
+                    tween.Update(deltaTime);
 
-            // Перегрузка для объектов, которым нужна мышь (Button и т.д.)
+                    if (tween.IsFinished)
+                        _tweens.RemoveAt(i);
+                }
+            }
+
             public virtual void Update(double deltaTime, MouseState mouse)
             {
-                Update(deltaTime); // по умолчанию вызываем обычный Update
+                Update(deltaTime);
             }
 
             public abstract void Draw(Matrix4 projection);
@@ -40,22 +69,55 @@ namespace TappiruCS.Core
                 IsHovered = hover;
             }
 
-            public virtual bool IsPointInside(float worldX, float worldY)  // worldX/Y — уже в дизайн-координатах (виртуальных)
+            // Теперь IsPointInside учитывает pivot
+            public virtual bool IsPointInside(float worldX, float worldY)
             {
-                // Учитываем ScaleMultiply для всего объекта
-                float scaledPosX = Position.X * ScaleMultiply;
-                float scaledPosY = Position.Y * ScaleMultiply;
-                float scaledWidth = Scale.X * ScaleMultiply;
-                float scaledHeight = Scale.Y * ScaleMultiply;
-
-                float left = scaledPosX;
-                float right = scaledPosX + scaledWidth;
-                float top = scaledPosY;
-                float bottom = scaledPosY + scaledHeight;
+                var (left, top, effWidth, effHeight) = GetDesignBounds();
+                float right = left + effWidth;
+                float bottom = top + effHeight;
 
                 return worldX >= left && worldX <= right &&
                        worldY >= top && worldY <= bottom;
             }
+
+            // Методы анимаций (без изменений)
+            private float _baseScaleMultiply = -1f;
+
+            public Tween ScaleAnim(float multiplier, float duration = 0.2f)
+            {
+                if (_baseScaleMultiply < 0f)
+                    _baseScaleMultiply = ScaleMultiply;
+
+                float target = _baseScaleMultiply * multiplier;
+
+                RemoveTweensOfType(TweenType.ScaleMultiply);
+
+                if (Math.Abs(ScaleMultiply - target) < 0.005f)
+                    return null;
+
+                var tween = new Tween(this, TweenType.ScaleMultiply, target, duration);
+                _tweens.Add(tween);
+                return tween;
+            }
+
+            public Tween ResetScaleMultiply(float duration = 0.25f)
+            {
+                if (_baseScaleMultiply < 0f)
+                    _baseScaleMultiply = ScaleMultiply;
+
+                return ScaleAnim(1.0f, duration);
+            }
+
+            private void RemoveTweensOfType(TweenType type)
+            {
+                for (int i = _tweens.Count - 1; i >= 0; i--)
+                {
+                    if (_tweens[i].Type == type)
+                        _tweens.RemoveAt(i);
+                }
+            }
+
+            public void ClearTweens() => _tweens.Clear();
         }
     }
 }

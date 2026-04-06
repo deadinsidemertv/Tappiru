@@ -57,10 +57,14 @@ namespace TappiruCS
             songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
 
+            Random rnd = new Random();
+            int selectID = rnd.Next(0,folders.Length);
 
-            
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1700, 170, 1400, 212, "SongButton", "lol") { Layer =1} ;
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 960, 170, 1400, 212, "SongButton", "lol")
+            {
+                Layer = 1,
+            };
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -87,12 +91,12 @@ namespace TappiruCS
                 }
 
                 list.Buttons[i].Text = displayName;
-                list.Buttons[i].TextScale = 0.45f;
+                list.Buttons[i].TextScale = 0.4f;
                 list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
                 list.Buttons[i].IsImaged = true;
-                list.Buttons[i].TextOffset = new Vector2(150f, 2f);
+                list.Buttons[i].TextOffset = new Vector2(-90f, -50f);
                 list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
-                list.Buttons[i].ImagePadding = new Vector2(19f, 27f);
+                list.Buttons[i].ImageOffset = new Vector2(-570f, 0f);
                 list.Buttons[i].ScaleMultiply = 0.65f;
                 list.Buttons[i].Layer = list.Layer;
 
@@ -110,25 +114,26 @@ namespace TappiruCS
             _scene.Add(bgblack);
 
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
-            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
+            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
 
 
 
-            MapTitle = new TextObject(_textRenderer, "", 5, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            Creator = new TextObject(_textRenderer, "" , 5, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            MetaData = new TextObject(_textRenderer, "", 5, 90, 0.30f) { Layer = 3,Align = TextRender.TextAlign.Left };
+            MapTitle = new TextObject(_textRenderer, "", 10, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            Creator = new TextObject(_textRenderer, "" , 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MetaData = new TextObject(_textRenderer, "", 10, 90, 0.30f) { Layer = 3,Align = TextRender.TextAlign.Left };
 
 
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 960, 280,2283, 1888) {ScaleMultiply =0.85f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+
 
             var playButton = new Button(_spriteBatch, _textRenderer,
-                2050, 1000, 260, 240, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                1750, 900, 500, 500, "playButton", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 2,
-                TextColor = Color4.White,
-                TextOffset = new Vector2(70f, 45f),
+                TextColor = new Color4(0f,0f,0f,0f),
+                HoverColor = new Color4(1f,0.95f,0f,1f),
                 TextScale = 0.8f,
                 ScaleMultiply = 0.8f
 
@@ -136,7 +141,8 @@ namespace TappiruCS
             };
             playButton.OnClick += () => PlaySong(songPath);
 
-
+            
+            SelectSong(folders[selectID]);
 
             _scene.Add(MapTitle);
             _scene.Add(Creator);

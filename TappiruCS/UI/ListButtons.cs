@@ -2,8 +2,6 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Text;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
 
@@ -16,57 +14,61 @@ namespace TappiruCS.UI
 
         public float ScaleMultiplyList = 1f;
 
-        public float ScrollOffsetY { get; private set; } = 0f;     // текущая позиция скролла (в пикселях дизайна)
-        public float ScrollSpeed = 0.5f;                            // чувствительность (чем больше — тем быстрее)
-        private const float MaxScrollSpeed = 120f;                 // ограничение
+        public float ScrollOffsetY { get; private set; } = 0f;
+        public float ScrollSpeed = 0.5f;
+        private const float MaxScrollSpeed = 120f;
 
         public List<Button> Buttons;
 
-        public ListButtons(SpriteBatch spriteBatch, TextRender textRenderer, int count,float x ,float y,float width, float height,string textureid,string text)
+        public ListButtons(SpriteBatch spriteBatch, TextRender textRenderer, int count,
+                           float x, float y, float width, float height,
+                           string textureid, string text)
         {
             Buttons = new List<Button>(count);
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
-                Buttons.Add(new Button(spriteBatch, textRenderer, x, y + height * i , width, height, textureid, text, Color4.White) { ScaleMultiply = ScaleMultiplyList });
-                
+                // Теперь создаём кнопки от центра (pivot = 0.5f)
+                float centerX = x + width * 0.5f;
+                float centerY = y + (height * 0.5f) + (height*0.6f) * i;
+
+                Buttons.Add(new Button(spriteBatch, textRenderer,
+                    centerX, centerY, width, height,
+                    textureid, text, Color4.White)
+                {
+                    ScaleMultiply = ScaleMultiplyList
+                });
             }
         }
+
         public override void Draw(Matrix4 projection)
         {
             foreach (Button button in Buttons)
             {
-                button.CanvasScale = this.CanvasScale;   // ← и здесь тоже (на всякий случай)
+                button.CanvasScale = this.CanvasScale;
                 button.Draw(projection);
             }
-
-            
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             foreach (Button button in Buttons)
             {
-                button.CanvasScale = this.CanvasScale;   // ← вот это было нужно
+                button.CanvasScale = this.CanvasScale;
+
+                // Скролл сдвигает центр кнопки — работает идеально с pivot
+                float originalY = button.Position.Y;
+                button.Position = new Vector2(button.Position.X, originalY - ScrollOffsetY);
+
                 button.Update(deltaTime, mouse);
             }
-            for (int i = 0; i < Buttons.Count; i++)
-            {
-                Button btn = Buttons[i];
-                float originalY = btn.Position.Y;                    // оригинальная позиция из конструктора
-                btn.Position = new Vector2(btn.Position.X, originalY - ScrollOffsetY); //originalY - ScrollOffsetY
-
-                btn.Update(deltaTime, mouse);
-            }
-
         }
 
         public void Scroll(float deltaY)
         {
-            ScrollOffsetY -= deltaY * ScrollSpeed;   // знак минус — естественное направление
+            ScrollOffsetY -= deltaY * ScrollSpeed;
 
-            // Ограничиваем скролл (чтобы не улетать слишком далеко)
-            float maxScroll = Math.Max(0, Buttons.Count * (100f + 10f) - 600f); // подбери под свой размер окна
-            //ScrollOffsetY = Math.Clamp(5, -5, maxScroll);
+            float maxScroll = Math.Max(0, Buttons.Count * (100f + 10f) - 600f);
+            // ScrollOffsetY = Math.Clamp(ScrollOffsetY, 0, maxScroll); // раскомментируйте если нужно
         }
     }
 }

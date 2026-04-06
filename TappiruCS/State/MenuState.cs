@@ -38,13 +38,16 @@ namespace TappiruCS
             Console.WriteLine("Мы вошли в главное меню");
 
             
-            var InputField = new InputField(_game,_spriteBatch, _textRenderer, 100, 500, 500, 70) { PlaceHolderText = "login"};
-            var InputFieldPassword = new InputField(_game,_spriteBatch, _textRenderer, 100, 580, 500, 70) { PlaceHolderText = "password", IsPassword = true};
-            var loginButton = new Button(_spriteBatch, _textRenderer, 225, 660, 250, 70,
+            var InputField = new InputField(_game,_spriteBatch, _textRenderer, 350, 535, 500, 70) { PlaceHolderText = "login"};
+            var InputFieldPassword = new InputField(_game,_spriteBatch, _textRenderer, 350, 615, 500, 70) { PlaceHolderText = "password", IsPassword = true};
+            var loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70,
                                 "button", "Войти", Color4.White)
             {
+                Layer = 0,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-5f, -25f),
                 TextScale = 0.4f,
-                TextOffset = new Vector2(88f, 1f)
+                ScaleMultiply = 0.8f,
             };
 
             loginButton.OnClick += async () =>
@@ -71,57 +74,55 @@ namespace TappiruCS
 
             // 2. Кнопка "Начать игру"
             var playButton = new Button(_spriteBatch, _textRenderer,
-                850, 550, 700, 120, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                960, 540, 700, 120, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(250f, -19f),
-                TextScale = 0.8f,
-                ScaleMultiply = 0.8f
-
-
+                TextOffset = new Vector2(-10f, -50f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.8f,
             };
             var editButton = new Button(_spriteBatch, _textRenderer,
-                850, 700, 700, 120, "button", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
+                960, 640, 700, 120, "button", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(250f, -19f),
-                TextScale = 0.8f,
-                ScaleMultiply = 0.8f
+                TextOffset = new Vector2(-10f, -50f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.8f,
 
             };
             var optionButton = new Button(_spriteBatch, _textRenderer,
-                850, 850, 700, 120, "button", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
+                960, 740, 700, 120, "button", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(250f, -19f),
-                TextScale = 0.8f,
-                ScaleMultiply =0.8f
+                TextOffset = new Vector2(-10f, -50f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.8f,
 
             };
 
             // 3. Кнопка "Выход"
             var exitButton = new Button(_spriteBatch, _textRenderer,
-                850, 1000, 700, 120, "button", "exit", Color4.White)
+                960, 840, 700, 120, "button", "exit", Color4.White)
             {
                 Layer = 0,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(250f, -19f),
-                TextScale = 0.8f,
-                ScaleMultiply = 0.8f
+                TextOffset = new Vector2(-10f, -50f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.8f,
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");
             var bgmenu = new Background(_spriteBatch, _bgmenu, _game) { ParalaxEffect = true};
 
             int _bgtexture = TextureManager.GetTexture("logo");
-            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 680, 150, 606, 256) { ScaleMultiply = 0.9f};
+            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 960, 300, 606, 256) { ScaleMultiply = 1.1f};
 
             int _blackTexture = TextureManager.GetTexture("black");
-            blackBG = new SpriteObject(_spriteBatch, 0, 0, 0, _game.ClientSize.X, _game.ClientSize.Y/8) { Color = new Color4(0f,0f,0f,0.5f),AutoScale = false };
-            blackBG2 = new SpriteObject(_spriteBatch, 0, 0, _game.ClientSize.Y - _game.ClientSize.Y / 8, _game.ClientSize.X, _game.ClientSize.Y/8) { Color = new Color4(0f, 0f, 0f, 0.5f),AutoScale = false };
+            blackBG = new SpriteObject(_spriteBatch, 0, 960, 0, 2000, _game.ClientSize.Y/3) { Color = new Color4(0f,0f,0f,0.5f),AutoScale = true};
+            blackBG2 = new SpriteObject(_spriteBatch, 0, 960, 1080 , 2000, _game.ClientSize.Y/3) { Color = new Color4(0f, 0f, 0f, 0.5f),AutoScale = true };
 
             // Подписываемся на клики
             playButton.OnClick += StartGame;
@@ -170,23 +171,13 @@ namespace TappiruCS
         {
             
             var mouse = _game.MouseState;   // ← предполагаем, что в классе Game есть MouseState
-            BlackBarUpdate();
+            
 
             // Важно: передаём MouseState только объектам, которым он нужен
             _scene.Update(deltaTime, mouse,_game);
         }
 
-        public void BlackBarUpdate()
-        {
-            
-            float blackbarYscale = _game.ClientSize.Y/8;
-            float bbYpos = _game.ClientSize.Y-_game.ClientSize.Y/8;
-
-            blackBG2.Position = new Vector2(0,bbYpos);
-            blackBG.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
-            blackBG2.Scale = new Vector2(_game.ClientSize.X, blackbarYscale);
-
-        }
+        
         // ====================== RENDER ======================
         public void Render(Matrix4 projection)
         {
