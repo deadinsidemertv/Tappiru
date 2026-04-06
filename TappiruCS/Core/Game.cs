@@ -28,8 +28,8 @@ namespace TappiruCS
         private AudioManager audio;
 
         private Matrix4 projection;
-     
 
+        
 
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {

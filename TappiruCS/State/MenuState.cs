@@ -114,7 +114,7 @@ namespace TappiruCS
             };
 
             int _bgmenu = TextureManager.GetTexture("menubg");
-            var bgmenu = new Background(_spriteBatch, _bgmenu,_game);
+            var bgmenu = new Background(_spriteBatch, _bgmenu, _game) { ParalaxEffect = true};
 
             int _bgtexture = TextureManager.GetTexture("logo");
             var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 680, 150, 606, 256) { ScaleMultiply = 0.9f};

@@ -12,7 +12,10 @@ namespace TappiruCS.Core
 
         public const float DesignWidth = 1920f;
         public const float DesignHeight = 1080f;
+
         public Vector2 CanvasScale = new Vector2(1f,1f);
+
+        public static Vector2 LogicMouse;
 
         public void Add(GameObject obj) => _objects.Add(obj);
         public void Remove(GameObject obj) => _objects.Remove(obj);
@@ -28,6 +31,7 @@ namespace TappiruCS.Core
                 obj.CanvasScale = CanvasScale;
                 obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
             }
+
             
 
             CanvasScale = new Vector2(_game.ClientSize.X / DesignWidth,
@@ -35,6 +39,7 @@ namespace TappiruCS.Core
             var virtualMouse = GetVirtualMousePosition(mouse);
             UpdateHover(virtualMouse.X, virtualMouse.Y);
 
+            LogicMouse = new Vector2(virtualMouse.X, virtualMouse.Y);
         }
         public void Update(double deltaTime)
         {

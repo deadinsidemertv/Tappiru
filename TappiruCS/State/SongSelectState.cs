@@ -60,7 +60,7 @@ namespace TappiruCS
 
             
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1000, 170, 1400, 212, "SongButton", "lol") { Layer =1} ;
+            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 1700, 170, 1400, 212, "SongButton", "lol") { Layer =1} ;
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
@@ -87,13 +87,13 @@ namespace TappiruCS
                 }
 
                 list.Buttons[i].Text = displayName;
-                list.Buttons[i].TextScale = 0.3f;
+                list.Buttons[i].TextScale = 0.45f;
                 list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
                 list.Buttons[i].IsImaged = true;
                 list.Buttons[i].TextOffset = new Vector2(150f, 2f);
                 list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
                 list.Buttons[i].ImagePadding = new Vector2(19f, 27f);
-                list.Buttons[i].ScaleMultiply = 0.8f;
+                list.Buttons[i].ScaleMultiply = 0.65f;
                 list.Buttons[i].Layer = list.Layer;
 
 
@@ -104,8 +104,10 @@ namespace TappiruCS
             }
 
 
-            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false };
+            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false ,ParalaxEffect = true};
+            var bgblack = new Background(_spriteBatch, 0, _game) { AllowHover = false,Opacity = 0.5f };
             _scene.Add(bg);
+            _scene.Add(bgblack);
 
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
             SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
