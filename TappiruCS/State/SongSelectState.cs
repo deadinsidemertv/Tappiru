@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Reflection;
+using System.Text.Json;
 using TappiruCS.Core;
 using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.GameLogic;
@@ -17,13 +18,22 @@ namespace TappiruCS
         private readonly TextRender _textRenderer;
         private readonly AudioManager _audio;
 
+        public MapData SelectedMap;
+
         private readonly Scene _scene = new Scene();
+
+        public Background bg;
 
         public ListButtons list;
 
+        public TextObject MapTitle;
+        public TextObject Creator;
+        public TextObject MetaData;
+
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
-        public Background bg;
+
+        
 
         public int _bgPreview;
         
@@ -59,6 +69,13 @@ namespace TappiruCS
                 string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
                              ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
                 Console.WriteLine(folderPath);
+                string tappFile = Directory.GetFiles(folderPath, "*.tapp").FirstOrDefault();
+                string displayName = Path.GetFileName(folderPath); // fallback
+                string json = File.ReadAllText(tappFile);
+                var mapData = JsonSerializer.Deserialize<JsonMap>(json);
+                // Например: "Название (автор)" или "Название - автор"
+                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}]";
+
                 if (bgImagePath != null)
                 {
                     list.Buttons[i].ButtonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
@@ -69,7 +86,7 @@ namespace TappiruCS
                     list.Buttons[i].ButtonImage = 0;
                 }
 
-                list.Buttons[i].Text = folderName;
+                list.Buttons[i].Text = displayName;
                 list.Buttons[i].TextScale = 0.3f;
                 list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
                 list.Buttons[i].IsImaged = true;
@@ -93,6 +110,14 @@ namespace TappiruCS
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
             SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 0, 0, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
 
+
+
+            MapTitle = new TextObject(_textRenderer, "", 5, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            Creator = new TextObject(_textRenderer, "" , 5, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MetaData = new TextObject(_textRenderer, "", 5, 90, 0.30f) { Layer = 3,Align = TextRender.TextAlign.Left };
+
+
+
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
             SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 0, -470,1920, 1550) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
@@ -110,6 +135,11 @@ namespace TappiruCS
             playButton.OnClick += () => PlaySong(songPath);
 
 
+
+            _scene.Add(MapTitle);
+            _scene.Add(Creator);
+            _scene.Add(MetaData);
+
             _scene.Add(list);
             _scene.Add(SelectionMode);
             _scene.Add(SongSelectorTop);
@@ -121,20 +151,28 @@ namespace TappiruCS
         public void PlaySong(string SongPath)
         {
             Console.WriteLine("игра началась");
-            _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SongPath));
+            _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SelectedMap));
         }
 
         public void SelectSong(string SP)
         {
             _audio.Stop();
-            songPath = SP;
-            string bgPath = Directory.GetFiles(SP, "*.jpg").FirstOrDefault()
-                             ?? Directory.GetFiles(SP, "*.png").FirstOrDefault();
-            _bgPreview = TextureLoader.Load(bgPath);
+           
+            SelectedMap = GameSessionState.MapLoad(SP);
+            _bgPreview = TextureLoader.Load(SelectedMap.backGroundPath);
             bg._textureId = _bgPreview;
-            _audio.LoadMusic(Directory.GetFiles(SP,"*.mp3").FirstOrDefault());
+
+            _audio.LoadMusic(SelectedMap.audioPath);
             _audio.Play();
 
+            MapTitle.Text = SelectedMap.title+$" - [{SelectedMap.artist}]";
+            Creator.Text = "Автор:" + SelectedMap.creator;
+
+            int totalSeconds = (int)_audio.duration;
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds % 60;
+            string formattedTime = $"{minutes}:{seconds:D2}"; // D2 — всегда две цифры для секунд
+            MetaData.Text = "Длина: " + formattedTime + " Строк: " + SelectedMap.Events.Count;
 
         }
         public void OnExit()

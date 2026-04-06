@@ -30,7 +30,6 @@ namespace TappiruCS
 
         public GameSession session;
         public MapData _mapData;
-        private string _songPath;
 
         public int background;
 
@@ -45,16 +44,16 @@ namespace TappiruCS
         public TextObject combo;
         public TextObject comboApof;
 
-        public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,string songPath)
+        public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,MapData mapdata)
         {
             _game = game;
             _spriteBatch = spriteBatch;
             _textRenderer = textRenderer;
             _audio = audio;
-            _songPath = songPath;
+            _mapData = mapdata;
         }
 
-        public MapData MapLoad(string mapFolderPath)
+        public static MapData MapLoad(string mapFolderPath)
         {
 
             MapData mapdata = new MapData();
@@ -69,6 +68,9 @@ namespace TappiruCS
             JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json);
             mapdata.Events = tmp.events;
             mapdata.endTime = tmp.endTime;
+            mapdata.title = tmp.title;
+            mapdata.creator = tmp.creator;
+            mapdata.artist = tmp.artist;
             foreach (var ev in mapdata.Events)
     ev.text = ev.text.ToLowerInvariant();
             Console.WriteLine(mapdata.endTime + " endTime");
@@ -78,7 +80,7 @@ namespace TappiruCS
         {
             Console.WriteLine("Запуск уровня");
             
-            _mapData = MapLoad(_songPath);
+            //_mapData = MapLoad(_songPath);
 
             session = new GameSession(_mapData);
             Console.WriteLine(_mapData.audioPath.ToString());
