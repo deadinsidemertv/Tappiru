@@ -67,7 +67,7 @@ namespace TappiruCS.State
             var bgBlack = new Background(_spriteBatch, 0, _game) { Opacity = 0.75f };
 
 
-            renderText = new TextObject(_textRenderer, "", 960, 540);
+            renderText = new TextObject(_textRenderer, "", 960, 500) { ScaleMultiply = 0.6f};
 
             createmap = new Button(_spriteBatch, _textRenderer,
                 160, 30, 700, 120, "button", "create", Color4.White)   // "btn" — имя текстуры через TextureManager
@@ -98,6 +98,7 @@ namespace TappiruCS.State
 
             _scene.Add(createmap);
             _scene.Add(loadmap);
+            _scene.Add(renderText);
 
 
         }
@@ -112,6 +113,8 @@ namespace TappiruCS.State
         {
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
+
+            
 
             if (InEditMode && slider != null)
             {
@@ -129,9 +132,9 @@ namespace TappiruCS.State
                     _audio.SetCurrentTime(newTime); // реализуй этот метод
                 }
             }
-            
 
-            
+            RenderEditedText(renderText);
+
         }
 
         private void TogglePlayPause()
@@ -173,8 +176,20 @@ namespace TappiruCS.State
         }
         public void RenderEditedText(TextObject text)
         {
-            JsonMap map;
-            
+            if (InEditMode && _markers.Count > 0)
+            {
+                double currentTime = _audio.GetCurrentTime();
+                // Находим маркер с самым поздним временем, не превышающим текущее
+                var activeMarker = _markers
+                    .OrderBy(m => m.time)
+                    .LastOrDefault(m => m.time <= currentTime);
+                text.Text = activeMarker.text ?? "";
+            }
+            else if (InEditMode)
+            {
+                text.Text = "";
+            }
+
         }
        
         public void LoadProject()
