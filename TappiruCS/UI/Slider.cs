@@ -19,10 +19,10 @@ namespace TappiruCS.UI
         public TextObject ValueText;
 
         public float minValue { get; private set; } = 0f;
-        public float maxValue { get; private set; } = 100f;
+        public float maxValue { get; set; } = 100f;
         public float Value { get; private set; } = 50f;
 
-        private bool _isDragging = false;
+        public bool _isDragging = false;
 
         public Slider(SpriteBatch spritebatch, TextRender textrender,
                       float min, float max, float x, float y, float width)
@@ -77,6 +77,7 @@ namespace TappiruCS.UI
 
             UpdatePointPositionFromValue();
         }
+
 
         public override void Update(double deltaTime, MouseState mouse)
         {

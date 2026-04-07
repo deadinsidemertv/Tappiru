@@ -13,8 +13,12 @@ namespace TappiruCS.Render
         private ALDevice device;
         private int source;
         private int buffer;
-        public float duration; // длительность в секундах
+        public float duration { get; private set; } // длительность в секундах
+        //public double CurrentTime { get; private set; }
 
+        private bool _isPlaying = false;
+
+        public bool IsPlaying => _isPlaying;
         public float Duration => duration;
 
         public AudioManager()
@@ -79,15 +83,33 @@ namespace TappiruCS.Render
         public void Play()
         {
             AL.SourcePlay(source);
+            _isPlaying = true;
         }
         public void Stop()
         {
             AL.SourceStop(source);
+            _isPlaying = false;
+        }
+        public void SetLooping(bool loop)
+        {
+            if (source != 0) // предполагая, что твой source хранится в поле класса
+            {
+                AL.Source(source, ALSourceb.Looping, loop);
+            }
+        }
+
+        public void SetCurrentTime(float seconds)
+        {
+            if (source != 0)
+            {
+                AL.Source(source, ALSourcef.SecOffset, seconds);
+            }
         }
 
         public float GetCurrentTime()
         {
             // Получаем смещение в сэмплах
+
             AL.GetSource(source, ALGetSourcei.SampleOffset, out int sampleOffset);
             AL.GetSource(source, ALSourcef.SecOffset, out float secOffset); // альтернатива
                                                                             // Более точно: используем секунды

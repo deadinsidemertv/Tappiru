@@ -25,7 +25,7 @@ namespace TappiruCS.UI
             _textureId = textureId;
             _game = game;
         }
-
+        
         public override void Draw(Matrix4 projection)
         {
             // === НАСТРОЙКИ (лучше вынести в поля класса, чтобы менять в инспекторе) ===

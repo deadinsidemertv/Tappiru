@@ -28,6 +28,9 @@ namespace TappiruCS.State
 
         public Button createmap;
 
+        public int bgTexture;
+        public Background bg;
+
 
         public string? mp3Path = null;
         public string? pngPath = null;
@@ -42,10 +45,11 @@ namespace TappiruCS.State
         }
         public void OnEnter()
         {
-            var bg = new Background(_spriteBatch, TextureManager.GetTexture("defaultBG"), _game) { ParalaxEffect = true };
+            bgTexture = TextureManager.GetTexture("defaultBG");
+            bg = new Background(_spriteBatch, bgTexture, _game) { ParalaxEffect = true };
             var bgBlack = new Background(_spriteBatch, 0, _game) { Opacity = 0.75f };
 
-            slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false, Active = false };
+            
 
 
             createmap = new Button(_spriteBatch, _textRenderer,
@@ -66,9 +70,7 @@ namespace TappiruCS.State
 
             _scene.Add(createmap);
 
-            _scene.Add(slider);
-            if (slider.Active)
-                _scene.Add(slider.point);
+            
         }
 
 
@@ -81,6 +83,26 @@ namespace TappiruCS.State
         {
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
+
+            if (InEditMode && slider != null)
+            {
+                // Обновляем слайдер от музыки, только если не перетаскиваем
+                if (!slider._isDragging)
+                {
+                    double t = _audio.GetCurrentTime() / _audio.Duration;
+                    float newValue = (float)(slider.minValue + t * (slider.maxValue - slider.minValue));
+                    slider.SetValue(newValue); // SetValue обновит позицию точки и текст
+                }
+                else if (InEditMode && slider._isDragging) // добавь флаг в Slider
+                {
+
+                    float newTime = (slider.Value - slider.minValue) / (slider.maxValue - slider.minValue) * (float)_audio.Duration;
+                    _audio.SetCurrentTime(newTime); // реализуй этот метод
+                }
+            }
+            
+
+            
         }
         public void Render(Matrix4 projection)
         {
@@ -118,7 +140,7 @@ namespace TappiruCS.State
             {
                 if (mp3Path != null && pngPath != null)
                 {
-                    if (CreateMap(inputTitle.Text)) 
+                    if (CreateMap(inputTitle.Text))
                     {
                         _scene.Remove(moduleWindow);
                         _scene.Remove(inputTitle);
@@ -132,11 +154,21 @@ namespace TappiruCS.State
                         string projectMp3 = Path.Combine(projectDir, Path.GetFileName(mp3Path));
                         string projectBg = Path.Combine(projectDir, "bg" + Path.GetExtension(pngPath));
 
+                        bgTexture = TextureLoader.Load(projectBg);
+                        bg._textureId = bgTexture;
+
                         _audio.LoadMusic(projectMp3);
                         _audio.Play();
+                        _audio.SetLooping(true);
 
-                        //slider.Active = true;
-                        //slider.maxValue = (float)_audio.Duration;
+                        slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false };
+                        _scene.Add(slider);
+                        _scene.Add(slider.point);
+
+                        slider.maxValue = (float)_audio.Duration;
+                        slider.maxValueText.Text = slider.maxValue.ToString("F2");
+
+                        InEditMode = true;
                     }
                 }
                 else
@@ -148,7 +180,7 @@ namespace TappiruCS.State
 
 
 
-            _scene.Add(moduleWindow);
+                _scene.Add(moduleWindow);
                 _scene.Add(inputTitle);
 
                 _scene.Add(mp3Upload);
