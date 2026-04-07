@@ -3,11 +3,14 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Collections.Generic;
 using System.Linq;
 using TappiruCS.Core.TappiruCS.Core;
+using TappiruCS.Core.Tween;
 
 namespace TappiruCS.Core
 {
     public class Scene
     {
+        public static Scene Current { get; private set; }
+
         public List<GameObject> _objects = new List<GameObject>();
 
         public const float DesignWidth = 1920f;
@@ -17,10 +20,16 @@ namespace TappiruCS.Core
 
         public static Vector2 LogicMouse;
 
+        public TweenManager TweenManager { get; } = new TweenManager();
+
         public void Add(GameObject obj) => _objects.Add(obj);
         public void Remove(GameObject obj) => _objects.Remove(obj);
         public void Clear() => _objects.Clear();
 
+        public Scene()
+        {
+            Current = this;        // Когда создаётся сцена — она становится текущей
+        }
         // Новая версия Update с MouseState
         public void Update(double deltaTime, MouseState mouse, Game _game)
         {
@@ -32,7 +41,6 @@ namespace TappiruCS.Core
                 obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
             }
 
-            
 
             CanvasScale = new Vector2(_game.ClientSize.X / DesignWidth,
                                       _game.ClientSize.Y / DesignHeight);
@@ -40,6 +48,8 @@ namespace TappiruCS.Core
             UpdateHover(virtualMouse.X, virtualMouse.Y);
 
             LogicMouse = new Vector2(virtualMouse.X, virtualMouse.Y);
+
+            TweenManager.Update(deltaTime);
         }
         public void Update(double deltaTime)
         {

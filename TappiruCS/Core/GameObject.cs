@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace TappiruCS.Core
 {
     namespace TappiruCS.Core
@@ -15,7 +16,7 @@ namespace TappiruCS.Core
             public float Rotation { get; set; } = 0f;
             public int Layer { get; set; } = 0;
             public bool Active { get; set; } = true;
-            public bool AutoScale { get; set; } = true;
+            public bool AutoScale { get; set; } = true;          //Разрешить автоскейл
 
             public float ScaleMultiply = 1f;
             public bool IsHovered { get; set; } = false;
@@ -23,12 +24,13 @@ namespace TappiruCS.Core
             public bool AllowHover = true;
             public Vector2 CanvasScale { get; set; } = new Vector2(1f, 1f);
 
+            public string Tag { get; set; } = "";
+
             // === PIVOT SYSTEM ===
             public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f); // по умолчанию — центр
 
-            public float _originalScaleMultiply;
+            public float _baseScaleMultiply = -1f;
 
-            private readonly List<Tween> _tweens = new List<Tween>();
 
             // ====================== PIVOT HELPERS ======================
             protected (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
@@ -47,14 +49,7 @@ namespace TappiruCS.Core
             // Базовая реализация (для большинства объектов)
             public virtual void Update(double deltaTime)
             {
-                for (int i = _tweens.Count - 1; i >= 0; i--)
-                {
-                    var tween = _tweens[i];
-                    tween.Update(deltaTime);
-
-                    if (tween.IsFinished)
-                        _tweens.RemoveAt(i);
-                }
+               
             }
 
             public virtual void Update(double deltaTime, MouseState mouse)
@@ -80,44 +75,10 @@ namespace TappiruCS.Core
                        worldY >= top && worldY <= bottom;
             }
 
-            // Методы анимаций (без изменений)
-            private float _baseScaleMultiply = -1f;
+            
+            
 
-            public Tween ScaleAnim(float multiplier, float duration = 0.2f)
-            {
-                if (_baseScaleMultiply < 0f)
-                    _baseScaleMultiply = ScaleMultiply;
-
-                float target = _baseScaleMultiply * multiplier;
-
-                RemoveTweensOfType(TweenType.ScaleMultiply);
-
-                if (Math.Abs(ScaleMultiply - target) < 0.005f)
-                    return null;
-
-                var tween = new Tween(this, TweenType.ScaleMultiply, target, duration);
-                _tweens.Add(tween);
-                return tween;
-            }
-
-            public Tween ResetScaleMultiply(float duration = 0.25f)
-            {
-                if (_baseScaleMultiply < 0f)
-                    _baseScaleMultiply = ScaleMultiply;
-
-                return ScaleAnim(1.0f, duration);
-            }
-
-            private void RemoveTweensOfType(TweenType type)
-            {
-                for (int i = _tweens.Count - 1; i >= 0; i--)
-                {
-                    if (_tweens[i].Type == type)
-                        _tweens.RemoveAt(i);
-                }
-            }
-
-            public void ClearTweens() => _tweens.Clear();
+            
         }
     }
 }

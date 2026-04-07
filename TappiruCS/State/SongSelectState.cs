@@ -99,6 +99,7 @@ namespace TappiruCS
                 list.Buttons[i].ImageOffset = new Vector2(-570f, 0f);
                 list.Buttons[i].ScaleMultiply = 0.65f;
                 list.Buttons[i].Layer = list.Layer;
+                list.Buttons[i].Tag = "List";
 
 
 
@@ -135,7 +136,8 @@ namespace TappiruCS
                 TextColor = new Color4(0f,0f,0f,0f),
                 HoverColor = new Color4(1f,0.95f,0f,1f),
                 TextScale = 0.8f,
-                ScaleMultiply = 0.8f
+                ScaleMultiply = 0.8f,
+                Tag = "play"
 
 
             };

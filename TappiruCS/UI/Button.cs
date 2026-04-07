@@ -35,6 +35,8 @@ namespace TappiruCS
 
         public event Action OnClick;
 
+        public event Action<Button,bool> HoverStateChanged;
+
         public Button(SpriteBatch spriteBatch, TextRender textRenderer,
                       float x, float y, float width, float height,
                       string textureName, string text, Color4 color)
@@ -51,7 +53,7 @@ namespace TappiruCS
             TextColor = color;
             _currentColor = NormalColor;
 
-            _originalScaleMultiply = ScaleMultiply;
+            
         }
 
         public override void Update(double deltaTime, MouseState mouse)
@@ -135,14 +137,20 @@ namespace TappiruCS
 
             if (hover)
             {
-                ScaleAnim(1.15f, 0.18f);
+                if (Tag == "") 
+                { 
+                    this.AnimScale(1.15f, 0.18f);
+                }
+                
                 _currentColor = HoverColor;
             }
             else
             {
-                ScaleAnim(1f, 0.22f);
+                this.AnimScaleReset(0.22f);
                 _currentColor = NormalColor;
             }
+
+            HoverStateChanged?.Invoke(this, hover);
         }
     }
 }
