@@ -246,7 +246,7 @@ namespace TappiruCS.State
                 {
                     string tappPath = CreateMap(inputTitle.Text);
 
-                    if (tappPath!=null)
+                    if (tappPath != null)
                     {
                         _scene.Remove(moduleWindow);
                         _scene.Remove(inputTitle);
@@ -254,9 +254,10 @@ namespace TappiruCS.State
                         _scene.Remove(JPGUpload);
                         _scene.Remove(agree);
 
-                        
+
                     }
-                    ActiveEditMode(tappPath);
+                    this.tappPath = tappPath;
+                    ActiveEditMode(this.tappPath);
                 }
                 else
                 {

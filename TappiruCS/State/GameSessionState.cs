@@ -246,13 +246,13 @@ namespace TappiruCS
             for (int i = 0; i < text.Length; i++)
             {
                 if (session.PhaseComplete)
-                    colors[i] = new Color4(0.2f, 0.8f, 0.2f,1f);
+                    colors[i] = new Color4(0.3f, 0.2f, 0.5f, 1f);      // тёмный фиолет (завершённая строка)
                 else if (i < session.CurrentCharIndex)
-                    colors[i] = new Color4(0.6f, 0.8f, 1.0f, 1.0f); 
+                    colors[i] = new Color4(0.4f, 0.3f, 0.6f, 1f);      // тусклый фиолетово-синий (набранные)
                 else if (i == session.CurrentCharIndex)
-                    colors[i] = new Color4(1.0f, 0.7f, 0.2f, 1.0f);
+                    colors[i] = new Color4(0.8f, 0.4f, 0.9f, 1f);      // бледно-фиолетовый (текущий символ)
                 else
-                    colors[i] = Color4.White;
+                    colors[i] = new Color4(0.5f, 0.5f, 0.6f, 1f);      // холодный серый (не набранные)
             }
 
             // Главный вызов — передаём актуальный CanvasScale
