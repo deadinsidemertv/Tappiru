@@ -97,6 +97,23 @@ namespace TappiruCS.Render
                 AL.Source(source, ALSourceb.Looping, loop);
             }
         }
+        public void Pause()
+        {
+            if (source != 0)
+            {
+                AL.SourcePause(source);
+                _isPlaying = false; // Обновляем флаг
+            }
+        }
+
+        public void Resume()
+        {
+            if (source != 0)
+            {
+                AL.SourcePlay(source);
+                _isPlaying = true;
+            }
+        }
 
         public void SetCurrentTime(float seconds)
         {

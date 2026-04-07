@@ -27,6 +27,7 @@ namespace TappiruCS.State
         public Slider slider;
 
         public Button createmap;
+        public Button loadmap;
 
         public int bgTexture;
         public Background bg;
@@ -34,6 +35,7 @@ namespace TappiruCS.State
 
         public string? mp3Path = null;
         public string? pngPath = null;
+        public string? tappPath = null;
 
         public bool InEditMode=false;
         public EditState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
@@ -62,15 +64,27 @@ namespace TappiruCS.State
                 ScaleMultiply = 0.4f,
                 Tag = "create"
             };
+            loadmap = new Button(_spriteBatch, _textRenderer,
+                500, 30, 700, 120, "button", "load", Color4.White)   // "btn" — имя текстуры через TextureManager
+            {
+                Layer = 0,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-10f, -20f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.4f,
+                Tag = "load"
+            };
 
             createmap.OnClick += CreateProject;
+            loadmap.OnClick += LoadProject;
 
             _scene.Add(bg);
             _scene.Add(bgBlack);
 
             _scene.Add(createmap);
+            _scene.Add(loadmap);
 
-            
+
         }
 
 
@@ -111,6 +125,75 @@ namespace TappiruCS.State
 
         public void HandleKeyDown(KeyboardKeyEventArgs e) { }
 
+        public void LoadProject()
+        {
+            var filters = new[]
+                {
+                    new SharpFileDialog.NativeFileDialog.Filter
+                    {
+                        Name = "TAPP Files",
+                        Extensions = new[] { "tapp" }
+                    }
+                };
+
+            if (SharpFileDialog.NativeFileDialog.OpenDialog(filters, "Edit\\", out string path))
+            {
+                tappPath = path;  // Пользователь выбрал файл
+                Console.WriteLine(mp3Path);
+            }
+            string projectDir = System.IO.Path.GetDirectoryName(tappPath);
+            if (string.IsNullOrEmpty(projectDir))
+            {
+                Console.WriteLine("Ошибка: не удалось определить папку проекта.");
+                return;
+            }
+
+            // 3. Загружаем JSON
+            JsonMap loadedMap;
+            try
+            {
+                string jsonContent = System.IO.File.ReadAllText(tappPath);
+                loadedMap = System.Text.Json.JsonSerializer.Deserialize<JsonMap>(jsonContent);
+                if (loadedMap == null) throw new Exception("Deserialization returned null.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки .tapp файла: {ex.Message}");
+                return;
+            }
+
+            // 4. Ищем MP3 и фоновое изображение в папке проекта
+            string mp3File = System.IO.Directory.GetFiles(projectDir, "*.mp3").FirstOrDefault();
+            string bgFile = System.IO.Directory.GetFiles(projectDir, "*.jpg").FirstOrDefault()
+                            ?? System.IO.Directory.GetFiles(projectDir, "*.png").FirstOrDefault();
+
+            if (string.IsNullOrEmpty(mp3File) || string.IsNullOrEmpty(bgFile))
+            {
+                Console.WriteLine("Ошибка: в папке проекта не найдены MP3 или фоновое изображение.");
+                return;
+            }
+
+            // 5. Обновляем UI и переключаемся в режим редактирования
+            // Очищаем сцену от кнопок "create" и "open", если нужно
+            // ... тут можно удалить старые элементы интерфейса ...
+
+            // Загружаем музыку и фон
+            _audio.LoadMusic(mp3File);
+            _audio.Play();
+            _audio.SetLooping(true); // зацикливаем для удобства
+
+            bgTexture = TextureLoader.Load(bgFile);
+            bg._textureId = bgTexture;
+
+            // Создаём и настраиваем слайдер
+            slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false };
+            _scene.Add(slider);
+            _scene.Add(slider.point);
+            slider.maxValue = (float)_audio.Duration;
+            slider.maxValueText.Text = slider.maxValue.ToString("F2");
+
+            InEditMode = true;
+        }
         public void CreateProject()
         {
             bool mp3isdone = false;
