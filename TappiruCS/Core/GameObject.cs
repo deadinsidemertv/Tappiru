@@ -33,7 +33,7 @@ namespace TappiruCS.Core
 
 
             // ====================== PIVOT HELPERS ======================
-            protected (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
+            public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
             {
                 float effWidth = Scale.X * ScaleMultiply;
                 float effHeight = Scale.Y * ScaleMultiply;

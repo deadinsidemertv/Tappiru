@@ -170,10 +170,8 @@ namespace TappiruCS
         public void Update(double deltaTime)
         {
             
-            var mouse = _game.MouseState;   // ← предполагаем, что в классе Game есть MouseState
+            var mouse = _game.MouseState;   
             
-
-            // Важно: передаём MouseState только объектам, которым он нужен
             _scene.Update(deltaTime, mouse,_game);
         }
 

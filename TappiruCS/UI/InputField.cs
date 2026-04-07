@@ -22,6 +22,7 @@ namespace TappiruCS.UI
         private readonly TextObject PlaceHolder;
 
         public string PlaceHolderText = "Введите текст...";
+        public Color4 PlaceHolderColor { get; set; } = Color4.DarkGray;
         public string _input = "";
 
         public bool IsPassword = false;
@@ -52,16 +53,16 @@ namespace TappiruCS.UI
             InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height);
 
             PlaceHolder = new TextObject(textRenderer, PlaceHolderText,
-                topLeftX * 1.2f,
+                topLeftX +10f,
                 topLeftY * 1.02f, 1f)
             {
-                Color = new Color4(0.1f, 0.1f, 0.1f, 1f),
+                Color = PlaceHolderColor,
                 ScaleMultiply = 0.3f,
                 Align = TextAlign.Left
             };
 
             InputText = new TextObject(textRenderer, "",
-                topLeftX * 1.2f,
+                topLeftX + 10f,
                 topLeftY * 1.02f, 1f)
             {
                 ScaleMultiply = 0.3f,
@@ -121,6 +122,8 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
+            PlaceHolder.Color = PlaceHolderColor;
+
             // Теперь используем общий IsPointInside с pivot
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;
