@@ -22,6 +22,10 @@ namespace TappiruCS.UI
         public float maxValue { get; set; } = 100f;
         public float Value { get; private set; } = 50f;
 
+        public List<SpriteObject> _markers = new List<SpriteObject>();
+        public List<float> _markersTime = new List<float>();
+        public List<string> _markersText = new List<string>();
+
         public bool _isDragging = false;
 
         public Slider(SpriteBatch spritebatch, TextRender textrender,
@@ -78,7 +82,12 @@ namespace TappiruCS.UI
             UpdatePointPositionFromValue();
         }
 
-
+        public float GetPositionFromTime(float timeSeconds)
+        {
+            float t = (timeSeconds - minValue) / (maxValue - minValue);
+            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
+            return lineLeft + t * lineWidth;
+        }
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime);
