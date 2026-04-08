@@ -21,6 +21,12 @@ namespace TappiruCS
 
         private Matrix4 projection;
 
+        // === FADE SYSTEM ===
+        private float _fadeAlpha = 0f;           // 0 = прозрачно, 1 = чёрный
+        private float _fadeSpeed = 2.5f;         // скорость (чем больше — тем быстрее)
+        private IGameState _pendingState = null;
+        private bool _isFadingOut = false;
+        private bool _isTransitioning = false;
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
@@ -58,14 +64,48 @@ namespace TappiruCS
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
-           
             currentState.OnEnter();
-            
+
+            _fadeAlpha = 1f;                     // полностью чёрный
+            _pendingState = currentState;        // фиктивный переход (та же сцена)
+            _isFadingOut = false;                // режим «появление из черного»
+
         }
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            
+            float delta = (float)args.Time;
+            float fadeDelta = Math.Min(delta, 0.05f);
+
+            if (_pendingState != null)
+            {
+                if (_isFadingOut)
+                {
+                    _fadeAlpha += _fadeSpeed * fadeDelta;
+                    if (_fadeAlpha >= 1f)
+                    {
+                        _fadeAlpha = 1f;
+
+                        // === Смена состояния только здесь ===
+                        currentState?.OnExit();
+                        currentState = _pendingState;
+                        currentState.OnEnter();
+
+                        _isFadingOut = false;   // теперь будет fade-in
+                    }
+                }
+                else
+                {
+                    _fadeAlpha -= _fadeSpeed * fadeDelta;
+                    if (_fadeAlpha <= 0f)
+                    {
+                        _fadeAlpha = 0f;
+                        _pendingState = null;
+                        _isTransitioning = false;
+                    }
+                }
+            }
+
             currentState?.Update(args.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -73,6 +113,18 @@ namespace TappiruCS
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             currentState.Render(projection);
+            // === BLACK FADE (рисуется поверх всего) ===
+            if (_fadeAlpha > 0.001f)
+            {
+                spriteBatch.Draw(
+                    0,  // у тебя уже есть текстура black
+                    0, 0,
+                    ClientSize.X, ClientSize.Y,
+                    0, 0, 1, 1,
+                    0f, 0f, 0f, _fadeAlpha,
+                    projection);
+            }
+
             SwapBuffers();
         }
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -107,9 +159,13 @@ namespace TappiruCS
 
         public void ChangeState(IGameState newState)
         {
-            currentState?.OnExit();
-            currentState = newState;
-            currentState.OnEnter();
+            if (_pendingState != null || _isTransitioning) return;
+
+            _pendingState = newState;
+            _isFadingOut = true;
+            _isTransitioning = true;
+
+           
         }
     }
 }
