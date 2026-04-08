@@ -80,7 +80,7 @@ namespace TappiruCS.State
                 Tag = "create"
             };
             loadmap = new Button(_spriteBatch, _textRenderer,
-                500, 30, 700, 120, "button", "load", Color4.White)   // "btn" — имя текстуры через TextureManager
+                440, 30, 700, 120, "button", "load", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 0,
                 TextColor = Color4.White,
@@ -139,7 +139,7 @@ namespace TappiruCS.State
 
         private void TogglePlayPause()
         {
-            if (!isInput)
+            if (!isInput&&InEditMode)
             {
                 if (_isMusicPlaying)
                 {
@@ -173,6 +173,10 @@ namespace TappiruCS.State
         {
             if (e.Key == Keys.Space)
                 TogglePlayPause();
+            if (InEditMode && e.Key == Keys.Left)
+                _audio.SetCurrentTime(_audio.GetCurrentTime() - 0.1f);
+            if (InEditMode && e.Key == Keys.Right)
+                _audio.SetCurrentTime(_audio.GetCurrentTime() + 0.1f);
         }
         public void RenderEditedText(TextObject text)
         {
@@ -265,94 +269,6 @@ namespace TappiruCS.State
                 }
             };
         }
-        public void ActiveEditMode(string tappPath)
-        {
-            string projectDir = System.IO.Path.GetDirectoryName(tappPath);
-            if (string.IsNullOrEmpty(projectDir))
-            {
-                Console.WriteLine("Ошибка: не удалось определить папку проекта.");
-                return;
-            }
-            JsonMap loadedMap;
-            try
-            {
-                string jsonContent = System.IO.File.ReadAllText(tappPath);
-                loadedMap = System.Text.Json.JsonSerializer.Deserialize<JsonMap>(jsonContent);
-                if (loadedMap == null) throw new Exception("Deserialization returned null.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка загрузки .tapp файла: {ex.Message}");
-                return;
-            }
-
-
-            string mp3File = System.IO.Directory.GetFiles(projectDir, "*.mp3").FirstOrDefault();
-            string bgFile = System.IO.Directory.GetFiles(projectDir, "*.jpg").FirstOrDefault()
-                            ?? System.IO.Directory.GetFiles(projectDir, "*.png").FirstOrDefault();
-
-            if (string.IsNullOrEmpty(mp3File) || string.IsNullOrEmpty(bgFile))
-            {
-                Console.WriteLine("Ошибка: в папке проекта не найдены MP3 или фоновое изображение.");
-                return;
-            }
-
-            bgTexture = TextureLoader.Load(bgFile);
-            bg._textureId = bgTexture;
-
-            _audio.LoadMusic(mp3File);
-            _audio.Play();
-            _audio.SetLooping(true);
-
-            slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false };
-            _scene.Add(slider);
-            _scene.Add(slider.point);
-
-            slider.maxValue = (float)_audio.Duration;
-            slider.maxValueText.Text = slider.maxValue.ToString("F2");
-
-            PlayPauseButton = new Button(_spriteBatch, _textRenderer, 960, 1000, 100, 100, "pause", "", Color4.White) { Layer = 1 };
-            PlayPauseButton.OnClick += TogglePlayPause;
-            _scene.Add(PlayPauseButton);
-
-            _addMarkerButton = new Button(_spriteBatch, _textRenderer,
-                1200, 1000, 400, 100, "button", "add mark", Color4.White)
-            {
-                Layer = 1,
-                TextColor = Color4.White,
-                TextOffset = new Vector2(-10f, -20f),
-                TextScale = 0.4f,
-                ScaleMultiply = 0.6f,
-                Tag = "create"
-            };
-            _addMarkerButton.OnClick += () => {
-                float currentTime = (float)_audio.GetCurrentTime();
-                
-                ShowTextInputDialog("Введите текст для события", (text) => {
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        AddMarkerAtTime(currentTime, text);
-                    }
-                });
-            };
-            _scene.Add(_addMarkerButton);
-
-            _saveMarkersButton = new Button(_spriteBatch, _textRenderer, 800, 30, 700, 120, "button", "Save markers", Color4.White) 
-            {
-                Layer = 1,
-                TextColor = Color4.White,
-                TextOffset = new Vector2(-10f, -20f),
-                TextScale = 0.7f,
-                ScaleMultiply = 0.4f,
-                Tag = "create"
-            };
-            _saveMarkersButton.OnClick += SaveMarkersToFile;
-            _scene.Add(_saveMarkersButton);
-
-            LoadMarkersFromFile(tappPath);
-
-            InEditMode = true;
-        }
 
         private void ShowTextInputDialog(string title, Action<string> onComplete)
         {
@@ -443,14 +359,24 @@ namespace TappiruCS.State
                 File.Copy(pngPath, bgDest, true);
 
                 // создаём .tapp
-                var jsonMap = new JsonMap {
+                var jsonMap = new JsonMap
+                {
                     title = title,
                     artist = "",
                     creator = "",
                     difficulty = "Normal",
                     previewTime = 0,
                     endTime = 1,
-                    events = new List<TimingEvent>()
+                    events = new List<TimingEvent>(),
+                    tappedR = 0.4f,
+                    tappedG = 0.3f,
+                    tappedB = 0.6f,
+                    needR = 0.7f,
+                    needG = 0.3f,
+                    needB = 0.8f,
+                    completeR = 0.2f,
+                    completeG = 0.1f,
+                    completeB =0.4f
                 };
                 string json = JsonSerializer.Serialize(jsonMap, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(Path.Combine(projectDir, "data.tapp"), json);
@@ -509,6 +435,94 @@ namespace TappiruCS.State
                 pngPath = path;  // Пользователь выбрал файл
                 Console.WriteLine(pngPath);
             }
+        }
+        public void ActiveEditMode(string tappPath)
+        {
+            string projectDir = System.IO.Path.GetDirectoryName(tappPath);
+            if (string.IsNullOrEmpty(projectDir))
+            {
+                Console.WriteLine("Ошибка: не удалось определить папку проекта.");
+                return;
+            }
+            JsonMap loadedMap;
+            try
+            {
+                string jsonContent = System.IO.File.ReadAllText(tappPath);
+                loadedMap = System.Text.Json.JsonSerializer.Deserialize<JsonMap>(jsonContent);
+                if (loadedMap == null) throw new Exception("Deserialization returned null.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки .tapp файла: {ex.Message}");
+                return;
+            }
+
+
+            string mp3File = System.IO.Directory.GetFiles(projectDir, "*.mp3").FirstOrDefault();
+            string bgFile = System.IO.Directory.GetFiles(projectDir, "*.jpg").FirstOrDefault()
+                            ?? System.IO.Directory.GetFiles(projectDir, "*.png").FirstOrDefault();
+
+            if (string.IsNullOrEmpty(mp3File) || string.IsNullOrEmpty(bgFile))
+            {
+                Console.WriteLine("Ошибка: в папке проекта не найдены MP3 или фоновое изображение.");
+                return;
+            }
+
+            bgTexture = TextureLoader.Load(bgFile);
+            bg._textureId = bgTexture;
+
+            _audio.LoadMusic(mp3File);
+            _audio.Play();
+            _audio.SetLooping(true);
+
+            slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false };
+            _scene.Add(slider);
+            _scene.Add(slider.point);
+
+            slider.maxValue = (float)_audio.Duration;
+            slider.maxValueText.Text = slider.maxValue.ToString("F2");
+
+            PlayPauseButton = new Button(_spriteBatch, _textRenderer, 960, 1000, 100, 100, "pause", "", Color4.White) { Layer = 1 };
+            PlayPauseButton.OnClick += TogglePlayPause;
+            _scene.Add(PlayPauseButton);
+
+            _addMarkerButton = new Button(_spriteBatch, _textRenderer,
+                1200, 1000, 400, 100, "button", "add mark", Color4.White)
+            {
+                Layer = 1,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-10f, -20f),
+                TextScale = 0.4f,
+                ScaleMultiply = 0.6f,
+                Tag = "create"
+            };
+            _addMarkerButton.OnClick += () => {
+                float currentTime = (float)_audio.GetCurrentTime();
+
+                ShowTextInputDialog("Введите текст для события", (text) => {
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        AddMarkerAtTime(currentTime, text);
+                    }
+                });
+            };
+            _scene.Add(_addMarkerButton);
+
+            _saveMarkersButton = new Button(_spriteBatch, _textRenderer, 1780, 30, 700, 120, "button", "Save markers", Color4.White)
+            {
+                Layer = 1,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-10f, -20f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.4f,
+                Tag = "create"
+            };
+            _saveMarkersButton.OnClick += SaveMarkersToFile;
+            _scene.Add(_saveMarkersButton);
+
+            LoadMarkersFromFile(tappPath);
+
+            InEditMode = true;
         }
     }
 }

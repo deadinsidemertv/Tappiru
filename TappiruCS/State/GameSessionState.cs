@@ -71,6 +71,19 @@ namespace TappiruCS
             mapdata.title = tmp.title;
             mapdata.creator = tmp.creator;
             mapdata.artist = tmp.artist;
+
+            mapdata.tappedR = tmp.tappedR;
+            mapdata.tappedG = tmp.tappedG;
+            mapdata.tappedB = tmp.tappedB;
+
+            mapdata.needR = tmp.needR;
+            mapdata.needG = tmp.needG; 
+            mapdata.needB = tmp.needB;
+
+            mapdata.completeR = tmp.completeR;
+            mapdata.completeG = tmp.completeG;
+            mapdata.completeB = tmp.completeB;
+
             foreach (var ev in mapdata.Events)
     ev.text = ev.text.ToLowerInvariant();
             Console.WriteLine(mapdata.endTime + " endTime");
@@ -246,11 +259,11 @@ namespace TappiruCS
             for (int i = 0; i < text.Length; i++)
             {
                 if (session.PhaseComplete)
-                    colors[i] = new Color4(0.3f, 0.2f, 0.5f, 1f);      // тёмный фиолет (завершённая строка)
+                    colors[i] = new Color4(_mapData.completeR, _mapData.completeG, _mapData.completeB, 1f);      // тёмный фиолет (завершённая строка)
                 else if (i < session.CurrentCharIndex)
-                    colors[i] = new Color4(0.4f, 0.3f, 0.6f, 1f);      // тусклый фиолетово-синий (набранные)
+                    colors[i] = new Color4(_mapData.tappedR, _mapData.tappedG, _mapData.tappedB, 1f);      // тусклый фиолетово-синий (набранные)
                 else if (i == session.CurrentCharIndex)
-                    colors[i] = new Color4(0.8f, 0.4f, 0.9f, 1f);      // бледно-фиолетовый (текущий символ)
+                    colors[i] = new Color4(_mapData.needR, _mapData.needG, _mapData.needB, 1f);      // бледно-фиолетовый (текущий символ)
                 else
                     colors[i] = new Color4(0.5f, 0.5f, 0.6f, 1f);      // холодный серый (не набранные)
             }
