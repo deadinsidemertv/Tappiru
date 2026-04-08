@@ -38,35 +38,47 @@ namespace TappiruCS.UI
             maxValue = max;
             Value = Math.Clamp(Value, min, max);
 
+            float scale = this.ScaleMultiply;
+            float lineLeftDesign = x - width / 2f;
+            float lineRightDesign = x + width / 2f;
+
+            float scaledLeft = lineLeftDesign * scale;
+            float scaledRight = lineRightDesign * scale;
+            float scaledY = y * scale;
+            float offsetYMinMax = 55 * scale;
+            float offsetYValue = 90 * scale;
+
             int lineTexture = TextureManager.GetTexture("slider_line");
 
             // Линия (фон слайдера)
             line = new SpriteObject(_spriteBatch, lineTexture, x, y, width, 8)
             {
                 Color = new Color4(0.3f, 0.3f, 0.3f, 1f),
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = this.ScaleMultiply,
             };
 
             // Ползунок
             point = new SpriteObject(_spriteBatch, lineTexture, x, y, 16, 40)
             {
                 Color = Color4.Black,
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = this.ScaleMultiply
             };
 
             // Тексты
-            minValueText = new TextObject(_textRender, min.ToString("F0"), x - width * 0.48f, y - 55)
+            minValueText = new TextObject(_textRender, min.ToString("F0"), scaledLeft, scaledY - offsetYMinMax, scale)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.25f,
+                ScaleMultiply = 0.25f*this.ScaleMultiply,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f)
             };
 
-            maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width * 0.48f, y - 55)
+            maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width / 2, y)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.25f,
+                ScaleMultiply = 0.25f * this.ScaleMultiply,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f)
             };
@@ -74,7 +86,7 @@ namespace TappiruCS.UI
             ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y - 90)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 0.3f * this.ScaleMultiply,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f)
             };
@@ -95,9 +107,19 @@ namespace TappiruCS.UI
             // Передаём CanvasScale всем детям
             line.CanvasScale = CanvasScale;
             point.CanvasScale = CanvasScale;
+
             minValueText.CanvasScale = CanvasScale;
             maxValueText.CanvasScale = CanvasScale;
             ValueText.CanvasScale = CanvasScale;
+
+            line.ScaleMultiply = this.ScaleMultiply;
+            point.ScaleMultiply = this.ScaleMultiply;
+
+            //minValueText.ScaleMultiply = this.ScaleMultiply*0.25f;
+           // maxValueText.ScaleMultiply =  this.ScaleMultiply * 0.25f;
+           // ValueText.ScaleMultiply =  this.ScaleMultiply * 0.25f;
+
+
 
             UpdateDragging(mouse);
             UpdateVisuals();

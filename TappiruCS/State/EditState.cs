@@ -28,6 +28,8 @@ namespace TappiruCS.State
 
         public Slider slider;
 
+        public List<Slider> colors;
+
         public Button createmap;
         public Button loadmap;
 
@@ -478,6 +480,18 @@ namespace TappiruCS.State
             slider = new Slider(_spriteBatch, _textRenderer, 0, 1000, 960, 900, 1800) { AllowHover = false };
             _scene.Add(slider);
             _scene.Add(slider.point);
+
+            colors = new List<Slider>();
+            for (int i = 0; i < 9; i++) 
+            {
+                colors.Add(new Slider(_spriteBatch, _textRenderer, 0, 1, 1740, 200 + i * 80, 300) { ScaleMultiply =0.5f }) ;
+                _scene.Add(colors[i]);
+                _scene.Add(colors[i].point);
+
+            }
+
+
+
 
             slider.maxValue = (float)_audio.Duration;
             slider.maxValueText.Text = slider.maxValue.ToString("F2");

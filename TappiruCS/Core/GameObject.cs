@@ -18,7 +18,7 @@ namespace TappiruCS.Core
             public bool Active { get; set; } = true;
             public bool AutoScale { get; set; } = true;          //Разрешить автоскейл
 
-            public float ScaleMultiply = 1f;
+            public float ScaleMultiply { get; set; } = 1f;
             public bool IsHovered { get; set; } = false;
 
             public bool AllowHover = true;
