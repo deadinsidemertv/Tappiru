@@ -57,7 +57,7 @@ namespace TappiruCS.UI
             };
 
             // === Тексты (локальный ScaleMultiply) ===
-            minValueText = new TextObject(_textRender, min.ToString("F0"), x - width / 2f, y - 55f, 1f)
+            minValueText = new TextObject(_textRender, min.ToString("F0"), x - width / 2f, y , 1f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -75,10 +75,10 @@ namespace TappiruCS.UI
                 Parent = this
             };
 
-            ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y - 90f, 1f)
+            ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y, 1f)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 0.2f,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
                 Parent = this
@@ -103,39 +103,50 @@ namespace TappiruCS.UI
             maxValueText.CanvasScale = CanvasScale;
             ValueText.CanvasScale = CanvasScale;
 
+            //line.ScaleMultiply = this.ScaleMultiply;
+            //point.ScaleMultiply = this.ScaleMultiply;
+
             UpdateDragging(mouse);
+            UpdatePointPositionFromValue();// ← новое
+            UpdateTextPositions();
             UpdateVisuals();
-            UpdateTextPositions();           // ← новое
         }
         private void UpdateTextPositions()
         {
-            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
+            var (lineLeft, lineTop, lineWidth, lineHeight) = line.GetDesignBounds();
 
-            float vertOffset = 55f * this.ScaleMultiply;   // масштабируем отступы
+            float offsetBelow = -50f * this.ScaleMultiply;   // отступ для min/max вниз от линии
 
-            minValueText.Position = new Vector2(lineLeft, line.Position.Y - vertOffset);
-            maxValueText.Position = new Vector2(lineLeft + lineWidth, line.Position.Y);
+            minValueText.Position = new Vector2(lineLeft, lineTop + lineHeight / 2 + offsetBelow);
+            maxValueText.Position = new Vector2(lineLeft + lineWidth, lineTop + lineHeight / 2 + offsetBelow);
         }
         private void UpdateDragging(MouseState mouse)
         {
-            // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===
-            // Преобразуем экранные координаты мыши в дизайн-координаты
+            // Преобразуем экранные координаты мыши в дизайн-координаты (как в Scene)
             float virtualMouseX = mouse.X / CanvasScale.X;
             float virtualMouseY = mouse.Y / CanvasScale.Y;
 
-            // Проверяем нажатие на ползунок
-            if (point.IsHovered && mouse.IsButtonPressed(MouseButton.Left))
+            // === УЛУЧШЕННАЯ ПРОВЕРКА НАЖАТИЯ ===
+            // Проверяем нажатие НЕ только на point, а на любую часть слайдера (line или point)
+            bool clickedOnSlider = line.IsPointInside(virtualMouseX, virtualMouseY) ||
+                                   point.IsPointInside(virtualMouseX, virtualMouseY);
+
+            if (clickedOnSlider && mouse.IsButtonPressed(MouseButton.Left))
+            {
                 _isDragging = true;
+            }
 
             if (mouse.IsButtonReleased(MouseButton.Left))
+            {
                 _isDragging = false;
+            }
 
             if (_isDragging)
             {
-                // Получаем границы линии в дизайн-координатах
+                // Получаем актуальные границы линии с учётом всех ScaleMultiply родителей
                 var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
 
-                // Ограничиваем виртуальную позицию мыши границами линии
+                // Ограничиваем позицию мыши границами линии
                 float clampedX = Math.Clamp(virtualMouseX, lineLeft, lineLeft + lineWidth);
 
                 point.Position = new Vector2(clampedX, point.Position.Y);
@@ -165,7 +176,21 @@ namespace TappiruCS.UI
 
         private void UpdateVisuals()
         {
-            ValueText.Position = new Vector2(point.Position.X, point.Position.Y - 80);
+            // Получаем актуальные границы ползунка (с учётом всех масштабов)
+            var (pointLeft, pointTop, pointWidth, pointHeight) = point.GetDesignBounds();
+
+            // Фиксированный отступ от верхней границы ползунка вверх
+            // Это значение почти не зависит от размера текста
+            const float baseOffset = 5f;                    // основное расстояние от ползунка до текста
+            float extraOffset = 12f * ValueText.ScaleMultiply; // небольшой дополнительный отступ, зависящий от размера текста
+
+            float finalOffsetY = baseOffset + extraOffset;
+
+            ValueText.Position = new Vector2(
+                point.Position.X,                    // точно по центру ползунка по X
+                pointTop - finalOffsetY              // выше верхней границы ползунка
+            );
+
             ValueText.Text = Value.ToString("F1");
         }
 

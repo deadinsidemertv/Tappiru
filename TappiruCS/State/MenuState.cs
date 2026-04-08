@@ -7,6 +7,7 @@ using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.State;
+using TappiruCS.State.Edit;
 using TappiruCS.UI;
 
 namespace TappiruCS
