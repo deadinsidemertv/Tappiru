@@ -1,5 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using TappiruCS.Core.TappiruCS.Core;
 
 namespace TappiruCS.Core.Tween.Animations
 {

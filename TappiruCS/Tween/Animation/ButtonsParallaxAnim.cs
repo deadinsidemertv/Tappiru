@@ -1,8 +1,4 @@
-﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TappiruCS.Core.TappiruCS.Core;
+﻿using TappiruCS.Core;
 using TappiruCS.Core.Tween;
 using TappiruCS.UI;
 

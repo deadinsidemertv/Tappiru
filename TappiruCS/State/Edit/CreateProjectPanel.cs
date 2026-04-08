@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using TappiruCS.Core;
+using TappiruCS.Core;           // ← правильный using для Scene и GameObject
 using TappiruCS.Render;
 using TappiruCS.UI;
 

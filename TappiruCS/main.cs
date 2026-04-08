@@ -1,8 +1,5 @@
-﻿using OpenTK;
-using OpenTK.Windowing.Desktop;
+﻿using OpenTK.Windowing.Desktop;
 using System.Text;
-using TappiruCS.Render;
-using OpenTK.Graphics.OpenGL4;
 
 
 namespace TappiruCS
@@ -16,17 +13,7 @@ namespace TappiruCS
             NativeWindowSettings nwSetting = NativeWindowSettings.Default;
             Game gamewindow = new Game(gwSetting, nwSetting);
 
-
-            
-            
-
-
-
             gamewindow.Run();
-
-
-
-
 
         }
     }

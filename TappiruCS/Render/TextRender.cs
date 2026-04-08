@@ -1,7 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace TappiruCS.Render
 {

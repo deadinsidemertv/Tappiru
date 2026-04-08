@@ -1,9 +1,4 @@
-﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TappiruCS.GameLogic
+﻿namespace TappiruCS.GameLogic
 {
     public class MapData
     {

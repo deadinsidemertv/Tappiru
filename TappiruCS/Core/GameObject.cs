@@ -1,13 +1,8 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace TappiruCS.Core
-{
-    namespace TappiruCS.Core
-    {
+ namespace TappiruCS.Core
+ {
         public abstract class GameObject : IGameObject
         {
             public Vector2 Position { get; set; } = Vector2.Zero;
@@ -30,7 +25,7 @@ namespace TappiruCS.Core
 
             public float _baseScaleMultiply = -1f;
 
-            // ====================== НОВОЕ: ИЕРАРХИЯ И ЭФФЕКТИВНЫЙ МАСШТАБ ======================
+            // ====================== ИЕРАРХИЯ И ЭФФЕКТИВНЫЙ МАСШТАБ ======================
             public GameObject? Parent { get; set; } = null;
 
             public float EffectiveScaleMultiply
@@ -48,10 +43,13 @@ namespace TappiruCS.Core
                 }
             }
 
+            // ====================== HOVER EVENTS ======================
+            public event Action<GameObject> OnHoverEnter;
+            public event Action<GameObject> OnHoverExit;
+
             // ====================== PIVOT HELPERS ======================
             public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
             {
-                // Теперь автоматически учитывает ScaleMultiply ВСЕХ родителей!
                 float effWidth = Scale.X * EffectiveScaleMultiply;
                 float effHeight = Scale.Y * EffectiveScaleMultiply;
                 float pivotOffsetX = effWidth * Pivot.X;
@@ -76,7 +74,16 @@ namespace TappiruCS.Core
 
             public virtual void SetHover(bool hover)
             {
+                if (IsHovered == hover)
+                    return;
+
+                bool wasHovered = IsHovered;
                 IsHovered = hover;
+
+                if (hover && !wasHovered)
+                    OnHoverEnter?.Invoke(this);
+                else if (!hover && wasHovered)
+                    OnHoverExit?.Invoke(this);
             }
 
             public virtual bool IsPointInside(float worldX, float worldY)
@@ -89,5 +96,4 @@ namespace TappiruCS.Core
                        worldY >= top && worldY <= bottom;
             }
         }
-    }
 }

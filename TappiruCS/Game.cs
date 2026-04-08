@@ -2,18 +2,9 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using TappiruCS.GameLogic;
+using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.State;
-using TappiruCS.UI;
-
-
 
 namespace TappiruCS
 {
@@ -30,10 +21,6 @@ namespace TappiruCS
 
         private Matrix4 projection;
 
-        
-
-        
-
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
@@ -42,9 +29,6 @@ namespace TappiruCS
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
             
         }
-
-        GameSessionState gameRD;
-
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
@@ -70,28 +54,20 @@ namespace TappiruCS
             audio = new AudioManager();
 
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
-            audio.LoadSoundEffect("matchStart", "Textures/match-start.mp3");
+            audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
+            audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
            
             currentState.OnEnter();
             
         }
-
-
-
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
             
             currentState?.Update(args.Time);
         }
-
-
-
-
-
-
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
@@ -99,9 +75,6 @@ namespace TappiruCS
             currentState.Render(projection);
             SwapBuffers();
         }
-
-
-
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
             base.OnMouseWheel(e);
@@ -112,14 +85,11 @@ namespace TappiruCS
                 songSelect.OnMouseWheel(e);
             }
         }
-
-
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
             currentState?.HandleKeyDown(e);
         }
-
         public void UpdateProjection()
         {
             int width = ClientSize.X;
@@ -141,7 +111,5 @@ namespace TappiruCS
             currentState = newState;
             currentState.OnEnter();
         }
-       
-
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using OpenTK.Graphics.OpenGL4;
 using StbImageSharp;
-using OpenTK.Graphics.OpenGL4;
 
 namespace TappiruCS.Render
 {

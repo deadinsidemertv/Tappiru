@@ -1,22 +1,14 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
-using TappiruCS.State;
 using TappiruCS.UI;
-using static System.Collections.Specialized.BitVector32;
 using static TappiruCS.Render.TextRender;
 
-namespace TappiruCS
+namespace TappiruCS.State
 {
 
     public class GameSessionState : IGameState

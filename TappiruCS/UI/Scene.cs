@@ -1,8 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Collections.Generic;
-using System.Linq;
-using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Core.Tween;
 
 namespace TappiruCS.Core
@@ -84,10 +81,11 @@ namespace TappiruCS.Core
             GameObject top = null;
             int topLayer = int.MinValue;
 
+            // Сначала находим топовый объект
             foreach (var obj in _objects)
             {
                 if (!obj.Active) continue;
-                if (!obj.AllowHover) continue; // пропускаем объекты, которые не должны получать hover
+                if (!obj.AllowHover) continue;
 
                 if (obj.IsPointInside(virtualMouseX, virtualMouseY))
                 {
@@ -99,12 +97,14 @@ namespace TappiruCS.Core
                 }
             }
 
-            // Сбрасываем у всех
+            // Теперь сбрасываем hover у всех, КРОМЕ топового
             foreach (var obj in _objects)
-                obj.SetHover(false);
-
-            if (top != null)
-                top.SetHover(true);
+            {
+                if (obj == top)
+                    obj.SetHover(true);      // сразу ставим true топовому
+                else
+                    obj.SetHover(false);
+            }
         }
 
         private Vector2 GetVirtualMousePosition(MouseState mouse)

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using TappiruCS.Core.TappiruCS.Core;
-
-namespace TappiruCS.Core.Tween
+﻿namespace TappiruCS.Core.Tween
 {
     public class TweenManager
     {

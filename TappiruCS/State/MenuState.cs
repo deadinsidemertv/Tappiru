@@ -1,16 +1,12 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Security.Cryptography.X509Certificates;
 using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.Server;
-using TappiruCS.State;
 using TappiruCS.State.Edit;
 using TappiruCS.UI;
 
-namespace TappiruCS
+namespace TappiruCS.State
 {
     public class MenuState : IGameState
     {

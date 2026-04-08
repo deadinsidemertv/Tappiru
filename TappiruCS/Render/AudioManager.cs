@@ -1,7 +1,5 @@
 ﻿using NAudio.Wave;
 using OpenTK.Audio.OpenAL;
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace TappiruCS.Render
@@ -11,6 +9,7 @@ namespace TappiruCS.Render
         private readonly ALDevice _device;
         private readonly ALContext _context;
 
+        public static AudioManager Instance;
         // Основной источник для музыки
         private int _musicSource;
         private int _musicBuffer;
@@ -24,12 +23,14 @@ namespace TappiruCS.Render
 
         public AudioManager()
         {
+            Instance = this;
             _device = ALC.OpenDevice(null);
             _context = ALC.CreateContext(_device, (int[])null);
             ALC.MakeContextCurrent(_context);
 
             _musicSource = AL.GenSource();
             _musicBuffer = AL.GenBuffer();
+   
         }
 
         // ====================== МУЗЫКА ======================

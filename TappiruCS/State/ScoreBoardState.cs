@@ -1,8 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Reflection;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;

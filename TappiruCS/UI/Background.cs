@@ -1,10 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
 using TappiruCS.Core;
-using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI

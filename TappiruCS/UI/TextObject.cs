@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using TappiruCS.Core.TappiruCS.Core;
+using TappiruCS.Core;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI

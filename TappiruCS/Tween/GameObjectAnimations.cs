@@ -1,5 +1,4 @@
 ﻿using TappiruCS.Core;
-using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.Core.Tween;
 using TappiruCS.Core.Tween.Animations;
 

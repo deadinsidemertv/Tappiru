@@ -1,6 +1,4 @@
-﻿using TappiruCS.Core.TappiruCS.Core;   // или куда у тебя лежит GameObject
-
-namespace TappiruCS.Core.Tween
+﻿namespace TappiruCS.Core.Tween
 {
     public abstract class BaseTween
     {

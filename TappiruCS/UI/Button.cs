@@ -1,12 +1,10 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using TappiruCS.Core.TappiruCS.Core;
+using TappiruCS.Core;
 using TappiruCS.Render;
-using TappiruCS.UI;
 using static TappiruCS.Render.TextRender;
 
-namespace TappiruCS
+namespace TappiruCS.UI
 {
     public class Button : GameObject
     {
@@ -14,8 +12,6 @@ namespace TappiruCS
         private readonly TextRender _textRenderer;
 
         private readonly int _textureId;
-
-
 
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
@@ -57,17 +53,15 @@ namespace TappiruCS
             TextColor = color;
             _currentColor = NormalColor;
 
-            // === Текст (автоматически наследует ScaleMultiply родителя) ===
             _textObject = new TextObject(_textRenderer, text, x, y, 1f)
             {
                 Color = TextColor,
-                ScaleMultiply = TextScale,           // относительный масштаб текста
+                ScaleMultiply = TextScale,
                 Align = TextAlign,
                 Pivot = new Vector2(0.5f, 0.5f),
                 Parent = this
             };
 
-            // === Картинка (тоже автоматически наследует) ===
             _imageObject = new SpriteObject(_spriteBatch, 0, x, y, 1f, 1f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -92,19 +86,17 @@ namespace TappiruCS
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
 
-            // ====================== АВТОМАТИЧЕСКОЕ масштабирование детей ======================
+            // Автоматическое масштабирование детей
             _textObject.CanvasScale = CanvasScale;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
-            _textObject.ScaleMultiply = TextScale;           // всегда синхронизируем относительный масштаб
+            _textObject.ScaleMultiply = TextScale;
 
-            // Отступ текста тоже масштабируется вместе с кнопкой
             float offsetScale = ScaleMultiply;
             _textObject.Position = new Vector2(
                 Position.X + TextOffset.X * offsetScale,
                 Position.Y + TextOffset.Y * offsetScale);
 
-            // ====================== Картинка ======================
             _imageObject.CanvasScale = CanvasScale;
 
             if (IsImaged)
@@ -128,7 +120,6 @@ namespace TappiruCS
 
         public override void Draw(Matrix4 projection)
         {
-            // Фон кнопки
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
             float sLeft = dLeft * CanvasScale.X;
             float sTop = dTop * CanvasScale.Y;
@@ -138,22 +129,28 @@ namespace TappiruCS
             _spriteBatch.Draw(_textureId, sLeft, sTop, sW, sH, 0, 0, 1, 1,
                 _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A, projection);
 
-            // Дети рисуются автоматически (с EffectiveScaleMultiply)
             _textObject.Draw(projection);
             if (_imageObject.Active)
                 _imageObject.Draw(projection);
         }
 
+        
         public override void SetHover(bool hover)
         {
-            if (IsHovered == hover) return;
-            base.SetHover(hover);
+            // Если состояние не изменилось с прошлого вызова — выходим
+            if (IsHovered == hover)
+                return;
 
+            bool wasHovered = IsHovered;           // старое состояние до изменения
+            IsHovered = hover;
+
+            // === АНИМАЦИИ И ЦВЕТ ===
             if (hover)
             {
-                if (Tag == "") this.AnimScale(1.15f, 0.18f);
+                if (Tag == "")
+                    this.AnimScale(1.15f, 0.18f);
+
                 _currentColor = HoverColor;
-                
             }
             else
             {
@@ -161,7 +158,19 @@ namespace TappiruCS
                 _currentColor = NormalColor;
             }
 
+            // === ЗВУК НА HOVER — ТОЛЬКО ПРИ РЕАЛЬНОМ ВХОДЕ ===
+            if (hover && !wasHovered)
+            {
+                if (AudioManager.Instance != null && !Tag.Contains("NoHoverSound"))
+                {
+                    AudioManager.Instance.PlaySoundEffect("hover", 0.6f);
+                }
+            }
+
             HoverStateChanged?.Invoke(this, hover);
+
+            // Вызываем базовые события
+            base.SetHover(hover);
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
-using System.Collections.Generic;
-using TappiruCS.Core.TappiruCS.Core;
+using TappiruCS.Core;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI

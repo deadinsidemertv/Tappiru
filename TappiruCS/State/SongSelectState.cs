@@ -1,15 +1,13 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Reflection;
 using System.Text.Json;
 using TappiruCS.Core;
-using TappiruCS.Core.TappiruCS.Core;
 using TappiruCS.GameLogic;
-using TappiruCS.Render;     // если нужно для SpriteBatch и TextRender
+using TappiruCS.Render;     
 using TappiruCS.UI;
 
-namespace TappiruCS
+namespace TappiruCS.State
 {
     public class SongSelectState : IGameState
     {

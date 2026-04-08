@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TappiruCS.GameLogic
+﻿namespace TappiruCS.GameLogic
 {
     public class GameSession
     {
