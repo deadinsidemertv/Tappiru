@@ -21,7 +21,7 @@ namespace TappiruCS.UI
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
 
-        public string PlaceHolderText = "Введите текст...";
+        public string PlaceHolderText { get; set; } = "Введите текст...";
         public Color4 PlaceHolderColor { get; set; } = Color4.DarkGray;
         public string _input = "";
 
@@ -113,6 +113,7 @@ namespace TappiruCS.UI
         public override void Update(double deltaTime, MouseState mouse)
         {
             PlaceHolder.Color = PlaceHolderColor;
+            PlaceHolder.Text = PlaceHolderText;
 
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;

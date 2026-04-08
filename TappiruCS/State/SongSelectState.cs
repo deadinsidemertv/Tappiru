@@ -16,6 +16,7 @@ namespace TappiruCS
         private readonly Game _game;
         private readonly SpriteBatch _spriteBatch;
         private readonly TextRender _textRenderer;
+        private readonly TextRender _manrope;
         private readonly AudioManager _audio;
 
         public MapData SelectedMap;
@@ -46,6 +47,7 @@ namespace TappiruCS
             _game = game;
             _spriteBatch = spriteBatch;
             _textRenderer = textRenderer;
+            //_textRenderer = new TextRender(spriteBatch, "Textures\\Font\\manrope.fnt");
             _audio = audio;
         }
 
@@ -89,7 +91,7 @@ namespace TappiruCS
                     
                     list.Buttons[i].ButtonImage = 0;
                 }
-
+                list.Buttons[i].Parent = list;
                 list.Buttons[i].Text = displayName;
                 list.Buttons[i].TextScale = 0.4f;
                 list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
@@ -97,9 +99,10 @@ namespace TappiruCS
                 list.Buttons[i].TextOffset = new Vector2(-90f, -50f);
                 list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
                 list.Buttons[i].ImageOffset = new Vector2(-570f, 0f);
-                list.Buttons[i].ScaleMultiply = 0.65f;
+                list.Buttons[i].ScaleMultiply = 0.3f;
                 list.Buttons[i].Layer = list.Layer;
                 list.Buttons[i].Tag = "List";
+                
 
 
 

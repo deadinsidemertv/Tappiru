@@ -12,7 +12,7 @@ namespace TappiruCS.UI
         private readonly SpriteBatch _spriteBatch;
         private readonly TextRender _textRenderer;
 
-        public float ScaleMultiplyList = 1f;
+        public float ScaleMultiplyList = 0.6f;
 
         public float ScrollOffsetY { get; private set; } = 0f;
         public float ScrollSpeed = 0.5f;

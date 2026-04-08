@@ -265,7 +265,7 @@ namespace TappiruCS
                 else if (i == session.CurrentCharIndex)
                     colors[i] = new Color4(_mapData.needR, _mapData.needG, _mapData.needB, 1f);      // бледно-фиолетовый (текущий символ)
                 else
-                    colors[i] = new Color4(0.5f, 0.5f, 0.6f, 1f);      // холодный серый (не набранные)
+                    colors[i] = new Color4(1f, 1f, 1f, 1f);      
             }
 
             // Главный вызов — передаём актуальный CanvasScale
