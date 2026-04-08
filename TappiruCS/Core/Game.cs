@@ -69,7 +69,8 @@ namespace TappiruCS
 
             audio = new AudioManager();
 
-            
+            //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
+            audio.LoadSoundEffect("matchStart", "Textures/match-start.mp3");
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
            

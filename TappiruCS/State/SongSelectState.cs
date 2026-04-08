@@ -164,6 +164,7 @@ namespace TappiruCS
         public void PlaySong(string SongPath)
         {
             Console.WriteLine("игра началась");
+            _audio.PlaySoundEffect("matchStart");
             _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SelectedMap));
         }
 
@@ -181,7 +182,7 @@ namespace TappiruCS
             MapTitle.Text = SelectedMap.title+$" - [{SelectedMap.artist}]";
             Creator.Text = "Автор:" + SelectedMap.creator;
 
-            int totalSeconds = (int)_audio.duration;
+            int totalSeconds = (int)_audio.Duration;
             int minutes = totalSeconds / 60;
             int seconds = totalSeconds % 60;
             string formattedTime = $"{minutes}:{seconds:D2}"; // D2 — всегда две цифры для секунд

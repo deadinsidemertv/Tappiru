@@ -15,6 +15,8 @@ namespace TappiruCS
 
         private readonly int _textureId;
 
+
+
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
         public Vector2 TextOffset { get; set; } = new Vector2(0f, 0f);
@@ -151,6 +153,7 @@ namespace TappiruCS
             {
                 if (Tag == "") this.AnimScale(1.15f, 0.18f);
                 _currentColor = HoverColor;
+                
             }
             else
             {
