@@ -38,6 +38,8 @@ namespace TappiruCS.UI
                     ScaleMultiply = ScaleMultiplyList
                 });
             }
+            var btn = Buttons[^1];   // или Buttons[Buttons.Count - 1]
+            btn.Parent = this;
         }
 
         public override void Draw(Matrix4 projection)
@@ -54,8 +56,9 @@ namespace TappiruCS.UI
             foreach (Button button in Buttons)
             {
                 button.CanvasScale = this.CanvasScale;
+                button.ScaleMultiply = ScaleMultiplyList;   // ← обновляем локальный масштаб
+                button.Parent = this;                       // на всякий случай
 
-                // Скролл сдвигает центр кнопки — работает идеально с pivot
                 float originalY = button.Position.Y;
                 button.Position = new Vector2(button.Position.X, originalY - ScrollOffsetY);
 

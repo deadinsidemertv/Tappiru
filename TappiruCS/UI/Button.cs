@@ -17,13 +17,13 @@ namespace TappiruCS
 
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
-        public Vector2 TextOffset { get; set; } = new Vector2(0f, 0f);   // по умолчанию 0
+        public Vector2 TextOffset { get; set; } = new Vector2(0f, 0f);
         public float TextScale { get; set; } = 0.5f;
         public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
         public int ButtonImage { get; set; } = 0;
         public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);
-        public Vector2 ImageOffset { get; set; } = Vector2.Zero;        // ← смещение в пикселях от ЦЕНТРА кнопки (при ScaleMultiply = 1)
+        public Vector2 ImageOffset { get; set; } = Vector2.Zero;
         public Vector2 ImageScale { get; set; } = new Vector2(0.18f, 1f);
         public bool IsImaged { get; set; } = false;
 
@@ -33,9 +33,11 @@ namespace TappiruCS
 
         private Color4 _currentColor;
 
-        public event Action OnClick;
+        private readonly TextObject _textObject;
+        private readonly SpriteObject _imageObject;
 
-        public event Action<Button,bool> HoverStateChanged;
+        public event Action OnClick;
+        public event Action<Button, bool> HoverStateChanged;
 
         public Button(SpriteBatch spriteBatch, TextRender textRenderer,
                       float x, float y, float width, float height,
@@ -53,12 +55,29 @@ namespace TappiruCS
             TextColor = color;
             _currentColor = NormalColor;
 
-            
+            // === Текст (автоматически наследует ScaleMultiply родителя) ===
+            _textObject = new TextObject(_textRenderer, text, x, y, 1f)
+            {
+                Color = TextColor,
+                ScaleMultiply = TextScale,           // относительный масштаб текста
+                Align = TextAlign,
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this
+            };
+
+            // === Картинка (тоже автоматически наследует) ===
+            _imageObject = new SpriteObject(_spriteBatch, 0, x, y, 1f, 1f)
+            {
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this,
+                Active = false
+            };
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime);
+
             bool isPressed = IsHovered && mouse.IsButtonDown(MouseButton.Left);
 
             if (isPressed)
@@ -70,6 +89,39 @@ namespace TappiruCS
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
+
+            // ====================== АВТОМАТИЧЕСКОЕ масштабирование детей ======================
+            _textObject.CanvasScale = CanvasScale;
+            _textObject.Text = Text;
+            _textObject.Color = TextColor;
+            _textObject.ScaleMultiply = TextScale;           // всегда синхронизируем относительный масштаб
+
+            // Отступ текста тоже масштабируется вместе с кнопкой
+            float offsetScale = ScaleMultiply;
+            _textObject.Position = new Vector2(
+                Position.X + TextOffset.X * offsetScale,
+                Position.Y + TextOffset.Y * offsetScale);
+
+            // ====================== Картинка ======================
+            _imageObject.CanvasScale = CanvasScale;
+
+            if (IsImaged)
+            {
+                _imageObject.Active = true;
+                _imageObject._textureId = ButtonImage;
+
+                Vector2 offset = ImageOffset.LengthSquared > 0.0001f ? ImageOffset : ImagePadding;
+                float scaledOffsetX = offset.X * offsetScale;
+                float scaledOffsetY = offset.Y * offsetScale;
+
+                _imageObject.Position = new Vector2(Position.X + scaledOffsetX, Position.Y + scaledOffsetY);
+                _imageObject.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
+                _imageObject.ScaleMultiply = 1f;
+            }
+            else
+            {
+                _imageObject.Active = false;
+            }
         }
 
         public override void Draw(Matrix4 projection)
@@ -81,53 +133,13 @@ namespace TappiruCS
             float sW = effW * CanvasScale.X;
             float sH = effH * CanvasScale.Y;
 
-            _spriteBatch.Draw(_textureId,
-                sLeft, sTop, sW, sH,
-                0, 0, 1, 1,
-                _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A,
-                projection);
+            _spriteBatch.Draw(_textureId, sLeft, sTop, sW, sH, 0, 0, 1, 1,
+                _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A, projection);
 
-            // ==================== Текст кнопки ====================
-            float textDesignX = Position.X + TextOffset.X;
-            float textDesignY = Position.Y + TextOffset.Y;
-
-            var buttonText = new TextObject(_textRenderer, Text, textDesignX, textDesignY, TextScale)
-            {
-                Color = TextColor,
-                ScaleMultiply = ScaleMultiply,
-                Align = TextAlign.Center,
-                CanvasScale = CanvasScale,
-                Pivot = new Vector2(0.5f, 0.5f)
-            };
-            buttonText.Draw(projection);
-
-            // ==================== Картинка на кнопке ====================
-            if (IsImaged)
-            {
-                Vector2 offset = ImageOffset.LengthSquared > 0.0001f ? ImageOffset : ImagePadding;
-
-                // ← КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ
-                // Offset теперь масштабируется вместе с кнопкой → картинка остаётся в рамке
-                float scaledOffsetX = offset.X * ScaleMultiply;
-                float scaledOffsetY = offset.Y * ScaleMultiply;
-
-                // Позиция ЦЕНТРА картинки в дизайн-координатах
-                float imageDesignX = Position.X + scaledOffsetX;
-                float imageDesignY = Position.Y + scaledOffsetY;
-
-                // Базовый размер картинки (до ScaleMultiply)
-                float imageBaseW = Scale.X * ImageScale.X;
-                float imageBaseH = Scale.Y * ImageScale.Y;
-
-                var imageBtn = new SpriteObject(_spriteBatch, ButtonImage, imageDesignX, imageDesignY, imageBaseW, imageBaseH)
-                {
-                    ScaleMultiply = ScaleMultiply,     // масштабируется вместе с кнопкой
-                    Layer = 2,
-                    CanvasScale = CanvasScale,
-                    Pivot = new Vector2(0.5f, 0.5f)    // центр картинки находится в imageDesignX/Y
-                };
-                imageBtn.Draw(projection);
-            }
+            // Дети рисуются автоматически (с EffectiveScaleMultiply)
+            _textObject.Draw(projection);
+            if (_imageObject.Active)
+                _imageObject.Draw(projection);
         }
 
         public override void SetHover(bool hover)
@@ -137,11 +149,7 @@ namespace TappiruCS
 
             if (hover)
             {
-                if (Tag == "") 
-                { 
-                    this.AnimScale(1.15f, 0.18f);
-                }
-                
+                if (Tag == "") this.AnimScale(1.15f, 0.18f);
                 _currentColor = HoverColor;
             }
             else

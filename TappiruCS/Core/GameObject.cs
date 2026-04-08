@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace TappiruCS.Core
 {
     namespace TappiruCS.Core
@@ -16,7 +15,7 @@ namespace TappiruCS.Core
             public float Rotation { get; set; } = 0f;
             public int Layer { get; set; } = 0;
             public bool Active { get; set; } = true;
-            public bool AutoScale { get; set; } = true;          //Разрешить автоскейл
+            public bool AutoScale { get; set; } = true;
 
             public float ScaleMultiply { get; set; } = 1f;
             public bool IsHovered { get; set; } = false;
@@ -27,16 +26,34 @@ namespace TappiruCS.Core
             public string Tag { get; set; } = "";
 
             // === PIVOT SYSTEM ===
-            public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f); // по умолчанию — центр
+            public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f);
 
             public float _baseScaleMultiply = -1f;
 
+            // ====================== НОВОЕ: ИЕРАРХИЯ И ЭФФЕКТИВНЫЙ МАСШТАБ ======================
+            public GameObject? Parent { get; set; } = null;
+
+            public float EffectiveScaleMultiply
+            {
+                get
+                {
+                    float mul = ScaleMultiply;
+                    var current = Parent;
+                    while (current != null)
+                    {
+                        mul *= current.ScaleMultiply;
+                        current = current.Parent;
+                    }
+                    return mul;
+                }
+            }
 
             // ====================== PIVOT HELPERS ======================
             public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
             {
-                float effWidth = Scale.X * ScaleMultiply;
-                float effHeight = Scale.Y * ScaleMultiply;
+                // Теперь автоматически учитывает ScaleMultiply ВСЕХ родителей!
+                float effWidth = Scale.X * EffectiveScaleMultiply;
+                float effHeight = Scale.Y * EffectiveScaleMultiply;
                 float pivotOffsetX = effWidth * Pivot.X;
                 float pivotOffsetY = effHeight * Pivot.Y;
 
@@ -46,10 +63,8 @@ namespace TappiruCS.Core
                 return (designLeft, designTop, effWidth, effHeight);
             }
 
-            // Базовая реализация (для большинства объектов)
             public virtual void Update(double deltaTime)
             {
-               
             }
 
             public virtual void Update(double deltaTime, MouseState mouse)
@@ -64,7 +79,6 @@ namespace TappiruCS.Core
                 IsHovered = hover;
             }
 
-            // Теперь IsPointInside учитывает pivot
             public virtual bool IsPointInside(float worldX, float worldY)
             {
                 var (left, top, effWidth, effHeight) = GetDesignBounds();
@@ -74,11 +88,6 @@ namespace TappiruCS.Core
                 return worldX >= left && worldX <= right &&
                        worldY >= top && worldY <= bottom;
             }
-
-            
-            
-
-            
         }
     }
 }

@@ -38,57 +38,50 @@ namespace TappiruCS.UI
             maxValue = max;
             Value = Math.Clamp(Value, min, max);
 
-            float scale = this.ScaleMultiply;
-            float lineLeftDesign = x - width / 2f;
-            float lineRightDesign = x + width / 2f;
-
-            float scaledLeft = lineLeftDesign * scale;
-            float scaledRight = lineRightDesign * scale;
-            float scaledY = y * scale;
-            float offsetYMinMax = 55 * scale;
-            float offsetYValue = 90 * scale;
-
             int lineTexture = TextureManager.GetTexture("slider_line");
 
-            // Линия (фон слайдера)
+            // === Линия ===
             line = new SpriteObject(_spriteBatch, lineTexture, x, y, width, 8)
             {
                 Color = new Color4(0.3f, 0.3f, 0.3f, 1f),
                 Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = this.ScaleMultiply,
+                Parent = this          // ← важно!
             };
 
-            // Ползунок
+            // === Ползунок ===
             point = new SpriteObject(_spriteBatch, lineTexture, x, y, 16, 40)
             {
                 Color = Color4.Black,
                 Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = this.ScaleMultiply
+                Parent = this          // ← важно!
             };
 
-            // Тексты
-            minValueText = new TextObject(_textRender, min.ToString("F0"), scaledLeft, scaledY - offsetYMinMax, scale)
+            // === Тексты (локальный ScaleMultiply) ===
+            minValueText = new TextObject(_textRender, min.ToString("F0"), x - width / 2f, y - 55f, 1f)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.25f*this.ScaleMultiply,
+                ScaleMultiply = 0.25f,
                 Align = TextRender.TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this
             };
 
-            maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width / 2, y)
+            maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width / 2f, y, 1f)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.25f * this.ScaleMultiply,
+                ScaleMultiply = 0.25f,
                 Align = TextRender.TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this
             };
 
-            ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y - 90)
+            ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y - 90f, 1f)
             {
                 Color = Color4.White,
-                ScaleMultiply = 0.3f * this.ScaleMultiply,
+                ScaleMultiply = 0.3f,
                 Align = TextRender.TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this
             };
 
             UpdatePointPositionFromValue();
@@ -104,27 +97,25 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime);
 
-            // Передаём CanvasScale всем детям
             line.CanvasScale = CanvasScale;
             point.CanvasScale = CanvasScale;
-
             minValueText.CanvasScale = CanvasScale;
             maxValueText.CanvasScale = CanvasScale;
             ValueText.CanvasScale = CanvasScale;
 
-            line.ScaleMultiply = this.ScaleMultiply;
-            point.ScaleMultiply = this.ScaleMultiply;
-
-            //minValueText.ScaleMultiply = this.ScaleMultiply*0.25f;
-           // maxValueText.ScaleMultiply =  this.ScaleMultiply * 0.25f;
-           // ValueText.ScaleMultiply =  this.ScaleMultiply * 0.25f;
-
-
-
             UpdateDragging(mouse);
             UpdateVisuals();
+            UpdateTextPositions();           // ← новое
         }
+        private void UpdateTextPositions()
+        {
+            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
 
+            float vertOffset = 55f * this.ScaleMultiply;   // масштабируем отступы
+
+            minValueText.Position = new Vector2(lineLeft, line.Position.Y - vertOffset);
+            maxValueText.Position = new Vector2(lineLeft + lineWidth, line.Position.Y);
+        }
         private void UpdateDragging(MouseState mouse)
         {
             // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===

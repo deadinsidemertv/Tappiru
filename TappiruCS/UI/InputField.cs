@@ -43,31 +43,32 @@ namespace TappiruCS.UI
 
             _bgTextureId = TextureManager.GetTexture("btn");
 
-            Position = new Vector2(x, y);           // теперь центр!
+            Position = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            // Вычисляем top-left для корректного позиционирования текстов (чтобы визуал не изменился)
-            float topLeftX = x - width * 0.5f;
-            float topLeftY = y - height * 0.5f;
-
-            InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height);
-
-            PlaceHolder = new TextObject(textRenderer, PlaceHolderText,
-                topLeftX +10f,
-                topLeftY * 1.02f, 1f)
+            InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height)
             {
-                Color = PlaceHolderColor,
-                ScaleMultiply = 0.3f,
-                Align = TextAlign.Left
+                Parent = this,
+                ScaleMultiply = 1f
             };
 
-            InputText = new TextObject(textRenderer, "",
-                topLeftX + 10f,
-                topLeftY * 1.02f, 1f)
+            // Тексты — относительный масштаб 0.3f
+            InputText = new TextObject(textRenderer, "", x, y, 1f)
             {
                 ScaleMultiply = 0.3f,
                 Color = Color4.White,
-                Align = TextAlign.Left
+                Align = TextAlign.Left,
+                Pivot = new Vector2(0f, 0f),   // left align
+                Parent = this
+            };
+
+            PlaceHolder = new TextObject(textRenderer, PlaceHolderText, x, y, 1f)
+            {
+                ScaleMultiply = 0.3f,
+                Color = PlaceHolderColor,
+                Align = TextAlign.Left,
+                Pivot = new Vector2(0f, 0f),
+                Parent = this
             };
 
             _game.KeyDown += HandleKeyDown;
@@ -78,11 +79,7 @@ namespace TappiruCS.UI
         {
             if (!IsFocused) return;
             char c = (char)e.Unicode;
-            if (c >= ' ')
-            {
-                _input += c;
-                UpdateDisplayedText();
-            }
+            if (c >= ' ') { _input += c; UpdateDisplayedText(); }
         }
 
         private void HandleKeyDown(KeyboardKeyEventArgs e)
@@ -92,11 +89,7 @@ namespace TappiruCS.UI
             switch (e.Key)
             {
                 case Keys.Backspace:
-                    if (_input.Length > 0)
-                    {
-                        _input = _input[..^1];
-                        UpdateDisplayedText();
-                    }
+                    if (_input.Length > 0) { _input = _input[..^1]; UpdateDisplayedText(); }
                     break;
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
@@ -115,24 +108,34 @@ namespace TappiruCS.UI
 
         public void Clear() => Text = "";
 
-        public void OnEnterPressed()
-        {
-            IsFocused = false;
-        }
+        public void OnEnterPressed() => IsFocused = false;
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             PlaceHolder.Color = PlaceHolderColor;
 
-            // Теперь используем общий IsPointInside с pivot
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;
             bool hovered = IsPointInside(designMouseX, designMouseY);
 
             if (mouse.IsButtonPressed(MouseButton.Left))
-            {
                 IsFocused = hovered;
-            }
+
+            // ====================== АВТОМАТИЧЕСКОЕ масштабирование детей ======================
+            InputBackground.CanvasScale = CanvasScale;
+            InputText.CanvasScale = CanvasScale;
+            PlaceHolder.CanvasScale = CanvasScale;
+
+            InputBackground.ScaleMultiply = 1f;
+            InputText.ScaleMultiply = 0.3f;
+            PlaceHolder.ScaleMultiply = 0.3f;
+
+            // Позиции + отступы, которые масштабируются вместе с InputField
+            var (left, top, _, _) = GetDesignBounds();           // уже учитывает ScaleMultiply
+            float padding = 10f * ScaleMultiply;                 // ← вот и всё волшебство
+
+            InputText.Position = new Vector2(left + padding, top + padding);
+            PlaceHolder.Position = new Vector2(left + padding, top + padding);
 
             // Мигающий курсор
             if (IsFocused)
@@ -151,23 +154,9 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            // Фон с учётом pivot
-            var (dLeft, dTop, effW, effH) = GetDesignBounds();
-            _spriteBatch.Draw(_bgTextureId,
-                dLeft * CanvasScale.X,
-                dTop * CanvasScale.Y,
-                effW * CanvasScale.X,
-                effH * CanvasScale.Y,
-                0, 0, 1, 1,
-                1f, 1f, 1f, 1f,
-                projection);
-
-            // Тексты
-            InputText.CanvasScale = CanvasScale;
+            // Теперь всё рисуется через дочерние объекты (автоматически с EffectiveScaleMultiply)
+            InputBackground.Draw(projection);
             InputText.Draw(projection);
-
-            PlaceHolder.CanvasScale = CanvasScale;
-            PlaceHolder.Text = PlaceHolderText;
             PlaceHolder.Draw(projection);
         }
 
