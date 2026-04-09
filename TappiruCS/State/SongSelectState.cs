@@ -194,15 +194,16 @@ namespace TappiruCS.State
 
             for (int i = 0; i < Math.Min(scores.Count, maxItems); i++)
             {
+                var currentScore = scores[i];
                 var button = new ScoreButton(_spriteBatch, _textRenderer, 180, startY + i * spacing, scores[i])
                 {
                     Layer = 3,
                     Position = new Vector2(180, startY + i * spacing),
                     ScaleMultiply = 1.0f
                 };
-
+                
                 button.SetRank(i + 1);
-
+                button.OnClick += () => CheckScore(currentScore);
                 _rankingButtons.Add(button);
                 _scene.Add(button);
             }
@@ -239,7 +240,10 @@ namespace TappiruCS.State
             _scene.Add(btn);
         }
 
-
+        public void CheckScore(PlayerScore score)
+        {
+            _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio,score,SelectedMap));
+        }
         public async Task SelectSong(string SP)
         {
             
