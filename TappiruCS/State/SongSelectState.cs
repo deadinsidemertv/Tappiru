@@ -46,7 +46,7 @@ namespace TappiruCS.State
             //_textRenderer = new TextRender(spriteBatch, "Textures\\Font\\manrope.fnt");
             _audio = audio;
         }
-        private Task? _loadingTask;
+        
         public void OnEnter()
         {
             Console.WriteLine("Открыт выбор песни (SongSelectState)");
@@ -152,7 +152,7 @@ namespace TappiruCS.State
             playButton.OnClick += () => PlaySong(songPath);
 
 
-            _loadingTask = SelectSong(folders[selectID]);
+            _ = SelectSong(folders[selectID]);
 
             _scene.Add(MapTitle);
             _scene.Add(Creator);
@@ -176,44 +176,68 @@ namespace TappiruCS.State
 
         public async Task SelectSong(string SP)
         {
+            Console.WriteLine($"[SelectSong] Начало для {SP}");
+
             _audio.Stop();
-            MapData temp = null;
-            string bgpath = null;
+
+            MapData tempMap = null;
+            string bgPath = null;
+
+            Console.WriteLine("[SelectSong] Запускаем Task.Run (MapLoad)...");
+
             await Task.Run(() =>
             {
-                temp = GameSessionState.MapLoad(SP);
-                bgpath = temp?.backGroundPath;
+                Console.WriteLine("[SelectSong] Внутри Task.Run — начинаем MapLoad");
+                var watch = System.Diagnostics.Stopwatch.StartNew();
 
+                tempMap = LoadMap.MapLoad(SP);
+
+                watch.Stop();
+                Console.WriteLine($"[SelectSong] MapLoad завершён за {watch.ElapsedMilliseconds} мс");
+
+                if (tempMap != null)
+                    bgPath = tempMap.backGroundPath;
             });
+
+            Console.WriteLine("[SelectSong] Вернулись в главный поток, вызываем InvokeOnMainThread");
 
             _game.InvokeOnMainThread(() =>
             {
-                if (temp == null)
+                Console.WriteLine("[SelectSong] Выполняется в главном потоке");
+
+                if (tempMap == null)
                 {
                     Console.WriteLine("Не удалось загрузить карту");
                     return;
                 }
 
-                SelectedMap = temp;
+                SelectedMap = tempMap;
 
-                // 3. Загрузка текстуры строго в главном потоке
-                if (!string.IsNullOrEmpty(bgpath))
+                Console.WriteLine("[SelectSong] Начинаем загрузку текстуры фона...");
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+
+                if (!string.IsNullOrEmpty(bgPath))
                 {
                     try
                     {
-                        _bgPreview = TextureLoader.Load(bgpath);
+                        _bgPreview = TextureLoader.Load(bgPath);
                         if (bg != null)
                             bg._textureId = _bgPreview;
-                        Console.WriteLine($"Фон загружен: {bgpath}");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"GL ошибка при загрузке фона: {ex.Message}");
+                        Console.WriteLine($"Ошибка текстуры: {ex.Message}");
                     }
                 }
 
+                watch.Stop();
+                Console.WriteLine($"[SelectSong] Текстура загружена за {watch.ElapsedMilliseconds} мс");
+
+                Console.WriteLine("[SelectSong] Загружаем музыку...");
                 _audio.LoadMusic(SelectedMap.audioPath);
                 _audio.Play();
+
+                Console.WriteLine("[SelectSong] Обновляем текст...");
 
                 MapTitle.Text = SelectedMap.title + $" - [{SelectedMap.artist}]";
                 Creator.Text = "Автор: " + SelectedMap.creator;
@@ -222,9 +246,11 @@ namespace TappiruCS.State
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
                 MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
+
+                Console.WriteLine($"[SelectSong] Успешно завершено для {SelectedMap.title}");
             });
         }
-    
+
         public void OnExit()
         {
             _scene.Clear();
