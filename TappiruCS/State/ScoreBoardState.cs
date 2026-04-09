@@ -23,7 +23,6 @@ namespace TappiruCS.State
         private int _scoreListTexture;
         private int _blackTexture;
 
-
         private SpriteObject _scoreList;
         private SpriteObject _topBlack;
         
@@ -162,6 +161,7 @@ namespace TappiruCS.State
 
             var mouseState = _game.MouseState;
             _scene.Update(currentTime, mouseState, _game);
+
 
         }
 

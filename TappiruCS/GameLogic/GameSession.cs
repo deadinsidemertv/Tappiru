@@ -155,21 +155,5 @@
                 Combo = 0;
             }
         }
-
-        public void PrintResults()
-        {
-            Console.WriteLine("===== РЕЗУЛЬТАТЫ КАРТЫ =====");
-            Console.WriteLine($"Итоговый счёт: {TotalScore}");
-            Console.WriteLine($"Максимальное комбо: {MaxCombo}");
-            Console.WriteLine($"Правильных нажатий: {CorrectHits}");
-            Console.WriteLine($"Ошибок (мисов): {Misses}");
-            Console.WriteLine($"Всего символов: {TotalNotes}");
-            Console.WriteLine($"Точность: {Accuracy:F2}%");
-            Console.WriteLine($"Успешно завершённых строк: {CompletedPhases}");
-            Console.WriteLine($"Проваленных строк: {FailedPhases}");
-            Console.WriteLine($"Карта завершена: {IsMapCompleted}");
-            Console.WriteLine($"Оставшееся здоровье: {Health:F1}");
-            Console.WriteLine("============================");
-        }
     }
 }

@@ -36,6 +36,9 @@ namespace TappiruCS.State
         public TextObject combo;
         public TextObject comboApof;
 
+        private float _displayedScore;
+        private float _displayedAccuraci;
+
         public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio,MapData mapdata)
         {
             _game = game;
@@ -164,9 +167,15 @@ namespace TappiruCS.State
             }
             comboApof.Position = new Vector2(combo.Position.X - 15, combo.Position.Y + 15);
 
-            score.Text = session.TotalScore.ToString("D9");
+            float lerpSpeed = 8.0f;         // можно регулировать
+            _displayedScore = MathHelper.Lerp(_displayedScore, session.TotalScore, lerpSpeed * (float)currentTime);
+            _displayedAccuraci = MathHelper.Lerp(_displayedAccuraci,session.Accuracy, lerpSpeed * (float)currentTime);
+
+            int intScore = (int)Math.Round(_displayedScore);
+
+            score.Text = intScore.ToString("D9");
             
-            Accuraci.Text = (Math.Round(session.Accuracy*100f)/100f).ToString()+"%";
+            Accuraci.Text = (Math.Round(_displayedAccuraci*100f)/100f).ToString()+"%";
             combo.Text = session.Combo.ToString();
 
 
