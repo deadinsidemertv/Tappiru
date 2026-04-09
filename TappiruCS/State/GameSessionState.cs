@@ -24,10 +24,12 @@ namespace TappiruCS.State
         public MapData _mapData;
 
         public int background;
+        public int scoreBarBGTex;
 
         private readonly Scene _scene = new Scene();
         public Background bg;
         public Background Fade;
+        public SpriteObject scorebarBG;
         
 
         public TextObject score;
@@ -88,8 +90,6 @@ namespace TappiruCS.State
         {
             Console.WriteLine("Запуск уровня");
             
-            //_mapData = MapLoad(_songPath);
-
             session = new GameSession(_mapData);
             Console.WriteLine(_mapData.audioPath.ToString());
             if(_audio == null)
@@ -98,30 +98,33 @@ namespace TappiruCS.State
             }
 
             background = TextureLoader.Load(_mapData.backGroundPath);
-            bg = new Background(_spriteBatch, background, _game);
+            scoreBarBGTex = TextureManager.GetTexture("scorebg");
 
+            bg = new Background(_spriteBatch, background, _game);
             Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.7f };
+            scorebarBG = new SpriteObject(_spriteBatch, scoreBarBGTex, 960, 540, 1920, 1080) { AllowHover = false};
 
 
             _audio.LoadMusic(_mapData.audioPath);
             _audio.Play();
 
 
-            score = new TextObject(_textRenderer, session.TotalScore.ToString(), 1900, 20, 0.7f)
+            score = new TextObject(_textRenderer, session.TotalScore.ToString(), 1900, 0, 0.35f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
-            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1900, score.Position.Y+100, 0.35f)
+            Accuraci = new TextObject(_textRenderer, session.Accuracy.ToString(), 1840, score.Position.Y+40, 0.3f)
             {
                 Color = Color4.White,
-                Align = TextAlign.Right
+                Align = TextAlign.Center
             };
             combo = new TextObject(_textRenderer, session.Combo.ToString(), 70, 900, 0.7f) { Align = TextAlign.Left};
             comboApof = new TextObject(_textRenderer, "x", combo.Position.X-15, combo.Position.Y+15, 0.4f);
 
             _scene.Add(bg);
             _scene.Add(Fade);
+            _scene.Add(scorebarBG);
 
             _scene.Add(Accuraci);
             _scene.Add(score);
@@ -167,7 +170,7 @@ namespace TappiruCS.State
             }
             comboApof.Position = new Vector2(combo.Position.X - 15, combo.Position.Y + 15);
 
-            float lerpSpeed = 8.0f;         // можно регулировать
+            float lerpSpeed = 25.0f;         // можно регулировать
             _displayedScore = MathHelper.Lerp(_displayedScore, session.TotalScore, lerpSpeed * (float)currentTime);
             _displayedAccuraci = MathHelper.Lerp(_displayedAccuraci,session.Accuracy, lerpSpeed * (float)currentTime);
 
@@ -185,20 +188,8 @@ namespace TappiruCS.State
             string phrase = session.CurrentPhaseText;
             int typed = session.CurrentCharIndex;
 
-           
-            bg = new Background(_spriteBatch, background, _game);
 
-            bg = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f};
-
-
-
-
-
-            
-            
-            //ScoreDraw(session, projection, 1270, 20);
             _scene.Draw(projection);
-            
             InputCharDraw(session, projection, 960, 440);
         }
 

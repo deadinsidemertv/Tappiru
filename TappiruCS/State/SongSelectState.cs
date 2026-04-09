@@ -22,6 +22,7 @@ namespace TappiruCS.State
         private readonly Scene _scene = new Scene();
 
         public Background bg;
+        public Background bg2;
 
         public ListButtons list;
 
@@ -32,10 +33,11 @@ namespace TappiruCS.State
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
 
-        
+
 
         public int _bgPreview;
-        
+        public int _bgPreview2;
+
 
         public string songPath = "";
         public int songCount;
@@ -221,6 +223,13 @@ namespace TappiruCS.State
                 _game.ChangeState(new MenuState(_game, _spriteBatch, _textRenderer, _audio));
             }
 
+        }
+
+        public void FadeSongBG(Background bg, Background bg2,float deltaTime)
+        {
+            float lerpspeed = 0.8f;
+            bg.Opacity = MathHelper.Lerp(1f, 0f, lerpspeed * deltaTime);
+            bg.Opacity = MathHelper.Lerp(0f, 1f, lerpspeed * deltaTime);
         }
     }
 }
