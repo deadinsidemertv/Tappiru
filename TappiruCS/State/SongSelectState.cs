@@ -22,7 +22,6 @@ namespace TappiruCS.State
         private readonly Scene _scene = new Scene();
 
         public Background bg;
-        public Background bg2;
 
         public ListButtons list;
 
@@ -33,11 +32,7 @@ namespace TappiruCS.State
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
 
-
-
         public int _bgPreview;
-        public int _bgPreview2;
-
 
         public string songPath = "";
         public int songCount;
@@ -114,6 +109,7 @@ namespace TappiruCS.State
 
             bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false ,ParalaxEffect = true};
             var bgblack = new Background(_spriteBatch, 0, _game) { AllowHover = false,Opacity = 0.5f };
+
             _scene.Add(bg);
             _scene.Add(bgblack);
 
@@ -129,21 +125,34 @@ namespace TappiruCS.State
 
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 960, 280,2283, 1888) {ScaleMultiply =0.85f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 1120, 930,2140, 400) {ScaleMultiply =0.75f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
 
             var playButton = new Button(_spriteBatch, _textRenderer,
-                1750, 900, 500, 500, "playButton", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+                1766, 938, 500, 500, "playButton", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 2,
                 TextColor = new Color4(0f,0f,0f,0f),
-                HoverColor = new Color4(1f,0.95f,0f,1f),
+                HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 TextScale = 0.8f,
                 ScaleMultiply = 0.8f,
                 Tag = "play"
 
 
             };
+            var backButton = new Button(_spriteBatch, _textRenderer,
+                160, 1011.8f, 449, 192, "back", "", Color4.White)   // "btn" — имя текстуры через TextureManager
+            {
+                Layer = 2,
+                TextColor = new Color4(0f, 0f, 0f, 0f),
+                HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
+                TextScale = 0.8f,
+                ScaleMultiply = 0.72f,
+                Tag = "play"
+
+
+            };
+            backButton.OnClick += BackMenu;
             playButton.OnClick += () => PlaySong(songPath);
 
             
@@ -157,6 +166,7 @@ namespace TappiruCS.State
             _scene.Add(SelectionMode);
             _scene.Add(SongSelectorTop);
             _scene.Add(playButton);
+            _scene.Add(backButton);
 
         }
 
@@ -171,23 +181,23 @@ namespace TappiruCS.State
         public void SelectSong(string SP)
         {
             _audio.Stop();
-           
+
             SelectedMap = GameSessionState.MapLoad(SP);
+
             _bgPreview = TextureLoader.Load(SelectedMap.backGroundPath);
             bg._textureId = _bgPreview;
 
             _audio.LoadMusic(SelectedMap.audioPath);
             _audio.Play();
 
-            MapTitle.Text = SelectedMap.title+$" - [{SelectedMap.artist}]";
-            Creator.Text = "Автор:" + SelectedMap.creator;
+            // Обновляем текст
+            MapTitle.Text = SelectedMap.title + $" - [{SelectedMap.artist}]";
+            Creator.Text = "Автор: " + SelectedMap.creator;
 
             int totalSeconds = (int)_audio.Duration;
             int minutes = totalSeconds / 60;
             int seconds = totalSeconds % 60;
-            string formattedTime = $"{minutes}:{seconds:D2}"; // D2 — всегда две цифры для секунд
-            MetaData.Text = "Длина: " + formattedTime + " Строк: " + SelectedMap.Events.Count;
-
+            MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
         }
         public void OnExit()
         {
@@ -196,13 +206,14 @@ namespace TappiruCS.State
         }
         public void Update(double currentTime)
         {
-            
 
             var mouse = _game.MouseState;
             _scene.Update(currentTime, mouse, _game);
-            
         }
-        
+        public void BackMenu()
+        {
+            _game.ChangeState(new MenuState(_game, _spriteBatch, _textRenderer, _audio));
+        }
         public void Render(Matrix4 projection)
         {
             
@@ -210,8 +221,7 @@ namespace TappiruCS.State
         }
         public void OnMouseWheel(MouseWheelEventArgs e)
         {
-            // e.OffsetY — это значение прокрутки (обычно ±1, иногда больше на высокоточных мышах)
-            //list.Scroll(e.OffsetY);
+
             list.Scroll(e.Offset.Y);
             
         }
@@ -225,11 +235,5 @@ namespace TappiruCS.State
 
         }
 
-        public void FadeSongBG(Background bg, Background bg2,float deltaTime)
-        {
-            float lerpspeed = 0.8f;
-            bg.Opacity = MathHelper.Lerp(1f, 0f, lerpspeed * deltaTime);
-            bg.Opacity = MathHelper.Lerp(0f, 1f, lerpspeed * deltaTime);
-        }
     }
 }

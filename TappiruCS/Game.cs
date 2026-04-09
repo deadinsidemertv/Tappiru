@@ -105,7 +105,6 @@ namespace TappiruCS
                     }
                 }
             }
-
             currentState?.Update(args.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs args)
