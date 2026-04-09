@@ -58,7 +58,7 @@ namespace TappiruCS.State
 
             _scoreListTexture = TextureManager.GetTexture("ranking-panel");
             _blackTexture = TextureManager.GetTexture("black");
-            var background = new Background(_spriteBatch, _playerScore.textureBG, _game) {ParalaxEffect = true };
+            var background = new Background(_spriteBatch, TextureLoader.Load(_mapData.backGroundPath), _game) {ParalaxEffect = true };
             var backgroundopacity = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
             _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 980, 600, 1400, 667) { ScaleMultiply = 1.4f};
             _topBlack = new SpriteObject(_spriteBatch, 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f) };

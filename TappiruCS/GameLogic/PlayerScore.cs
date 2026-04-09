@@ -16,8 +16,6 @@
 
         public string PlayerName { get; set; } = "Player";
 
-        public int textureBG;
-
 
     }
 }

@@ -112,19 +112,23 @@ namespace TappiruCS.State
 
                 if (cTime >= session.endTime) 
                 {
-                    PlayerScore playerscore = new PlayerScore();
-                    playerscore._accuraci = session.Accuracy;
-                    playerscore._score = session.TotalScore;
-                    playerscore._completeChar = session.CorrectHits;
-                    playerscore._failChar = session.Misses;
-                    playerscore._completePhase = session.CompletedPhases;
-                    playerscore._failPhase = session.FailedPhases;
-                    playerscore._maxCobmo = session.MaxCombo;
-                    playerscore.textureBG = background;
-                    playerscore.PlayedAt = DateTime.Now;
+                    PlayerScore newScore = new PlayerScore
+                    {
+                        MapHash = session.CurrentMap.MapHash,
+                        _score = session.TotalScore,
+                        _accuraci = session.Accuracy,
+                        _maxCobmo = session.MaxCombo,
+                        _completePhase = session.CompletedPhases,
+                        _failPhase = session.FailedPhases,
+                        _completeChar = session.CorrectHits,
+                        _failChar = session.Misses,
+                        PlayedAt = DateTime.Now,
+                        PlayerName = "Player" // потом можно из настроек
+                    };
+                    ScoreManager.AddScore(newScore);
                     _audio.Stop();
                     
-                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, playerscore,_mapData));
+                    _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, newScore,_mapData));
                 }
                    
 

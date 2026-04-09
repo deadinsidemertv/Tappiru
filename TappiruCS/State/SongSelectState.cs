@@ -38,6 +38,8 @@ namespace TappiruCS.State
         public string songPath = "";
         public int songCount;
 
+        List<PlayerScore> topScores;
+
         public SongSelectState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
             _game = game;
@@ -174,8 +176,74 @@ namespace TappiruCS.State
             _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SelectedMap));
         }
 
+        List<ScoreButton> _rankingButtons = new List<ScoreButton>();
+
+        private void UpdateRankingDisplay(List<PlayerScore> scores)
+        {
+            ClearRankingButtons();
+
+            const int startY = 275;
+            const int spacing = 102;
+            const int maxItems = 10;
+
+            if (scores == null || scores.Count == 0)
+            {
+                AddNoResultsButton(startY);
+                return;
+            }
+
+            for (int i = 0; i < Math.Min(scores.Count, maxItems); i++)
+            {
+                var button = new ScoreButton(_spriteBatch, _textRenderer, 180, startY + i * spacing, scores[i])
+                {
+                    Layer = 3,
+                    Position = new Vector2(180, startY + i * spacing),
+                    ScaleMultiply = 1.0f
+                };
+
+                button.SetRank(i + 1);
+
+                _rankingButtons.Add(button);
+                _scene.Add(button);
+            }
+        }
+
+        private void ClearRankingButtons()
+        {
+            foreach (var btn in _rankingButtons)
+                _scene.Remove(btn);
+
+            _rankingButtons.Clear();
+        }
+
+        private void AddNoResultsButton(float y)
+        {
+            var emptyScore = new PlayerScore
+            {
+                PlayerName = "Нет результатов",
+                _score = 0,
+                _accuraci = 0,
+                _maxCobmo = 0
+            };
+
+            var btn = new ScoreButton(_spriteBatch, _textRenderer, 180, y, emptyScore)
+            {
+                Layer = 3,
+                Position = new Vector2(180, y)
+            };
+
+            btn.Avatar.Active = false;
+            btn.Grade.Active = false;
+
+            _rankingButtons.Add(btn);
+            _scene.Add(btn);
+        }
+
+
         public async Task SelectSong(string SP)
         {
+            
+
             Console.WriteLine($"[SelectSong] Начало для {SP}");
 
             _audio.Stop();
@@ -213,6 +281,13 @@ namespace TappiruCS.State
 
                 SelectedMap = tempMap;
 
+                PlayerScore? best = ScoreManager.GetBestScoreForMap(SelectedMap.MapHash);
+                if (best != null)
+                {
+                    Console.WriteLine($"Лучший счёт: {best._score} (Точность: {best._accuraci:F1}%)");
+                    // отобразите в UI
+                }
+
                 Console.WriteLine("[SelectSong] Начинаем загрузку текстуры фона...");
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -248,6 +323,9 @@ namespace TappiruCS.State
                 MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
 
                 Console.WriteLine($"[SelectSong] Успешно завершено для {SelectedMap.title}");
+
+                topScores = ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10);
+                UpdateRankingDisplay(ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10));
             });
         }
 
