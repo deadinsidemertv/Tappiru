@@ -1,5 +1,6 @@
 ﻿using OpenTK.Windowing.Desktop;
 using System.Text;
+using TappiruCS.Server;
 
 
 namespace TappiruCS
@@ -8,6 +9,8 @@ namespace TappiruCS
     {
         public static void Main(string[] args)
         {
+           
+
             Console.OutputEncoding = UTF8Encoding.UTF8;
             GameWindowSettings gwSetting = GameWindowSettings.Default;
             NativeWindowSettings nwSetting = NativeWindowSettings.Default;

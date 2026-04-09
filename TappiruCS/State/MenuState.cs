@@ -1,5 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using System;
+using System.Threading.Tasks;
 using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.Server;
@@ -17,10 +19,23 @@ namespace TappiruCS.State
 
         private readonly Scene _scene = new Scene();
 
-        public SpriteObject blackBG;
-        public SpriteObject blackBG2;
+        // UI
+        private InputField _inputField;
+        private InputField _inputFieldPassword;
+        private Button _loginButton;
+        private TextObject _welcomeText;
 
+        // Состояние
+        private bool _isLoggedIn = false;
+        private string _userName = "";
+        private int _userRating = 0;
 
+        private bool _loginInProgress = false;
+
+        // Флаги для безопасного обновления UI из асинхронного кода
+        private bool _pendingSwitchToLoggedIn = false;
+        private string _pendingUserName = "";
+        private int _pendingUserRating = 0;
 
         public MenuState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
@@ -32,148 +47,232 @@ namespace TappiruCS.State
 
         public void OnEnter()
         {
-            Console.WriteLine("Мы вошли в главное меню");
+            Console.WriteLine("=== MenuState OnEnter ===");
 
-            
-            var InputField = new InputField(_game,_spriteBatch, _textRenderer, 350, 535, 500, 70) { PlaceHolderText = "login"};
-            var InputFieldPassword = new InputField(_game,_spriteBatch, _textRenderer, 350, 615, 500, 70) { PlaceHolderText = "password", IsPassword = true};
-            var loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70,
-                                "button", "Войти", Color4.White)
+            CreateLoginUI();
+            CreateMainMenuButtons();
+
+            // Фон и декорации
+            var bgmenu = new Background(_spriteBatch, TextureManager.GetTexture("menubg"), _game) { ParalaxEffect = true };
+            var logo = new SpriteObject(_spriteBatch, TextureManager.GetTexture("logo"), 960, 300, 606, 256) { ScaleMultiply = 1.1f };
+
+            int blackTex = TextureManager.GetTexture("black");
+            var blackBG = new SpriteObject(_spriteBatch, blackTex, 960, 0, 2000, _game.ClientSize.Y / 3)
+            { Color = new Color4(0f, 0f, 0f, 0.5f), AutoScale = true };
+            var blackBG2 = new SpriteObject(_spriteBatch, blackTex, 960, 1080, 2000, _game.ClientSize.Y / 3)
+            { Color = new Color4(0f, 0f, 0f, 0.5f), AutoScale = true };
+
+            _scene.Add(bgmenu);
+            _scene.Add(logo);
+            _scene.Add(blackBG);
+            _scene.Add(blackBG2);
+
+            StartAutoLogin();
+        }
+
+        private void CreateLoginUI()
+        {
+            _inputField = new InputField(_game, _spriteBatch, _textRenderer, 350, 535, 500, 70)
             {
-                Layer = 0,
+                PlaceHolderText = "login",
+                Layer = 4
+            };
+
+            _inputFieldPassword = new InputField(_game, _spriteBatch, _textRenderer, 350, 615, 500, 70)
+            {
+                PlaceHolderText = "password",
+                IsPassword = true,
+                Layer = 4
+            };
+
+            _loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70, "button", "Войти", Color4.White)
+            {
+                Layer = 4,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-5f, -25f),
                 TextScale = 0.4f,
-                ScaleMultiply = 0.8f,
+                ScaleMultiply = 0.8f
             };
 
-            loginButton.OnClick += async () =>
+            _loginButton.OnClick += OnLoginButtonClicked;
+
+            _scene.Add(_inputField);
+            _scene.Add(_inputFieldPassword);
+            _scene.Add(_loginButton);
+        }
+
+        private void CreateMainMenuButtons()
+        {
+            var playButton = new Button(_spriteBatch, _textRenderer, 960, 540, 700, 120, "button", "Play", Color4.White)
             {
-                bool success = await Auth.Login(InputField.Text, InputFieldPassword.Text);
-                if (success) 
-                {
-
-                    Console.WriteLine("Вход выполнен");
-                    bool userDataOk = await User.FetchCurrentUser();
-                    if (userDataOk)
-                    {
-                        var welcomeText = new TextObject(_textRenderer, $"Игрок: {User.UserName} | Рейтинг: {User.Rating}", 0, 0, 0.3f) { Align = TextRender.TextAlign.Left };
-                        _scene.Add(welcomeText);
-                    }
-                    
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка входа");
-                }
-
-            };
-
-            // 2. Кнопка "Начать игру"
-            var playButton = new Button(_spriteBatch, _textRenderer,
-                960, 540, 700, 120, "button", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
-            {
-                Layer = 0,
+                Layer = 2,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-10f, -50f),
                 TextScale = 0.7f,
-                ScaleMultiply = 0.8f,
+                ScaleMultiply = 0.8f
             };
-            var editButton = new Button(_spriteBatch, _textRenderer,
-                960, 640, 700, 120, "button", "Edit", Color4.White)   // "btn" — имя текстуры через TextureManager
+
+            var editButton = new Button(_spriteBatch, _textRenderer, 960, 640, 700, 120, "button", "Edit", Color4.White)
             {
-                Layer = 0,
+                Layer = 2,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-10f, -50f),
                 TextScale = 0.7f,
-                ScaleMultiply = 0.8f,
-
+                ScaleMultiply = 0.8f
             };
-            var optionButton = new Button(_spriteBatch, _textRenderer,
-                960, 740, 700, 120, "button", "Options", Color4.White)   // "btn" — имя текстуры через TextureManager
+
+            var optionButton = new Button(_spriteBatch, _textRenderer, 960, 740, 700, 120, "button", "Options", Color4.White)
             {
-                Layer = 0,
+                Layer = 2,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-10f, -50f),
                 TextScale = 0.7f,
-                ScaleMultiply = 0.8f,
-
+                ScaleMultiply = 0.8f
             };
 
-            // 3. Кнопка "Выход"
-            var exitButton = new Button(_spriteBatch, _textRenderer,
-                960, 840, 700, 120, "button", "exit", Color4.White)
+            var exitButton = new Button(_spriteBatch, _textRenderer, 960, 840, 700, 120, "button", "exit", Color4.White)
             {
-                Layer = 0,
+                Layer = 2,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-10f, -50f),
                 TextScale = 0.7f,
-                ScaleMultiply = 0.8f,
+                ScaleMultiply = 0.8f
             };
 
-            int _bgmenu = TextureManager.GetTexture("menubg");
-            var bgmenu = new Background(_spriteBatch, _bgmenu, _game) { ParalaxEffect = true};
-
-            int _bgtexture = TextureManager.GetTexture("logo");
-            var bgCycle = new SpriteObject(_spriteBatch, _bgtexture, 960, 300, 606, 256) { ScaleMultiply = 1.1f};
-
-            int _blackTexture = TextureManager.GetTexture("black");
-            blackBG = new SpriteObject(_spriteBatch, 0, 960, 0, 2000, _game.ClientSize.Y/3) { Color = new Color4(0f,0f,0f,0.5f),AutoScale = true};
-            blackBG2 = new SpriteObject(_spriteBatch, 0, 960, 1080 , 2000, _game.ClientSize.Y/3) { Color = new Color4(0f, 0f, 0f, 0.5f),AutoScale = true };
-
-            // Подписываемся на клики
             playButton.OnClick += StartGame;
-            exitButton.OnClick += ExitGame;
             editButton.OnClick += GoEdit;
-
-            // Добавляем всё в сцену
-            _scene.Add(bgmenu);
-
+            exitButton.OnClick += ExitGame;
 
             _scene.Add(playButton);
             _scene.Add(editButton);
             _scene.Add(optionButton);
             _scene.Add(exitButton);
-            _scene.Add(InputField);
-            _scene.Add(InputFieldPassword);
-            _scene.Add(loginButton);
-
-
-            _scene.Add(bgCycle);
-            _scene.Add(blackBG);
-            _scene.Add(blackBG2);
-
-            
         }
 
-        private void StartGame()
+        private void OnLoginButtonClicked()
         {
-            Console.WriteLine("Игрок нажал 'Начать игру'");
-            _game.ChangeState(new SongSelectState(_game, _spriteBatch, _textRenderer, _audio));
+            if (_loginInProgress || _isLoggedIn) return;
+
+            _loginInProgress = true;
+            Console.WriteLine("=== Кнопка 'Войти' нажата ===");
+
+            _ = PerformLoginAsync();
         }
 
-        private void ExitGame()
+        private async Task PerformLoginAsync()
         {
-            Console.WriteLine("Игрок нажал 'Выход'");
-            _game.Close();
+            try
+            {
+                Console.WriteLine("→ Вызываем Auth.Login()...");
+                bool loginOk = await Auth.Login(_inputField.Text, _inputFieldPassword.Text).ConfigureAwait(false);
+                Console.WriteLine($"   Auth.Login вернул: {loginOk}");
+
+                if (!loginOk)
+                {
+                    Console.WriteLine("   Логин не прошёл.");
+                    return;
+                }
+
+                Console.WriteLine("→ Вызываем User.FetchCurrentUser()...");
+                bool fetchOk = await User.FetchCurrentUser().ConfigureAwait(false);
+                Console.WriteLine($"   FetchCurrentUser вернул: {fetchOk}");
+
+                if (fetchOk)
+                {
+                    _pendingUserName = User.UserName ?? "Unknown";
+                    _pendingUserRating = User.Rating;
+                    _pendingSwitchToLoggedIn = true;   // ← устанавливаем флаг
+                    Console.WriteLine("   Данные пользователя сохранены, будет выполнен SwitchToLoggedInState");
+                }
+                else
+                {
+                    Console.WriteLine("   FetchCurrentUser вернул false — проверь токен или ответ сервера");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"!!! Исключение при логине: {ex.GetType().Name}: {ex.Message}");
+            }
+            finally
+            {
+                _loginInProgress = false;
+            }
         }
 
-        private void GoEdit()
+        private void StartAutoLogin()
         {
-            _game.ChangeState(new EditState(_game, _spriteBatch, _textRenderer, _audio));
+            Auth.LoadToken();
+            if (string.IsNullOrEmpty(Auth.AuthToken) || Auth.IsTokenExpired())
+            {
+                Console.WriteLine("Автологин пропущен (нет валидного токена)");
+                return;
+            }
+
+            Console.WriteLine("Запускаем автологин...");
+            _ = PerformAutoLoginAsync();
         }
-        // ====================== UPDATE ======================
-        
+
+        private async Task PerformAutoLoginAsync()
+        {
+            try
+            {
+                bool ok = await User.FetchCurrentUser().ConfigureAwait(false);
+                if (ok)
+                {
+                    _pendingUserName = User.UserName ?? "Unknown";
+                    _pendingUserRating = User.Rating;
+                    _pendingSwitchToLoggedIn = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка автологина: {ex.Message}");
+            }
+        }
+
+        private void SwitchToLoggedInState()
+        {
+            if (_isLoggedIn) return;
+            _isLoggedIn = true;
+
+            Console.WriteLine("=== Выполняем SwitchToLoggedInState ===");
+
+            // Удаляем элементы логина
+            if (_inputField != null) _scene.Remove(_inputField);
+            if (_inputFieldPassword != null) _scene.Remove(_inputFieldPassword);
+            if (_loginButton != null) _scene.Remove(_loginButton);
+
+            // Добавляем приветствие
+            _welcomeText = new TextObject(_textRenderer,
+                $"Игрок: {_userName} | Рейтинг: {_userRating}",
+                15, 15, 0.3f)
+            {
+                Align = TextRender.TextAlign.Left,
+                Color = Color4.Red,
+                Layer = 3
+            };
+
+            _scene.Add(_welcomeText);
+
+            Console.WriteLine($"=== УСПЕШНЫЙ ВХОД === {_userName} | Рейтинг: {_userRating}");
+        }
+
         public void Update(double deltaTime)
         {
-            
-            var mouse = _game.MouseState;   
-            
-            _scene.Update(deltaTime, mouse,_game);
+            // === ОБРАБОТКА ПЕНДИНГОВЫХ ДЕЙСТВИЙ ИЗ АСИНХРОННОГО КОДА ===
+            if (_pendingSwitchToLoggedIn)
+            {
+                _pendingSwitchToLoggedIn = false;
+                _userName = _pendingUserName;
+                _userRating = _pendingUserRating;
+                SwitchToLoggedInState();
+            }
+
+            // Обычное обновление сцены
+            var mouse = _game.MouseState;
+            _scene.Update(deltaTime, mouse, _game);
         }
 
-        
-        // ====================== RENDER ======================
         public void Render(Matrix4 projection)
         {
             _scene.Draw(projection);
@@ -185,9 +284,10 @@ namespace TappiruCS.State
             Console.WriteLine("Мы вышли из главного меню");
         }
 
-        public void HandleKeyDown(KeyboardKeyEventArgs e)
-        {
-            
-        }
+        public void HandleKeyDown(KeyboardKeyEventArgs e) { }
+
+        private void StartGame() => _game.ChangeState(new SongSelectState(_game, _spriteBatch, _textRenderer, _audio));
+        private void GoEdit() => _game.ChangeState(new EditState(_game, _spriteBatch, _textRenderer, _audio));
+        private void ExitGame() => _game.Close();
     }
 }
