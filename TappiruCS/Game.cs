@@ -10,6 +10,8 @@ namespace TappiruCS
 {
     public class Game : GameWindow
     {
+        private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
+
         public static float WindowWidth;
         public static float WindowHeight;
 
@@ -22,11 +24,12 @@ namespace TappiruCS
         private Matrix4 projection;
 
         // === FADE SYSTEM ===
-        private float _fadeAlpha = 0f;           // 0 = прозрачно, 1 = чёрный
+        private float _fadeAlpha = 0f;           
         private float _fadeSpeed = 2.5f;         // скорость (чем больше — тем быстрее)
         private IGameState _pendingState = null;
         private bool _isFadingOut = false;
         private bool _isTransitioning = false;
+
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
@@ -71,6 +74,16 @@ namespace TappiruCS
             _isFadingOut = false;                // режим «появление из черного»
 
         }
+
+        public void InvokeOnMainThread(Action action)
+        {
+            if (action == null) return;
+
+            lock (_mainThreadActions)   // потокобезопасно
+            {
+                _mainThreadActions.Enqueue(action);
+            }
+        }
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
@@ -105,6 +118,22 @@ namespace TappiruCS
                     }
                 }
             }
+
+            lock (_mainThreadActions)
+            {
+                while (_mainThreadActions.Count > 0)
+                {
+                    try
+                    {
+                        _mainThreadActions.Dequeue().Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Ошибка в главном потоке: {ex.Message}");
+                    }
+                }
+            }
+
             currentState?.Update(args.Time);
         }
         protected override void OnRenderFrame(FrameEventArgs args)

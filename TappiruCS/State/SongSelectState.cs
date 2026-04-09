@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Cairo;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Text.Json;
@@ -23,7 +24,7 @@ namespace TappiruCS.State
 
         public Background bg;
 
-        public ListButtons list;
+        public ScrollList list;
 
         public TextObject MapTitle;
         public TextObject Creator;
@@ -45,94 +46,89 @@ namespace TappiruCS.State
             //_textRenderer = new TextRender(spriteBatch, "Textures\\Font\\manrope.fnt");
             _audio = audio;
         }
-
+        private Task? _loadingTask;
         public void OnEnter()
         {
             Console.WriteLine("Открыт выбор песни (SongSelectState)");
-            
+
 
             songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
 
             Random rnd = new Random();
-            int selectID = rnd.Next(0,folders.Length);
+            int selectID = rnd.Next(0, folders.Length);
 
 
-            list = new ListButtons(_spriteBatch, _textRenderer, songCount, 960, 170, 1400, 212, "SongButton", "lol")
+            list = new ScrollList(_spriteBatch, _textRenderer, 1500, 190, 1400, 700)
             {
                 Layer = 1,
             };
             for (int i = 0; i < songCount; i++)
             {
                 string folderPath = folders[i];
-                string folderName = Path.GetFileName(folderPath);
+                string folderName = System.IO.Path.GetFileName(folderPath);
 
                 string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
                              ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
                 Console.WriteLine(folderPath);
                 string tappFile = Directory.GetFiles(folderPath, "*.tapp").FirstOrDefault();
-                string displayName = Path.GetFileName(folderPath); // fallback
+                string displayName = System.IO.Path.GetFileName(folderPath); // fallback
                 string json = File.ReadAllText(tappFile);
                 var mapData = JsonSerializer.Deserialize<JsonMap>(json);
                 // Например: "Название (автор)" или "Название - автор"
                 displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}]";
 
+                var button = new Button(_spriteBatch, _textRenderer,
+                    0, 0, 1400, 212, "SongButton", displayName, Color4.White)
+                {
+                    ScaleMultiply = 0.3f,
+                    TextScale = 0.4f,
+                    TextAlign = TextRender.TextAlign.Left,
+                    IsImaged = true,
+                    TextOffset = new Vector2(-90f, -50f),
+                    ImageScale = new Vector2(0.16f, 0.75f),
+                    ImageOffset = new Vector2(-570f, 0f),
+                    Layer = list.Layer,
+                    Tag = "List"
+                };
+
                 if (bgImagePath != null)
-                {
-                    list.Buttons[i].ButtonImage = TextureLoader.Load(bgImagePath); // загружаем текстуру
-                }
-                else
-                {
-                    
-                    list.Buttons[i].ButtonImage = 0;
-                }
-                list.Buttons[i].Parent = list;
-                list.Buttons[i].Text = displayName;
-                list.Buttons[i].TextScale = 0.4f;
-                list.Buttons[i].TextAlign = TextRender.TextAlign.Left;
-                list.Buttons[i].IsImaged = true;
-                list.Buttons[i].TextOffset = new Vector2(-90f, -50f);
-                list.Buttons[i].ImageScale = new Vector2(0.16f, 0.75f);
-                list.Buttons[i].ImageOffset = new Vector2(-570f, 0f);
-                list.Buttons[i].ScaleMultiply = 0.3f;
-                list.Buttons[i].Layer = list.Layer;
-                list.Buttons[i].Tag = "List";
-                
-
-
+                    button.ButtonImage = TextureLoader.Load(bgImagePath);
 
                 string capturedPath = folderPath;
-                list.Buttons[i].OnClick += () => SelectSong(folderPath);
-                _scene.Add(list.Buttons[i]);
+                button.OnClick += () => _ = SelectSong(capturedPath);
+
+                list.AddButton(button);        // ← вот так добавляем
+                _scene.Add(button);            // можно оставить, если хочешь (но лучше убрать)
             }
 
 
-            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false ,ParalaxEffect = true};
-            var bgblack = new Background(_spriteBatch, 0, _game) { AllowHover = false,Opacity = 0.5f };
+            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false, ParalaxEffect = true };
+            var bgblack = new Background(_spriteBatch, 0, _game) { AllowHover = false, Opacity = 0.5f };
 
             _scene.Add(bg);
             _scene.Add(bgblack);
 
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
-            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true,Layer = 2, AllowHover = false };
+            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
 
 
             MapTitle = new TextObject(_textRenderer, "", 10, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            Creator = new TextObject(_textRenderer, "" , 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            MetaData = new TextObject(_textRenderer, "", 10, 90, 0.30f) { Layer = 3,Align = TextRender.TextAlign.Left };
+            Creator = new TextObject(_textRenderer, "", 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MetaData = new TextObject(_textRenderer, "", 10, 90, 0.30f) { Layer = 3, Align = TextRender.TextAlign.Left };
 
 
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 1120, 930,2140, 400) {ScaleMultiply =0.75f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 1120, 930, 2140, 400) { ScaleMultiply = 0.75f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
 
             var playButton = new Button(_spriteBatch, _textRenderer,
                 1766, 938, 500, 500, "playButton", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 2,
-                TextColor = new Color4(0f,0f,0f,0f),
+                TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 TextScale = 0.8f,
                 ScaleMultiply = 0.8f,
@@ -155,8 +151,8 @@ namespace TappiruCS.State
             backButton.OnClick += BackMenu;
             playButton.OnClick += () => PlaySong(songPath);
 
-            
-            SelectSong(folders[selectID]);
+
+            _loadingTask = SelectSong(folders[selectID]);
 
             _scene.Add(MapTitle);
             _scene.Add(Creator);
@@ -178,27 +174,57 @@ namespace TappiruCS.State
             _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SelectedMap));
         }
 
-        public void SelectSong(string SP)
+        public async Task SelectSong(string SP)
         {
             _audio.Stop();
+            MapData temp = null;
+            string bgpath = null;
+            await Task.Run(() =>
+            {
+                temp = GameSessionState.MapLoad(SP);
+                bgpath = temp?.backGroundPath;
 
-            SelectedMap = GameSessionState.MapLoad(SP);
+            });
 
-            _bgPreview = TextureLoader.Load(SelectedMap.backGroundPath);
-            bg._textureId = _bgPreview;
+            _game.InvokeOnMainThread(() =>
+            {
+                if (temp == null)
+                {
+                    Console.WriteLine("Не удалось загрузить карту");
+                    return;
+                }
 
-            _audio.LoadMusic(SelectedMap.audioPath);
-            _audio.Play();
+                SelectedMap = temp;
 
-            // Обновляем текст
-            MapTitle.Text = SelectedMap.title + $" - [{SelectedMap.artist}]";
-            Creator.Text = "Автор: " + SelectedMap.creator;
+                // 3. Загрузка текстуры строго в главном потоке
+                if (!string.IsNullOrEmpty(bgpath))
+                {
+                    try
+                    {
+                        _bgPreview = TextureLoader.Load(bgpath);
+                        if (bg != null)
+                            bg._textureId = _bgPreview;
+                        Console.WriteLine($"Фон загружен: {bgpath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"GL ошибка при загрузке фона: {ex.Message}");
+                    }
+                }
 
-            int totalSeconds = (int)_audio.Duration;
-            int minutes = totalSeconds / 60;
-            int seconds = totalSeconds % 60;
-            MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
+                _audio.LoadMusic(SelectedMap.audioPath);
+                _audio.Play();
+
+                MapTitle.Text = SelectedMap.title + $" - [{SelectedMap.artist}]";
+                Creator.Text = "Автор: " + SelectedMap.creator;
+
+                int totalSeconds = (int)_audio.Duration;
+                int minutes = totalSeconds / 60;
+                int seconds = totalSeconds % 60;
+                MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
+            });
         }
+    
         public void OnExit()
         {
             _scene.Clear();
