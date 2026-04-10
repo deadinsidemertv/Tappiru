@@ -4,6 +4,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Server.Player;
 
 namespace TappiruCS.UI
 {
@@ -43,11 +44,22 @@ namespace TappiruCS.UI
                 grade = TextureLoader.Load("Textures/grade/grade0.png");
 
             // === Аватар ===
-            Avatar = new SpriteObject(spriteBatch, TextureManager.GetTexture("defaultprofile"), Position.X-130, Position.Y, 80, 80)
+            if (PlayerProfile.Instance.IsLoggedIn)
             {
-                Parent = this,
-                Pivot = new Vector2(0.5f, 0.5f)
-            };
+                Avatar = new SpriteObject(spriteBatch, PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
+                {
+                    Parent = this,
+                    Pivot = new Vector2(0.5f, 0.5f)
+                };
+            }
+            else
+            {
+                Avatar = new SpriteObject(spriteBatch, TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
+                {
+                    Parent = this,
+                    Pivot = new Vector2(0.5f, 0.5f)
+                };
+            }
 
             // === Грейд — сразу справа от аватарки ===
             Grade = new SpriteObject(spriteBatch, grade, Position.X - 58, Position.Y, 37, 44)

@@ -57,8 +57,8 @@ namespace TappiruCS.UI
             {
                 Color = TextColor,
                 ScaleMultiply = TextScale,
-                Align = TextAlign,
-                Pivot = new Vector2(0.5f, 0.5f),
+                Align = TextAlign.Left,
+                Pivot = new Vector2(0.0f, 0.0f),
                 Parent = this
             };
 

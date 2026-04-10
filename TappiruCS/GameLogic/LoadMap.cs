@@ -41,6 +41,7 @@ namespace TappiruCS.GameLogic
             mapdata.completeR = tmp.completeR;
             mapdata.completeG = tmp.completeG;
             mapdata.completeB = tmp.completeB;
+            mapdata.StarRating = tmp.StarRating;
 
             foreach (var ev in mapdata.Events)
                 ev.text = ev.text.ToLowerInvariant();

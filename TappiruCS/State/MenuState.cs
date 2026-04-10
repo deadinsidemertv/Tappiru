@@ -133,8 +133,9 @@ namespace TappiruCS.State
             var btn = new Button(_spriteBatch, _textRenderer, 960, y, 700, 120, "button", text, Color4.White)
             {
                 Layer = 2,
+                TextAlign = TextRender.TextAlign.Center,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(-10f, -50f),
+                TextOffset = new Vector2(-70f, -50f),
                 TextScale = 0.7f,
                 ScaleMultiply = 0.8f
             };

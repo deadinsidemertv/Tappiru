@@ -73,7 +73,7 @@ namespace TappiruCS.State
 
             creator = new TextObject(_textRenderer, "Автор: "+_mapData.creator, 5, 60, 0.35f) { Align = TextAlign.Left };
 
-            _dateText = new TextObject(_textRenderer,"Played at "+_playerScore.PlayerName+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
+            _dateText = new TextObject(_textRenderer,"Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
 
 
             _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X -880, _scoreList.Position.Y + 120, 0.5f)

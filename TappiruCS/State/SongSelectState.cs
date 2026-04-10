@@ -85,10 +85,10 @@ namespace TappiruCS.State
                     0, 0, 1400, 212, "SongButton", displayName, Color4.White)
                 {
                     ScaleMultiply = 0.3f,
-                    TextScale = 0.4f,
-                    TextAlign = TextRender.TextAlign.Left,
+                    TextScale = 0.3f,
+                    TextAlign = TextRender.TextAlign.Right,
                     IsImaged = true,
-                    TextOffset = new Vector2(-45f, -70f),
+                    TextOffset = new Vector2(-430f, -70f),
                     ImageScale = new Vector2(0.16f, 0.75f),
                     ImageOffset = new Vector2(-570f, 0f),
                     Layer = list.Layer,
