@@ -13,7 +13,7 @@ namespace TappiruCS.Core
         public const float DesignWidth = 1920f;
         public const float DesignHeight = 1080f;
 
-        public Vector2 CanvasScale = new Vector2(1f,1f);
+        public static Vector2 CanvasScale;
 
         public static Vector2 LogicMouse;
 
