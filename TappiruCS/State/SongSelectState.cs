@@ -19,7 +19,7 @@ namespace TappiruCS.State
         private readonly TextRender _manrope;
         private readonly AudioManager _audio;
 
-        public MapData SelectedMap;
+        public static MapData SelectedMap;
 
         private readonly Scene _scene = new Scene();
 
@@ -57,9 +57,6 @@ namespace TappiruCS.State
 
             songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
-
-            Random rnd = new Random();
-            int selectID = rnd.Next(0, folders.Length);
 
 
             list = new ScrollList(_spriteBatch, _textRenderer, 1500, 190, 1400, 700)
@@ -160,7 +157,7 @@ namespace TappiruCS.State
             playButton.OnClick += () => PlaySong(songPath);
 
 
-            _ = SelectSong(folders[selectID]);
+            _ = SelectSong(SelectedMap.Path);
 
             _scene.Add(MapTitle);
             _scene.Add(Creator);

@@ -5,6 +5,7 @@
         public string MapHash { get; set; } = string.Empty;
         public string title { get; set; }
         public string creator { get; set; }
+        public string Path { get; set; }
         public string audioPath { get; set; }
         public string backGroundPath { get; set; }
         public string dataPath { get; set; }

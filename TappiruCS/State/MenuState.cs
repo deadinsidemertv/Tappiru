@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using System;
 using System.Threading.Tasks;
 using TappiruCS.Core;
+using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
@@ -62,8 +63,19 @@ namespace TappiruCS.State
                     ShowLoginUI();
                 }
             }
+            GetRandomSong();
         }
 
+        public void GetRandomSong()
+        {
+            string[] folders = Directory.GetDirectories("Songs/");
+            Random rnd = new Random();
+            int randomsong = rnd.Next(0, folders.Length);
+            SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
+            _audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
+            _audio.Play();
+
+        }
         private void CreateUI()
         {
             // Login fields

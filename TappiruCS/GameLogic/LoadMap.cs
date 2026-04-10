@@ -17,6 +17,7 @@ namespace TappiruCS.GameLogic
             mapdata.audioPath = audioP[0];
             string[] dataP = Directory.GetFiles(mapFolderPath, "*.tapp");
             mapdata.dataPath = dataP[0];
+            mapdata.Path = mapFolderPath;
 
             // === ВЫЧИСЛЕНИЕ ХЕША ФАЙЛА .tapp ===
             string tappFilePath = mapdata.dataPath;
