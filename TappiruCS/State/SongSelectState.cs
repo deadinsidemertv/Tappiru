@@ -5,7 +5,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Text.Json;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
-using TappiruCS.Render;     
+using TappiruCS.Render;
+using TappiruCS.Server.Player;
 using TappiruCS.UI;
 
 namespace TappiruCS.State
@@ -111,6 +112,10 @@ namespace TappiruCS.State
             _scene.Add(bg);
             _scene.Add(bgblack);
 
+            var UserName = new TextObject(_textRenderer, PlayerProfile.Instance.UserName, 1050, 965, 0.26f) { Layer = 3 };
+            var UserAvatar = new SpriteObject(_spriteBatch, PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
+            _scene.Add(UserName);
+            _scene.Add(UserAvatar);
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
             SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
