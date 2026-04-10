@@ -5,6 +5,7 @@ using System.Text.Json;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using static TappiruCS.Render.TextRender;
 
@@ -123,8 +124,16 @@ namespace TappiruCS.State
                         _completeChar = session.CorrectHits,
                         _failChar = session.Misses,
                         PlayedAt = DateTime.Now,
-                        PlayerName = "Player" // потом можно из настроек
                     };
+                    if (PlayerProfile.Instance.IsLoggedIn)
+                    {
+                        newScore.PlayerName = " "+PlayerProfile.Instance.UserName;
+                    }
+                    else
+                    {
+                        newScore.PlayerName = "offline-mode";
+                    }
+
                     ScoreManager.AddScore(newScore);
                     _audio.Stop();
                     

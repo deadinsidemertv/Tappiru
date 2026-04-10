@@ -114,6 +114,7 @@ namespace TappiruCS.State
 
             var UserName = new TextObject(_textRenderer, PlayerProfile.Instance.UserName, 1050, 965, 0.26f) { Layer = 3 };
             var UserAvatar = new SpriteObject(_spriteBatch, PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
+
             _scene.Add(UserName);
             _scene.Add(UserAvatar);
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
