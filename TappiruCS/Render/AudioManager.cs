@@ -1,7 +1,9 @@
-﻿using NAudio.Wave;
+﻿using GLib;
+using NAudio.Wave;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
 
+OpenALLibraryNameContainer.OverridePath = "OpenAL32.dll";
 namespace TappiruCS.Render
 {
     public class AudioManager : IDisposable
@@ -69,7 +71,11 @@ namespace TappiruCS.Render
             AL.Source(_musicSource, ALSourcef.SecOffset, 0.0f);
         }
 
-        public void Play() { AL.SourcePlay(_musicSource); IsPlaying = true; }
+        public void Play() 
+        {
+            AL.SourcePlay(_musicSource); IsPlaying = true;
+            AL.Source(_musicSource, ALSourcef.Gain, 0.5f);
+        }
         public void Pause() { AL.SourcePause(_musicSource); IsPlaying = false; }
         public void Resume() { AL.SourcePlay(_musicSource); IsPlaying = true; }
         public void Stop() { AL.SourceStop(_musicSource); IsPlaying = false; }
