@@ -9,7 +9,7 @@ namespace TappiruCS
     {
         public static void Main(string[] args)
         {
-           
+            Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             Console.OutputEncoding = UTF8Encoding.UTF8;
             GameWindowSettings gwSetting = GameWindowSettings.Default;

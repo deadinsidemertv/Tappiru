@@ -1,0 +1,60 @@
+{
+  "MapHash": "",
+  "title": "CLANNAD Ending Theme \u2013 Dango Daikazoku",
+  "artist": "Vocals: Chata",
+  "previewTime": 0,
+  "creator": "neroqwe",
+  "StarRating": 3.18,
+  "endTime": 88,
+  "tappedR": 0.9999998,
+  "tappedG": 0.9999998,
+  "tappedB": 0.5081702,
+  "needR": 0.5953162,
+  "needG": 0.9999998,
+  "needB": 0.9999998,
+  "completeR": 0.49455363,
+  "completeG": 0.9999998,
+  "completeB": 0.5027236,
+  "events": [
+    {
+      "time": 0.20000000298023224,
+      "text": "dango dango dango dango"
+    },
+    {
+      "time": 5,
+      "text": "dango daikazoku"
+    },
+    {
+      "time": 9.800000190734863,
+      "text": "yancha na yaki dango yasashi an dango"
+    },
+    {
+      "time": 19.200000762939453,
+      "text": "mina mina awasete hyakunin kazoku"
+    },
+    {
+      "time": 29,
+      "text": "akachan dango wa itsumo shiawase no naka de"
+    },
+    {
+      "time": 39,
+      "text": "toshiyori dango wa me wo hosometeru"
+    },
+    {
+      "time": 47,
+      "text": "nakayoshi dango te wo tsunagi okina marui wa ni naruyo"
+    },
+    {
+      "time": 56.79999923706055,
+      "text": "machi wo tsukuri dango boshi no ue minna de warai auyo"
+    },
+    {
+      "time": 65.80000305175781,
+      "text": "usagi mo sora de te wo futte miteru dekai otsuki sama"
+    },
+    {
+      "time": 76,
+      "text": "ureshi koto kanashi koto mo zenbu marumete"
+    }
+  ]
+}

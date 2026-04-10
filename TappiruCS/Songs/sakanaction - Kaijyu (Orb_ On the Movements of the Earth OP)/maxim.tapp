@@ -1,0 +1,124 @@
+{
+  "MapHash": "",
+  "title": "kaiju(TV Size)",
+  "artist": "Single by Sakanaction",
+  "previewTime": 0,
+  "creator": "neroqwe",
+  "StarRating": 3.93,
+  "endTime": 90,
+  "tappedR": 0,
+  "tappedG": 0.9999998,
+  "tappedB": 0.9999998,
+  "needR": 0,
+  "needG": 0.33387825,
+  "needB": 0.9999998,
+  "completeR": 0.81318104,
+  "completeG": 0.9999998,
+  "completeB": 0.8376909,
+  "events": [
+    {
+      "time": 1,
+      "text": "nandodemo"
+    },
+    {
+      "time": 3.799999952316284,
+      "text": "nandodemo sakebu kono kurai yo"
+    },
+    {
+      "time": 10,
+      "text": "ru no kaiju ni natte mo"
+    },
+    {
+      "time": 14.800000190734863,
+      "text": "koko ni nokoshite okitai nda yo"
+    },
+    {
+      "time": 20.200000762939453,
+      "text": "kono himitsu wo"
+    },
+    {
+      "time": 24.799999237060547,
+      "text": "dandan taberu"
+    },
+    {
+      "time": 28.899999618530273,
+      "text": "aka to ao no hoshiboshi"
+    },
+    {
+      "time": 32,
+      "text": "mirai kara kakko"
+    },
+    {
+      "time": 35,
+      "text": "junjun ni taberu"
+    },
+    {
+      "time": 39.599998474121094,
+      "text": "nanjukai mo kamitsubushi"
+    },
+    {
+      "time": 43,
+      "text": "toketa nara nomou"
+    },
+    {
+      "time": 47,
+      "text": "oka no ue de"
+    },
+    {
+      "time": 50,
+      "text": "hoshi wo miru to kanjiru"
+    },
+    {
+      "time": 54,
+      "text": "kono sabishisa mo"
+    },
+    {
+      "time": 58,
+      "text": "asayake de"
+    },
+    {
+      "time": 60.79999923706055,
+      "text": "te ga somaru"
+    },
+    {
+      "time": 62.79999923706055,
+      "text": "koro ni wa mou"
+    },
+    {
+      "time": 66,
+      "text": "wasuretenda"
+    },
+    {
+      "time": 67.80000305175781,
+      "text": "kono"
+    },
+    {
+      "time": 68.0999984741211,
+      "text": "sekai wa"
+    },
+    {
+      "time": 70,
+      "text": "koutsugou ni"
+    },
+    {
+      "time": 72.5,
+      "text": "mikansei"
+    },
+    {
+      "time": 74.80000305175781,
+      "text": "dakara shiritai nda"
+    },
+    {
+      "time": 77.80000305175781,
+      "text": "demo kaiju mitai ni"
+    },
+    {
+      "time": 80,
+      "text": "tooku tooku sakendemo"
+    },
+    {
+      "time": 85.80000305175781,
+      "text": "Mata kiete shimau nda"
+    }
+  ]
+}

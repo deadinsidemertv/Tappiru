@@ -3,7 +3,6 @@ using NAudio.Wave;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
 
-OpenALLibraryNameContainer.OverridePath = "OpenAL32.dll";
 namespace TappiruCS.Render
 {
     public class AudioManager : IDisposable
