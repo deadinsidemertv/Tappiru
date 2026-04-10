@@ -1,14 +1,12 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
-using StbImageSharp;
 using System;
-using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 using TappiruCS.Core;
 using TappiruCS.Render;
 using TappiruCS.Server;
+using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
 using TappiruCS.UI;
 
@@ -20,27 +18,18 @@ namespace TappiruCS.State
         private readonly SpriteBatch _spriteBatch;
         private readonly TextRender _textRenderer;
         private readonly AudioManager _audio;
-
         private readonly Scene _scene = new Scene();
 
-        // UI элементы
+        // Login UI
         private InputField _loginInput;
         private InputField _passwordInput;
         private Button _loginButton;
+
+        // Logged-in UI
         private TextObject _welcomeText;
+        private TextObject _ratingText;
         private SpriteObject _avatarSprite;
-
-        // Состояние пользователя
-        private bool _isLoggedIn;
-        private string _userName = "";
-        private int _userRating;
-
-        private bool _loginInProgress;
-
-        // Аватарка (асинхронная загрузка)
-        private bool _avatarLoadRequested;
-        private Task<AvatarLoadResult>? _avatarLoadTask;
-        private string? _avatarUrl;
+        private SpriteObject _avatarBackground;
 
         public MenuState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
         {
@@ -52,14 +41,65 @@ namespace TappiruCS.State
 
         public void OnEnter()
         {
-            Console.WriteLine("=== MenuState OnEnter ===");
-
-            CreateLoginUI();
-            CreateMainMenuButtons();
+            PlayerProfile.Instance.Initialize(_game);
 
             AddBackgroundAndDecorations();
+            CreateUI();
 
-            StartAutoLogin();
+            PlayerProfile.Instance.OnProfileChanged += RefreshLoggedInUI;
+
+            // === Главная логика показа нужного экрана ===
+            if (PlayerProfile.Instance.IsLoggedIn)
+            {
+                RefreshLoggedInUI();        // уже залогинен (например, из другого стейта)
+            }
+            else
+            {
+                StartAutoLogin();           // пытаемся автологин
+                // Если автологин не сработал — сразу показываем форму входа
+                if (!PlayerProfile.Instance.IsLoggedIn)
+                {
+                    ShowLoginUI();
+                }
+            }
+        }
+
+        private void CreateUI()
+        {
+            // Login fields
+            _loginInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 535, 500, 70)
+            {
+                PlaceHolderText = "login",
+                Layer = 4
+            };
+
+            _passwordInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 615, 500, 70)
+            {
+                PlaceHolderText = "password",
+                IsPassword = true,
+                Layer = 4
+            };
+
+            _loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70, "button", "Войти", Color4.White)
+            {
+                Layer = 4,
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-5f, -25f),
+                TextScale = 0.4f,
+                ScaleMultiply = 0.8f
+            };
+            _loginButton.OnClick += async () => await AttemptLoginAsync();
+
+            // Main menu buttons (всегда видны)
+            var playBtn = CreateMenuButton(540, "Play", StartGame);
+            var editBtn = CreateMenuButton(640, "Edit", GoEdit);
+            var optionsBtn = CreateMenuButton(740, "Options", null);
+            var exitBtn = CreateMenuButton(840, "exit", ExitGame);
+
+            _scene.Add(playBtn);
+            _scene.Add(editBtn);
+            _scene.Add(optionsBtn);
+            _scene.Add(exitBtn);
         }
 
         private void AddBackgroundAndDecorations()
@@ -88,50 +128,6 @@ namespace TappiruCS.State
             _scene.Add(blackBottom);
         }
 
-        private void CreateLoginUI()
-        {
-            _loginInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 535, 500, 70)
-            {
-                PlaceHolderText = "login",
-                Layer = 4
-            };
-
-            _passwordInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 615, 500, 70)
-            {
-                PlaceHolderText = "password",
-                IsPassword = true,
-                Layer = 4
-            };
-
-            _loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70, "button", "Войти", Color4.White)
-            {
-                Layer = 4,
-                TextColor = Color4.White,
-                TextOffset = new Vector2(-5f, -25f),
-                TextScale = 0.4f,
-                ScaleMultiply = 0.8f
-            };
-
-            _loginButton.OnClick += OnLoginButtonClicked;
-
-            _scene.Add(_loginInput);
-            _scene.Add(_passwordInput);
-            _scene.Add(_loginButton);
-        }
-
-        private void CreateMainMenuButtons()
-        {
-            var playBtn = CreateMenuButton(540, "Play", StartGame);
-            var editBtn = CreateMenuButton(640, "Edit", GoEdit);
-            var optionsBtn = CreateMenuButton(740, "Options", null); // добавить обработчик при необходимости
-            var exitBtn = CreateMenuButton(840, "exit", ExitGame);
-
-            _scene.Add(playBtn);
-            _scene.Add(editBtn);
-            _scene.Add(optionsBtn);
-            _scene.Add(exitBtn);
-        }
-
         private Button CreateMenuButton(int y, string text, Action? onClick)
         {
             var btn = new Button(_spriteBatch, _textRenderer, 960, y, 700, 120, "button", text, Color4.White)
@@ -142,42 +138,18 @@ namespace TappiruCS.State
                 TextScale = 0.7f,
                 ScaleMultiply = 0.8f
             };
-
-            if (onClick != null)
-                btn.OnClick += onClick;
-
+            if (onClick != null) btn.OnClick += onClick;
             return btn;
         }
 
-        private void OnLoginButtonClicked()
+        private async Task AttemptLoginAsync()
         {
-            if (_loginInProgress || _isLoggedIn) return;
-
-            _loginInProgress = true;
-            _ = PerformLoginAsync();
-        }
-
-        private async Task PerformLoginAsync()
-        {
-            try
+            bool loginOk = await Auth.Login(_loginInput.Text, _passwordInput.Text);
+            if (loginOk)
             {
-                bool loginOk = await Auth.Login(_loginInput.Text, _passwordInput.Text).ConfigureAwait(false);
-                if (!loginOk) return;
-
-                bool fetchOk = await User.FetchCurrentUser().ConfigureAwait(false);
-                if (fetchOk)
-                {
-                    SwitchToLoggedInState(User.UserName ?? "Unknown", User.Rating);
-                }
+                await User.FetchCurrentUser();   
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка логина: {ex.GetType().Name}: {ex.Message}");
-            }
-            finally
-            {
-                _loginInProgress = false;
-            }
+            
         }
 
         private void StartAutoLogin()
@@ -185,155 +157,104 @@ namespace TappiruCS.State
             Auth.LoadToken();
             if (string.IsNullOrEmpty(Auth.AuthToken) || Auth.IsTokenExpired())
             {
-                Console.WriteLine("Автологин пропущен (нет валидного токена)");
+                Console.WriteLine("Автологин пропущен: токен отсутствует или истёк");
                 return;
             }
 
-            _ = PerformAutoLoginAsync();
+            Console.WriteLine("Попытка автологина...");
+            _ = User.FetchCurrentUser();   // асинхронно обновит профиль → OnProfileChanged
         }
 
-        private async Task PerformAutoLoginAsync()
+        private void RefreshLoggedInUI()
         {
-            try
+            if (!PlayerProfile.Instance.IsLoggedIn)
             {
-                if (await User.FetchCurrentUser().ConfigureAwait(false))
+                ShowLoginUI();
+                return;
+            }
+
+            ShowLoggedInUI();
+        }
+
+        private void ShowLoginUI()
+        {
+            RemoveLoggedInUI();
+
+            _scene.Add(_loginInput);
+            _scene.Add(_passwordInput);
+            _scene.Add(_loginButton);
+            
+        }
+
+        private void ShowLoggedInUI()
+        {
+            RemoveLoginUI();
+
+            if (_welcomeText == null)
+            {
+                _welcomeText = new TextObject(_textRenderer, "", 250, 460, 0.5f)
                 {
-                    SwitchToLoggedInState(User.UserName ?? "Unknown", User.Rating);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка автологина: {ex.Message}");
-            }
-        }
+                    Align = TextRender.TextAlign.Left,
+                    Color = Color4.White,
+                    Layer = 3
+                };
 
-        private void SwitchToLoggedInState(string userName, int rating)
-        {
-            if (_isLoggedIn) return;
-            _isLoggedIn = true;
-
-            _userName = userName;
-            _userRating = rating;
-
-            Console.WriteLine($"=== УСПЕШНЫЙ ВХОД === {_userName} (рейтинг: {_userRating})");
-
-            // Удаляем форму логина
-            _scene.Remove(_loginInput);
-            _scene.Remove(_passwordInput);
-            _scene.Remove(_loginButton);
-
-            // Приветствие
-            _welcomeText = new TextObject(_textRenderer,
-                $"{_userName}",
-                250, 460, 0.5f)
-            {
-                Align = TextRender.TextAlign.Left,
-                Color = Color4.White,
-                Layer = 3
-            };
-            var ranting = new TextObject(_textRenderer, $"Ranking MMR: {_userRating}", 250, 540, 0.35f)
-            {
-                Align = TextRender.TextAlign.Left,
-                Color = Color4.White,
-                Layer = 3
-            };
-            _scene.Add(_welcomeText);
-            _scene.Add(ranting);
-
-            // Запуск загрузки аватарки
-            if (!string.IsNullOrEmpty(User.AvatarPath))
-            {
-                _avatarUrl = User.AvatarPath;
-                StartAvatarLoading();
-            }
-        }
-
-        private void StartAvatarLoading()
-        {
-            if (_avatarLoadTask != null || string.IsNullOrEmpty(_avatarUrl)) return;
-
-            _avatarLoadRequested = true;
-            _avatarLoadTask = LoadAvatarDataAsync(_avatarUrl);
-
-            Console.WriteLine($"Запущена фоновая загрузка аватарки: {_avatarUrl}");
-        }
-
-        // Только скачивание + декодирование (background thread)
-        private static async Task<AvatarLoadResult> LoadAvatarDataAsync(string relativeUrl)
-        {
-            try
-            {
-                string baseUrl = "https://localhost:7068/"; // вынеси в конфиг/Auth если нужно
-                string fullUrl = baseUrl.TrimEnd('/') + relativeUrl;
-
-                using var client = new HttpClient();
-                byte[] imageBytes = await client.GetByteArrayAsync(fullUrl).ConfigureAwait(false);
-
-                ImageResult image = ImageResult.FromMemory(imageBytes, ColorComponents.RedGreenBlueAlpha);
-
-                if (image == null)
-                    return AvatarLoadResult.Failed("Не удалось декодировать изображение");
-
-                return new AvatarLoadResult(image.Data, image.Width, image.Height);
-            }
-            catch (Exception ex)
-            {
-                return AvatarLoadResult.Failed($"Ошибка загрузки аватарки: {ex.Message}");
-            }
-        }
-
-        // Создание текстуры ТОЛЬКО на главном потоке
-        private int CreateTextureFromImageData(byte[] data, int width, int height)
-        {
-            int textureId = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, textureId);
-
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                          width, height, 0,
-                          PixelFormat.Rgba, PixelType.UnsignedByte, data);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            Console.WriteLine($"Текстура аватарки создана ({width}x{height}), ID = {textureId}");
-            return textureId;
-        }
-
-        public void Update(double deltaTime)
-        {
-            // Переключение в залогиненное состояние (из асинхронного кода)
-            // (если используешь pending-флаги — оставь, но в моём варианте SwitchToLoggedInState вызывается напрямую)
-
-            // Обработка завершившейся загрузки аватарки
-            if (_avatarLoadTask?.IsCompleted == true)
-            {
-                var result = _avatarLoadTask.Result;
-                _avatarLoadTask = null;
-
-                if (result.Success && result.Data != null)
+                _ratingText = new TextObject(_textRenderer, "", 250, 540, 0.35f)
                 {
-                    int texId = CreateTextureFromImageData(result.Data, result.Width, result.Height);
-                    var accBg = new SpriteObject(_spriteBatch, 0, 360, 540, 520, 150) { Color = new Color4(1f,1f,1f,0.5f)};
-                    _avatarSprite = new SpriteObject(_spriteBatch, texId, 180, 540, 130, 130)
+                    Align = TextRender.TextAlign.Left,
+                    Color = Color4.White,
+                    Layer = 3
+                };
+
+                _scene.Add(_welcomeText);
+                _scene.Add(_ratingText);
+            }
+
+            _welcomeText.Text = PlayerProfile.Instance.UserName;
+            _ratingText.Text = $"Ranking MMR: {PlayerProfile.Instance.Rating}";
+
+            // Аватарка
+            if (PlayerProfile.Instance.AvatarTextureId != 0)
+            {
+                if (_avatarSprite == null)
+                {
+                    _avatarBackground = new SpriteObject(_spriteBatch, TextureManager.GetTexture("black"), 360, 540, 520, 150)
+                    {
+                        Color = new Color4(1f, 1f, 1f, 0.5f)
+                    };
+
+                    _avatarSprite = new SpriteObject(_spriteBatch, PlayerProfile.Instance.AvatarTextureId, 180, 540, 130, 130)
                     {
                         Layer = 3
                     };
 
-                    _scene.Add(accBg);
+                    _scene.Add(_avatarBackground);
                     _scene.Add(_avatarSprite);
-                    Console.WriteLine("✅ Аватарка успешно добавлена на экран!");
                 }
                 else
                 {
-                    Console.WriteLine(result.ErrorMessage ?? "Неизвестная ошибка загрузки аватарки");
+                    _avatarSprite._textureId = PlayerProfile.Instance.AvatarTextureId;   // исправил: было _textureId
                 }
             }
+        }
 
+        private void RemoveLoginUI()
+        {
+            _scene.Remove(_loginInput);
+            _scene.Remove(_passwordInput);
+            _scene.Remove(_loginButton);
+        }
+
+        private void RemoveLoggedInUI()
+        {
+            if (_welcomeText != null) _scene.Remove(_welcomeText);
+            if (_ratingText != null) _scene.Remove(_ratingText);
+            if (_avatarSprite != null) _scene.Remove(_avatarSprite);
+            if (_avatarBackground != null) _scene.Remove(_avatarBackground);
+        }
+
+        public void Update(double deltaTime)
+        {
             var mouse = _game.MouseState;
             _scene.Update(deltaTime, mouse, _game);
         }
@@ -345,6 +266,7 @@ namespace TappiruCS.State
 
         public void OnExit()
         {
+            PlayerProfile.Instance.OnProfileChanged -= RefreshLoggedInUI;
             _scene.Clear();
             Console.WriteLine("Выход из MenuState");
         }
@@ -354,31 +276,5 @@ namespace TappiruCS.State
         private void StartGame() => _game.ChangeState(new SongSelectState(_game, _spriteBatch, _textRenderer, _audio));
         private void GoEdit() => _game.ChangeState(new EditState(_game, _spriteBatch, _textRenderer, _audio));
         private void ExitGame() => _game.Close();
-
-        // Вспомогательный record для результата загрузки аватарки
-        private record AvatarLoadResult
-        {
-            public bool Success { get; }
-            public byte[]? Data { get; }
-            public int Width { get; }
-            public int Height { get; }
-            public string? ErrorMessage { get; }
-
-            public AvatarLoadResult(byte[] data, int width, int height)
-            {
-                Success = true;
-                Data = data;
-                Width = width;
-                Height = height;
-            }
-
-            private AvatarLoadResult(string error)
-            {
-                Success = false;
-                ErrorMessage = error;
-            }
-
-            public static AvatarLoadResult Failed(string message) => new(message);
-        }
     }
 }

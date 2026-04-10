@@ -10,9 +10,6 @@ namespace TappiruCS.Render
         public static int vbo;
         public static int ebo;
 
-        /// <summary>
-        /// Надёжная загрузка любой текстуры (включая .tga от BMFont)
-        /// </summary>
         public static int Load(string path)
         {
             if (!File.Exists(path))
@@ -191,6 +188,25 @@ namespace TappiruCS.Render
                 Console.WriteLine($"Ошибка компиляции {type}: " + GL.GetShaderInfoLog(shader));
             }
             return shader;
+        }
+
+        public static int CreateTextureFromRawData(byte[] data, int width, int height)
+        {
+            int texId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                          width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            return texId;
         }
     }
 }
