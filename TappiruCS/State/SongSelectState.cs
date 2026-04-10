@@ -79,7 +79,7 @@ namespace TappiruCS.State
                 string json = File.ReadAllText(tappFile);
                 var mapData = JsonSerializer.Deserialize<JsonMap>(json);
                 // Например: "Название (автор)" или "Название - автор"
-                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}]";
+                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}] StarRait: {mapData.StarRating}";
 
                 var button = new Button(_spriteBatch, _textRenderer,
                     0, 0, 1400, 212, "SongButton", displayName, Color4.White)
@@ -88,7 +88,7 @@ namespace TappiruCS.State
                     TextScale = 0.4f,
                     TextAlign = TextRender.TextAlign.Left,
                     IsImaged = true,
-                    TextOffset = new Vector2(-90f, -50f),
+                    TextOffset = new Vector2(-45f, -70f),
                     ImageScale = new Vector2(0.16f, 0.75f),
                     ImageOffset = new Vector2(-570f, 0f),
                     Layer = list.Layer,
@@ -330,7 +330,7 @@ namespace TappiruCS.State
                 int totalSeconds = (int)_audio.Duration;
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
-                MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count}";
+                MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count} Сложность:{SelectedMap.StarRating}";
 
                 Console.WriteLine($"[SelectSong] Успешно завершено для {SelectedMap.title}");
 

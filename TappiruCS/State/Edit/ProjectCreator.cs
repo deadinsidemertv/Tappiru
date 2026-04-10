@@ -69,7 +69,7 @@ namespace TappiruCS.State.Edit
                 title = title,
                 artist = "",
                 creator = "",
-                difficulty = "Normal",
+                StarRating = 0f,
                 previewTime = 0,
                 endTime = 1,
 

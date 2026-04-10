@@ -10,6 +10,8 @@
         public string dataPath { get; set; }
         public string artist { get; set; }
 
+        public float StarRating { get; set; }
+
 
         public double previewTime { get; set; }
         public double endTime { get; set; }
@@ -36,7 +38,7 @@
         public string artist { get; set; }
         public double previewTime { get; set; }
         public string creator { get; set; }
-        public string difficulty { get; set; }
+        public float StarRating { get; set; }
 
         public double endTime { get; set; }
 

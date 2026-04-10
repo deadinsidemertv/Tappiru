@@ -2,10 +2,11 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System.Collections.Concurrent;
 using TappiruCS.Core;
+using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server;
-using System.Collections.Concurrent;
 using TappiruCS.State;
 
 namespace TappiruCS
@@ -49,7 +50,7 @@ namespace TappiruCS
         protected override void OnLoad()
         {
             base.OnLoad();
-
+            DifficultyCalculator.RecalculateAllStarRatings(force: true);
             UpdateProjection();
 
 
@@ -68,6 +69,7 @@ namespace TappiruCS
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
+            audio.LoadSoundEffect("hit", "Textures/Sound/hit-sound.mp3");
 
 
             currentState = new MenuState(this, spriteBatch, textRenderer, audio);
@@ -174,6 +176,7 @@ namespace TappiruCS
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
+            audio.PlaySoundEffect("hit",1.2f);
             currentState?.HandleKeyDown(e);
         }
         public void UpdateProjection()

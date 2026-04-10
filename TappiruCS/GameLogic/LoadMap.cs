@@ -22,6 +22,7 @@ namespace TappiruCS.GameLogic
             string tappFilePath = mapdata.dataPath;
             string computedHash = ComputeFileHash(tappFilePath);
             mapdata.MapHash = computedHash;
+            
 
             string json = File.ReadAllText(tappFilePath);
             JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json);
@@ -45,6 +46,9 @@ namespace TappiruCS.GameLogic
                 ev.text = ev.text.ToLowerInvariant();
 
             Console.WriteLine($"{mapdata.title} - Хеш: {mapdata.MapHash}");
+
+            
+
             return mapdata;
         }
 
