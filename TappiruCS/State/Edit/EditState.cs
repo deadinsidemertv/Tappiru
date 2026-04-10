@@ -50,6 +50,7 @@ namespace TappiruCS.State.Edit
 
         public void OnEnter()
         {
+            _audio.Stop();
             CreateInitialUI();
         }
 
