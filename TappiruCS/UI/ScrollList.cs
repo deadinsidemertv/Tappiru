@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Gtk;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
 using TappiruCS.Render;
@@ -10,22 +11,25 @@ namespace TappiruCS.UI
         private readonly SpriteBatch _spriteBatch;
         private readonly TextRender _textRenderer;
 
-        public float ScaleMultiplyList = 0.6f;
-        public float ScrollSpeed = 35f;
+        public float ScaleMultiplyList = 0.7f;
+        public float ScrollSpeed = 140f;
         public float Smoothness = 16f;           // плавность
 
         private float _targetScrollOffsetY = 0f;
         public float ScrollOffsetY { get; private set; } = 0f;
 
-        public List<Button> Buttons { get; } = new();
+        public List<ListElementButton> Buttons { get; } = new();
 
-        private float _itemHeight = 212f;        // ← верни своё реальное значение
-        private float _itemSpacing = 20f;
+        private float _itemHeight = 100f;        
+        private float _itemSpacing = 10f;
         private float _visibleHeight;
 
         // Dragging
         private bool _isDragging = false;
         private float _lastMouseY = 0f;
+
+        private int _hoveredIndex = -1;
+        public int HoveredIndex => _hoveredIndex;
 
         public ScrollList(SpriteBatch spriteBatch, TextRender textRenderer,
                           float x, float y, float width, float height)
@@ -33,21 +37,23 @@ namespace TappiruCS.UI
             _spriteBatch = spriteBatch;
             _textRenderer = textRenderer;
             Position = new Vector2(x, y);
-            _visibleHeight = height;
+            _visibleHeight = 400;
         }
 
-        public void AddButton(Button button)
+        public void AddButton(ListElementButton button)
         {
             
             button.ScaleMultiply = ScaleMultiplyList;
             Buttons.Add(button);
             AddChild(button);
         }
-
+        public void NotifyHoverChanged(ListElementButton button, bool isHovered)
+        {
+            int index = Buttons.IndexOf(button);
+        }
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
-            Console.WriteLine($"ScrollList Update: {Buttons.Count} buttons, CanvasScale = {CanvasScale}");
             float dt = (float)deltaTime;
 
             ScrollOffsetY = MathHelper.Lerp(ScrollOffsetY, _targetScrollOffsetY, Smoothness * dt);
@@ -58,19 +64,26 @@ namespace TappiruCS.UI
             {
                 var btn = Buttons[i];
 
-                btn.ScaleMultiply = ScaleMultiplyList;        // оставляем, это специфично для списка
+                btn.ScaleMultiply = ScaleMultiplyList;        
 
                 float targetY = baseY + i * (_itemHeight + _itemSpacing) - ScrollOffsetY;
-                btn.Position = new Vector2(Position.X, targetY);
 
+
+                float itemCenterY = targetY + _itemHeight / 2f;
+                float viewCenterY = Position.Y + _visibleHeight / 2f;
+                float distanceFromCenter = itemCenterY - viewCenterY;
+                float normalizedDist = distanceFromCenter / (_visibleHeight * 0.5f); // 0.5f даёт ±1 точно на краях видимой области
+
+                float maxOffset = 15f;
+                float xOffset = maxOffset * normalizedDist * normalizedDist;
+
+
+                btn.Position = new Vector2(Position.X+xOffset, targetY);
                 btn.Active = IsButtonVisible(i);
 
             }
 
-            HandleDragging(mouse);
-
-                
-                                             
+            HandleDragging(mouse);                                    
         }
 
         private void HandleDragging(MouseState mouse)
@@ -124,7 +137,7 @@ namespace TappiruCS.UI
         private bool IsButtonVisible(int index)
         {
             float itemTop = index * (_itemHeight + _itemSpacing) - ScrollOffsetY;
-            return itemTop < _visibleHeight + 150 && itemTop + _itemHeight > -150;
+            return itemTop < _visibleHeight + 700 && itemTop + _itemHeight > -700;
         }
 
         public override void Draw(Matrix4 projection)
@@ -133,7 +146,5 @@ namespace TappiruCS.UI
         }
 
         public void ResetScroll() => _targetScrollOffsetY = ScrollOffsetY = 0f;
-
-
     }
 }

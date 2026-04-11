@@ -59,9 +59,10 @@ namespace TappiruCS.State
             string[] folders = Directory.GetDirectories("Songs/");
 
 
-            list = new ScrollList(_spriteBatch, _textRenderer, 1500, 190, 1400, 700)
+            list = new ScrollList(_spriteBatch, _textRenderer, 1600, 400, 1400, 400)
             {
                 Layer = 1,
+                Opacity = 0.8f,
             };
             for (int i = 0; i < songCount; i++)
             {
@@ -78,7 +79,7 @@ namespace TappiruCS.State
                 // Например: "Название (автор)" или "Название - автор"
                 displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}] StarRait: {mapData.StarRating}";
 
-                var button = new Button(_spriteBatch, _textRenderer,
+                var button = new ListElementButton(_spriteBatch, _textRenderer,
                     0, 0, 1400, 212, "SongButton", displayName, Color4.White)
                 {
                     //ScaleMultiply = 0.3f,
@@ -91,6 +92,8 @@ namespace TappiruCS.State
                     Layer = list.Layer,
                     Tag = "List"
                 };
+                button.SetIndex(i);
+                
 
                 if (bgImagePath != null)
                     button.ButtonImage = TextureLoader.Load(bgImagePath);
@@ -98,7 +101,8 @@ namespace TappiruCS.State
                 string capturedPath = folderPath;
                 button.OnClick += () => _ = SelectSong(capturedPath);
 
-                list.AddButton(button);        
+                list.AddButton(button);
+                
             }
 
 
@@ -201,7 +205,8 @@ namespace TappiruCS.State
                 {
                     Layer = 3,
                     Position = new Vector2(180, startY + i * spacing),
-                    ScaleMultiply = 1.0f
+                    ScaleMultiply = 1.0f,
+                    Opacity = 0.5f
                 };
                 
                 button.SetRank(i + 1);

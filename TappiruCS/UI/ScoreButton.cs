@@ -112,7 +112,8 @@ namespace TappiruCS.UI
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
-
+            Avatar.Opacity = 1f;
+            Grade.Opacity = 1f;
             UpdateContent();
 
         }

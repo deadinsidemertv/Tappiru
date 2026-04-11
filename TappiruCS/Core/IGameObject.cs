@@ -6,7 +6,7 @@ namespace TappiruCS.Core
     {
         Vector2 Position { get; set; }
         Vector2 Scale { get; set; }
-        float Rotation { get; set; }
+        float Opacity { get; set; }
         int Layer { get; set; }
         bool Active { get; set; }
     }

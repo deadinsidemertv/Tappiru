@@ -82,14 +82,17 @@ namespace TappiruCS.State
             _loginInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 535, 500, 70)
             {
                 PlaceHolderText = "login",
-                Layer = 4
+                Layer = 4,
+                
+
             };
 
             _passwordInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 615, 500, 70)
             {
                 PlaceHolderText = "password",
                 IsPassword = true,
-                Layer = 4
+                Layer = 4,
+                
             };
 
             _loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70, "button", "Войти", Color4.White)
@@ -126,12 +129,14 @@ namespace TappiruCS.State
             var blackTop = new SpriteObject(_spriteBatch, blackTex, 960, 0, 2000, _game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true
+                AutoScale = true,
+                Opacity = 0.6f
             };
             var blackBottom = new SpriteObject(_spriteBatch, blackTex, 960, 1080, 2000, _game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true
+                AutoScale = true,
+                Opacity = 0.6f
             };
 
             _scene.Add(bg);

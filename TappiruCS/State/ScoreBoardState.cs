@@ -61,7 +61,9 @@ namespace TappiruCS.State
             var background = new Background(_spriteBatch, TextureLoader.Load(_mapData.backGroundPath), _game) {ParalaxEffect = true };
             var backgroundopacity = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
             _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 980, 600, 1400, 667) { ScaleMultiply = 1.4f};
-            _topBlack = new SpriteObject(_spriteBatch, 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f) };
+            _topBlack = new SpriteObject(_spriteBatch, 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f),
+                Opacity = 0.6f
+            };
 
 
             _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X -500, _scoreList.Position.Y-450, 0.6f) 

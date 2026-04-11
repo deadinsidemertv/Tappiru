@@ -56,6 +56,7 @@ namespace TappiruCS.UI
                 Color = Color4.White,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0f, 0f),   // left align
+                Layer = 5
             };
 
             PlaceHolder = new TextObject(textRenderer, PlaceHolderText, x, y, 1f)
@@ -69,9 +70,9 @@ namespace TappiruCS.UI
             _game.KeyDown += HandleKeyDown;
             _game.TextInput += HandleTextInput;
 
-            AddChild(InputText);
             AddChild(InputBackground);
             AddChild(PlaceHolder);
+            AddChild(InputText);
         }
 
         private void HandleTextInput(TextInputEventArgs e)

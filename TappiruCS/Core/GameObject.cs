@@ -7,7 +7,7 @@ namespace TappiruCS.Core
     {
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Vector2 Scale { get; set; } = Vector2.One;
-        public float Rotation { get; set; } = 0f;
+        public float Opacity { get; set; }=1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
         public bool AutoScale { get; set; } = true;
@@ -51,6 +51,7 @@ namespace TappiruCS.Core
             {
                 if (!child.Active) continue;
                 child.CanvasScale = CanvasScale;     // ← вот что убирает дублирование
+                child.Opacity = Opacity;
                 child.Update(deltaTime);
             }
         }
@@ -63,7 +64,9 @@ namespace TappiruCS.Core
             {
                 if (!child.Active) continue;
                 child.CanvasScale = CanvasScale;
+                child.Opacity = Opacity;
                 child.Update(deltaTime, mouse);
+                
             }
         }
 

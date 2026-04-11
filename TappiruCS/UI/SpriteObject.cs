@@ -32,7 +32,7 @@ namespace TappiruCS.UI
                     effW * CanvasScale.X,
                     effH * CanvasScale.Y,
                     0, 0, 1, 1,
-                    Color.R, Color.G, Color.B, Color.A,
+                    Color.R, Color.G, Color.B, Opacity,
                     projection);
             }
             else
@@ -43,7 +43,7 @@ namespace TappiruCS.UI
                     effW,
                     effH,
                     0, 0, 1, 1,
-                    Color.R, Color.G, Color.B, Color.A,
+                    Color.R, Color.G, Color.B, Opacity,
                     projection);
             }
         }

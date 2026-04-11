@@ -40,6 +40,9 @@ namespace TappiruCS.UI
                       float x, float y, float width, float height,
                       string textureName, string text, Color4 color)
         {
+            NormalColor  = new Color4(1f, 1f, 1f, Opacity);
+            HoverColor  = new Color4(0.5f, 0.5f, 1.05f, Opacity);
+            PressColor  = new Color4(0.75f, 0.75f, 0.75f, Opacity);
             Text = text;
 
             Position = new Vector2(x, y);
@@ -121,6 +124,7 @@ namespace TappiruCS.UI
                 _imageObject.Position = new Vector2(Position.X + scaledOffsetX, Position.Y + scaledOffsetY);
                 _imageObject.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
                 _imageObject.ScaleMultiply = 1f;
+                //_imageObject.Opacity = Opacity;
             }
             else
             {
@@ -142,12 +146,12 @@ namespace TappiruCS.UI
 
         public override void SetHover(bool hover)
         {
-            Console.WriteLine($"SetHover called: {hover} | IsHovered was: {IsHovered} | Tag: {Tag}");
             if (IsHovered == hover)
                 return;
 
             bool wasHovered = IsHovered;
             IsHovered = hover;
+
 
             if (hover)
             {
