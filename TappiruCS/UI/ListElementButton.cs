@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
+using TappiruCS.GameLogic;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI
@@ -11,9 +12,11 @@ namespace TappiruCS.UI
         public bool IsSelected { get; private set; } = false;
 
         public readonly SpriteObject fade;
+        public readonly List<SpriteObject> StarRating;
+
         public ListElementButton(SpriteBatch spriteBatch, TextRender textRenderer,
                           float x, float y, float width, float height,
-                          string textureName, string text, Color4 color)
+                          string textureName, string text, Color4 color,JsonMap mapdata)
             : base(spriteBatch, textRenderer, x, y, width, height, textureName, text, color)
         {
             Tag = "List";
@@ -21,14 +24,31 @@ namespace TappiruCS.UI
             {
                 Color = new Color4(0.212f, 0, 0.106f, Opacity)
             };
-           
+            StarRating = new List<SpriteObject>();
+            int fullStars = (int)Math.Floor(mapdata.StarRating);
+            for (int i = 0; i < fullStars; i++)
+            {
+                StarRating.Add(new SpriteObject(spriteBatch, TextureManager.GetTexture("starRait"), x+i*15, y, 30, 30));
+                AddChild(StarRating[i]);
+            }
+            float fraction = mapdata.StarRating - (int)Math.Floor(mapdata.StarRating);
+            StarRating.Add(new SpriteObject(spriteBatch, TextureManager.GetTexture("starRait"), x, y, 30, 30) { ScaleMultiply = fraction});
 
+
+            AddChild(StarRating[StarRating.Count-1]);
             AddChild(fade);
+            
         }
         public override void Update(double deltaTime,MouseState mouse)
         {
             base.Update(deltaTime, mouse);
             fade.Position = new Vector2(Position.X, Position.Y);
+
+            for(int i = 0; i < StarRating.Count-1; i++)
+            {
+                StarRating[i].Position = new Vector2(Position.X - 280 + i * 20, Position.Y + 43);   
+            }
+            StarRating[StarRating.Count - 1].Position = new Vector2(StarRating[StarRating.Count - 2].Position.X + 20, StarRating[StarRating.Count - 2].Position.Y+1* StarRating[StarRating.Count - 1].ScaleMultiply);
 
             if (IsSelected)
             {

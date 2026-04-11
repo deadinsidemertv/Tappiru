@@ -77,10 +77,10 @@ namespace TappiruCS.State
                 string json = File.ReadAllText(tappFile);
                 var mapData = JsonSerializer.Deserialize<JsonMap>(json);
                 // Например: "Название (автор)" или "Название - автор"
-                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}] StarRait: {mapData.StarRating}";
+                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}]";
 
                 var button = new ListElementButton(_spriteBatch, _textRenderer,
-                    0, 0, 1400, 212, "SongButton", displayName, Color4.White)
+                    0, 0, 1400, 212, "SongButton", displayName, Color4.White,mapData)
                 {
                     //ScaleMultiply = 0.3f,
                     TextScale = 0.3f,
@@ -91,6 +91,7 @@ namespace TappiruCS.State
                     ImageOffset = new Vector2(-570f, 0f),
                     Layer = list.Layer,
                     Tag = "List"
+
                 };
                 button.SetIndex(i);
                 
