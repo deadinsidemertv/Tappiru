@@ -8,8 +8,6 @@ namespace TappiruCS.UI
 {
     public class Button : GameObject
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
 
         private readonly int _textureId;
 
@@ -31,6 +29,7 @@ namespace TappiruCS.UI
 
         private Color4 _currentColor;
 
+        private readonly SpriteObject _buttonBackground;
         private readonly TextObject _textObject;
         private readonly SpriteObject _imageObject;
 
@@ -41,8 +40,6 @@ namespace TappiruCS.UI
                       float x, float y, float width, float height,
                       string textureName, string text, Color4 color)
         {
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
             Text = text;
 
             Position = new Vector2(x, y);
@@ -53,7 +50,13 @@ namespace TappiruCS.UI
             TextColor = color;
             _currentColor = NormalColor;
 
-            _textObject = new TextObject(_textRenderer, text, x, y, 1f)
+            _buttonBackground = new SpriteObject(spriteBatch, _textureId, x, y, width, height) 
+            { 
+                Parent = this,
+                
+            };
+
+            _textObject = new TextObject(textRenderer, text, x, y, 1f)
             {
                 Color = TextColor,
                 ScaleMultiply = TextScale,
@@ -62,7 +65,7 @@ namespace TappiruCS.UI
                 Parent = this
             };
 
-            _imageObject = new SpriteObject(_spriteBatch, 0, x, y, 1f, 1f)
+            _imageObject = new SpriteObject(spriteBatch, 0, x, y, 1f, 1f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Parent = this,
@@ -83,21 +86,30 @@ namespace TappiruCS.UI
             else
                 _currentColor = NormalColor;
 
+            _buttonBackground.Color = _currentColor;
+
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
 
-            // Автоматическое масштабирование детей
+            // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
+            _buttonBackground.CanvasScale = CanvasScale;
             _textObject.CanvasScale = CanvasScale;
+            _imageObject.CanvasScale = CanvasScale;
+
             _textObject.Text = Text;
             _textObject.Color = TextColor;
             _textObject.ScaleMultiply = TextScale;
 
+            // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+            // Главное исправление:
+            _buttonBackground.Position = Position;
+            // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+
             float offsetScale = ScaleMultiply;
+
             _textObject.Position = new Vector2(
                 Position.X + TextOffset.X * offsetScale,
                 Position.Y + TextOffset.Y * offsetScale);
-
-            _imageObject.CanvasScale = CanvasScale;
 
             if (IsImaged)
             {
@@ -126,8 +138,10 @@ namespace TappiruCS.UI
             float sW = effW * CanvasScale.X;
             float sH = effH * CanvasScale.Y;
 
-            _spriteBatch.Draw(_textureId, sLeft, sTop, sW, sH, 0, 0, 1, 1,
-                _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A, projection);
+            //_spriteBatch.Draw(_textureId, sLeft, sTop, sW, sH, 0, 0, 1, 1,
+            // _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A, projection);
+
+            _buttonBackground.Draw(projection);
 
             _textObject.Draw(projection);
             if (_imageObject.Active)

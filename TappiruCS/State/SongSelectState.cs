@@ -81,7 +81,7 @@ namespace TappiruCS.State
                 var button = new Button(_spriteBatch, _textRenderer,
                     0, 0, 1400, 212, "SongButton", displayName, Color4.White)
                 {
-                    ScaleMultiply = 0.3f,
+                    //ScaleMultiply = 0.3f,
                     TextScale = 0.3f,
                     TextAlign = TextRender.TextAlign.Right,
                     IsImaged = true,

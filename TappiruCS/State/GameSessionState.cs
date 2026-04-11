@@ -214,7 +214,7 @@ namespace TappiruCS.State
             float bestScale = 1.8f;
             for (float testScale = 1.8f; testScale >= 0.5f; testScale -= 0.02f)
             {
-                float estimatedWidth = _textRenderer.CalculateTextWidth(text, testScale * _scene.CanvasScale.X); // используем текущий CanvasScale
+                float estimatedWidth = _textRenderer.CalculateTextWidth(text, testScale * Scene.CanvasScale.X); // используем текущий CanvasScale
                 if (estimatedWidth <= maxPixelWidth)
                 {
                     bestScale = testScale;
@@ -241,7 +241,7 @@ namespace TappiruCS.State
                 text,
                 centerX,
                 y,
-                _scene.CanvasScale,      // ← вот сюда передаём текущее значение
+                Scene.CanvasScale,      // ← вот сюда передаём текущее значение
                 bestScale,
                 1.0f,                    // ScaleMultiply
                 colors,
