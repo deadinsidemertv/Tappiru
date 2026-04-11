@@ -52,7 +52,6 @@ namespace TappiruCS.UI
 
             _buttonBackground = new SpriteObject(spriteBatch, _textureId, x, y, width, height) 
             { 
-                Parent = this,
                 
             };
 
@@ -62,15 +61,17 @@ namespace TappiruCS.UI
                 ScaleMultiply = TextScale,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0.0f, 0.0f),
-                Parent = this
             };
 
             _imageObject = new SpriteObject(spriteBatch, 0, x, y, 1f, 1f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this,
                 Active = false
             };
+
+            AddChild(_buttonBackground);
+            AddChild(_textObject);
+            AddChild(_imageObject);
         }
 
         public override void Update(double deltaTime, MouseState mouse)
@@ -92,9 +93,6 @@ namespace TappiruCS.UI
                 OnClick?.Invoke();
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
-            _buttonBackground.CanvasScale = CanvasScale;
-            _textObject.CanvasScale = CanvasScale;
-            _imageObject.CanvasScale = CanvasScale;
 
             _textObject.Text = Text;
             _textObject.Color = TextColor;

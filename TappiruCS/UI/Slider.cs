@@ -44,7 +44,6 @@ namespace TappiruCS.UI
             {
                 Color = new Color4(0.3f, 0.3f, 0.3f, 1f),
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this          // ← важно!
             };
 
             // === Ползунок ===
@@ -52,7 +51,6 @@ namespace TappiruCS.UI
             {
                 Color = Color4.Black,
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this          // ← важно!
             };
 
             // === Тексты (локальный ScaleMultiply) ===
@@ -62,7 +60,6 @@ namespace TappiruCS.UI
                 ScaleMultiply = 0.25f,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this
             };
 
             maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width / 2f, y, 1f)
@@ -71,7 +68,6 @@ namespace TappiruCS.UI
                 ScaleMultiply = 0.25f,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this
             };
 
             ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y, 1f)
@@ -80,9 +76,13 @@ namespace TappiruCS.UI
                 ScaleMultiply = 0.2f,
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
-                Parent = this
             };
 
+            AddChild(line);
+            AddChild(point);
+            AddChild(minValueText);
+            AddChild(maxValueText);
+            AddChild(ValueText);
             UpdatePointPositionFromValue();
         }
 
@@ -95,15 +95,6 @@ namespace TappiruCS.UI
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime);
-
-            line.CanvasScale = CanvasScale;
-            point.CanvasScale = CanvasScale;
-            minValueText.CanvasScale = CanvasScale;
-            maxValueText.CanvasScale = CanvasScale;
-            ValueText.CanvasScale = CanvasScale;
-
-            //line.ScaleMultiply = this.ScaleMultiply;
-            //point.ScaleMultiply = this.ScaleMultiply;
 
             UpdateDragging(mouse);
             UpdatePointPositionFromValue();// ← новое

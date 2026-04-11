@@ -38,16 +38,16 @@ namespace TappiruCS.UI
 
         public void AddButton(Button button)
         {
-            button.Parent = this;
+            
             button.ScaleMultiply = ScaleMultiplyList;
             Buttons.Add(button);
+            AddChild(button);
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             float dt = (float)deltaTime;
 
-            // Плавный скролл
             ScrollOffsetY = MathHelper.Lerp(ScrollOffsetY, _targetScrollOffsetY, Smoothness * dt);
 
             float baseY = Position.Y;
@@ -56,18 +56,19 @@ namespace TappiruCS.UI
             {
                 var btn = Buttons[i];
 
-                btn.CanvasScale = CanvasScale;
-                btn.ScaleMultiply = ScaleMultiplyList;
-                btn.Parent = this;
+                btn.ScaleMultiply = ScaleMultiplyList;        // оставляем, это специфично для списка
 
                 float targetY = baseY + i * (_itemHeight + _itemSpacing) - ScrollOffsetY;
                 btn.Position = new Vector2(Position.X, targetY);
 
-                btn.Update(deltaTime, mouse);
                 btn.Active = IsButtonVisible(i);
+
             }
 
             HandleDragging(mouse);
+
+            base.Update(deltaTime, mouse);    
+                                             
         }
 
         private void HandleDragging(MouseState mouse)

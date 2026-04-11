@@ -48,7 +48,6 @@ namespace TappiruCS.UI
             {
                 Avatar = new SpriteObject(spriteBatch, PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
                 {
-                    Parent = this,
                     Pivot = new Vector2(0.5f, 0.5f)
                 };
             }
@@ -56,7 +55,6 @@ namespace TappiruCS.UI
             {
                 Avatar = new SpriteObject(spriteBatch, TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
                 {
-                    Parent = this,
                     Pivot = new Vector2(0.5f, 0.5f)
                 };
             }
@@ -64,7 +62,6 @@ namespace TappiruCS.UI
             // === Грейд — сразу справа от аватарки ===
             Grade = new SpriteObject(spriteBatch, grade, Position.X - 58, Position.Y, 37, 44)
             {
-                Parent = this,
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f
             };
@@ -72,7 +69,6 @@ namespace TappiruCS.UI
             // === Тексты ===
             PlayerNameText = new TextObject(textRenderer, "", Position.X-10, Position.Y-50, 1f)
             {
-                Parent = this,
                 ScaleMultiply = 0.29f,
                 Align = TextRender.TextAlign.Left,
                 Color = Color4.White
@@ -80,7 +76,6 @@ namespace TappiruCS.UI
 
             ScoreComboText = new TextObject(textRenderer, "", Position.X - 10, Position.Y, 1f)
             {
-                Parent = this,
                 ScaleMultiply = 0.245f,
                 Align = TextRender.TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f)
@@ -88,11 +83,16 @@ namespace TappiruCS.UI
 
             AccuracyText = new TextObject(textRenderer, "", Position.X+324, Position.Y+19, 1f)
             {
-                Parent = this,
                 ScaleMultiply = 0.22f,
                 Align = TextRender.TextAlign.Right,
-                
+
             };
+
+            AddChild(Avatar);
+            AddChild(Grade);
+            AddChild(PlayerNameText);
+            AddChild(ScoreComboText);
+            AddChild(AccuracyText);
 
             UpdateContent();
         }
@@ -115,12 +115,6 @@ namespace TappiruCS.UI
 
             UpdateContent();
 
-            // Синхронизация CanvasScale
-            Avatar.CanvasScale = CanvasScale;
-            Grade.CanvasScale = CanvasScale;
-            PlayerNameText.CanvasScale = CanvasScale;
-            ScoreComboText.CanvasScale = CanvasScale;
-            AccuracyText.CanvasScale = CanvasScale;
         }
 
         public override void Draw(Matrix4 projection)

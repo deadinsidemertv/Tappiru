@@ -46,7 +46,6 @@ namespace TappiruCS.UI
 
             InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height)
             {
-                Parent = this,
                 ScaleMultiply = 1f
             };
 
@@ -57,7 +56,6 @@ namespace TappiruCS.UI
                 Color = Color4.White,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0f, 0f),   // left align
-                Parent = this
             };
 
             PlaceHolder = new TextObject(textRenderer, PlaceHolderText, x, y, 1f)
@@ -66,11 +64,14 @@ namespace TappiruCS.UI
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0f, 0f),
-                Parent = this
             };
 
             _game.KeyDown += HandleKeyDown;
             _game.TextInput += HandleTextInput;
+
+            AddChild(InputText);
+            AddChild(InputBackground);
+            AddChild(PlaceHolder);
         }
 
         private void HandleTextInput(TextInputEventArgs e)
@@ -110,6 +111,9 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
+            // Сначала обновляем CanvasScale у детей через базовый метод
+            base.Update(deltaTime, mouse);        // ← ВАЖНО: вызываем ПЕРВЫМ
+
             PlaceHolder.Color = PlaceHolderColor;
             PlaceHolder.Text = PlaceHolderText;
 
@@ -120,18 +124,14 @@ namespace TappiruCS.UI
             if (mouse.IsButtonPressed(MouseButton.Left))
                 IsFocused = hovered;
 
-            // ====================== АВТОМАТИЧЕСКОЕ масштабирование детей ======================
-            InputBackground.CanvasScale = CanvasScale;
-            InputText.CanvasScale = CanvasScale;
-            PlaceHolder.CanvasScale = CanvasScale;
-
+            // ====================== ЛОГИКА InputField ======================
             InputBackground.ScaleMultiply = 1f;
             InputText.ScaleMultiply = 0.3f;
             PlaceHolder.ScaleMultiply = 0.3f;
 
-            // Позиции + отступы, которые масштабируются вместе с InputField
-            var (left, top, _, _) = GetDesignBounds();           // уже учитывает ScaleMultiply
-            float padding = 10f * ScaleMultiply;                 // ← вот и всё волшебство
+            // Позиции + отступы
+            var (left, top, _, _) = GetDesignBounds();
+            float padding = 10f * ScaleMultiply;
 
             InputText.Position = new Vector2(left + padding, top + padding);
             PlaceHolder.Position = new Vector2(left + padding, top + padding);
