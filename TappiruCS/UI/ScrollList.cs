@@ -31,6 +31,14 @@ namespace TappiruCS.UI
         private int _hoveredIndex = -1;
         public int HoveredIndex => _hoveredIndex;
 
+        // === ПЛАВНЫЕ СМЕЩЕНИЯ ДЛЯ КАЖДОЙ КНОПКИ ===
+        private float[] _hoverX;
+        private float[] _hoverY;
+
+        public ListElementButton SelectedButton { get; private set; } = null;
+        public int SelectedIndex { get; private set; } = -1;
+
+        public event Action<ListElementButton> OnSelectionChanged;   // опционально, если нужно уведомлять
         public ScrollList(SpriteBatch spriteBatch, TextRender textRenderer,
                           float x, float y, float width, float height)
         {
@@ -38,18 +46,58 @@ namespace TappiruCS.UI
             _textRenderer = textRenderer;
             Position = new Vector2(x, y);
             _visibleHeight = 400;
-        }
 
+            _hoverX = new float[0];
+            _hoverY = new float[0];
+        }
+        public void SelectButton(int index)
+        {
+            if (index < 0 || index >= Buttons.Count)
+            {
+                DeselectAll();
+                return;
+            }
+
+            // Снимаем выделение со всех
+            foreach (var btn in Buttons)
+                btn.SetSelected(false);
+
+            // Выделяем нужную
+            var selected = Buttons[index];
+            selected.SetSelected(true);
+
+            SelectedButton = selected;
+            SelectedIndex = index;
+
+            OnSelectionChanged?.Invoke(selected);
+
+
+        }
         public void AddButton(ListElementButton button)
         {
-            
+
             button.ScaleMultiply = ScaleMultiplyList;
             Buttons.Add(button);
             AddChild(button);
+
+            // Увеличиваем массивы
+            Array.Resize(ref _hoverX, Buttons.Count);
+            Array.Resize(ref _hoverY, Buttons.Count);
+
+            button.OnClick += () => SelectButton(Buttons.IndexOf(button));
         }
         public void NotifyHoverChanged(ListElementButton button, bool isHovered)
         {
             int index = Buttons.IndexOf(button);
+            if (index == -1) return;
+            if (isHovered)
+            {
+                _hoveredIndex = index;
+            }
+            else if (_hoveredIndex == index)
+            {
+                _hoveredIndex = -1;        // курсор ушёл с этой кнопки
+            }
         }
         public override void Update(double deltaTime, MouseState mouse)
         {
@@ -60,30 +108,50 @@ namespace TappiruCS.UI
 
             float baseY = Position.Y;
 
+            // === Для каждой кнопки считаем свою цель ===
+            for (int i = 0; i < Buttons.Count; i++)
+            {
+                float targetX = 0f;
+                float targetY = 0f;
+
+                if (_hoveredIndex != -1)
+                {
+                    if (i == _hoveredIndex)
+                        targetX = -100f;           // главная кнопка — влево
+                    else if (i < _hoveredIndex)
+                        targetY = -25f;           // кнопки выше — вверх
+                    else
+                        targetY = 25f;            // кнопки ниже — вниз
+                }
+
+                // Плавно двигаем каждую кнопку к своей цели
+                _hoverX[i] = MathHelper.Lerp(_hoverX[i], targetX, 6f * dt);
+                _hoverY[i] = MathHelper.Lerp(_hoverY[i], targetY, 6f * dt);
+            }
+
+            // === Применяем позицию ===
             for (int i = 0; i < Buttons.Count; i++)
             {
                 var btn = Buttons[i];
-
-                btn.ScaleMultiply = ScaleMultiplyList;        
+                btn.ScaleMultiply = ScaleMultiplyList;
 
                 float targetY = baseY + i * (_itemHeight + _itemSpacing) - ScrollOffsetY;
 
-
+                // Парабола (остаётся)
                 float itemCenterY = targetY + _itemHeight / 2f;
                 float viewCenterY = Position.Y + _visibleHeight / 2f;
                 float distanceFromCenter = itemCenterY - viewCenterY;
-                float normalizedDist = distanceFromCenter / (_visibleHeight * 0.5f); // 0.5f даёт ±1 точно на краях видимой области
+                float normalizedDist = distanceFromCenter / (_visibleHeight * 0.5f);
+                float parabolaX = 15f * normalizedDist * normalizedDist;
 
-                float maxOffset = 15f;
-                float xOffset = maxOffset * normalizedDist * normalizedDist;
+                float finalX = Position.X + parabolaX + _hoverX[i];
+                float finalY = targetY + _hoverY[i];
 
-
-                btn.Position = new Vector2(Position.X+xOffset, targetY);
+                btn.Position = new Vector2(finalX, finalY);
                 btn.Active = IsButtonVisible(i);
-
             }
 
-            HandleDragging(mouse);                                    
+            HandleDragging(mouse);
         }
 
         private void HandleDragging(MouseState mouse)
@@ -144,7 +212,14 @@ namespace TappiruCS.UI
         {
             base.Draw(projection);
         }
+        private void DeselectAll()
+        {
+            foreach (var btn in Buttons)
+                btn.SetSelected(false);
 
+            SelectedButton = null;
+            SelectedIndex = -1;
+        }
         public void ResetScroll() => _targetScrollOffsetY = ScrollOffsetY = 0f;
     }
 }

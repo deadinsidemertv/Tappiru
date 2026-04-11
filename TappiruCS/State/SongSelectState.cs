@@ -99,7 +99,7 @@ namespace TappiruCS.State
                     button.ButtonImage = TextureLoader.Load(bgImagePath);
 
                 string capturedPath = folderPath;
-                button.OnClick += () => _ = SelectSong(capturedPath);
+                button.OnClick += () =>_ = SelectSong(capturedPath);
 
                 list.AddButton(button);
                 

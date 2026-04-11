@@ -29,6 +29,7 @@ namespace TappiruCS.UI
             Text = "";
             NormalColor = new Color4(1f, 1f, 1f, 0.5f);
             HoverColor = new Color4(1.5f, 1.5f, 1.5f, 0.3f);
+            Opacity = 0.5f;
 
             if (score._accuraci == 100f && score._failChar == 0)
                 grade = TextureLoader.Load("Textures/grade/grade5.png");

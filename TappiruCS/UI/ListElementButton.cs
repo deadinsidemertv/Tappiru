@@ -8,9 +8,9 @@ namespace TappiruCS.UI
     public class ListElementButton : Button
     {
         public int Index { get; private set; } = -1;
+        public bool IsSelected { get; private set; } = false;
 
         public readonly SpriteObject fade;
-
         public ListElementButton(SpriteBatch spriteBatch, TextRender textRenderer,
                           float x, float y, float width, float height,
                           string textureName, string text, Color4 color)
@@ -30,8 +30,17 @@ namespace TappiruCS.UI
             base.Update(deltaTime, mouse);
             fade.Position = new Vector2(Position.X, Position.Y);
 
-            fade.Opacity = 0.6f;
-            
+            if (IsSelected)
+            {
+                fade.Active = false;
+                fade.Opacity = 0f;
+            }
+            else
+            {
+                fade.Active = true;
+                fade.Opacity = 0.6f;
+            }
+
 
         }
         public override void Draw(Matrix4 projection)
@@ -60,8 +69,14 @@ namespace TappiruCS.UI
                 Console.WriteLine($"{Index} - index button");
             }
 
-            // Важно: вызываем базовый метод!
             base.SetHover(hover);
+        }
+        public void SetSelected(bool selected)
+        {
+            if (IsSelected == selected) return;
+
+            IsSelected = selected;
+
         }
     }
 }
