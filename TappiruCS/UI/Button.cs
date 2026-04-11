@@ -139,20 +139,19 @@ namespace TappiruCS.UI
             base.Draw(projection);
         }
 
-        
+
         public override void SetHover(bool hover)
         {
-            // Если состояние не изменилось с прошлого вызова — выходим
+            Console.WriteLine($"SetHover called: {hover} | IsHovered was: {IsHovered} | Tag: {Tag}");
             if (IsHovered == hover)
                 return;
 
-            bool wasHovered = IsHovered;           // старое состояние до изменения
+            bool wasHovered = IsHovered;
             IsHovered = hover;
 
-            // === АНИМАЦИИ И ЦВЕТ ===
             if (hover)
             {
-                if (Tag == "")
+                if (string.IsNullOrEmpty(Tag))
                     this.AnimScale(1.15f, 0.18f);
 
                 _currentColor = HoverColor;
@@ -163,7 +162,6 @@ namespace TappiruCS.UI
                 _currentColor = NormalColor;
             }
 
-            // === ЗВУК НА HOVER — ТОЛЬКО ПРИ РЕАЛЬНОМ ВХОДЕ ===
             if (hover && !wasHovered)
             {
                 if (AudioManager.Instance != null && !Tag.Contains("NoHoverSound"))
@@ -174,7 +172,6 @@ namespace TappiruCS.UI
 
             HoverStateChanged?.Invoke(this, hover);
 
-            // Вызываем базовые события
             base.SetHover(hover);
         }
     }

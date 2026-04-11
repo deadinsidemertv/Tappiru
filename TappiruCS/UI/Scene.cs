@@ -81,30 +81,18 @@ namespace TappiruCS.Core
             GameObject top = null;
             int topLayer = int.MinValue;
 
-            // Сначала находим топовый объект
-            foreach (var obj in _objects)
+            // Находим самый верхний объект под курсором
+            foreach (var root in _objects)
             {
-                if (!obj.Active) continue;
-                if (!obj.AllowHover) continue;
-
-                if (obj.IsPointInside(virtualMouseX, virtualMouseY))
-                {
-                    if (obj.Layer > topLayer)
-                    {
-                        topLayer = obj.Layer;
-                        top = obj;
-                    }
-                }
+                root.CollectHoverCandidates(virtualMouseX, virtualMouseY, ref top, ref topLayer);
             }
 
-            // Теперь сбрасываем hover у всех, КРОМЕ топового
-            foreach (var obj in _objects)
+            // === ИСПРАВЛЕНИЕ: Правильный сброс и установка ===
+            foreach (var root in _objects)
             {
-                if (obj == top)
-                    obj.SetHover(true);      // сразу ставим true топовому
-                else
-                    obj.SetHover(false);
+                root.SetHoverRecursive(top);   // ← передаём top вместо bool
             }
+
         }
 
         private Vector2 GetVirtualMousePosition(MouseState mouse)

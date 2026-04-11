@@ -128,29 +128,33 @@ namespace TappiruCS.Core
             }
         }
 
-        public virtual void SetHoverRecursive(bool hover)
+        public virtual void SetHoverRecursive(GameObject? targetHover)
         {
-            SetHover(hover);                    // вызываем обычный SetHover у себя
+            bool shouldBeHovered = (this == targetHover);
 
-            foreach (var child in _children)    // и у всех детей
+            if (IsHovered != shouldBeHovered)
             {
-                child.SetHoverRecursive(hover);
+                SetHover(shouldBeHovered);
+            }
+
+            // Рекурсия по детям
+            foreach (var child in _children)
+            {
+                child.SetHoverRecursive(targetHover);
             }
         }
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
-                                                   ref GameObject top, ref int topLayer)
+                                           ref GameObject top, ref int topLayer)
         {
             if (!Active || !AllowHover)
                 return;
 
-            // Проверяем, попал ли курсор в этот объект
-            if (IsPointInside(virtualX, virtualY) && Layer > topLayer)
+            if (IsPointInside(virtualX, virtualY) && Layer >= topLayer)   
             {
                 topLayer = Layer;
                 top = this;
             }
 
-            // Рекурсивно проверяем всех детей
             foreach (var child in _children)
             {
                 child.CollectHoverCandidates(virtualX, virtualY, ref top, ref topLayer);

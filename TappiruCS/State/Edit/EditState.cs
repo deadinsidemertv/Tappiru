@@ -89,7 +89,7 @@ namespace TappiruCS.State.Edit
         {
             var btn = new Button(_spriteBatch, _textRenderer, x, 30, 700, 120, "button", text, Color4.White)
             {
-                Layer = 0,
+                Layer = 1,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-10f, -50f),
                 TextScale = 0.7f,

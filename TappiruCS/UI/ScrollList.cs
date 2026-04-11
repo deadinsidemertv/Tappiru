@@ -46,6 +46,8 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
+            base.Update(deltaTime, mouse);
+            Console.WriteLine($"ScrollList Update: {Buttons.Count} buttons, CanvasScale = {CanvasScale}");
             float dt = (float)deltaTime;
 
             ScrollOffsetY = MathHelper.Lerp(ScrollOffsetY, _targetScrollOffsetY, Smoothness * dt);
@@ -67,7 +69,7 @@ namespace TappiruCS.UI
 
             HandleDragging(mouse);
 
-            base.Update(deltaTime, mouse);    
+                
                                              
         }
 
@@ -131,5 +133,7 @@ namespace TappiruCS.UI
         }
 
         public void ResetScroll() => _targetScrollOffsetY = ScrollOffsetY = 0f;
+
+
     }
 }
