@@ -186,11 +186,7 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            line.Draw(projection);
-            point.Draw(projection);
-            minValueText.Draw(projection);
-            maxValueText.Draw(projection);
-            ValueText.Draw(projection);
+            base.Draw(projection);
         }
 
         public void SetValue(float newValue)

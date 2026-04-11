@@ -153,10 +153,7 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            // Теперь всё рисуется через дочерние объекты (автоматически с EffectiveScaleMultiply)
-            InputBackground.Draw(projection);
-            InputText.Draw(projection);
-            PlaceHolder.Draw(projection);
+            base.Draw(projection);
         }
 
         public void Dispose()

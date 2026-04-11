@@ -99,7 +99,7 @@ namespace TappiruCS.State
                 button.OnClick += () => _ = SelectSong(capturedPath);
 
                 list.AddButton(button);        // ← вот так добавляем
-                _scene.Add(button);            // можно оставить, если хочешь (но лучше убрать)
+                //_scene.Add(button);            // можно оставить, если хочешь (но лучше убрать)
             }
 
 

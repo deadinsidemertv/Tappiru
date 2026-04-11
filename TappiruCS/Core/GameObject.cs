@@ -67,7 +67,14 @@ namespace TappiruCS.Core
             }
         }
 
-        public abstract void Draw(Matrix4 projection);
+        public virtual void Draw(Matrix4 projection) 
+        {
+            foreach (var child in _children)
+            {
+                if (child.Active)
+                    child.Draw(projection);
+            }
+        }
 
         public virtual void SetHover(bool hover)
         {
@@ -121,7 +128,35 @@ namespace TappiruCS.Core
             }
         }
 
-        // ====================== HOVER EVENTS ======================
+        public virtual void SetHoverRecursive(bool hover)
+        {
+            SetHover(hover);                    // вызываем обычный SetHover у себя
+
+            foreach (var child in _children)    // и у всех детей
+            {
+                child.SetHoverRecursive(hover);
+            }
+        }
+        public virtual void CollectHoverCandidates(float virtualX, float virtualY,
+                                                   ref GameObject top, ref int topLayer)
+        {
+            if (!Active || !AllowHover)
+                return;
+
+            // Проверяем, попал ли курсор в этот объект
+            if (IsPointInside(virtualX, virtualY) && Layer > topLayer)
+            {
+                topLayer = Layer;
+                top = this;
+            }
+
+            // Рекурсивно проверяем всех детей
+            foreach (var child in _children)
+            {
+                child.CollectHoverCandidates(virtualX, virtualY, ref top, ref topLayer);
+            }
+        }
+
         public event Action<GameObject> OnHoverEnter;
         public event Action<GameObject> OnHoverExit;
     }

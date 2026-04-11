@@ -127,9 +127,7 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            foreach (var btn in Buttons)
-                if (btn.Active)
-                    btn.Draw(projection);
+            base.Draw(projection);
         }
 
         public void ResetScroll() => _targetScrollOffsetY = ScrollOffsetY = 0f;

@@ -118,18 +118,11 @@ namespace TappiruCS.UI
         }
 
         public override void Draw(Matrix4 projection)
-        {
-            base.Draw(projection);   // фон кнопки
+        {  
 
-            // Важно: передаём позицию + Pivot родителя
             var (dLeft, dTop, _, _) = GetDesignBounds();
+            base.Draw(projection);
 
-            Avatar.Draw(projection);
-            Grade.Draw(projection);
-
-            PlayerNameText.Draw(projection);
-            ScoreComboText.Draw(projection);
-            AccuracyText.Draw(projection);
         }
     }
 }

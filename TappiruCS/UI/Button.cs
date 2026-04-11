@@ -136,14 +136,7 @@ namespace TappiruCS.UI
             float sW = effW * CanvasScale.X;
             float sH = effH * CanvasScale.Y;
 
-            //_spriteBatch.Draw(_textureId, sLeft, sTop, sW, sH, 0, 0, 1, 1,
-            // _currentColor.R, _currentColor.G, _currentColor.B, _currentColor.A, projection);
-
-            _buttonBackground.Draw(projection);
-
-            _textObject.Draw(projection);
-            if (_imageObject.Active)
-                _imageObject.Draw(projection);
+            base.Draw(projection);
         }
 
         
