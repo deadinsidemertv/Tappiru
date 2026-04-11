@@ -92,6 +92,28 @@
                     _phaseEndHandled = false;
                 }
             }
+            if (_isActivePhase && !PhaseComplete)
+            {
+                while (CurrentCharIndex < CurrentPhaseChars.Length && CurrentPhaseChars[CurrentCharIndex] == ' ')
+                {
+                    CurrentCharIndex++; // просто перешагиваем пробел
+
+                    if (CurrentCharIndex == CurrentPhaseChars.Length)
+                    {
+                        // строка полностью состоит из пробелов – завершаем фазу
+                        PhaseComplete = true;
+                        _isActivePhase = false;
+                        CompletedPhases++;
+                        // (бонус за фазу не начисляем, чтобы не давать очки за пустоту)
+                        if (_currentPhaseIndex + 1 >= CurrentMap.Events.Count)
+                            IsMapCompleted = true;
+                        else
+                            _currentPhaseIndex++;
+                        CurrentCharIndex = 0;
+                        break;
+                    }
+                }
+            }
 
             // 2. Принудительное завершение по таймауту
             if (_isActivePhase && currentTime >= _nextPhaseStartTime && !_phaseEndHandled)
