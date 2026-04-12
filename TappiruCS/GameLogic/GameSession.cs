@@ -5,7 +5,6 @@ namespace TappiruCS.GameLogic
 {
     public class GameSession
     {
-
         public static Dictionary<char, Keys> CharToKeyMap { get; private set; }
 
         public static void InitCharToKeyMap(Dictionary<Keys, char[]> keyToCharsMap)
@@ -46,7 +45,6 @@ namespace TappiruCS.GameLogic
 
         public bool IsMapCompleted => _currentPhaseIndex >= CurrentMap.Events.Count && PhaseComplete;
 
-
         private int _currentPhaseIndex;
         private bool _isActivePhase;
         private bool _phaseEndHandled;
@@ -63,7 +61,6 @@ namespace TappiruCS.GameLogic
 
         private readonly HashSet<int> _successfullyHeldSliders = new();
         public HashSet<int> SuccessfullyHeldSliders => _successfullyHeldSliders;
-
 
         private const int PointsPerHit = 100;
         private const int PointsPerPhase = 300;
@@ -107,8 +104,7 @@ namespace TappiruCS.GameLogic
         /// </summary>
         public void HandleInput(char inputChar, double currentTime)
         {
-            if (!_isActivePhase || PhaseComplete)
-                return;
+            if (!_isActivePhase || PhaseComplete) return;
 
             SkipSpacesInPhase();
 
@@ -120,15 +116,12 @@ namespace TappiruCS.GameLogic
 
             char expected = CurrentPhaseChars[CurrentCharIndex];
 
-            // Если мы уже держим слайдер на этом индексе — игнорируем повторные нажатия
             if (_isHoldingSlider && _sliderCharIndex == CurrentCharIndex)
                 return;
 
-            // Пытаемся начать слайдер
             if (TryStartSlider(inputChar, expected, currentTime))
                 return;
 
-            // Обычный тап
             HandleRegularTap(inputChar, expected);
         }
 
@@ -195,26 +188,22 @@ namespace TappiruCS.GameLogic
 
             if (isLastCharSliderHeldSuccessfully)
             {
-                // Пассивное завершение: держим слайдер до конца фазы → считаем фазу пройденной
                 CompletedPhases++;
                 TotalScore += PointsPerPhase * Combo;
                 _successfullyCompletedSliders.Add(_sliderCharIndex);
 
                 Console.WriteLine($"[PHASE COMPLETE FROM HELD SLIDER] (passive, no release) Combo: {Combo}");
-
-                PhaseComplete = true;        // ← важно для отрисовки голубого цвета
+                PhaseComplete = true;
             }
             else if (CurrentCharIndex < CurrentPhaseChars.Length)
             {
                 FailedPhases++;
                 Combo = 0;
                 Misses += CurrentPhaseChars.Length - CurrentCharIndex;
-
                 PhaseComplete = false;
             }
             else
             {
-                // На всякий случай
                 PhaseComplete = true;
             }
 
@@ -224,16 +213,14 @@ namespace TappiruCS.GameLogic
 
         private void HandleOngoingSlider(double currentTime)
         {
-            if (!_isHoldingSlider)
-                return;
+            if (!_isHoldingSlider) return;
 
             var slider = _currentSliders[_sliderCharIndex];
 
-            // Авто-успех только один раз, когда время слайдера закончилось
             if (currentTime >= slider.endTime && !_successfullyHeldSliders.Contains(_sliderCharIndex))
             {
                 _successfullyHeldSliders.Add(_sliderCharIndex);
-                TotalScore += PointsPerHit * Combo * 2;   // бонус за удержание
+                TotalScore += PointsPerHit * Combo * 2;
 
                 Console.WriteLine($"[SLIDER AUTO SUCCESS] '{CurrentPhaseChars[_sliderCharIndex]}' — время вышло, можно отпускать! (now green)");
             }
@@ -244,20 +231,23 @@ namespace TappiruCS.GameLogic
             if (!_isHoldingSlider || keyboard.IsKeyDown(_heldKey))
                 return;
 
-            // Клавиша была отпущена
             var slider = _currentSliders[_sliderCharIndex];
             double delta = Math.Abs(currentTime - slider.endTime);
+
+            // Используем глобальные окна из MapData
+            double perfectEnd = CurrentMap.GlobalSliderPerfectEndWindow;
+            double goodEnd = CurrentMap.GlobalSliderGoodEndWindow;
 
             string judgement;
             bool isSuccess = false;
 
-            if (delta <= slider.perfectEndWindow)
+            if (delta <= perfectEnd)
             {
                 TotalScore += PointsPerHit * Combo * 2;
                 judgement = "PERFECT";
                 isSuccess = true;
             }
-            else if (delta <= slider.goodEndWindow)
+            else if (delta <= goodEnd)
             {
                 TotalScore += PointsPerHit * Combo;
                 judgement = "GOOD";
@@ -277,13 +267,13 @@ namespace TappiruCS.GameLogic
                 _successfullyCompletedSliders.Add(_sliderCharIndex);
 
                 if (_sliderCharIndex == CurrentPhaseChars.Length - 1)
-                {
-                    CompletePhase();   // только здесь вся фраза голубеет
-                }
+                    CompletePhase();
                 else
-                {
                     CurrentCharIndex = _sliderCharIndex + 1;
-                }
+            }
+            else
+            {
+                CurrentCharIndex = _sliderCharIndex + 1;
             }
 
             _isHoldingSlider = false;
@@ -295,13 +285,15 @@ namespace TappiruCS.GameLogic
             if (!_currentSliders.TryGetValue(CurrentCharIndex, out var slider))
                 return false;
 
-            // Защита от повторных нажатий на уже активный слайдер
             if (_isHoldingSlider && _sliderCharIndex == CurrentCharIndex)
                 return true;
 
+            // Используем глобальные окна из MapData
+            double goodStartWindow = CurrentMap.GlobalSliderGoodStartWindow;
+
             double delta = Math.Abs(currentTime - slider.startTime);
 
-            if (delta <= slider.goodStartWindow)
+            if (delta <= goodStartWindow)
             {
                 if (!_isHoldingSlider)
                 {
@@ -314,20 +306,16 @@ namespace TappiruCS.GameLogic
                 return true;
             }
 
-            // === ПЛОХОЙ ТАЙМИНГ, НО КЛАВИША ВСЁ РАВНО НАЖАТА ===
-            Console.WriteLine($"[SLIDER BAD TIMING] '{expected}' delta={delta:F3}s (goodWindow={slider.goodStartWindow})");
+            Console.WriteLine($"[SLIDER BAD TIMING] '{expected}' delta={delta:F3}s (goodWindow={goodStartWindow})");
 
             Combo = 0;
             Misses++;
 
-            // Специально для последнего символа: даже при плохом тайминге считаем фазу успешной
             if (CurrentCharIndex == CurrentPhaseChars.Length - 1)
             {
-                // Считаем фазу пройденной, но без бонуса за слайдер и с обнулением комбо
                 CompletedPhases++;
-                TotalScore += PointsPerPhase * Combo;   // бонус фазы с текущим (обнулённым) комбо
+                TotalScore += PointsPerPhase * Combo;
                 PhaseComplete = true;
-
                 _isActivePhase = false;
                 _currentPhaseIndex++;
                 CurrentCharIndex = 0;
@@ -336,7 +324,6 @@ namespace TappiruCS.GameLogic
                 return true;
             }
 
-            // Для не-последних слайдеров — просто пропускаем символ
             CurrentCharIndex++;
             return true;
         }

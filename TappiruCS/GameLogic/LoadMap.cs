@@ -44,6 +44,14 @@ namespace TappiruCS.GameLogic
             mapdata.completeB = tmp.completeB;
             mapdata.StarRating = tmp.StarRating;
 
+            mapdata.GlobalSliderPerfectStartWindow = tmp.GlobalSliderPerfectStartWindow;
+            mapdata.GlobalSliderPerfectEndWindow = tmp.GlobalSliderPerfectEndWindow;
+
+            mapdata.GlobalSliderGoodStartWindow = tmp.GlobalSliderGoodStartWindow;
+            mapdata.GlobalSliderGoodEndWindow = tmp.GlobalSliderGoodEndWindow;
+
+            mapdata.SliderApproachTime  = tmp.SliderApproachTime;
+
             foreach (var ev in mapdata.Events)
                 ev.text = ev.text.ToLowerInvariant();
 

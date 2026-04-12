@@ -31,6 +31,14 @@
         public float completeB{ get; set; }
 
         public List<TimingEvent> Events { get; set; } = new List<TimingEvent>();
+
+        public double GlobalSliderPerfectStartWindow { get; set; } = 0.10;
+        public double GlobalSliderGoodStartWindow { get; set; } = 0.35;
+
+        public double GlobalSliderPerfectEndWindow { get; set; } = 0.15;
+        public double GlobalSliderGoodEndWindow { get; set; } = 0.45;
+
+        public double SliderApproachTime { get; set; } = 1.2; 
     }
     public class JsonMap 
     {
@@ -56,6 +64,14 @@
         public float completeB { get; set; }
 
         public List<TimingEvent> events { get; set; }
+
+        public double GlobalSliderPerfectStartWindow { get; set; } = 0.10;
+        public double GlobalSliderGoodStartWindow { get; set; } = 0.35;
+
+        public double GlobalSliderPerfectEndWindow { get; set; } = 0.15;
+        public double GlobalSliderGoodEndWindow { get; set; } = 0.45;
+
+        public double SliderApproachTime { get; set; } = 1.2;
 
     }
 }
