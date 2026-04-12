@@ -332,9 +332,7 @@ namespace TappiruCS.GameLogic
         {
             if (inputChar != expected)
             {
-                Combo = 0;
-                Misses++;
-                Console.WriteLine($"[TAP MISS] expected '{expected}', got '{inputChar}'");
+
                 return;
             }
 
