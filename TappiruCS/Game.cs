@@ -193,7 +193,15 @@ namespace TappiruCS
             audio?.Dispose();
             base.OnUnload();
         }
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyUp(e);
 
+            if (currentState is GameSessionState gameSessionState)
+            {
+                gameSessionState.HandleKeyUp(e);
+            }
+        }
         public void ChangeState(IGameState newState)
         {
             if (_pendingState != null || _isTransitioning) return;

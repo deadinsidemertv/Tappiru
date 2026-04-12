@@ -1,13 +1,25 @@
-﻿namespace TappiruCS.GameLogic
+﻿using Gdk;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+
+namespace TappiruCS.GameLogic
 {
     public class GameSession
     {
-        //-------------Гейм механика--------------------//
+
+        public static Dictionary<char, Keys> CharToKeyMap { get; private set; }
+
+        public static void InitCharToKeyMap(Dictionary<Keys, char[]> keyToCharsMap)
+        {
+            CharToKeyMap = new Dictionary<char, Keys>();
+            foreach (var kv in keyToCharsMap)
+            {
+                foreach (char c in kv.Value)
+                    if (!CharToKeyMap.ContainsKey(c))
+                        CharToKeyMap.Add(c, kv.Key);
+            }
+        }
+
         public MapData CurrentMap { get; }
-        private int _currentPhaseIndex;
-        public bool _isActivePhase;
-        private bool _phaseEndHandled;
-        private double _nextPhaseStartTime;
         public double endTime { get; private set; }
 
         public string CurrentPhaseText { get; private set; }
@@ -15,167 +27,356 @@
         public int CurrentCharIndex { get; private set; }
         public bool PhaseComplete { get; private set; }
 
-        // Новое поле — карта полностью завершена (последняя фраза введена)
-        public bool IsMapCompleted { get; private set; }
+        public bool IsActivePhase => _isActivePhase;
 
-        //------------Игровые показатели---------------//
+        public Dictionary<int, SliderTiming> CurrentSliders => _currentSliders;
+        public bool IsHoldingSlider => _isHoldingSlider;
+        public int CurrentSliderCharIndex => _sliderCharIndex;
+
         public int TotalScore { get; private set; }
         public int Combo { get; private set; }
         public int MaxCombo { get; private set; }
-        public float Health { get; private set; }
 
         public int CorrectHits { get; private set; }
         public int Misses { get; private set; }
         public int CompletedPhases { get; private set; }
         public int FailedPhases { get; private set; }
-        public int TotalNotes { get; private set; }
 
-        public float Accuracy;
+        public float Accuracy { get; private set; }
+
+        public bool IsMapCompleted => _currentPhaseIndex >= CurrentMap.Events.Count && PhaseComplete;
+
+
+        private int _currentPhaseIndex;
+        private bool _isActivePhase;
+        private bool _phaseEndHandled;
+        private double _nextPhaseStartTime;
+
+        private Dictionary<int, SliderTiming> _currentSliders = new();
+
+        private bool _isHoldingSlider;
+        private int _sliderCharIndex = -1;
+        private Keys _heldKey;
+
+        private readonly HashSet<int> _successfullyCompletedSliders = new();
+        public HashSet<int> SuccessfullyCompletedSliders => _successfullyCompletedSliders;
+
+        private readonly HashSet<int> _successfullyHeldSliders = new();
+        public HashSet<int> SuccessfullyHeldSliders => _successfullyHeldSliders;
+
 
         private const int PointsPerHit = 100;
         private const int PointsPerPhase = 300;
 
         public GameSession(MapData mapData)
         {
-            CurrentMap = mapData ?? throw new ArgumentNullException(nameof(mapData));
+            CurrentMap = mapData;
             endTime = mapData.endTime;
 
-            TotalScore = 0;
-            Combo = 0;
-            MaxCombo = 0;
-            Health = 100f;
-
-            CorrectHits = 0;
-            Misses = 0;
-            CompletedPhases = 0;
-            FailedPhases = 0;
-            IsMapCompleted = false;           // ← новое
+            Accuracy = 100f;
+            TotalScore = Combo = MaxCombo = 0;
+            CorrectHits = Misses = CompletedPhases = FailedPhases = 0;
 
             _currentPhaseIndex = 0;
             _isActivePhase = false;
             _phaseEndHandled = false;
-            _nextPhaseStartTime = double.PositiveInfinity;
-
-            TotalNotes = 0;
-            foreach (var ev in CurrentMap.Events)
-                TotalNotes += ev.text.Length;
-
-            Accuracy = 100f;
+            _sliderCharIndex = -1;
         }
 
-        public void Update(double currentTime)
+        /// <summary>
+        /// Основной тик логики игры. Вызывается каждый кадр с актуальным временем аудио.
+        /// </summary>
+        public void Update(double currentTime, KeyboardState keyboard)
+        {
+            UpdateAccuracy();
+            TryActivateNewPhase(currentTime);
+
+            if (!_isActivePhase) return;
+
+            SkipSpacesInPhase();
+            TryHandlePhaseTimeout(currentTime);
+
+            if (!_isActivePhase) return;
+
+            HandleOngoingSlider(currentTime);
+            TryHandleSliderRelease(keyboard, currentTime);
+        }
+
+        /// <summary>
+        /// Обработка нажатия клавиши (вызывается из GameSessionState.HandleKeyDown).
+        /// </summary>
+        public void HandleInput(char inputChar, double currentTime)
+        {
+            if (!_isActivePhase || PhaseComplete)
+                return;
+
+            SkipSpacesInPhase();
+
+            if (CurrentCharIndex >= CurrentPhaseChars.Length)
+            {
+                CompletePhase();
+                return;
+            }
+
+            char expected = CurrentPhaseChars[CurrentCharIndex];
+
+            // Если мы уже держим слайдер на этом индексе — игнорируем повторные нажатия
+            if (_isHoldingSlider && _sliderCharIndex == CurrentCharIndex)
+                return;
+
+            // Пытаемся начать слайдер
+            if (TryStartSlider(inputChar, expected, currentTime))
+                return;
+
+            // Обычный тап
+            HandleRegularTap(inputChar, expected);
+        }
+
+        private void UpdateAccuracy()
         {
             Accuracy = (CorrectHits + Misses) > 0
                 ? (CorrectHits / (float)(CorrectHits + Misses)) * 100f
                 : 100f;
-            // Если карта уже завершена — больше ничего не делаем (ждём конца музыки)
-            if (IsMapCompleted)
+        }
+
+        private void TryActivateNewPhase(double currentTime)
+        {
+            if (_isActivePhase || _currentPhaseIndex >= CurrentMap.Events.Count)
                 return;
 
-            // 1. Активация новой фазы
-            if (!_isActivePhase && _currentPhaseIndex < CurrentMap.Events.Count)
+            var ev = CurrentMap.Events[_currentPhaseIndex];
+
+            _nextPhaseStartTime = _currentPhaseIndex + 1 < CurrentMap.Events.Count
+                ? CurrentMap.Events[_currentPhaseIndex + 1].time
+                : double.PositiveInfinity;
+
+            if (currentTime >= ev.time && currentTime < _nextPhaseStartTime)
             {
-                var ev = CurrentMap.Events[_currentPhaseIndex];
-
-                if (_currentPhaseIndex + 1 < CurrentMap.Events.Count)
-                    _nextPhaseStartTime = CurrentMap.Events[_currentPhaseIndex + 1].time;
-                else
-                    _nextPhaseStartTime = double.PositiveInfinity;
-
-                if (currentTime >= ev.time && currentTime < _nextPhaseStartTime)
-                {
-                    CurrentPhaseText = ev.text;
-                    CurrentPhaseChars = CurrentPhaseText.ToCharArray();
-                    CurrentCharIndex = 0;
-                    _isActivePhase = true;
-                    PhaseComplete = false;
-                    _phaseEndHandled = false;
-                }
-            }
-            if (_isActivePhase && !PhaseComplete)
-            {
-                while (CurrentCharIndex < CurrentPhaseChars.Length && CurrentPhaseChars[CurrentCharIndex] == ' ')
-                {
-                    CurrentCharIndex++; // просто перешагиваем пробел
-
-                    if (CurrentCharIndex == CurrentPhaseChars.Length)
-                    {
-                        // строка полностью состоит из пробелов – завершаем фазу
-                        PhaseComplete = true;
-                        _isActivePhase = false;
-                        CompletedPhases++;
-                        // (бонус за фазу не начисляем, чтобы не давать очки за пустоту)
-                        if (_currentPhaseIndex + 1 >= CurrentMap.Events.Count)
-                            IsMapCompleted = true;
-                        else
-                            _currentPhaseIndex++;
-                        CurrentCharIndex = 0;
-                        break;
-                    }
-                }
-            }
-
-            // 2. Принудительное завершение по таймауту
-            if (_isActivePhase && currentTime >= _nextPhaseStartTime && !_phaseEndHandled)
-            {
-                _phaseEndHandled = true;
-                _isActivePhase = false;
-
-                if (CurrentCharIndex != CurrentPhaseChars.Length)
-                {
-                    FailedPhases++;
-                    Combo = 0;
-                    Misses += CurrentPhaseChars.Length - CurrentCharIndex;
-                }
-
-                _currentPhaseIndex++;
+                CurrentPhaseText = ev.text;
+                CurrentPhaseChars = CurrentPhaseText.ToCharArray();
                 CurrentCharIndex = 0;
+
+                _isActivePhase = true;
                 PhaseComplete = false;
+                _phaseEndHandled = false;
+
+                _currentSliders = ev.sliders?.ToDictionary(s => s.charIndex) ?? new Dictionary<int, SliderTiming>();
+
+                _isHoldingSlider = false;
+                _sliderCharIndex = -1;
+                _successfullyCompletedSliders.Clear();
+                _successfullyHeldSliders.Clear();
+
+                Console.WriteLine($"[PHASE] \"{CurrentPhaseText}\" started at {currentTime:F2}");
             }
         }
 
-        public void HandleInput(char inputChar)
+        private void SkipSpacesInPhase()
         {
-            // Блокируем ввод после завершения последней фразы
-            if (!_isActivePhase || IsMapCompleted) return;
-
-            if (inputChar == CurrentPhaseChars[CurrentCharIndex])
-            {
+            while (CurrentCharIndex < CurrentPhaseChars.Length && CurrentPhaseChars[CurrentCharIndex] == ' ')
                 CurrentCharIndex++;
-                CorrectHits++;
-                Combo++;
-                if (Combo > MaxCombo) MaxCombo = Combo;
+        }
 
-                TotalScore += PointsPerHit * Combo;
+        private void TryHandlePhaseTimeout(double currentTime)
+        {
+            if (currentTime < _nextPhaseStartTime || _phaseEndHandled)
+                return;
 
-                // Фраза полностью завершена?
-                if (CurrentCharIndex == CurrentPhaseChars.Length)
-                {
-                    PhaseComplete = true;
-                    _isActivePhase = false;
-                    CompletedPhases++;
+            _phaseEndHandled = true;
 
-                    TotalScore += PointsPerPhase * Combo;
+            bool isLastCharSliderHeldSuccessfully =
+                _isHoldingSlider &&
+                _sliderCharIndex == CurrentPhaseChars.Length - 1 &&
+                _successfullyHeldSliders.Contains(_sliderCharIndex);
 
-                    // === ИСПРАВЛЕНИЕ БАГА ===
-                    if (_currentPhaseIndex + 1 >= CurrentMap.Events.Count)
-                    {
-                        // Это была ПОСЛЕДНЯЯ фраза
-                        IsMapCompleted = true;
-                        // CurrentCharIndex НЕ сбрасываем → фраза остаётся полностью подсвеченной
-                    }
-                    else
-                    {
-                        _currentPhaseIndex++;
-                        CurrentCharIndex = 0;
-                    }
-                }
+            _isActivePhase = false;
+            _isHoldingSlider = false;
+            _sliderCharIndex = -1;
+
+            if (isLastCharSliderHeldSuccessfully)
+            {
+                // Пассивное завершение: держим слайдер до конца фазы → считаем фазу пройденной
+                CompletedPhases++;
+                TotalScore += PointsPerPhase * Combo;
+                _successfullyCompletedSliders.Add(_sliderCharIndex);
+
+                Console.WriteLine($"[PHASE COMPLETE FROM HELD SLIDER] (passive, no release) Combo: {Combo}");
+
+                PhaseComplete = true;        // ← важно для отрисовки голубого цвета
+            }
+            else if (CurrentCharIndex < CurrentPhaseChars.Length)
+            {
+                FailedPhases++;
+                Combo = 0;
+                Misses += CurrentPhaseChars.Length - CurrentCharIndex;
+
+                PhaseComplete = false;
             }
             else
             {
-                Console.WriteLine($"Ошибка: ожидался '{CurrentPhaseChars[CurrentCharIndex]}', получен '{inputChar}'");
-                Combo = 0;
+                // На всякий случай
+                PhaseComplete = true;
             }
+
+            _currentPhaseIndex++;
+            CurrentCharIndex = 0;
+        }
+
+        private void HandleOngoingSlider(double currentTime)
+        {
+            if (!_isHoldingSlider)
+                return;
+
+            var slider = _currentSliders[_sliderCharIndex];
+
+            // Авто-успех только один раз, когда время слайдера закончилось
+            if (currentTime >= slider.endTime && !_successfullyHeldSliders.Contains(_sliderCharIndex))
+            {
+                _successfullyHeldSliders.Add(_sliderCharIndex);
+                TotalScore += PointsPerHit * Combo * 2;   // бонус за удержание
+
+                Console.WriteLine($"[SLIDER AUTO SUCCESS] '{CurrentPhaseChars[_sliderCharIndex]}' — время вышло, можно отпускать! (now green)");
+            }
+        }
+
+        private void TryHandleSliderRelease(KeyboardState keyboard, double currentTime)
+        {
+            if (!_isHoldingSlider || keyboard.IsKeyDown(_heldKey))
+                return;
+
+            // Клавиша была отпущена
+            var slider = _currentSliders[_sliderCharIndex];
+            double delta = Math.Abs(currentTime - slider.endTime);
+
+            string judgement;
+            bool isSuccess = false;
+
+            if (delta <= slider.perfectEndWindow)
+            {
+                TotalScore += PointsPerHit * Combo * 2;
+                judgement = "PERFECT";
+                isSuccess = true;
+            }
+            else if (delta <= slider.goodEndWindow)
+            {
+                TotalScore += PointsPerHit * Combo;
+                judgement = "GOOD";
+                isSuccess = true;
+            }
+            else
+            {
+                Combo = 0;
+                judgement = "MISS";
+                isSuccess = false;
+            }
+
+            Console.WriteLine($"[SLIDER RELEASE] '{CurrentPhaseChars[_sliderCharIndex]}' delta={delta:F3}s → {judgement}");
+
+            if (isSuccess)
+            {
+                _successfullyCompletedSliders.Add(_sliderCharIndex);
+
+                if (_sliderCharIndex == CurrentPhaseChars.Length - 1)
+                {
+                    CompletePhase();   // только здесь вся фраза голубеет
+                }
+                else
+                {
+                    CurrentCharIndex = _sliderCharIndex + 1;
+                }
+            }
+
+            _isHoldingSlider = false;
+            _sliderCharIndex = -1;
+        }
+
+        private bool TryStartSlider(char inputChar, char expected, double currentTime)
+        {
+            if (!_currentSliders.TryGetValue(CurrentCharIndex, out var slider))
+                return false;
+
+            // Защита от повторных нажатий на уже активный слайдер
+            if (_isHoldingSlider && _sliderCharIndex == CurrentCharIndex)
+                return true;
+
+            double delta = Math.Abs(currentTime - slider.startTime);
+
+            if (delta <= slider.goodStartWindow)
+            {
+                if (!_isHoldingSlider)
+                {
+                    _isHoldingSlider = true;
+                    _sliderCharIndex = CurrentCharIndex;
+                    _heldKey = CharToKeyMap[inputChar];
+
+                    Console.WriteLine($"[SLIDER START] '{expected}' (index {CurrentCharIndex}) at {currentTime:F3}s | Hold the key! delta={delta:F3}");
+                }
+                return true;
+            }
+
+            // === ПЛОХОЙ ТАЙМИНГ, НО КЛАВИША ВСЁ РАВНО НАЖАТА ===
+            Console.WriteLine($"[SLIDER BAD TIMING] '{expected}' delta={delta:F3}s (goodWindow={slider.goodStartWindow})");
+
+            Combo = 0;
+            Misses++;
+
+            // Специально для последнего символа: даже при плохом тайминге считаем фазу успешной
+            if (CurrentCharIndex == CurrentPhaseChars.Length - 1)
+            {
+                // Считаем фазу пройденной, но без бонуса за слайдер и с обнулением комбо
+                CompletedPhases++;
+                TotalScore += PointsPerPhase * Combo;   // бонус фазы с текущим (обнулённым) комбо
+                PhaseComplete = true;
+
+                _isActivePhase = false;
+                _currentPhaseIndex++;
+                CurrentCharIndex = 0;
+
+                Console.WriteLine($"[PHASE COMPLETE - BAD SLIDER but pressed] Combo reset");
+                return true;
+            }
+
+            // Для не-последних слайдеров — просто пропускаем символ
+            CurrentCharIndex++;
+            return true;
+        }
+
+        private void HandleRegularTap(char inputChar, char expected)
+        {
+            if (inputChar != expected)
+            {
+                Combo = 0;
+                Misses++;
+                Console.WriteLine($"[TAP MISS] expected '{expected}', got '{inputChar}'");
+                return;
+            }
+
+            CurrentCharIndex++;
+            CorrectHits++;
+            Combo++;
+            if (Combo > MaxCombo) MaxCombo = Combo;
+            TotalScore += PointsPerHit * Combo;
+
+            Console.WriteLine($"[TAP] '{expected}' OK");
+
+            if (CurrentCharIndex >= CurrentPhaseChars.Length)
+                CompletePhase();
+        }
+
+        private void CompletePhase()
+        {
+            PhaseComplete = true;
+            _isActivePhase = false;
+            _isHoldingSlider = false;
+            _sliderCharIndex = -1;
+
+            CompletedPhases++;
+            TotalScore += PointsPerPhase * Combo;
+
+            _currentPhaseIndex++;
+            CurrentCharIndex = 0;
+
+            Console.WriteLine($"[PHASE COMPLETE] Combo: {Combo}");
         }
     }
 }
