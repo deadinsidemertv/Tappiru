@@ -140,10 +140,10 @@ namespace TappiruCS.GameLogic
             var ev = CurrentMap.Events[_currentPhaseIndex];
 
             _nextPhaseStartTime = _currentPhaseIndex + 1 < CurrentMap.Events.Count
-                ? CurrentMap.Events[_currentPhaseIndex + 1].time
+                ? CurrentMap.Events[_currentPhaseIndex + 1].startTime   // ← было .time
                 : double.PositiveInfinity;
 
-            if (currentTime >= ev.time && currentTime < _nextPhaseStartTime)
+            if (currentTime >= ev.startTime && currentTime < _nextPhaseStartTime)  // ← было .time
             {
                 CurrentPhaseText = ev.text;
                 CurrentPhaseChars = CurrentPhaseText.ToCharArray();
@@ -332,7 +332,7 @@ namespace TappiruCS.GameLogic
         {
             if (inputChar != expected)
             {
-
+                Combo = 0;
                 return;
             }
 

@@ -1,0 +1,49 @@
+{
+  "MapHash": "",
+  "title": "TEST",
+  "artist": "Mushoku Tensei: Jobless Reincarnation",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 234,
+  "StarRating": 3.06,
+  "tappedR": 0.9999998,
+  "tappedG": 0.3447715,
+  "tappedB": 0.27124208,
+  "needR": 0.8322442,
+  "needG": 0.66067564,
+  "needB": 0.19498937,
+  "completeR": 0.56808305,
+  "completeG": 0.9999998,
+  "completeB": 0.9999998,
+  "events": [
+    {
+      "startTime": 22.3843936920166,
+      "endTime": 26.3843936920166,
+      "text": "osorerunara yama wo koeteyuke",
+      "sliders": []
+    },
+    {
+      "startTime": 32.95437240600586,
+      "endTime": 36.95437240600586,
+      "text": "michitarinu kokoro ni afuredasu mizu ga",
+      "sliders": []
+    },
+    {
+      "startTime": 48.58432388305664,
+      "endTime": 52.58432388305664,
+      "text": "iyashi atae",
+      "sliders": [
+        {
+          "charIndex": 0,
+          "startTime": 48.584324,
+          "endTime": 50.0
+        }
+      ]
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

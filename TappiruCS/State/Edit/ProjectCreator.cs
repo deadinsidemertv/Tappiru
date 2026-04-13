@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using TappiruCS.GameLogic;   // предполагается, что JsonMap и TimingEvent находятся здесь
 
@@ -25,39 +27,46 @@ namespace TappiruCS.State.Edit
             try
             {
                 string baseDir = Path.Combine(Directory.GetCurrentDirectory(), "Edit");
-                string projectName = SanitizeFileName(title);
-                string projectDir = Path.Combine(baseDir, projectName);
+                Directory.CreateDirectory(baseDir);
 
-                // Создаём папку проекта
-                Directory.CreateDirectory(projectDir);
+                string safeName = SanitizeFileName(title);
+                string tappzPath = Path.Combine(baseDir, safeName + ".tappz");
 
-                // Копируем MP3
-                string mp3FileName = Path.GetFileName(mp3Path);
-                string mp3Dest = Path.Combine(projectDir, mp3FileName);
-                File.Copy(mp3Path, mp3Dest, true);
+                // Имя JSON-файла внутри архива — делаем понятным
+                string mapFileName = safeName + ".tapp";
 
-                // Копируем фон (сохраняем оригинальное расширение)
-                string bgExtension = Path.GetExtension(bgPath);
-                string bgDest = Path.Combine(projectDir, "bg" + bgExtension);
-                File.Copy(bgPath, bgDest, true);
-
-                // Создаём JSON карту
                 var jsonMap = CreateDefaultJsonMap(title);
+                string json = JsonSerializer.Serialize(jsonMap, new JsonSerializerOptions { WriteIndented = true });
 
-                string tappPath = Path.Combine(projectDir, "data.tapp");
-                string json = JsonSerializer.Serialize(jsonMap, new JsonSerializerOptions
+                // Создаём чистый ZIP без лишней папки
+                using (var archive = ZipFile.Open(tappzPath, ZipArchiveMode.Create))
                 {
-                    WriteIndented = true
-                });
+                    // JSON данные
+                    var mapEntry = archive.CreateEntry(mapFileName);
+                    using (var stream = mapEntry.Open())
+                    using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                        writer.Write(json);
 
-                File.WriteAllText(tappPath, json);
+                    // MP3
+                    string mp3Name = Path.GetFileName(mp3Path);
+                    using (var fs = File.OpenRead(mp3Path))
+                    using (var es = archive.CreateEntry(mp3Name).Open())
+                        fs.CopyTo(es);
 
-                Console.WriteLine($"Проект успешно создан: {projectDir}");
-                return tappPath;
+                    // Background
+                    string bgExt = Path.GetExtension(bgPath).ToLowerInvariant();
+                    string bgName = "bg" + bgExt;
+                    using (var fs = File.OpenRead(bgPath))
+                    using (var es = archive.CreateEntry(bgName).Open())
+                        fs.CopyTo(es);
+                }
+
+                Console.WriteLine($"Проект успешно создан: {safeName}.tappz");
+                return tappzPath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при создании проекта: {ex.Message}");
+                Console.WriteLine($"Ошибка создания: {ex.Message}");
                 return null;
             }
         }

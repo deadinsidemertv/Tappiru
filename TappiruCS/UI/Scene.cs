@@ -36,6 +36,7 @@ namespace TappiruCS.Core
                 if (!obj.Active) continue;
                 obj.CanvasScale = CanvasScale;
                 obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
+
             }
 
 
@@ -43,6 +44,7 @@ namespace TappiruCS.Core
                                       _game.ClientSize.Y / DesignHeight);
             var virtualMouse = GetVirtualMousePosition(mouse);
             UpdateHover(virtualMouse.X, virtualMouse.Y);
+
 
             LogicMouse = new Vector2(virtualMouse.X, virtualMouse.Y);
 
@@ -92,6 +94,7 @@ namespace TappiruCS.Core
             {
                 root.SetHoverRecursive(top);   // ← передаём top вместо bool
             }
+
 
         }
 

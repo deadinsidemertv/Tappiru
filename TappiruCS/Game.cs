@@ -8,6 +8,8 @@ using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.State;
+using TappiruCS.State.Edit;
+using System.ComponentModel;
 
 namespace TappiruCS
 {
@@ -211,6 +213,14 @@ namespace TappiruCS
             _isTransitioning = true;
 
            
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // Если сейчас активен EditState
+            if (currentState is EditState editState)
+                editState.OnExit();  
+            // или вызови принудительную очистку
+            base.OnClosing(e);
         }
     }
 }

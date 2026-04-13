@@ -64,6 +64,7 @@ namespace TappiruCS.UI
                 ScaleMultiply = TextScale,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0.0f, 0.0f),
+                AllowHover = false
             };
 
             _imageObject = new SpriteObject(spriteBatch, 0, x, y, 1f, 1f)

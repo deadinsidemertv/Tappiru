@@ -6,13 +6,13 @@ namespace TappiruCS.Render
     {
         private readonly SpriteBatch spriteBatch;
 
-        private readonly Dictionary<int, int> _pageTextures = new();
+        public readonly Dictionary<int, int> _pageTextures = new();
         private readonly Dictionary<char, GlyphInfo> _glyphs = new();
-        private readonly Dictionary<(char first, char second), int> _kerningPairs = new();
+        public readonly Dictionary<(char first, char second), int> _kerningPairs = new();
 
-        private float _lineHeight;
-        private float _scaleW;
-        private float _scaleH;
+        public float _lineHeight;
+        public float _scaleW;
+        public float _scaleH;
 
         // Для совместимости
         public float charWidth, charHeight;
@@ -26,7 +26,58 @@ namespace TappiruCS.Render
             public float TexX, TexY, Width, Height;
             public float XOffset, YOffset, XAdvance;
         }
+        public bool TryGetCharIndexAtPoint(string text, float localX, float localY,
+                                           float scaleX, float scaleY,
+                                           TextAlign align,
+                                           out int charIndex)
+        {
+            charIndex = -1;
+            if (string.IsNullOrEmpty(text)) return false;
 
+            float textWidth = CalculateTextWidth(text, scaleX);
+            float startX = align switch
+            {
+                TextAlign.Center => -textWidth * 0.5f,
+                TextAlign.Right => -textWidth,
+                _ => 0f
+            };
+
+            float currentX = startX;
+            char prevChar = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+
+                if (!_glyphs.TryGetValue(c, out var glyph))
+                {
+                    currentX += charWidth * scaleX;
+                    prevChar = c;
+                    continue;
+                }
+
+                float kern = 0f;
+                if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
+                    kern = k;
+
+                float glyphLeft = currentX + glyph.XOffset * scaleX;
+                float glyphRight = glyphLeft + glyph.Width * scaleX;
+                float glyphTop = glyph.YOffset * scaleY;
+                float glyphBottom = glyphTop + glyph.Height * scaleY;
+
+                if (localX >= glyphLeft && localX <= glyphRight &&
+                    localY >= glyphTop && localY <= glyphBottom)
+                {
+                    charIndex = i;
+                    return true;
+                }
+
+                currentX += (glyph.XAdvance + kern) * scaleX;
+                prevChar = c;
+            }
+
+            return false;
+        }
         public TextRender(SpriteBatch spriteBatch, string fntPath)
         {
             this.spriteBatch = spriteBatch;

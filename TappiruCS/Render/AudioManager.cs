@@ -18,6 +18,9 @@ namespace TappiruCS.Render
         public float Duration { get; private set; }
         public bool IsPlaying { get; private set; }
 
+        // Реальная waveform-превью (peak envelope, 0..1) — вычисляется один раз при LoadMusic
+        public float[] WaveformPreview { get; private set; } = Array.Empty<float>();
+
         // Для звуковых эффектов (параллельное воспроизведение)
         private readonly Dictionary<string, int> _effectBuffers = new();
         private readonly List<int> _activeEffectSources = new();
@@ -31,7 +34,6 @@ namespace TappiruCS.Render
 
             _musicSource = AL.GenSource();
             _musicBuffer = AL.GenBuffer();
-   
         }
 
         // ====================== МУЗЫКА ======================
@@ -45,10 +47,13 @@ namespace TappiruCS.Render
 
             _musicBuffer = AL.GenBuffer();
 
+            byte[] data;
+            WaveFormat waveFormat;
+
             using (var reader = new Mp3FileReader(filePath))
             {
-                var waveFormat = reader.WaveFormat;
-                byte[] data = new byte[reader.Length];
+                waveFormat = reader.WaveFormat;
+                data = new byte[reader.Length];
                 reader.Read(data, 0, data.Length);
 
                 var format = GetALFormat(waveFormat);
@@ -66,11 +71,78 @@ namespace TappiruCS.Render
                 Duration = (float)reader.TotalTime.TotalSeconds;
             }
 
+            // === НОВОЕ: реальная waveform-превью из PCM данных ===
+            WaveformPreview = ComputeWaveformPreview(data, waveFormat);
+
             AL.Source(_musicSource, ALSourcei.Buffer, _musicBuffer);
             AL.Source(_musicSource, ALSourcef.SecOffset, 0.0f);
         }
 
-        public void Play() 
+        private float[] ComputeWaveformPreview(byte[] pcmData, WaveFormat waveFormat)
+        {
+            int bytesPerSample = waveFormat.BitsPerSample / 8;
+            int channels = waveFormat.Channels;
+            long totalBytes = pcmData.Length;
+            if (totalBytes == 0) return Array.Empty<float>();
+
+            long totalSamples = totalBytes / (bytesPerSample * channels);
+            if (totalSamples == 0) return Array.Empty<float>();
+
+            const int previewBins = 16384; // достаточно высокое разрешение для любого зума
+            float[] preview = new float[previewBins];
+            long samplesPerBin = totalSamples / previewBins;
+            if (samplesPerBin < 1) samplesPerBin = 1;
+
+            for (int bin = 0; bin < previewBins; bin++)
+            {
+                long startSample = (long)bin * samplesPerBin;
+                long endSample = Math.Min(startSample + samplesPerBin, totalSamples);
+
+                float maxAmp = 0f;
+
+                for (long s = startSample; s < endSample; s++)
+                {
+                    long byteOffset = s * (long)bytesPerSample * channels;
+
+                    float sampleAmp = 0f;
+
+                    if (bytesPerSample == 2) // 16-bit (самый частый случай для MP3)
+                    {
+                        if (byteOffset + 1 < totalBytes)
+                        {
+                            short left = BitConverter.ToInt16(pcmData, (int)byteOffset);
+                            sampleAmp = Math.Abs(left / 32768f);
+
+                            if (channels >= 2 && byteOffset + 3 < totalBytes)
+                            {
+                                short right = BitConverter.ToInt16(pcmData, (int)byteOffset + 2);
+                                float rAmp = Math.Abs(right / 32768f);
+                                if (rAmp > sampleAmp) sampleAmp = rAmp;
+                            }
+                        }
+                    }
+                    else if (bytesPerSample == 1) // 8-bit (редко)
+                    {
+                        if (byteOffset < totalBytes)
+                        {
+                            byte sampleByte = pcmData[byteOffset];
+                            float sample = (sampleByte - 128) / 128f;
+                            sampleAmp = Math.Abs(sample);
+                        }
+                    }
+
+                    if (sampleAmp > maxAmp)
+                        maxAmp = sampleAmp;
+                }
+
+                preview[bin] = maxAmp;
+            }
+
+            Console.WriteLine($"[AudioManager] Waveform preview computed: {previewBins} bins for {Duration:F1}s track");
+            return preview;
+        }
+
+        public void Play()
         {
             AL.SourcePlay(_musicSource); IsPlaying = true;
             AL.Source(_musicSource, ALSourcef.Gain, 0.5f);
@@ -95,11 +167,8 @@ namespace TappiruCS.Render
             return seconds;
         }
 
-        // ====================== ЗВУКОВЫЕ ЭФФЕКТЫ (ПАРАЛЛЕЛЬНО) ======================
+        // ====================== ЗВУКОВЫЕ ЭФФЕКТЫ ======================
 
-        /// <summary>
-        /// Загружает короткий звуковой эффект (hover, click, start и т.д.)
-        /// </summary>
         public void LoadSoundEffect(string name, string filePath)
         {
             if (_effectBuffers.ContainsKey(name))
@@ -107,7 +176,7 @@ namespace TappiruCS.Render
 
             int buffer = AL.GenBuffer();
 
-            using (var reader = new Mp3FileReader(filePath))   // можно также поддерживать .wav
+            using (var reader = new Mp3FileReader(filePath))
             {
                 var waveFormat = reader.WaveFormat;
                 byte[] data = new byte[reader.Length];
@@ -129,9 +198,6 @@ namespace TappiruCS.Render
             _effectBuffers[name] = buffer;
         }
 
-        /// <summary>
-        /// Проигрывает звуковой эффект параллельно музыке
-        /// </summary>
         public void PlaySoundEffect(string name, float volume = 0.8f, float pitch = 1.0f)
         {
             if (!_effectBuffers.TryGetValue(name, out int buffer))
@@ -149,7 +215,6 @@ namespace TappiruCS.Render
 
             _activeEffectSources.Add(source);
 
-            // Очистка завершённых эффектов (опционально, можно вызывать в Update)
             CleanFinishedEffects();
         }
 
@@ -176,6 +241,37 @@ namespace TappiruCS.Render
                 return format.Channels == 1 ? ALFormat.Mono8 : ALFormat.Stereo8;
 
             throw new NotSupportedException("Unsupported audio format");
+        }
+
+        // Обновлённый GetWaveformData — теперь возвращает реальные данные (совместимость сохранена)
+        public float[] GetWaveformData(int resolution = 1024)
+        {
+            float[] preview = WaveformPreview;
+            if (preview.Length == 0)
+            {
+                // fallback (старый синус + шум)
+                float[] _data = new float[resolution];
+                var rnd = new Random();
+                for (int i = 0; i < resolution; i++)
+                {
+                    float t = (float)i / resolution;
+                    _data[i] = (float)Math.Sin(t * Math.PI * 20) * 0.6f +
+                              (float)Math.Sin(t * Math.PI * 80) * 0.4f +
+                              (float)(rnd.NextDouble() - 0.5) * 0.15f;
+                    _data[i] = Math.Clamp(_data[i], -1f, 1f);
+                }
+                return _data;
+            }
+
+            // реальные данные (downsample из 16384-bin превью)
+            int srcLen = preview.Length;
+            float[] data = new float[resolution];
+            for (int i = 0; i < resolution; i++)
+            {
+                int srcIdx = (int)((long)i * srcLen / resolution);
+                data[i] = preview[srcIdx];
+            }
+            return data;
         }
 
         public void Dispose()

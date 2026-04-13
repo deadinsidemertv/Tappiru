@@ -52,6 +52,7 @@ namespace TappiruCS.GameLogic
 
             mapdata.SliderApproachTime  = tmp.SliderApproachTime;
 
+
             foreach (var ev in mapdata.Events)
                 ev.text = ev.text.ToLowerInvariant();
 
