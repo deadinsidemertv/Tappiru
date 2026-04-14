@@ -80,6 +80,17 @@ namespace TappiruCS.Render
             GL.BindVertexArray(0);
         }
 
+        public void DrawRect(float x, float y, float width, float height,
+                     Color4 color,
+                     Matrix4 projection)
+        {
+            // Используем белую текстуру (или любую 1x1 белую), чтобы цвет работал через uniform
+            int whiteTexture = TextureManager.GetTexture("white"); // ← нужно будет добавить эту функцию
 
+            Draw(whiteTexture, x, y, width, height,
+                 0f, 0f, 1f, 1f,           // UV на всю текстуру
+                 color.R, color.G, color.B, color.A,
+                 projection);
+        }
     }
 }
