@@ -338,7 +338,7 @@ namespace TappiruCS.State
             // 3. Свечение всей завершённой фразы (если PhaseComplete)
             if (session.PhaseComplete)
             {
-                DrawCompletedPhraseGlow(text, centerX, y, finalScaleX, finalScaleY, projection,currentTime);
+                DrawCompletedPhraseGlow(text, centerX, y, bestScale, projection, currentTime);
             }
 
             // 4. Основной текст с цветами букв
@@ -536,40 +536,47 @@ namespace TappiruCS.State
         }
 
         private void DrawCompletedPhraseGlow(string text, float centerX, float centerY,
-                                     float finalScaleX, float finalScaleY, Matrix4 projection, double currentTime)
+                                     float bestScale, Matrix4 projection, double currentTime)
         {
             if (string.IsNullOrEmpty(text)) return;
 
             Color4 baseGlow = GetGlowColor(_mapData.completeR, _mapData.completeG, _mapData.completeB);
             float pulse = 0.8f + 0.2f * (float)Math.Sin(currentTime * 6.0);
 
-            float outerAlpha = 0.08f * pulse;
-            float innerAlpha = 0.25f * pulse;
+            // Желаемая толщина свечения в реальных пикселях экрана (константы, не зависят от разрешения)
+            const float outerThicknessPx = 12f;   // внешнее свечение 12 пикселей
+            const float innerThicknessPx = 6f;    // внутреннее свечение 6 пикселей
 
-            // Внешнее свечение – расширенное, мягкое
+            // Переводим пиксели в виртуальные координаты (делим на CanvasScale)
+            float outerOffsetVirtual = outerThicknessPx / Scene.CanvasScale.X;
+            float innerOffsetVirtual = innerThicknessPx / Scene.CanvasScale.X;
+
+            // Используем те же параметры, что и для основного текста:
+            // baseScale = bestScale, finalScale = 1.0f
             for (int i = 0; i < 16; i++)
             {
                 float angle = i * MathHelper.TwoPi / 16f;
-                float dx = (float)Math.Cos(angle) * 6.0f;
-                float dy = (float)Math.Sin(angle) * 6.0f;
-                Color4 col = new Color4(baseGlow.R*0.7f, baseGlow.G * 0.7f, baseGlow.B * 0.7f, outerAlpha);
+                float dx = (float)Math.Cos(angle) * outerOffsetVirtual;
+                float dy = (float)Math.Sin(angle) * outerOffsetVirtual;
+
+                Color4 col = new Color4(baseGlow.R * 0.7f, baseGlow.G * 0.7f, baseGlow.B * 0.7f, 0.08f * pulse);
                 _textRenderer.DrawStringWithCharColorsScaled(
                     text, centerX + dx, centerY + dy,
-                    Scene.CanvasScale, 1.5f, finalScaleX,
+                    Scene.CanvasScale, bestScale, 1.0f,
                     Enumerable.Repeat(col, text.Length).ToArray(),
                     projection, TextAlign.Center);
             }
 
-            // Внутреннее свечение – более яркое, меньший радиус
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 12; i++)
             {
-                float angle = i * MathHelper.TwoPi / 10f;
-                float dx = (float)Math.Cos(angle) * 2.5f;
-                float dy = (float)Math.Sin(angle) * 2.5f;
-                Color4 col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, innerAlpha);
+                float angle = i * MathHelper.TwoPi / 12f;
+                float dx = (float)Math.Cos(angle) * innerOffsetVirtual;
+                float dy = (float)Math.Sin(angle) * innerOffsetVirtual;
+
+                Color4 col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, 0.25f * pulse);
                 _textRenderer.DrawStringWithCharColorsScaled(
                     text, centerX + dx, centerY + dy,
-                    Scene.CanvasScale, 1.5f, finalScaleX,
+                    Scene.CanvasScale, bestScale, 1.0f,
                     Enumerable.Repeat(col, text.Length).ToArray(),
                     projection, TextAlign.Center);
             }
