@@ -299,7 +299,12 @@ namespace TappiruCS.GameLogic
                 {
                     _isHoldingSlider = true;
                     _sliderCharIndex = CurrentCharIndex;
-                    _heldKey = CharToKeyMap[inputChar];
+                    if (!CharToKeyMap.TryGetValue(inputChar, out _heldKey))
+                    {
+                        // Клавиша не поддерживается нашей раскладкой — игнорируем
+                        Console.WriteLine($"[INPUT] Unsupported key for char '{inputChar}'");
+                        return false;   // или true, если хочешь полностью съесть событие
+                    }
 
                     Console.WriteLine($"[SLIDER START] '{expected}' (index {CurrentCharIndex}) at {currentTime:F3}s | Hold the key! delta={delta:F3}");
                 }
