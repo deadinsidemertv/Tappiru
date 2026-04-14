@@ -2,10 +2,10 @@
   "MapHash": "",
   "title": "CLANNAD Ending Theme \u2013 Dango Daikazoku",
   "artist": "Vocals: Chata",
-  "previewTime": 0,
   "creator": "neroqwe",
-  "StarRating": 3.18,
+  "previewTime": 0,
   "endTime": 88,
+  "StarRating": 3.18,
   "tappedR": 0.9999998,
   "tappedG": 0.9999998,
   "tappedB": 0.5081702,
@@ -17,44 +17,69 @@
   "completeB": 0.5027236,
   "events": [
     {
-      "time": 0.20000000298023224,
-      "text": "dango dango dango dango"
+      "startTime": 0.20000000298023224,
+      "endTime": 5,
+      "text": "dango dango dango dango",
+      "sliders": []
     },
     {
-      "time": 5,
-      "text": "dango daikazoku"
+      "startTime": 5,
+      "endTime": 9.800000190734863,
+      "text": "dango daikazoku",
+      "sliders": []
     },
     {
-      "time": 9.800000190734863,
-      "text": "yancha na yaki dango yasashi an dango"
+      "startTime": 9.800000190734863,
+      "endTime": 19.200000762939453,
+      "text": "yancha na yaki dango yasashi an dango",
+      "sliders": []
     },
     {
-      "time": 19.200000762939453,
-      "text": "mina mina awasete hyakunin kazoku"
+      "startTime": 19.200000762939453,
+      "endTime": 29,
+      "text": "mina mina awasete hyakunin kazoku",
+      "sliders": []
     },
     {
-      "time": 29,
-      "text": "akachan dango wa itsumo shiawase no naka de"
+      "startTime": 29,
+      "endTime": 39,
+      "text": "akachan dango wa itsumo shiawase no naka de",
+      "sliders": []
     },
     {
-      "time": 39,
-      "text": "toshiyori dango wa me wo hosometeru"
+      "startTime": 39,
+      "endTime": 47,
+      "text": "toshiyori dango wa me wo hosometeru",
+      "sliders": []
     },
     {
-      "time": 47,
-      "text": "nakayoshi dango te wo tsunagi okina marui wa ni naruyo"
+      "startTime": 47,
+      "endTime": 56.79999923706055,
+      "text": "nakayoshi dango te wo tsunagi okina marui wa ni naruyo",
+      "sliders": []
     },
     {
-      "time": 56.79999923706055,
-      "text": "machi wo tsukuri dango boshi no ue minna de warai auyo"
+      "startTime": 56.79999923706055,
+      "endTime": 65.80000305175781,
+      "text": "machi wo tsukuri dango boshi no ue minna de warai auyo",
+      "sliders": []
     },
     {
-      "time": 65.80000305175781,
-      "text": "usagi mo sora de te wo futte miteru dekai otsuki sama"
+      "startTime": 65.80000305175781,
+      "endTime": 76,
+      "text": "usagi mo sora de te wo futte miteru dekai otsuki sama",
+      "sliders": []
     },
     {
-      "time": 76,
-      "text": "ureshi koto kanashi koto mo zenbu marumete"
+      "startTime": 76,
+      "endTime": 88,
+      "text": "ureshi koto kanashi koto mo zenbu marumete",
+      "sliders": []
     }
-  ]
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
 }

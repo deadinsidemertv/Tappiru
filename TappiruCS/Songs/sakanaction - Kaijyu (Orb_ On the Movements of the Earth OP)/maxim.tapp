@@ -2,10 +2,10 @@
   "MapHash": "",
   "title": "kaiju(TV Size)",
   "artist": "Single by Sakanaction",
-  "previewTime": 0,
   "creator": "neroqwe",
-  "StarRating": 3.93,
+  "previewTime": 0,
   "endTime": 90,
+  "StarRating": 3.93,
   "tappedR": 0,
   "tappedG": 0.9999998,
   "tappedB": 0.9999998,
@@ -17,108 +17,165 @@
   "completeB": 0.8376909,
   "events": [
     {
-      "time": 1,
-      "text": "nandodemo"
+      "startTime": 1,
+      "endTime": 3.799999952316284,
+      "text": "nandodemo",
+      "sliders": []
     },
     {
-      "time": 3.799999952316284,
-      "text": "nandodemo sakebu kono kurai yo"
+      "startTime": 3.799999952316284,
+      "endTime": 10,
+      "text": "nandodemo sakebu kono kurai yo",
+      "sliders": []
     },
     {
-      "time": 10,
-      "text": "ru no kaiju ni natte mo"
+      "startTime": 10,
+      "endTime": 14.800000190734863,
+      "text": "ru no kaiju ni natte mo",
+      "sliders": []
     },
     {
-      "time": 14.800000190734863,
-      "text": "koko ni nokoshite okitai nda yo"
+      "startTime": 14.800000190734863,
+      "endTime": 20.200000762939453,
+      "text": "koko ni nokoshite okitai nda yo",
+      "sliders": []
     },
     {
-      "time": 20.200000762939453,
-      "text": "kono himitsu wo"
+      "startTime": 20.200000762939453,
+      "endTime": 24.799999237060547,
+      "text": "kono himitsu wo",
+      "sliders": []
     },
     {
-      "time": 24.799999237060547,
-      "text": "dandan taberu"
+      "startTime": 24.799999237060547,
+      "endTime": 28.899999618530273,
+      "text": "dandan taberu",
+      "sliders": []
     },
     {
-      "time": 28.899999618530273,
-      "text": "aka to ao no hoshiboshi"
+      "startTime": 28.899999618530273,
+      "endTime": 32,
+      "text": "aka to ao no hoshiboshi",
+      "sliders": []
     },
     {
-      "time": 32,
-      "text": "mirai kara kakko"
+      "startTime": 32,
+      "endTime": 35,
+      "text": "mirai kara kakko",
+      "sliders": []
     },
     {
-      "time": 35,
-      "text": "junjun ni taberu"
+      "startTime": 35,
+      "endTime": 39.599998474121094,
+      "text": "junjun ni taberu",
+      "sliders": []
     },
     {
-      "time": 39.599998474121094,
-      "text": "nanjukai mo kamitsubushi"
+      "startTime": 39.599998474121094,
+      "endTime": 43,
+      "text": "nanjukai mo kamitsubushi",
+      "sliders": []
     },
     {
-      "time": 43,
-      "text": "toketa nara nomou"
+      "startTime": 43,
+      "endTime": 47,
+      "text": "toketa nara nomou",
+      "sliders": []
     },
     {
-      "time": 47,
-      "text": "oka no ue de"
+      "startTime": 47,
+      "endTime": 50,
+      "text": "oka no ue de",
+      "sliders": []
     },
     {
-      "time": 50,
-      "text": "hoshi wo miru to kanjiru"
+      "startTime": 50,
+      "endTime": 54,
+      "text": "hoshi wo miru to kanjiru",
+      "sliders": []
     },
     {
-      "time": 54,
-      "text": "kono sabishisa mo"
+      "startTime": 54,
+      "endTime": 58,
+      "text": "kono sabishisa mo",
+      "sliders": []
     },
     {
-      "time": 58,
-      "text": "asayake de"
+      "startTime": 58,
+      "endTime": 60.79999923706055,
+      "text": "asayake de",
+      "sliders": []
     },
     {
-      "time": 60.79999923706055,
-      "text": "te ga somaru"
+      "startTime": 60.79999923706055,
+      "endTime": 62.79999923706055,
+      "text": "te ga somaru",
+      "sliders": []
     },
     {
-      "time": 62.79999923706055,
-      "text": "koro ni wa mou"
+      "startTime": 62.79999923706055,
+      "endTime": 66,
+      "text": "koro ni wa mou",
+      "sliders": []
     },
     {
-      "time": 66,
-      "text": "wasuretenda"
+      "startTime": 66,
+      "endTime": 67.80000305175781,
+      "text": "wasuretenda",
+      "sliders": []
     },
     {
-      "time": 67.80000305175781,
-      "text": "kono"
+      "startTime": 67.80000305175781,
+      "endTime": 68.0999984741211,
+      "text": "kono",
+      "sliders": []
     },
     {
-      "time": 68.0999984741211,
-      "text": "sekai wa"
+      "startTime": 68.0999984741211,
+      "endTime": 70,
+      "text": "sekai wa",
+      "sliders": []
     },
     {
-      "time": 70,
-      "text": "koutsugou ni"
+      "startTime": 70,
+      "endTime": 72.5,
+      "text": "koutsugou ni",
+      "sliders": []
     },
     {
-      "time": 72.5,
-      "text": "mikansei"
+      "startTime": 72.5,
+      "endTime": 74.80000305175781,
+      "text": "mikansei",
+      "sliders": []
     },
     {
-      "time": 74.80000305175781,
-      "text": "dakara shiritai nda"
+      "startTime": 74.80000305175781,
+      "endTime": 77.80000305175781,
+      "text": "dakara shiritai nda",
+      "sliders": []
     },
     {
-      "time": 77.80000305175781,
-      "text": "demo kaiju mitai ni"
+      "startTime": 77.80000305175781,
+      "endTime": 80,
+      "text": "demo kaiju mitai ni",
+      "sliders": []
     },
     {
-      "time": 80,
-      "text": "tooku tooku sakendemo"
+      "startTime": 80,
+      "endTime": 85.80000305175781,
+      "text": "tooku tooku sakendemo",
+      "sliders": []
     },
     {
-      "time": 85.80000305175781,
-      "text": "Mata kiete shimau nda"
+      "startTime": 85.80000305175781,
+      "endTime": 90,
+      "text": "Mata kiete shimau nda",
+      "sliders": []
     }
-  ]
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
 }
