@@ -20,7 +20,7 @@ namespace TappiruCS.Render
 
         public enum TextAlign { Left, Center, Right }
 
-        private struct GlyphInfo
+        public struct GlyphInfo
         {
             public int Page;
             public float TexX, TexY, Width, Height;
@@ -349,6 +349,64 @@ namespace TappiruCS.Render
             }
         }
 
+        public (float x, float y, float width, float height)[] GetCharBounds(string text,
+    float baseX, float baseY,
+    Vector2 canvasScale,
+    float baseScale,
+    float scaleMultiply,
+    TextAlign align)
+        {
+            if (string.IsNullOrEmpty(text))
+                return Array.Empty<(float, float, float, float)>();
+
+            float x = baseX * canvasScale.X;
+            float y = baseY * canvasScale.Y;
+            float finalScaleX = baseScale * canvasScale.X * scaleMultiply;
+            float finalScaleY = baseScale * canvasScale.Y * scaleMultiply;
+
+            float textWidth = CalculateTextWidth(text, finalScaleX);
+            float startX = align switch
+            {
+                TextAlign.Center => x - textWidth / 2f,
+                TextAlign.Right => x - textWidth,
+                _ => x
+            };
+
+            var bounds = new (float, float, float, float)[text.Length];
+            float currentX = startX;
+            char prevChar = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (_glyphs.TryGetValue(c, out var glyph))
+                {
+                    float kern = 0f;
+                    if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
+                        kern = k;
+
+                    float glyphX = currentX + glyph.XOffset * finalScaleX;
+                    float glyphY = y + glyph.YOffset * finalScaleY;
+                    float glyphWidth = glyph.Width * finalScaleX;
+                    float glyphHeight = glyph.Height * finalScaleY;
+
+                    bounds[i] = (glyphX, glyphY, glyphWidth, glyphHeight);
+
+                    currentX += (glyph.XAdvance + kern) * finalScaleX;
+                    prevChar = c;
+                }
+                else
+                {
+                    // fallback для отсутствующих глифов
+                    float fallbackWidth = charWidth * finalScaleX;
+                    bounds[i] = (currentX, y, fallbackWidth, _lineHeight * finalScaleY);
+                    currentX += fallbackWidth;
+                    prevChar = c;
+                }
+            }
+            return bounds;
+        }
+
         // ====================== CalculateTextWidth (единственная версия) ======================
         public float CalculateTextWidth(string text, float scale)
         {
@@ -376,5 +434,11 @@ namespace TappiruCS.Render
             }
             return total;
         }
+
+        public bool TryGetGlyph(char c, out GlyphInfo glyph)
+        {
+            return _glyphs.TryGetValue(c, out glyph);
+        }
+
     }
 }
