@@ -10,6 +10,10 @@ namespace TappiruCS.UI
         private readonly Game _game;
 
         public bool ParalaxEffect = false;
+        public bool AutoBreathingParallax = false;
+
+        public float BreathingSpeed = 0.4f;          // частота "дыхания" (меньше = медленнее)
+        public float BreathingStrength = 12f;        // максимальное смещение в пикселях (10-20 обычно хватает)
 
         public int _textureId;
 
@@ -20,61 +24,67 @@ namespace TappiruCS.UI
             _textureId = textureId;
             _game = game;
         }
-        
+        double time = 0.0;
         public override void Draw(Matrix4 projection)
         {
-            // === НАСТРОЙКИ (лучше вынести в поля класса, чтобы менять в инспекторе) ===
-            const float bgScale = 1.2f;           // во сколько раз больше экрана рисуем фон
-            const float maxParallaxOffset = 25f;  // максимальное смещение в пикселях (подбери под вкус)
-            const float strength = 0.25f;         // небольшой запас, чтобы никогда не было пустых краёв
+            const float bgScale = 1.2f;
+            const float strength = 0.25f;         // запас от краёв
 
             float screenW = _game.ClientSize.X;
             float screenH = _game.ClientSize.Y;
 
-            // Размер фона и сколько у нас «запаса» по краям
             float bgW = screenW * bgScale;
             float bgH = screenH * bgScale;
-            float extraW = bgW - screenW;   // сколько пикселей «лишних» по ширине
+            float extraW = bgW - screenW;
             float extraH = bgH - screenH;
 
-            // Базовая позиция — фон всегда центрирован по умолчанию
             float baseX = -extraW * 0.5f;
             float baseY = -extraH * 0.5f;
 
             float offsetX = 0f;
             float offsetY = 0f;
 
+            
+
+            time += _game.UpdateTime;   // или Scene.CurrentTime / Audio.GetCurrentTime() — что удобнее
+
             if (ParalaxEffect)
             {
-                // Нормализованные координаты мыши [-1 … 1]
+                // твой старый код с мышью (оставляем как есть)
                 float nx = (Scene.LogicMouse.X / screenW) * 2f - 1f;
                 float ny = (Scene.LogicMouse.Y / screenH) * 2f - 1f;
-
-                // Ограничиваем, чтобы мышь за пределами окна не ломала эффект
                 nx = Math.Clamp(nx, -1f, 1f);
                 ny = Math.Clamp(ny, -1f, 1f);
 
-                // Считаем смещение (инверсия направления — мышь вправо → фон влево)
-                float desiredOffsetX = -nx * maxParallaxOffset * strength;
-                float desiredOffsetY = -ny * maxParallaxOffset * strength;
+                float desiredOffsetX = -nx * 25f * strength;
+                float desiredOffsetY = -ny * 25f * strength;
 
-                // Дополнительная страховка: никогда не выходим за пределы безопасной зоны
                 float safeMaxX = extraW * 0.5f * strength;
                 float safeMaxY = extraH * 0.5f * strength;
 
                 offsetX = Math.Clamp(desiredOffsetX, -safeMaxX, safeMaxX);
                 offsetY = Math.Clamp(desiredOffsetY, -safeMaxY, safeMaxY);
             }
+            else if (AutoBreathingParallax)
+            {
+                // === Автоматический "дышащий" параллакс ===
+                float breathX = (float)Math.Sin(time * BreathingSpeed) * BreathingStrength;
+                float breathY = (float)Math.Sin(time * BreathingSpeed * 0.7f + 1.3f) * (BreathingStrength * 0.6f);
+                // 0.7f и фазовый сдвиг +1.3f — чтобы движение не было идеально круговым/синхронным (выглядит живее)
+
+                // Ограничиваем, чтобы не вылезать за края
+                float safeMaxX = extraW * 0.5f * strength * 0.6f;   // чуть слабее, чем у мыши
+                float safeMaxY = extraH * 0.5f * strength * 0.6f;
+
+                offsetX = Math.Clamp(breathX, -safeMaxX, safeMaxX);
+                offsetY = Math.Clamp(breathY, -safeMaxY, safeMaxY);
+            }
 
             float drawX = baseX + offsetX;
             float drawY = baseY + offsetY;
 
-            _spriteBatch.Draw(_textureId,
-                drawX, drawY,
-                bgW, bgH,                  // используем рассчитанный размер
-                0, 0, 1, 1,
-                1f, 1f, 1f, Opacity,
-                projection);
+            _spriteBatch.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                1f, 1f, 1f, Opacity, projection);
         }
     }
 }

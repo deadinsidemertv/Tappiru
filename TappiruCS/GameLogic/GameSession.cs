@@ -18,6 +18,7 @@ namespace TappiruCS.GameLogic
             }
         }
 
+
         public MapData CurrentMap { get; }
         public double endTime { get; private set; }
         public double CurrentPhaseStartTime { get; private set; }
@@ -109,7 +110,12 @@ namespace TappiruCS.GameLogic
         /// </summary>
         public void HandleInput(char inputChar, double currentTime)
         {
-            if (!_isActivePhase || PhaseComplete) return;
+            // ←←← НОВАЯ ЗАЩИТА ←←←
+            if (!IsInputAllowed(currentTime))
+                return;
+
+            if (!_isActivePhase || PhaseComplete)
+                return;
 
             SkipSpacesInPhase();
 
@@ -129,7 +135,6 @@ namespace TappiruCS.GameLogic
 
             HandleRegularTap(inputChar, expected);
         }
-
         private void UpdateAccuracy()
         {
             Accuracy = (CorrectHits + Misses) > 0
@@ -366,7 +371,15 @@ namespace TappiruCS.GameLogic
             if (CurrentCharIndex >= CurrentPhaseChars.Length)
                 CompletePhase();
         }
+        public bool IsInputAllowed(double currentTime)
+        {
+            if (!_isActivePhase) return false;
 
+            const double graceBefore = 0.08;   // 80 мс до начала — можно уже нажимать
+
+            return currentTime >= CurrentPhaseStartTime - graceBefore &&
+                   currentTime <= CurrentPhaseEndTime;
+        }
         private void CompletePhase()
         {
             PhaseComplete = true;

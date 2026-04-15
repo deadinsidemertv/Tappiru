@@ -140,7 +140,12 @@ namespace TappiruCS.State
             background = TextureLoader.Load(_mapData.backGroundPath);
             scoreBarBGTex = TextureManager.GetTexture("scorebg");
 
-            bg = new Background(_spriteBatch, background, _game);
+            bg = new Background(_spriteBatch, background, _game) 
+            {
+                AutoBreathingParallax =true,
+                BreathingSpeed = 0.65f,
+                BreathingStrength = 12f
+            };
             Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.7f };
             scorebarBG = new SpriteObject(_spriteBatch, scoreBarBGTex, 960, 540, 1920, 1080) { AllowHover = false };
 
@@ -201,27 +206,35 @@ namespace TappiruCS.State
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            if (session == null || !session.IsActivePhase)
+            if (session == null)
+                return;
+
+            double currentTime = _audio?.GetCurrentTime() ?? 0.0;
+
+            // ← Главная защита: блокируем ввод, когда текста нет на экране
+            if (!session.IsInputAllowed(currentTime))
                 return;
 
             Keys key = e.Key;
 
             if (_pressedKeys.Contains(key))
-                return;                    // ← это важно
+                return;                    // защита от повторного нажатия
 
             if (!KeyToCharsMap.TryGetValue(key, out char[] possibleChars))
                 return;
 
             int currentIndex = session.CurrentCharIndex;
-            if (currentIndex >= session.CurrentPhaseChars.Length)
+
+            // Исправленная безопасная проверка
+            if (session.CurrentPhaseChars == null || currentIndex >= session.CurrentPhaseChars.Length)
                 return;
 
             char expectedChar = session.CurrentPhaseChars[currentIndex];
 
             if (Array.IndexOf(possibleChars, expectedChar) >= 0)
-                session.HandleInput(expectedChar, _audio.GetCurrentTime());
+                session.HandleInput(expectedChar, currentTime);
             else
-                session.HandleInput('\0', _audio.GetCurrentTime());
+                session.HandleInput('\0', currentTime);   // неправильная клавиша = мисс
 
             _pressedKeys.Add(key);
         }
