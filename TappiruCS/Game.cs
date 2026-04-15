@@ -35,6 +35,8 @@ namespace TappiruCS
         private bool _isFadingOut = false;
         private bool _isTransitioning = false;
 
+        public RenderContext RenderContext { get; private set; }
+
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
@@ -65,22 +67,24 @@ namespace TappiruCS
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
             textRenderer = new TextRender(spriteBatch, "Textures\\Font\\font_cyrillic.fnt"); 
-
             audio = new AudioManager();
 
+            RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
             audio.LoadSoundEffect("hit", "Textures/Sound/hit-sound.mp3");
 
 
-            currentState = new MenuState(this, spriteBatch, textRenderer, audio);
+            currentState = new MenuState(RenderContext);
             currentState.OnEnter();
 
             _fadeAlpha = 1f;                     // полностью чёрный
             _pendingState = currentState;        // фиктивный переход (та же сцена)
             _isFadingOut = false;                // режим «появление из черного»
 
+
+            
         }
 
         public void InvokeOnMainThread(Action action)

@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using TappiruCS.Core;           // ← правильный using для Scene и GameObject
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.UI;
 
@@ -8,9 +8,7 @@ namespace TappiruCS.State.Edit
 {
     internal class CreateProjectPanel
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
+        private readonly RenderContext _context;
         private readonly Scene _scene;
         private readonly Action<string> _onProjectCreated;
 
@@ -23,33 +21,30 @@ namespace TappiruCS.State.Edit
         private string? _mp3Path;
         private string? _bgPath;
 
-        public CreateProjectPanel(Game game, SpriteBatch spriteBatch, TextRender textRenderer,
-                                  Scene scene, Action<string> onProjectCreated)
+        public CreateProjectPanel(RenderContext context,Scene scene, Action<string> onProjectCreated)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
+            _context = context;
             _scene = scene;
             _onProjectCreated = onProjectCreated;
         }
 
         public void Show()
         {
-            _panel = new SpriteObject(_spriteBatch, TextureManager.GetTexture("module"), 960, 540, 620, 820);
+            _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 620, 820);
 
-            _titleInput = new InputField(_game, _spriteBatch, _textRenderer, 960, 320, 520, 70)
+            _titleInput = new InputField(960, 320, 520, 70)
             {
                 PlaceHolderText = "Название карты...",
                 PlaceHolderColor = Color4.LightGray
             };
 
-            _mp3Button = new Button(_spriteBatch, _textRenderer, 800, 480, 140, 140, "mp3", "MP3", Color4.White) { Layer = 2 };
-            _bgButton = new Button(_spriteBatch, _textRenderer, 1120, 480, 140, 140, "png", "BG", Color4.White) { Layer = 2 };
+            _mp3Button = new Button(800, 480, 140, 140, "mp3", "MP3") { Layer = 2 };
+            _bgButton = new Button(1120, 480, 140, 140, "png", "BG") { Layer = 2 };
 
             _mp3Button.OnClick += () => LoadFile("*.mp3", path => _mp3Path = path);
             _bgButton.OnClick += () => LoadFile("*.png;*.jpg", path => _bgPath = path);
 
-            _confirmButton = new Button(_spriteBatch, _textRenderer, 960, 720, 500, 110, "button", "Создать карту", Color4.White)
+            _confirmButton = new Button(960, 720, 500, 110, "button", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
                 TextScale = 0.8f,

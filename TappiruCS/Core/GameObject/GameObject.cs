@@ -1,13 +1,15 @@
-﻿using OpenTK.Mathematics;
+﻿// Core/GameObject/GameObject.cs
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using TappiruCS.Render;
 
-namespace TappiruCS.Core
+namespace TappiruCS.Core.GameObject
 {
     public abstract class GameObject : IGameObject
     {
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Vector2 Scale { get; set; } = Vector2.One;
-        public float Opacity { get; set; }=1f;
+        public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
         public bool AutoScale { get; set; } = true;
@@ -25,11 +27,80 @@ namespace TappiruCS.Core
 
         public float _baseScaleMultiply = -1f;
 
-        // ====================== ИЕРАРХИЯ (МИНИМАЛЬНАЯ) ======================
-        public GameObject? Parent { get; set; } = null;           // оставляем, пока нужен
+        // ====================== ИЕРАРХИЯ ======================
+        public GameObject? Parent { get; set; } = null;
 
         protected readonly List<GameObject> _children = new List<GameObject>();
         public IReadOnlyList<GameObject> Children => _children.AsReadOnly();
+
+        public RenderContext Context { get; protected set; }
+
+        // Удобные сокращения
+        protected SpriteBatch SB => Context?.SpriteBatch;
+        protected TextRender TR => Context?.TextRenderer;
+        protected Game Game => Context?.Game;
+        protected AudioManager Audio => Context?.Audio;
+
+        internal void SetRenderContext(RenderContext context)
+        {
+            Context = context;
+            Console.WriteLine($"[CONTEXT SET] {GetType().Name} (and its children) | Parent: {Parent?.GetType().Name ?? "null"}");
+
+            OnContextSet();
+
+            // Рекурсивно детям (на всякий случай)
+            foreach (var child in _children)
+                child.SetRenderContext(context);
+        }
+
+        protected virtual void OnContextSet() { }
+
+        // ====================== ЗАЩИЩЁННЫЕ МЕТОДЫ ======================
+
+        public virtual void Update(double deltaTime)
+        {
+            if (!Active || Context == null)
+                return;
+
+            foreach (var child in _children)
+            {
+                if (!child.Active) continue;
+                child.CanvasScale = CanvasScale;
+                child.Opacity = Opacity;
+                child.Update(deltaTime);
+            }
+        }
+
+        public virtual void Update(double deltaTime, MouseState mouse)
+        {
+            if (!Active || Context == null)
+                return;
+
+            Update(deltaTime);
+
+            foreach (var child in _children)
+            {
+                if (!child.Active) continue;
+                child.CanvasScale = CanvasScale;
+                child.Opacity = Opacity;
+                child.Update(deltaTime, mouse);
+            }
+        }
+
+        public virtual void Draw(Matrix4 projection)
+        {
+            if (!Active || Context == null || SB == null)
+                return;
+
+            // Рисуем детей только если мы сами прошли проверку
+            foreach (var child in _children)
+            {
+                if (child.Active)
+                    child.Draw(projection);
+            }
+        }
+
+        // ====================== ДЕТИ ======================
 
         public void AddChild(GameObject child)
         {
@@ -44,40 +115,7 @@ namespace TappiruCS.Core
                 child.Parent = null;
         }
 
-        // ====================== ОБНОВЛЕНИЕ ДЕТЕЙ (главное изменение) ======================
-        public virtual void Update(double deltaTime)
-        {
-            foreach (var child in _children)
-            {
-                if (!child.Active) continue;
-                child.CanvasScale = CanvasScale;     // ← вот что убирает дублирование
-                child.Opacity = Opacity;
-                child.Update(deltaTime);
-            }
-        }
-
-        public virtual void Update(double deltaTime, MouseState mouse)
-        {
-            Update(deltaTime);                       // сначала обновляем детей без mouse
-
-            foreach (var child in _children)
-            {
-                if (!child.Active) continue;
-                child.CanvasScale = CanvasScale;
-                child.Opacity = Opacity;
-                child.Update(deltaTime, mouse);
-                
-            }
-        }
-
-        public virtual void Draw(Matrix4 projection) 
-        {
-            foreach (var child in _children)
-            {
-                if (child.Active)
-                    child.Draw(projection);
-            }
-        }
+        // ====================== Hover и Bounds ======================
 
         public virtual void SetHover(bool hover)
         {
@@ -102,7 +140,6 @@ namespace TappiruCS.Core
                    worldY >= top && worldY <= bottom;
         }
 
-        // ====================== PIVOT HELPERS ======================
         public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
         {
             float effWidth = Scale.X * EffectiveScaleMultiply;
@@ -136,32 +173,26 @@ namespace TappiruCS.Core
             bool shouldBeHovered = (this == targetHover);
 
             if (IsHovered != shouldBeHovered)
-            {
                 SetHover(shouldBeHovered);
-            }
 
-            // Рекурсия по детям
             foreach (var child in _children)
-            {
                 child.SetHoverRecursive(targetHover);
-            }
         }
+
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
-                                           ref GameObject top, ref int topLayer)
+                                                   ref GameObject top, ref int topLayer)
         {
             if (!Active || !AllowHover)
                 return;
 
-            if (IsPointInside(virtualX, virtualY) && Layer >= topLayer)   
+            if (IsPointInside(virtualX, virtualY) && Layer >= topLayer)
             {
                 topLayer = Layer;
                 top = this;
             }
 
             foreach (var child in _children)
-            {
                 child.CollectHoverCandidates(virtualX, virtualY, ref top, ref topLayer);
-            }
         }
 
         public event Action<GameObject> OnHoverEnter;

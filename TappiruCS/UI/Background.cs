@@ -1,14 +1,11 @@
 ﻿using OpenTK.Mathematics;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI
 {
     public class Background : GameObject
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly Game _game;
-
         public bool ParalaxEffect = false;
         public bool AutoBreathingParallax = false;
 
@@ -18,11 +15,9 @@ namespace TappiruCS.UI
         public int _textureId;
 
         public float Opacity = 1f;
-        public Background(SpriteBatch spriteBatch, int textureId,Game game)
+        public Background(int textureId)
         {
-            _spriteBatch = spriteBatch;
             _textureId = textureId;
-            _game = game;
         }
         double time = 0.0;
         public override void Draw(Matrix4 projection)
@@ -30,8 +25,8 @@ namespace TappiruCS.UI
             const float bgScale = 1.2f;
             const float strength = 0.25f;         // запас от краёв
 
-            float screenW = _game.ClientSize.X;
-            float screenH = _game.ClientSize.Y;
+            float screenW = Game.ClientSize.X;
+            float screenH = Game.ClientSize.Y;
 
             float bgW = screenW * bgScale;
             float bgH = screenH * bgScale;
@@ -46,7 +41,7 @@ namespace TappiruCS.UI
 
             
 
-            time += _game.UpdateTime;   // или Scene.CurrentTime / Audio.GetCurrentTime() — что удобнее
+            time += Game.UpdateTime;   // или Scene.CurrentTime / Audio.GetCurrentTime() — что удобнее
 
             if (ParalaxEffect)
             {
@@ -83,7 +78,7 @@ namespace TappiruCS.UI
             float drawX = baseX + offsetX;
             float drawY = baseY + offsetY;
 
-            _spriteBatch.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+            SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
                 1f, 1f, 1f, Opacity, projection);
         }
     }

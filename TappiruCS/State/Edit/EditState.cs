@@ -13,15 +13,13 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
+using TappiruCS.Core.GameObject;
 
 namespace TappiruCS.State.Edit
 {
     internal class EditState : IGameState
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly AudioManager _audio;
+        private readonly RenderContext _context;
 
         private readonly Scene _scene = new Scene();
 
@@ -53,17 +51,15 @@ namespace TappiruCS.State.Edit
         private TextObject _demoCompleteText = null!;
 
         private string? _projectDir;
-        public EditState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
+        public EditState(RenderContext context)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            _audio = audio;
+            _context = context;
         }
 
         public void OnEnter()
         {
-            _audio.Stop();
+            _scene.Initialize(_context);
+            _context.Audio.Stop();
             CreateInitialUI();
         }
 
@@ -93,8 +89,8 @@ namespace TappiruCS.State.Edit
 
         private void CreateInitialUI()
         {
-            _background = new Background(_spriteBatch, TextureManager.GetTexture("defaultBG"), _game) { ParalaxEffect = true };
-            _darkOverlay = new Background(_spriteBatch, 0, _game) { Opacity = 0.75f };
+            _background = new Background( TextureManager.GetTexture("defaultBG")) { ParalaxEffect = true };
+            _darkOverlay = new Background( 0) { Opacity = 0.75f };
 
             var createBtn = CreateTopButton(160, "Create Project", CreateProject);
             var loadBtn = CreateTopButton(440, "Load Project", LoadProject);
@@ -107,7 +103,7 @@ namespace TappiruCS.State.Edit
 
         private Button CreateTopButton(float x, string text, Action onClick)
         {
-            var btn = new Button(_spriteBatch, _textRenderer, x, 30, 700, 120, "button", text, Color4.White)
+            var btn = new Button(  x, 30, 700, 120, "button", text)
             {
                 Layer = 1,
                 TextColor = Color4.White,
@@ -125,12 +121,12 @@ namespace TappiruCS.State.Edit
         #region Update & Render
         public void Update(double deltaTime)
         {
-            var mouse = _game.MouseState;
-            _scene.Update(deltaTime, mouse, _game);
+            var mouse = _context.Game.MouseState;
+            _scene.Update(deltaTime, mouse, _context.Game);
 
             if (_inEditMode && _timeline != null)
             {
-                _timeline.SetCurrentTime((float)_audio.GetCurrentTime());
+                _timeline.SetCurrentTime((float)_context.Audio.GetCurrentTime());
                 UpdateRenderedMarkerText();
                 UpdateColorPreviews();
             }
@@ -145,7 +141,7 @@ namespace TappiruCS.State.Edit
                 return;
             }
 
-            double current = _audio.GetCurrentTime();
+            double current = _context.Audio.GetCurrentTime();
             var active = _phrases.LastOrDefault(p => p.ContainsTime((float)current));
 
             if (active != _currentActivePhrase)
@@ -171,12 +167,12 @@ namespace TappiruCS.State.Edit
         {
             if (_isMusicPlaying)
             {
-                _audio.Pause();
+                _context.Audio.Pause();
                 _playPauseButton.NormalColor = Color4.Orange;
             }
             else
             {
-                _audio.Resume();
+                _context.Audio.Resume();
                 _playPauseButton.NormalColor = Color4.White;
             }
             _isMusicPlaying = !_isMusicPlaying;
@@ -187,12 +183,12 @@ namespace TappiruCS.State.Edit
         private void AddNewPhrase()
         {
             if (_isInputDialogOpen) return;
-            _audio.Pause();
+            _context.Audio.Pause();
             _isMusicPlaying = false;
 
-            float time = (float)_audio.GetCurrentTime();
+            float time = (float)_context.Audio.GetCurrentTime();
 
-            var dialog = new TextInputDialog(_game, _spriteBatch, _textRenderer, _scene,
+            var dialog = new TextInputDialog(_context, _scene,
                 "Введите текст фразы",
                 text =>
                 {
@@ -237,7 +233,7 @@ namespace TappiruCS.State.Edit
 
             for (int i = 0; i < text.Length; i++)
             {
-                var charObj = new TextObject(_textRenderer, text[i].ToString(),
+                var charObj = new TextObject(text[i].ToString(),
                                              startX + i * charSpacing, 480, 1.05f);
 
                 int index = i;
@@ -262,7 +258,7 @@ namespace TappiruCS.State.Edit
                 Console.WriteLine("ERROR: phrase is null!");
                 return;
             }
-            float currentTime = (float)_audio.GetCurrentTime();
+            float currentTime = (float)_context.Audio.GetCurrentTime();
             float startT = currentTime;
             float endT = Math.Min(startT + 2.0f, phrase.EndTime);
             if (endT - startT < 0.2f) endT = startT + 0.2f;
@@ -285,7 +281,7 @@ namespace TappiruCS.State.Edit
         #region Project Management
         private void CreateProject()
         {
-            var panel = new CreateProjectPanel(_game, _spriteBatch, _textRenderer, _scene, OnProjectCreated);
+            var panel = new CreateProjectPanel(_context, _scene, OnProjectCreated);
             panel.Show();
         }
 
@@ -352,30 +348,30 @@ namespace TappiruCS.State.Edit
 
         private void CreateTimeline()
         {
-            _timeline = new Timeline(_spriteBatch, _textRenderer, 960, 850, 1600, 80);
-            _timeline.SetDuration((float)_audio.Duration);
+            _timeline = new Timeline(960, 850, 1600, 80);
+            _timeline.SetDuration((float)_context.Audio.Duration);
             _timeline.OnTimeClicked += HandleTimelineClick;
             _scene.Add(_timeline);
         }
 
         private void HandleTimelineClick(float clickedTime)
         {
-            _audio.SetCurrentTime(clickedTime);
+            _context.Audio.SetCurrentTime(clickedTime);
         }
 
         private void CreateEditorButtons()
         {
-            _playPauseButton = new Button(_spriteBatch, _textRenderer, 960, 1000, 100, 100, "pause", "", Color4.White) { Layer = 1 };
+            _playPauseButton = new Button( 960, 1000, 100, 100, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
 
-            _addPhraseButton = new Button(_spriteBatch, _textRenderer, 300, 1000, 420, 100, "button", "ADD PHRASE", Color4.White)
+            _addPhraseButton = new Button(300, 1000, 420, 100, "button", "ADD PHRASE")
             {
                 Layer = 1,
                 TextScale = 0.75f
             };
             _addPhraseButton.OnClick += AddNewPhrase;
 
-            _saveProjectButton = new Button(_spriteBatch, _textRenderer, 1780, 30, 700, 120, "button", "Save Project", Color4.White)
+            _saveProjectButton = new Button( 1780, 30, 700, 120, "button", "Save Project")
             {
                 Layer = 1,
                 TextScale = 0.7f
@@ -541,9 +537,9 @@ namespace TappiruCS.State.Edit
 
             if (!string.IsNullOrEmpty(mp3))
             {
-                _audio.LoadMusic(mp3);
-                _audio.Play();
-                _audio.SetLooping(true);
+                _context.Audio.LoadMusic(mp3);
+                _context.Audio.Play();
+                _context.Audio.SetLooping(true);
             }
         }
 
@@ -586,11 +582,11 @@ namespace TappiruCS.State.Edit
             float sliderSpacing = 45f;
             float sliderWidth = 255f;
 
-            var sliderR = new Slider(_spriteBatch, _textRenderer, 0f, 1f, x, y, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
+            var sliderR = new Slider(0f, 1f, x, y, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
             sliderR.SetValue(defaultR);
-            var sliderG = new Slider(_spriteBatch, _textRenderer, 0f, 1f, x, y + sliderSpacing, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
+            var sliderG = new Slider(0f, 1f, x, y + sliderSpacing, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
             sliderG.SetValue(defaultG);
-            var sliderB = new Slider(_spriteBatch, _textRenderer, 0f, 1f, x, y + sliderSpacing * 2, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
+            var sliderB = new Slider(0f, 1f, x, y + sliderSpacing * 2, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
             sliderB.SetValue(defaultB);
 
             _scene.Add(sliderR);
@@ -603,10 +599,10 @@ namespace TappiruCS.State.Edit
         private void CreateDemoTexts(float startX, float startY, float groupSpacingX)
         {
             float centerXTop = startX + groupSpacingX / 2;
-            _demoNewT = new TextObject(_textRenderer, "new t", centerXTop - 28, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoE = new TextObject(_textRenderer, " e", centerXTop + 45, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoXt = new TextObject(_textRenderer, "xt", centerXTop + 90, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoCompleteText = new TextObject(_textRenderer, "new text", startX + groupSpacingX / 2, startY + 90, 1f) { ScaleMultiply = 0.5f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoNewT = new TextObject( "new t", centerXTop - 28, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoE = new TextObject( " e", centerXTop + 45, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoXt = new TextObject( "xt", centerXTop + 90, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoCompleteText = new TextObject( "new text", startX + groupSpacingX / 2, startY + 90, 1f) { ScaleMultiply = 0.5f, Align = TextRender.TextAlign.Center, Color = Color4.White };
 
             _scene.Add(_demoNewT);
             _scene.Add(_demoE);

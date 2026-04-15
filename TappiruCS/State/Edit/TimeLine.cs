@@ -4,7 +4,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.State.Edit;
 
@@ -18,8 +18,7 @@ namespace TappiruCS.UI
     {
         public event Action<float> OnTimeClicked;
 
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRender;
+        private readonly RenderContext _context;
 
         // Основные элементы
         public SpriteObject Background { get; private set; }
@@ -62,23 +61,21 @@ namespace TappiruCS.UI
 
         private readonly List<Phrase> _phrases = new();
 
-        public Timeline(SpriteBatch spriteBatch, TextRender textRender, float x, float y, float width, float height)
+        public Timeline(float x, float y, float width, float height)
         {
-            _spriteBatch = spriteBatch;
-            _textRender = textRender;
 
-            Background = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), x, y, width, height)
+            Background = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, width, height)
             {
                 Color = new Color4(0.13f, 0.13f, 0.19f, 1f)
             };
 
-            Playhead = new SpriteObject(_spriteBatch, TextureManager.GetTexture("marker"), x, y - 35f, 28, 28)
+            Playhead = new SpriteObject( TextureManager.GetTexture("marker"), x, y - 35f, 28, 28)
             {
                 Color = new Color4(1f, 0.35f, 0.35f, 1f),
                 Pivot = new Vector2(0.5f, 1f)
             };
 
-            _playheadLine = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), x, y, 4, height)
+            _playheadLine = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, 4, height)
             {
                 Color = new Color4(1f, 0.35f, 0.35f, 0.9f),
                 Pivot = new Vector2(0.5f, 0.5f)
@@ -397,7 +394,7 @@ namespace TappiruCS.UI
 
             while (_waveformBars.Count < target)
             {
-                var bar = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+                var bar = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
                 {
                     Color = new Color4(0.25f, 0.65f, 1.0f, 0.92f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -431,7 +428,7 @@ namespace TappiruCS.UI
             // ====================== ФИОЛЕТОВЫЕ ФРАЗЫ (пул) ======================
             while (_phraseBars.Count < phraseCount)
             {
-                var bar = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+                var bar = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
                 {
                     Color = new Color4(0.55f, 0.25f, 0.85f, 0.5f),
                     Opacity = 0.5f,
@@ -440,7 +437,7 @@ namespace TappiruCS.UI
                 AddChild(bar);
                 _phraseBars.Add(bar);
 
-                var lh = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+                var lh = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
                 {
                     Color = new Color4(1f, 1f, 1f, 0.95f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -448,7 +445,7 @@ namespace TappiruCS.UI
                 AddChild(lh);
                 _leftHandles.Add(lh);
 
-                var rh = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+                var rh = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
                 {
                     Color = new Color4(1f, 1f, 1f, 0.95f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -497,7 +494,7 @@ namespace TappiruCS.UI
             while (_sliderBars.Count < totalSliders)
             {
                 // Основная полоса слайдера
-                var sBar = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+                var sBar = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
                 {
                     Color = new Color4(0.95f, 0.65f, 0.25f, 0.95f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -506,7 +503,7 @@ namespace TappiruCS.UI
                 _sliderBars.Add(sBar);
 
                 // Левая ручка
-                var lh = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+                var lh = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
                 {
                     Color = new Color4(1f, 1f, 1f, 0.95f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -515,7 +512,7 @@ namespace TappiruCS.UI
                 _sliderLeftHandles.Add(lh);
 
                 // Правая ручка
-                var rh = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+                var rh = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
                 {
                     Color = new Color4(1f, 1f, 1f, 0.95f),
                     Pivot = new Vector2(0.5f, 0.5f)
@@ -613,7 +610,7 @@ namespace TappiruCS.UI
 
                 bool major = Math.Abs(t % 5) < 0.01f || Math.Abs(t % 10) < 0.01f;
 
-                var tick = new SpriteObject(_spriteBatch, TextureManager.GetTexture("slider_line"),
+                var tick = new SpriteObject(TextureManager.GetTexture("slider_line"),
                     x, Background.Position.Y, 2, major ? 42 : 24)
                 {
                     Color = major ? new Color4(0.8f, 0.8f, 0.9f, 1f) : new Color4(0.5f, 0.5f, 0.55f, 1f),
@@ -625,7 +622,7 @@ namespace TappiruCS.UI
                 if (major)
                 {
                     string labelText = TimeSpan.FromSeconds(t).ToString(t >= 60 ? @"m\:ss" : @"s\.ff");
-                    var label = new TextObject(_textRender, labelText, x, bottomY, 0.9f)
+                    var label = new TextObject(labelText, x, bottomY, 0.9f)
                     {
                         Color = Color4.White,
                         Align = TextRender.TextAlign.Center,

@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
@@ -11,10 +12,8 @@ namespace TappiruCS.State
 {
     public class ScoreBoardState : IGameState
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly AudioManager _audio;
+        private readonly RenderContext _context;
+
         private readonly PlayerScore _playerScore;
         private readonly MapData _mapData;
 
@@ -41,62 +40,59 @@ namespace TappiruCS.State
 
 
 
-        public ScoreBoardState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio, PlayerScore playerscore,MapData mapdata)
+        public ScoreBoardState(RenderContext context, PlayerScore playerscore,MapData mapdata)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            _audio = audio;
+            _context = context;
+
             _playerScore = playerscore;
             _mapData = mapdata;
         }
 
         public void OnEnter()
         {
-            Console.WriteLine("Открылся ScoreBoard");
-            PrintResultsToConsole();
+            _scene.Initialize(_context);
 
             _scoreListTexture = TextureManager.GetTexture("ranking-panel");
             _blackTexture = TextureManager.GetTexture("black");
-            var background = new Background(_spriteBatch, TextureLoader.Load(_mapData.backGroundPath), _game) {ParalaxEffect = true };
-            var backgroundopacity = new Background(_spriteBatch, 0, _game) { Opacity = 0.5f };
-            _scoreList = new SpriteObject(_spriteBatch, _scoreListTexture, 980, 600, 1400, 667) { ScaleMultiply = 1.4f};
-            _topBlack = new SpriteObject(_spriteBatch, 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f),
+            var background = new Background(TextureLoader.Load(_mapData.backGroundPath)) {ParalaxEffect = true };
+            var backgroundopacity = new Background(0) { Opacity = 0.5f };
+            _scoreList = new SpriteObject(_scoreListTexture, 980, 600, 1400, 667) { ScaleMultiply = 1.4f};
+            _topBlack = new SpriteObject( 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f),
                 Opacity = 0.6f
             };
 
 
-            _scoreText = new TextObject(_textRenderer, _playerScore._score.ToString("00000000000"), _scoreList.Position.X -500, _scoreList.Position.Y-450, 0.6f) 
+            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), _scoreList.Position.X -500, _scoreList.Position.Y-450, 0.6f) 
             { Align =TextAlign.Center};
-            _accuraciText = new TextObject(_textRenderer, _playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X  -550, _scoreList.Position.Y+120 , 0.5f)
+            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X  -550, _scoreList.Position.Y+120 , 0.5f)
             { Align = TextAlign.Left };
 
-            title = new TextObject(_textRenderer, _mapData.title+$" - [{_mapData.artist}]", 0, 0, 0.5f) { Align = TextAlign.Left};
+            title = new TextObject(_mapData.title+$" - [{_mapData.artist}]", 0, 0, 0.5f) { Align = TextAlign.Left};
 
-            creator = new TextObject(_textRenderer, "Автор: "+_mapData.creator, 5, 60, 0.35f) { Align = TextAlign.Left };
+            creator = new TextObject("Автор: "+_mapData.creator, 5, 60, 0.35f) { Align = TextAlign.Left };
 
-            _dateText = new TextObject(_textRenderer,"Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
+            _dateText = new TextObject("Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
 
 
-            _maxCombo = new TextObject(_textRenderer, _playerScore._maxCobmo.ToString(), _scoreList.Position.X -880, _scoreList.Position.Y + 120, 0.5f)
+            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), _scoreList.Position.X -880, _scoreList.Position.Y + 120, 0.5f)
             { Align = TextAlign.Right };
-            _maxComboX = new TextObject(_textRenderer, "x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 0.3f)
+            _maxComboX = new TextObject("x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 0.3f)
             { Align = TextAlign.Left };
 
-            _completeChar = new TextObject(_textRenderer, _playerScore._completeChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y -160, 0.5f)
+            _completeChar = new TextObject(_playerScore._completeChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y -160, 0.5f)
             { Align = TextAlign.Left };
             int _hit100tx = TextureManager.GetTexture("hit100");
-            var hit100 = new SpriteObject(_spriteBatch, _hit100tx, _completeChar.Position.X - 150, _completeChar.Position.Y +50, 75, 75);
+            var hit100 = new SpriteObject(_hit100tx, _completeChar.Position.X - 150, _completeChar.Position.Y +50, 75, 75);
 
-            _completePhase = new TextObject(_textRenderer, _playerScore._completePhase.ToString(), _scoreList.Position.X -745 , _scoreList.Position.Y + -295, 0.5f)
+            _completePhase = new TextObject(_playerScore._completePhase.ToString(), _scoreList.Position.X -745 , _scoreList.Position.Y + -295, 0.5f)
             { Align = TextAlign.Left };
             int _hit300tx = TextureManager.GetTexture("hit300");
-            var hit300 = new SpriteObject(_spriteBatch, _hit300tx, _completePhase.Position.X - 150, _completePhase.Position.Y + 50, 75, 75);
+            var hit300 = new SpriteObject(_hit300tx, _completePhase.Position.X - 150, _completePhase.Position.Y + 50, 75, 75);
 
-            _failChar = new TextObject(_textRenderer, _playerScore._failChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y - 25, 0.5f)
+            _failChar = new TextObject(_playerScore._failChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y - 25, 0.5f)
             { Align = TextAlign.Left };
             int _hit0tx = TextureManager.GetTexture("hit0");
-            var hit0 = new SpriteObject(_spriteBatch, _hit0tx, _failChar.Position.X - 145, _failChar.Position.Y+45, 100, 100);
+            var hit0 = new SpriteObject(_hit0tx, _failChar.Position.X - 145, _failChar.Position.Y+45, 100, 100);
 
             int[] gradetx = new int[6];
             for (int i = 0; i < 6; i++)
@@ -122,7 +118,7 @@ namespace TappiruCS.State
                 rank = 0;                                 // D (всё остальное)
 
 
-            var _grade = new SpriteObject(_spriteBatch, gradetx[rank], 1600, 440, 80, 100) { ScaleMultiply = 8f};
+            var _grade = new SpriteObject(gradetx[rank], 1600, 440, 80, 100) { ScaleMultiply = 8f};
 
             _scene.Add(background);
             _scene.Add(backgroundopacity);
@@ -161,8 +157,8 @@ namespace TappiruCS.State
         {
             
 
-            var mouseState = _game.MouseState;
-            _scene.Update(currentTime, mouseState, _game);
+            var mouseState = _context.Game.MouseState;
+            _scene.Update(currentTime, mouseState, _context.Game);
 
 
         }
@@ -180,24 +176,9 @@ namespace TappiruCS.State
         {
             if (e.Key == Keys.Escape)
             {
-                
-                _game.ChangeState(new SongSelectState(_game, _spriteBatch, _textRenderer, _audio));
+
+                _context.Game.ChangeState(new SongSelectState(_context));
             }
-        }
-
-       
-
-        private void PrintResultsToConsole()
-        {
-            Console.WriteLine("===== РЕЗУЛЬТАТЫ КАРТЫ =====");
-            Console.WriteLine($"Score: {_playerScore._score}");
-            Console.WriteLine($"Max Combo: {_playerScore._maxCobmo}");
-            Console.WriteLine($"Correct: {_playerScore._completeChar}");
-            Console.WriteLine($"Misses: {_playerScore._failChar}");
-            Console.WriteLine($"Accuracy: {_playerScore._accuraci:F2}%");
-            Console.WriteLine($"Completed Phases: {_playerScore._completePhase}");
-            Console.WriteLine($"Failed Phases: {_playerScore._failPhase}");
-            Console.WriteLine("============================");
         }
     }
 }

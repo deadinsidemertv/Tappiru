@@ -1,8 +1,9 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using static TappiruCS.Render.TextRender;
+using TappiruCS.Tween;
 
 namespace TappiruCS.UI
 {
@@ -36,9 +37,7 @@ namespace TappiruCS.UI
         public event Action OnClick;
         public event Action<Button, bool> HoverStateChanged;
 
-        public Button(SpriteBatch spriteBatch, TextRender textRenderer,
-                      float x, float y, float width, float height,
-                      string textureName, string text, Color4 color)
+        public Button(float x, float y, float width, float height,string textureName, string text)
         {
             NormalColor  = new Color4(1f, 1f, 1f, Opacity);
             HoverColor  = new Color4(0.5f, 0.5f, 1.05f, Opacity);
@@ -50,15 +49,15 @@ namespace TappiruCS.UI
 
             _textureId = TextureManager.GetTexture(textureName);
 
-            TextColor = color;
+            TextColor = TextColor;
             _currentColor = NormalColor;
 
-            _buttonBackground = new SpriteObject(spriteBatch, _textureId, x, y, width, height) 
+            _buttonBackground = new SpriteObject( _textureId, x, y, width, height) 
             { 
                 
             };
 
-            _textObject = new TextObject(textRenderer, text, x, y, 1f)
+            _textObject = new TextObject(text, x, y, 1f)
             {
                 Color = TextColor,
                 ScaleMultiply = TextScale,
@@ -67,7 +66,7 @@ namespace TappiruCS.UI
                 AllowHover = false
             };
 
-            _imageObject = new SpriteObject(spriteBatch, 0, x, y, 1f, 1f)
+            _imageObject = new SpriteObject(0, x, y, 1f, 1f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Active = false
@@ -135,6 +134,8 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
+            if (SB == null) return;
+
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
             float sLeft = dLeft * CanvasScale.X;
             float sTop = dTop * CanvasScale.Y;

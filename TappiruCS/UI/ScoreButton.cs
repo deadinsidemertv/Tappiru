@@ -21,8 +21,8 @@ namespace TappiruCS.UI
 
         public int grade;
 
-        public ScoreButton(SpriteBatch spriteBatch, TextRender textRenderer, float x, float y, PlayerScore score)
-            : base(spriteBatch, textRenderer, x, y, 700, 100, "", "", Color4.White)
+        public ScoreButton(float x, float y, PlayerScore score)
+            : base(x, y, 700, 100, "", "")
         {
             _scoreData = score;
             Tag = "scorebutton";
@@ -47,42 +47,42 @@ namespace TappiruCS.UI
             // === Аватар ===
             if (PlayerProfile.Instance.IsLoggedIn)
             {
-                Avatar = new SpriteObject(spriteBatch, PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
+                Avatar = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
                 {
                     Pivot = new Vector2(0.5f, 0.5f)
                 };
             }
             else
             {
-                Avatar = new SpriteObject(spriteBatch, TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
+                Avatar = new SpriteObject(TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
                 {
                     Pivot = new Vector2(0.5f, 0.5f)
                 };
             }
 
             // === Грейд — сразу справа от аватарки ===
-            Grade = new SpriteObject(spriteBatch, grade, Position.X - 58, Position.Y, 37, 44)
+            Grade = new SpriteObject(grade, Position.X - 58, Position.Y, 37, 44)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f
             };
 
             // === Тексты ===
-            PlayerNameText = new TextObject(textRenderer, "", Position.X-10, Position.Y-50, 1f)
+            PlayerNameText = new TextObject("", Position.X-10, Position.Y-50, 1f)
             {
                 ScaleMultiply = 0.29f,
                 Align = TextRender.TextAlign.Left,
                 Color = Color4.White
             };
 
-            ScoreComboText = new TextObject(textRenderer, "", Position.X - 10, Position.Y, 1f)
+            ScoreComboText = new TextObject("", Position.X - 10, Position.Y, 1f)
             {
                 ScaleMultiply = 0.245f,
                 Align = TextRender.TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f)
             };
 
-            AccuracyText = new TextObject(textRenderer, "", Position.X+324, Position.Y+19, 1f)
+            AccuracyText = new TextObject("", Position.X+324, Position.Y+19, 1f)
             {
                 ScaleMultiply = 0.22f,
                 Align = TextRender.TextAlign.Right,

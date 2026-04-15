@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using static TappiruCS.Render.TextRender;
 
@@ -11,10 +12,6 @@ namespace TappiruCS.UI
 {
     public class InputField : GameObject
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRender;
-        private readonly Game _game;
-
         private readonly int _bgTextureId;
 
         private readonly SpriteObject InputBackground;
@@ -39,34 +36,28 @@ namespace TappiruCS.UI
             set { _input = value ?? ""; UpdateDisplayedText(); }
         }
 
-        public InputField(Game game, SpriteBatch spriteBatch, TextRender textRenderer,
-                          float x, float y, float width, float height)
+        public InputField(float x, float y, float width, float height)
         {
-            _game = game ?? throw new ArgumentNullException(nameof(game));
-            _spriteBatch = spriteBatch ?? throw new ArgumentNullException(nameof(spriteBatch));
-            _textRender = textRenderer ?? throw new ArgumentNullException(nameof(textRenderer));
-
-            _bgTextureId = TextureManager.GetTexture("btn");
-
             Position = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            InputBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height)
+            _bgTextureId = TextureManager.GetTexture("btn");
+
+            InputBackground = new SpriteObject(_bgTextureId, x, y, width, height)
             {
                 ScaleMultiply = 1f,
                 Color = new Color4(0.2f, 0.2f, 0.25f, 1f)
             };
 
-            // Фон выделения (голубой)
-            _selectionBackground = new SpriteObject(spriteBatch, _bgTextureId, x, y, width, height)
+            _selectionBackground = new SpriteObject(_bgTextureId, x, y, width, height)
             {
                 ScaleMultiply = 1f,
-                Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),  // красивый голубойб
+                Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
                 Pivot = new Vector2(0.0f, 0.0f),
                 Active = false
             };
 
-            InputText = new TextObject(textRenderer, "", x, y, 1f)
+            InputText = new TextObject("", x, y, 1f)
             {
                 ScaleMultiply = 0.3f,
                 Color = Color4.White,
@@ -75,7 +66,7 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(textRenderer, PlaceHolderText, x, y, 1f)
+            PlaceHolder = new TextObject(PlaceHolderText, x, y, 1f)
             {
                 ScaleMultiply = 0.3f,
                 Color = PlaceHolderColor,
@@ -83,13 +74,21 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0f, 0f),
             };
 
-            _game.KeyDown += HandleKeyDown;
-            _game.TextInput += HandleTextInput;
-
             AddChild(InputBackground);
             AddChild(_selectionBackground);
             AddChild(PlaceHolder);
             AddChild(InputText);
+
+        }
+
+        protected override void OnContextSet()
+        {
+            Console.WriteLine($"[InputField] OnContextSet called for InputField at position {Position}");
+            if (Game != null)
+            {
+                Game.KeyDown += HandleKeyDown;
+                Game.TextInput += HandleTextInput;
+            }
         }
 
         private void HandleTextInput(TextInputEventArgs e)
@@ -249,8 +248,11 @@ namespace TappiruCS.UI
 
         public void Dispose()
         {
-            _game.KeyDown -= HandleKeyDown;
-            _game.TextInput -= HandleTextInput;
+            if (Game != null)
+            {
+                Game.KeyDown -= HandleKeyDown;
+                Game.TextInput -= HandleTextInput;
+            }
         }
     }
 }

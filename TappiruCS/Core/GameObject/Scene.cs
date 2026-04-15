@@ -1,12 +1,14 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.Core.Tween;
+using TappiruCS.Tween;
 
-namespace TappiruCS.Core
+namespace TappiruCS.Core.GameObject
 {
     public class Scene
     {
         public static Scene Current { get; private set; }
+
+        public RenderContext RenderContext { get; private set; }
 
         public List<GameObject> _objects = new List<GameObject>();
 
@@ -19,15 +21,35 @@ namespace TappiruCS.Core
 
         public TweenManager TweenManager { get; } = new TweenManager();
 
-        public void Add(GameObject obj) => _objects.Add(obj);
+        public void Initialize(RenderContext renderContext)
+        {
+            RenderContext = renderContext ?? throw new ArgumentNullException(nameof(renderContext));
+
+            foreach (var obj in _objects)
+            {
+                obj.SetRenderContext(renderContext);
+            }
+        }
+        public void Add(GameObject obj)
+        {
+            if (obj == null) return;
+
+            Console.WriteLine($"[SCENE ADD] {obj.GetType().Name} | Context was: {(obj.Context != null ? "SET" : "NULL")}");
+
+            if (RenderContext != null)
+                obj.SetRenderContext(RenderContext);
+            else
+                Console.WriteLine($"[WARNING] Adding {obj.GetType().Name} while RenderContext is still NULL!");
+
+            _objects.Add(obj);
+        }
         public void Remove(GameObject obj) => _objects.Remove(obj);
         public void Clear() => _objects.Clear();
 
         public Scene()
         {
-            Current = this;        // Когда создаётся сцена — она становится текущей
+            Current = this;        
         }
-        // Новая версия Update с MouseState
         public void Update(double deltaTime, MouseState mouse, Game _game)
         {
             for (int i = 0; i < _objects.Count; i++)
@@ -35,7 +57,7 @@ namespace TappiruCS.Core
                 var obj = _objects[i];
                 if (!obj.Active) continue;
                 obj.CanvasScale = CanvasScale;
-                obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
+                obj.Update(deltaTime,mouse);   
 
             }
 

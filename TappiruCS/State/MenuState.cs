@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using System;
 using System.Threading.Tasks;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server;
@@ -15,10 +16,7 @@ namespace TappiruCS.State
 {
     public class MenuState : IGameState
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly AudioManager _audio;
+        private readonly RenderContext _context;
         private readonly Scene _scene = new Scene();
 
         // Login UI
@@ -32,17 +30,16 @@ namespace TappiruCS.State
         private SpriteObject _avatarSprite;
         private SpriteObject _avatarBackground;
 
-        public MenuState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
+        public MenuState(RenderContext context)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            _audio = audio;
+            _context = context;
         }
 
         public void OnEnter()
         {
-            PlayerProfile.Instance.Initialize(_game);
+            _scene.Initialize(_context);
+
+            PlayerProfile.Instance.Initialize(_context.Game);
 
             AddBackgroundAndDecorations();
             CreateUI();
@@ -72,14 +69,14 @@ namespace TappiruCS.State
             Random rnd = new Random();
             int randomsong = rnd.Next(0, folders.Length);
             SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
-            _audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
-            _audio.Play();
+            _context.Audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
+            _context.Audio.Play();
 
         }
         private void CreateUI()
         {
             // Login fields
-            _loginInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 535, 500, 70)
+            _loginInput = new InputField(350, 535, 500, 70)
             {
                 PlaceHolderText = "login",
                 Layer = 4,
@@ -87,7 +84,7 @@ namespace TappiruCS.State
 
             };
 
-            _passwordInput = new InputField(_game, _spriteBatch, _textRenderer, 350, 615, 500, 70)
+            _passwordInput = new InputField(350, 615, 500, 70)
             {
                 PlaceHolderText = "password",
                 IsPassword = true,
@@ -95,7 +92,7 @@ namespace TappiruCS.State
                 
             };
 
-            _loginButton = new Button(_spriteBatch, _textRenderer, 350, 695, 250, 70, "button", "Войти", Color4.White)
+            _loginButton = new Button(350, 695, 250, 70, "button", "Войти")
             {
                 Layer = 4,
                 TextColor = Color4.White,
@@ -119,20 +116,20 @@ namespace TappiruCS.State
 
         private void AddBackgroundAndDecorations()
         {
-            var bg = new Background(_spriteBatch, TextureManager.GetTexture("menubg"), _game) { ParalaxEffect = true };
-            var logo = new SpriteObject(_spriteBatch, TextureManager.GetTexture("logo"), 960, 300, 606, 256)
+            var bg = new Background(TextureManager.GetTexture("menubg")) { ParalaxEffect = true };
+            var logo = new SpriteObject(TextureManager.GetTexture("logo"), 960, 300, 606, 256)
             {
                 ScaleMultiply = 1.1f
             };
 
             int blackTex = TextureManager.GetTexture("black");
-            var blackTop = new SpriteObject(_spriteBatch, blackTex, 960, 0, 2000, _game.ClientSize.Y / 3)
+            var blackTop = new SpriteObject(blackTex, 960, 0, 2000, _context.Game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,
                 Opacity = 0.6f
             };
-            var blackBottom = new SpriteObject(_spriteBatch, blackTex, 960, 1080, 2000, _game.ClientSize.Y / 3)
+            var blackBottom = new SpriteObject(blackTex, 960, 1080, 2000, _context.Game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,
@@ -147,7 +144,7 @@ namespace TappiruCS.State
 
         private Button CreateMenuButton(int y, string text, Action? onClick)
         {
-            var btn = new Button(_spriteBatch, _textRenderer, 960, y, 700, 120, "button", text, Color4.White)
+            var btn = new Button(960, y, 700, 120, "button", text)
             {
                 Layer = 2,
                 TextAlign = TextRender.TextAlign.Center,
@@ -210,14 +207,14 @@ namespace TappiruCS.State
 
             if (_welcomeText == null)
             {
-                _welcomeText = new TextObject(_textRenderer, "", 250, 460, 0.5f)
+                _welcomeText = new TextObject("", 250, 460, 0.5f)
                 {
                     Align = TextRender.TextAlign.Left,
                     Color = Color4.White,
                     Layer = 3
                 };
 
-                _ratingText = new TextObject(_textRenderer, "", 250, 540, 0.35f)
+                _ratingText = new TextObject("", 250, 540, 0.35f)
                 {
                     Align = TextRender.TextAlign.Left,
                     Color = Color4.White,
@@ -236,12 +233,12 @@ namespace TappiruCS.State
             {
                 if (_avatarSprite == null)
                 {
-                    _avatarBackground = new SpriteObject(_spriteBatch, TextureManager.GetTexture("black"), 360, 540, 520, 150)
+                    _avatarBackground = new SpriteObject(TextureManager.GetTexture("black"), 360, 540, 520, 150)
                     {
                         Color = new Color4(1f, 1f, 1f, 0.5f)
                     };
 
-                    _avatarSprite = new SpriteObject(_spriteBatch, PlayerProfile.Instance.AvatarTextureId, 180, 540, 130, 130)
+                    _avatarSprite = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, 180, 540, 130, 130)
                     {
                         Layer = 3
                     };
@@ -273,8 +270,8 @@ namespace TappiruCS.State
 
         public void Update(double deltaTime)
         {
-            var mouse = _game.MouseState;
-            _scene.Update(deltaTime, mouse, _game);
+            var mouse = _context.Game.MouseState;
+            _scene.Update(deltaTime, mouse, _context.Game);
         }
 
         public void Render(Matrix4 projection)
@@ -291,8 +288,8 @@ namespace TappiruCS.State
 
         public void HandleKeyDown(KeyboardKeyEventArgs e) { }
 
-        private void StartGame() => _game.ChangeState(new SongSelectState(_game, _spriteBatch, _textRenderer, _audio));
-        private void GoEdit() => _game.ChangeState(new EditState(_game, _spriteBatch, _textRenderer, _audio));
-        private void ExitGame() => _game.Close();
+        private void StartGame() => _context.Game.ChangeState(new SongSelectState(_context));
+        private void GoEdit() => _context.Game.ChangeState(new EditState(_context));
+        private void ExitGame() => _context.Game.Close();
     }
 }

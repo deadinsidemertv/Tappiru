@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace TappiruCS.Core
+namespace TappiruCS.Core.GameObject
 {
     public interface IGameObject : IUpdatable, IRenderable
     {

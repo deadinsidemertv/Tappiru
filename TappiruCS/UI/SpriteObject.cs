@@ -1,32 +1,32 @@
-﻿using OpenTK.Mathematics;
-using TappiruCS.Core;
-using TappiruCS.Render;
+﻿// UI/SpriteObject.cs
+using OpenTK.Mathematics;
+using TappiruCS.Core.GameObject;
 
 namespace TappiruCS.UI
 {
     public class SpriteObject : GameObject
     {
-        public SpriteBatch _spriteBatch;
         public int _textureId;
         public Color4 Color { get; set; } = Color4.White;
 
-        public SpriteObject(SpriteBatch spriteBatch, int _textureID, float x, float y, float scaleX, float scaleY)
+        public SpriteObject(int textureId, float x, float y, float scaleX, float scaleY)
         {
-            _spriteBatch = spriteBatch;
+            _textureId = textureId;
             Position = new Vector2(x, y);
             Scale = new Vector2(scaleX, scaleY);
-            _textureId = _textureID;
         }
 
         public override void Draw(Matrix4 projection)
         {
-            if (!Active) return;
+            // Самая жёсткая защита именно здесь, потому что SpriteObject — самый частый
+            if (!Active || Context == null || SB == null)
+                return;
 
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
 
             if (AutoScale)
             {
-                _spriteBatch.Draw(_textureId,
+                SB.Draw(_textureId,
                     dLeft * CanvasScale.X,
                     dTop * CanvasScale.Y,
                     effW * CanvasScale.X,
@@ -37,7 +37,7 @@ namespace TappiruCS.UI
             }
             else
             {
-                _spriteBatch.Draw(_textureId,
+                SB.Draw(_textureId,
                     dLeft,
                     dTop,
                     effW,

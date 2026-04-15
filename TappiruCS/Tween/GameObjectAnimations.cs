@@ -1,7 +1,8 @@
-﻿using TappiruCS.Core;
-using TappiruCS.Core.Tween;
-using TappiruCS.Core.Tween.Animations;
+﻿using TappiruCS.Core.GameObject;
+using TappiruCS.Tween.Animation;
 
+namespace TappiruCS.Tween 
+{
 public static class GameObjectAnimations
 {
     public static BaseTween AnimScale(this GameObject obj, float multiplier, float duration = 0.2f)
@@ -31,4 +32,5 @@ public static class GameObjectAnimations
     {
         Scene.Current?.TweenManager.RemoveAllFor(obj);
     }
+}
 }

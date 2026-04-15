@@ -1,16 +1,13 @@
 ﻿using Gtk;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI
 {
     public class ScrollList : GameObject
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-
         public float ScaleMultiplyList = 0.7f;
         public float ScrollSpeed = 140f;
         public float Smoothness = 16f;           // плавность
@@ -39,11 +36,8 @@ namespace TappiruCS.UI
         public int SelectedIndex { get; private set; } = -1;
 
         public event Action<ListElementButton> OnSelectionChanged;   // опционально, если нужно уведомлять
-        public ScrollList(SpriteBatch spriteBatch, TextRender textRenderer,
-                          float x, float y, float width, float height)
+        public ScrollList(float x, float y, float width, float height)
         {
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
             Position = new Vector2(x, y);
             _visibleHeight = 400;
 

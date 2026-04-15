@@ -1,15 +1,12 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI
 {
     public class Slider : GameObject
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRender;
-
         public SpriteObject point;
         public SpriteObject line;
 
@@ -27,12 +24,8 @@ namespace TappiruCS.UI
 
         public bool _isDragging = false;
 
-        public Slider(SpriteBatch spritebatch, TextRender textrender,
-                      float min, float max, float x, float y, float width)
+        public Slider(float min, float max, float x, float y, float width)
         {
-            _spriteBatch = spritebatch;
-            _textRender = textrender;
-
             minValue = min;
             maxValue = max;
             Value = Math.Clamp(Value, min, max);
@@ -40,21 +33,21 @@ namespace TappiruCS.UI
             int lineTexture = TextureManager.GetTexture("slider_line");
 
             // === Линия ===
-            line = new SpriteObject(_spriteBatch, lineTexture, x, y, width, 8)
+            line = new SpriteObject(lineTexture, x, y, width, 8)
             {
                 Color = new Color4(0.3f, 0.3f, 0.3f, 1f),
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
             // === Ползунок ===
-            point = new SpriteObject(_spriteBatch, lineTexture, x, y, 16, 40)
+            point = new SpriteObject(lineTexture, x, y, 16, 40)
             {
                 Color = Color4.Black,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
             // === Тексты (локальный ScaleMultiply) ===
-            minValueText = new TextObject(_textRender, min.ToString("F0"), x - width / 2f, y , 1f)
+            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y , 1f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -62,7 +55,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            maxValueText = new TextObject(_textRender, max.ToString("F0"), x + width / 2f, y, 1f)
+            maxValueText = new TextObject(max.ToString("F0"), x + width / 2f, y, 1f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -70,7 +63,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            ValueText = new TextObject(_textRender, Value.ToString("F1"), x, y, 1f)
+            ValueText = new TextObject(Value.ToString("F1"), x, y, 1f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.2f,
@@ -166,19 +159,15 @@ namespace TappiruCS.UI
 
         private void UpdateVisuals()
         {
-            // Получаем актуальные границы ползунка (с учётом всех масштабов)
             var (pointLeft, pointTop, pointWidth, pointHeight) = point.GetDesignBounds();
-
-            // Фиксированный отступ от верхней границы ползунка вверх
-            // Это значение почти не зависит от размера текста
-            const float baseOffset = 5f;                    // основное расстояние от ползунка до текста
-            float extraOffset = 12f * ValueText.ScaleMultiply; // небольшой дополнительный отступ, зависящий от размера текста
+            const float baseOffset = 5f;                    
+            float extraOffset = 12f * ValueText.ScaleMultiply;
 
             float finalOffsetY = baseOffset + extraOffset;
 
             ValueText.Position = new Vector2(
-                point.Position.X,                    // точно по центру ползунка по X
-                pointTop - finalOffsetY              // выше верхней границы ползунка
+                point.Position.X,                 
+                pointTop - finalOffsetY              
             );
 
             ValueText.Text = Value.ToString("F1");

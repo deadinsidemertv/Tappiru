@@ -2,7 +2,7 @@
 
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
 namespace TappiruCS.UI
@@ -13,14 +13,12 @@ namespace TappiruCS.UI
         public Color4 Color { get; set; } = Color4.White;
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
-        public readonly TextRender _textRender;
         public Action<Vector2>? OnClick { get; set; }
 
         public bool FixedColor { get; set; } = false;
 
-        public TextObject(TextRender textRender, string text, float x, float y, float scale = 1f)
+        public TextObject(string text, float x, float y, float scale = 1f)
         {
-            _textRender = textRender;
             Text = text;
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
@@ -50,7 +48,7 @@ namespace TappiruCS.UI
 
         public override bool IsPointInside(float worldX, float worldY)
         {
-            if (string.IsNullOrEmpty(Text) || _textRender == null)
+            if (string.IsNullOrEmpty(Text) || TR == null)
                 return false;
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
@@ -59,7 +57,7 @@ namespace TappiruCS.UI
             float localMouseX = worldX - dLeft;
             float localMouseY = worldY - dTop;
 
-            return _textRender.TryGetCharIndexAtPoint(
+            return TR.TryGetCharIndexAtPoint(
                 Text,
                 localMouseX,
                 localMouseY,
@@ -72,11 +70,15 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            if (string.IsNullOrEmpty(Text) || !Active) return;
+            if (Context == null)
+            {
+                Console.WriteLine($"[NULL CONTEXT] {GetType().Name} | Parent: {Parent?.GetType().Name ?? "null"}");
+                return;
+            }
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
 
-            _textRender.DrawString(
+            TR.DrawString(
                 Text,
                 dLeft * CanvasScale.X,
                 dTop * CanvasScale.Y,

@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Text.Json;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server.Player;
@@ -13,15 +14,12 @@ namespace TappiruCS.State
 {
     public class SongSelectState : IGameState
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly TextRender _manrope;
-        private readonly AudioManager _audio;
+        private readonly RenderContext _context;
 
         public static MapData SelectedMap;
 
         private readonly Scene _scene = new Scene();
+        private readonly TextRender _manrope;
 
         public Background bg;
 
@@ -41,19 +39,14 @@ namespace TappiruCS.State
 
         List<PlayerScore> topScores;
 
-        public SongSelectState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio)
+        public SongSelectState(RenderContext context)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            //_textRenderer = new TextRender(spriteBatch, "Textures\\Font\\manrope.fnt");
-            _audio = audio;
+            _context = context;
         }
         
         public void OnEnter()
         {
-           
-            Console.WriteLine("Открыт выбор песни (SongSelectState)");
+            _scene.Initialize(_context);
 
             string[] folders = Directory.GetDirectories("Songs/");
 
@@ -81,7 +74,7 @@ namespace TappiruCS.State
                 .ToList();
 
             // === 3. Создаём кнопки в отсортированном порядке ===
-            list = new ScrollList(_spriteBatch, _textRenderer, 1600, 400, 1400, 400)
+            list = new ScrollList(1600, 400, 1400, 400)
             {
                 Layer = 1,
                 Opacity = 0.8f,
@@ -98,8 +91,7 @@ namespace TappiruCS.State
                 string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
                                   ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
 
-                var button = new ListElementButton(_spriteBatch, _textRenderer,
-                    0, 0, 1400, 212, "SongButton", displayName, Color4.White, mapData)
+                var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, mapData)
                 {
                     TextScale = 0.3f,
                     TextAlign = TextRender.TextAlign.Right,
@@ -123,34 +115,33 @@ namespace TappiruCS.State
             }
 
 
-            bg = new Background(_spriteBatch, _bgPreview, _game) { Layer = 0, AllowHover = false, ParalaxEffect = true };
-            var bgblack = new Background(_spriteBatch, 0, _game) { AllowHover = false, Opacity = 0.5f };
+            bg = new Background( _bgPreview ) { Layer = 0, AllowHover = false, ParalaxEffect = true };
+            var bgblack = new Background( 0 ) { AllowHover = false, Opacity = 0.5f };
 
             _scene.Add(bg);
             _scene.Add(bgblack);
 
-            var UserName = new TextObject(_textRenderer, PlayerProfile.Instance.UserName, 1050, 965, 0.26f) { Layer = 3 };
-            var UserAvatar = new SpriteObject(_spriteBatch, PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
+            var UserName = new TextObject( PlayerProfile.Instance.UserName, 1050, 965, 0.26f) { Layer = 3 };
+            var UserAvatar = new SpriteObject( PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
 
             _scene.Add(UserName);
             _scene.Add(UserAvatar);
             int _songSelectorTop = TextureManager.GetTexture("SongSelectorTop");
-            SongSelectorTop = new SpriteObject(_spriteBatch, _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+            SongSelectorTop = new SpriteObject( _songSelectorTop, 960, 110, 1920, 220) { Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
 
 
-            MapTitle = new TextObject(_textRenderer, "", 10, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            Creator = new TextObject(_textRenderer, "", 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            MetaData = new TextObject(_textRenderer, "", 10, 90, 0.30f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MapTitle = new TextObject( "", 10, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            Creator = new TextObject( "", 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MetaData = new TextObject( "", 10, 90, 0.30f) { Layer = 3, Align = TextRender.TextAlign.Left };
 
 
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
-            SelectionMode = new SpriteObject(_spriteBatch, _selectionmode, 1120, 930, 2140, 400) { ScaleMultiply = 0.75f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
+            SelectionMode = new SpriteObject( _selectionmode, 1120, 930, 2140, 400) { ScaleMultiply = 0.75f, Color = new Color4(1f, 1f, 1f, 1f), AutoScale = true, Layer = 2, AllowHover = false };
 
 
-            var playButton = new Button(_spriteBatch, _textRenderer,
-                1766, 938, 500, 500, "playButton", "Play", Color4.White)   // "btn" — имя текстуры через TextureManager
+            var playButton = new Button(1766, 938, 500, 500, "playButton", "Play")  
             {
                 Layer = 2,
                 TextColor = new Color4(0f, 0f, 0f, 0f),
@@ -161,8 +152,7 @@ namespace TappiruCS.State
 
 
             };
-            var backButton = new Button(_spriteBatch, _textRenderer,
-                160, 1011.8f, 449, 192, "back", "", Color4.White)   // "btn" — имя текстуры через TextureManager
+            var backButton = new Button(160, 1011.8f, 449, 192, "back", "")   // "btn" — имя текстуры через TextureManager
             {
                 Layer = 2,
                 TextColor = new Color4(0f, 0f, 0f, 0f),
@@ -195,8 +185,8 @@ namespace TappiruCS.State
         public void PlaySong(string SongPath)
         {
             Console.WriteLine("игра началась");
-            _audio.PlaySoundEffect("matchStart");
-            _game.ChangeState(new GameSessionState(_game, _spriteBatch, _textRenderer, _audio, SelectedMap));
+            _context.Audio.PlaySoundEffect("matchStart");
+            _context.Game.ChangeState(new GameSessionState(_context, SelectedMap));
         }
 
         List<ScoreButton> _rankingButtons = new List<ScoreButton>();
@@ -218,7 +208,7 @@ namespace TappiruCS.State
             for (int i = 0; i < Math.Min(scores.Count, maxItems); i++)
             {
                 var currentScore = scores[i];
-                var button = new ScoreButton(_spriteBatch, _textRenderer, 180, startY + i * spacing, scores[i])
+                var button = new ScoreButton(180, startY + i * spacing, scores[i])
                 {
                     Layer = 3,
                     Position = new Vector2(180, startY + i * spacing),
@@ -251,7 +241,7 @@ namespace TappiruCS.State
                 _maxCobmo = 0
             };
 
-            var btn = new ScoreButton(_spriteBatch, _textRenderer, 180, y, emptyScore)
+            var btn = new ScoreButton(180, y, emptyScore)
             {
                 Layer = 3,
                 Position = new Vector2(180, y)
@@ -266,7 +256,7 @@ namespace TappiruCS.State
 
         public void CheckScore(PlayerScore score)
         {
-            _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio,score,SelectedMap));
+            _context.Game.ChangeState(new ScoreBoardState(_context,score,SelectedMap));
         }
         public async Task SelectSong(string SP)
         {
@@ -274,7 +264,7 @@ namespace TappiruCS.State
 
             Console.WriteLine($"[SelectSong] Начало для {SP}");
 
-            _audio.Stop();
+            _context.Audio.Stop();
 
             MapData tempMap = null;
             string bgPath = null;
@@ -297,7 +287,7 @@ namespace TappiruCS.State
 
             Console.WriteLine("[SelectSong] Вернулись в главный поток, вызываем InvokeOnMainThread");
 
-            _game.InvokeOnMainThread(() =>
+            _context.Game.InvokeOnMainThread(() =>
             {
                 Console.WriteLine("[SelectSong] Выполняется в главном потоке");
 
@@ -337,15 +327,15 @@ namespace TappiruCS.State
                 Console.WriteLine($"[SelectSong] Текстура загружена за {watch.ElapsedMilliseconds} мс");
 
                 Console.WriteLine("[SelectSong] Загружаем музыку...");
-                _audio.LoadMusic(SelectedMap.audioPath);
-                _audio.Play();
+                _context.Audio.LoadMusic(SelectedMap.audioPath);
+                _context.Audio.Play();
 
                 Console.WriteLine("[SelectSong] Обновляем текст...");
 
                 MapTitle.Text = SelectedMap.title + $" - [{SelectedMap.artist}]";
                 Creator.Text = "Автор: " + SelectedMap.creator;
 
-                int totalSeconds = (int)_audio.Duration;
+                int totalSeconds = (int)_context.Audio.Duration;
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
                 MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count} Сложность:{SelectedMap.StarRating}";
@@ -365,12 +355,12 @@ namespace TappiruCS.State
         public void Update(double currentTime)
         {
 
-            var mouse = _game.MouseState;
-            _scene.Update(currentTime, mouse, _game);
+            var mouse = _context.Game.MouseState;
+            _scene.Update(currentTime, mouse, _context.Game);
         }
         public void BackMenu()
         {
-            _game.ChangeState(new MenuState(_game, _spriteBatch, _textRenderer, _audio));
+            _context.Game.ChangeState(new MenuState(_context));
         }
         public void Render(Matrix4 projection)
         {
@@ -388,7 +378,7 @@ namespace TappiruCS.State
         {
             if (e.Key == Keys.Backspace)
             {
-                _game.ChangeState(new MenuState(_game, _spriteBatch, _textRenderer, _audio));
+                _context.Game.ChangeState(new MenuState(_context));
             }
 
         }

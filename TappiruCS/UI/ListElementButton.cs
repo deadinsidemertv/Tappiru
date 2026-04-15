@@ -14,13 +14,13 @@ namespace TappiruCS.UI
         public readonly SpriteObject fade;
         public readonly List<SpriteObject> StarRating;
 
-        public ListElementButton(SpriteBatch spriteBatch, TextRender textRenderer,
+        public ListElementButton(
                           float x, float y, float width, float height,
-                          string textureName, string text, Color4 color,JsonMap mapdata)
-            : base(spriteBatch, textRenderer, x, y, width, height, textureName, text, color)
+                          string textureName, string text,JsonMap mapdata)
+            : base(x, y, width, height, textureName, text)
         {
             Tag = "List";
-            fade = new SpriteObject(spriteBatch, TextureManager.GetTexture("slider_line"), x, y, width, height - 10)
+            fade = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, width, height - 10)
             {
                 Color = new Color4(0.212f, 0, 0.106f, Opacity)
             };
@@ -28,11 +28,11 @@ namespace TappiruCS.UI
             int fullStars = (int)Math.Floor(mapdata.StarRating);
             for (int i = 0; i < fullStars; i++)
             {
-                StarRating.Add(new SpriteObject(spriteBatch, TextureManager.GetTexture("starRait"), x+i*15, y, 30, 30));
+                StarRating.Add(new SpriteObject(TextureManager.GetTexture("starRait"), x+i*15, y, 30, 30));
                 AddChild(StarRating[i]);
             }
             float fraction = mapdata.StarRating - (int)Math.Floor(mapdata.StarRating);
-            StarRating.Add(new SpriteObject(spriteBatch, TextureManager.GetTexture("starRait"), x, y, 30, 30) { ScaleMultiply = fraction});
+            StarRating.Add(new SpriteObject(TextureManager.GetTexture("starRait"), x, y, 30, 30) { ScaleMultiply = fraction});
 
 
             AddChild(StarRating[StarRating.Count-1]);
@@ -66,8 +66,6 @@ namespace TappiruCS.UI
         public override void Draw(Matrix4 projection)
         {
             base.Draw(projection);
-
-
         }
 
         public void SetIndex(int index)

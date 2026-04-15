@@ -1,6 +1,6 @@
 ﻿// UI/ScoreBarUI.cs
 using OpenTK.Mathematics;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using static TappiruCS.Render.TextRender;
@@ -24,24 +24,24 @@ namespace TappiruCS.UI
         {
             _textRenderer = textRenderer;
 
-            _scoreText = new TextObject(textRenderer, "000000000", 1900, 0, 0.35f)
+            _scoreText = new TextObject("000000000", 1900, 0, 0.35f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
 
-            _accuracyText = new TextObject(textRenderer, "100.00%", 1840, 40, 0.3f)
+            _accuracyText = new TextObject("100.00%", 1840, 40, 0.3f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Center
             };
 
-            _comboText = new TextObject(textRenderer, "0", 70, 900, 0.7f)
+            _comboText = new TextObject("0", 70, 900, 0.7f)
             {
                 Align = TextAlign.Left
             };
 
-            _comboXText = new TextObject(textRenderer, "x", 55, 915, 0.4f);
+            _comboXText = new TextObject("x", 55, 915, 0.4f);
         }
 
         // Метод обновления — принимает session каждый кадр

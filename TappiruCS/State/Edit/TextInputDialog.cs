@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.UI;
 
@@ -8,9 +8,7 @@ namespace TappiruCS.State.Edit
 {
     internal class TextInputDialog
     {
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
+        private readonly RenderContext _context;
         private readonly Scene _scene;
         private readonly string _title;
         private readonly Action<string> _onOk;
@@ -20,12 +18,10 @@ namespace TappiruCS.State.Edit
         private InputField _input = null!;
         private Button _okButton = null!;
 
-        public TextInputDialog(Game game, SpriteBatch spriteBatch, TextRender textRenderer, Scene scene,
+        public TextInputDialog(RenderContext context, Scene scene,
                                string title, Action<string> onOk, Action onClose)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
+            _context = context;
             _scene = scene;
             _title = title;
             _onOk = onOk;
@@ -34,14 +30,14 @@ namespace TappiruCS.State.Edit
 
         public void Show()
         {
-            _panel = new SpriteObject(_spriteBatch, TextureManager.GetTexture("module"), 960, 540, 1100, 400);
+            _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 1100, 400);
 
-            _input = new InputField(_game, _spriteBatch, _textRenderer, 960, 520, 900, 80)
+            _input = new InputField(960, 520, 900, 80)
             {
                 PlaceHolderText = _title
             };
 
-            _okButton = new Button(_spriteBatch, _textRenderer, 960, 650, 300, 90, "button", "OK", Color4.White)
+            _okButton = new Button(960, 650, 300, 90, "button", "OK")
             {
                 ScaleMultiply = 0.7f,
                 Layer = 2

@@ -1,6 +1,8 @@
 ﻿using OpenTK.Mathematics;
+using TappiruCS.Core.GameObject;
+using TappiruCS.Tween;
 
-namespace TappiruCS.Core.Tween.Animations
+namespace TappiruCS.Tween.Animation
 {
     public class ScaleAnim : BaseTween
     {

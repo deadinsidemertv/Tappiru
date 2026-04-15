@@ -1,4 +1,6 @@
-﻿namespace TappiruCS.Core.Tween
+﻿using TappiruCS.Core.GameObject;
+
+namespace TappiruCS.Tween
 {
     public class TweenManager
     {

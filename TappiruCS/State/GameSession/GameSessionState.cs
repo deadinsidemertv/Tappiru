@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server.Player;
@@ -13,10 +14,7 @@ namespace TappiruCS.State
     public class GameSessionState : IGameState
     {
         // === Зависимости ===
-        private readonly Game _game;
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly AudioManager _audio;
+        private readonly RenderContext _context;
 
         // === Данные игры ===
         public GameSession session;
@@ -34,21 +32,18 @@ namespace TappiruCS.State
         // === Состояние ввода ===
         private readonly HashSet<Keys> _pressedKeys = new HashSet<Keys>();
 
-        public GameSessionState(Game game, SpriteBatch spriteBatch, TextRender textRenderer, AudioManager audio, MapData mapdata)
+        public GameSessionState(RenderContext context, MapData mapdata)
         {
-            _game = game;
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            _audio = audio;
+            _context = context;
             _mapData = mapdata;
 
-            _phraseRenderer = new PhraseDisplayRenderer(spriteBatch, textRenderer, game, mapdata, audio);
-            _scoreBarUI = new ScoreBarUI(textRenderer); // session передадим позже
+            _phraseRenderer = new PhraseDisplayRenderer(context, mapdata);
+            _scoreBarUI = new ScoreBarUI(context.TextRenderer); 
         }
 
         public void OnEnter()
         {
-            Console.WriteLine("Запуск уровня");
+            _scene.Initialize(_context);
             InputMapping.Initialize();
 
             session = new GameSession(_mapData);
@@ -57,41 +52,41 @@ namespace TappiruCS.State
             int backgroundTex = TextureLoader.Load(_mapData.backGroundPath);
             int scoreBarTex = TextureManager.GetTexture("scorebg");
 
-            bg = new Background(_spriteBatch, backgroundTex, _game)
+            bg = new Background(backgroundTex)
             {
                 AutoBreathingParallax = true,
                 BreathingSpeed = 0.65f,
                 BreathingStrength = 12f
             };
 
-            Fade = new Background(_spriteBatch, 0, _game) { Opacity = 0.7f };
-            scorebarBG = new SpriteObject(_spriteBatch, scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
+            Fade = new Background(0) { Opacity = 0.7f };
+            scorebarBG = new SpriteObject(scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
 
-            _scoreBarUI = new ScoreBarUI(_textRenderer);   // передаём session
+            _scoreBarUI = new ScoreBarUI(_context.TextRenderer);   // передаём session
             _scoreBarUI.AddToScene(_scene);
 
             _scene.Add(bg);
             _scene.Add(Fade);
             _scene.Add(scorebarBG);
 
-            _audio.LoadMusic(_mapData.audioPath);
-            _audio.Play();
+            _context.Audio.LoadMusic(_mapData.audioPath);
+            _context.Audio.Play();
         }
 
         public void OnExit()
         {
-            _audio.Stop();
+            _context.Audio.Stop();
             _scene.Clear();
         }
 
         public void Update(double currentTime)
         {
-            _scene.Update(currentTime, _game.MouseState, _game);
+            _scene.Update(currentTime, _context.Game.MouseState, _context.Game);
 
             if (session == null) return;
 
-            float audioTime = _audio?.GetCurrentTime() ?? 0f;
-            session.Update(audioTime, _game.KeyboardState);
+            float audioTime = _context.Audio?.GetCurrentTime() ?? 0f;
+            session.Update(audioTime, _context.Game.KeyboardState);
 
             CheckForMapCompletion(audioTime);
             _scoreBarUI.Update(session, currentTime);
@@ -107,7 +102,7 @@ namespace TappiruCS.State
         {
             if (session == null) return;
 
-            double currentTime = _audio?.GetCurrentTime() ?? 0.0;
+            double currentTime = _context.Audio?.GetCurrentTime() ?? 0.0;
 
             if (!session.IsInputAllowed(currentTime)) return;
             if (_pressedKeys.Contains(e.Key)) return;
@@ -152,9 +147,9 @@ namespace TappiruCS.State
             };
 
             ScoreManager.AddScore(newScore);
-            _audio.Stop();
+            _context.Audio.Stop();
 
-            _game.ChangeState(new ScoreBoardState(_game, _spriteBatch, _textRenderer, _audio, newScore, _mapData));
+            _context.Game.ChangeState(new ScoreBoardState(_context, newScore, _mapData));
         }
     }
 }

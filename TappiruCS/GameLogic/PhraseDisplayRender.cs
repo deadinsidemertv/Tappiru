@@ -1,6 +1,6 @@
 ﻿// GameLogic/PhraseDisplayRenderer.cs
 using OpenTK.Mathematics;
-using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using static System.Collections.Specialized.BitVector32;
 using static TappiruCS.Render.TextRender;
@@ -9,11 +9,8 @@ namespace TappiruCS.GameLogic
 {
     public class PhraseDisplayRenderer
     {
-        private readonly SpriteBatch _spriteBatch;
-        private readonly TextRender _textRenderer;
-        private readonly Game _game;
+        private readonly RenderContext _context;
         private readonly MapData _mapData;
-        private readonly AudioManager _audio;
 
         // Константы слайдеров
         private static readonly Color4 SliderBarBackground = new Color4(0.18f, 0.18f, 0.18f, 1.0f);
@@ -22,13 +19,11 @@ namespace TappiruCS.GameLogic
         private static readonly Color4 SliderBarSuccess = new Color4(0.1f, 1.0f, 0.35f, 1.0f);
         private static readonly Color4 SliderBarOutline = new Color4(1f, 1f, 1f, 0.5f);
 
-        public PhraseDisplayRenderer(SpriteBatch spriteBatch, TextRender textRenderer, Game game, MapData mapData, AudioManager audio)
+        public PhraseDisplayRenderer(RenderContext context,MapData mapData)
         {
-            _spriteBatch = spriteBatch;
-            _textRenderer = textRenderer;
-            _game = game;
+            _context = context;
             _mapData = mapData;
-            _audio = audio;
+            
         }
 
         public void Draw(GameSession session, Matrix4 projection, float centerX, float y)
@@ -36,7 +31,7 @@ namespace TappiruCS.GameLogic
             if (session.CurrentPhaseChars == null || session.CurrentPhaseChars.Length == 0)
                 return;
 
-            double currentAudioTime = _audio?.GetCurrentTime() ?? 0.0;
+            double currentAudioTime = _context.Audio?.GetCurrentTime() ?? 0.0;
 
             bool isPhraseActive = currentAudioTime >= session.CurrentPhaseStartTime &&
                                   currentAudioTime <= session.CurrentPhaseEndTime;
@@ -44,7 +39,7 @@ namespace TappiruCS.GameLogic
             if (!isPhraseActive) return;
 
             string text = new string(session.CurrentPhaseChars);
-            float maxPixelWidth = _game.ClientSize.X * 0.85f;
+            float maxPixelWidth = _context.Game.ClientSize.X * 0.85f;
 
             float bestScale = CalculateBestTextScale(text, maxPixelWidth);
             float finalScaleX = bestScale * Scene.CanvasScale.X;
@@ -56,7 +51,7 @@ namespace TappiruCS.GameLogic
             Color4[] colors = ComputeCharColors(session, text, currentAudioTime);
             ApplyAlphaToColors(colors, alpha);
 
-            var charBounds = _textRenderer.GetCharBounds(text, centerX, y, Scene.CanvasScale, bestScale, 1.0f, TextAlign.Center);
+            var charBounds = _context.TextRenderer.GetCharBounds(text, centerX, y, Scene.CanvasScale, bestScale, 1.0f, TextAlign.Center);
             if (charBounds == null || charBounds.Length == 0) return;
 
             // 1. Рамки слайдеров
@@ -71,7 +66,7 @@ namespace TappiruCS.GameLogic
                 DrawCompletedPhraseGlow(text, centerX, y, bestScale, projection, currentAudioTime, alpha);
 
             // 4. Основной текст
-            _textRenderer.DrawStringWithCharColorsScaled(
+            _context.TextRenderer.DrawStringWithCharColorsScaled(
                 text, centerX, y, Scene.CanvasScale, bestScale, 1.0f, colors, projection, TextAlign.Center);
 
             // 5. Прогресс-бар холда
@@ -85,7 +80,7 @@ namespace TappiruCS.GameLogic
         {
             for (float testScale = 1.8f; testScale >= 0.5f; testScale -= 0.02f)
             {
-                float estimatedWidth = _textRenderer.CalculateTextWidth(text, testScale * Scene.CanvasScale.X);
+                float estimatedWidth = _context.TextRenderer.CalculateTextWidth(text, testScale * Scene.CanvasScale.X);
                 if (estimatedWidth <= maxPixelWidth)
                     return testScale;
             }
@@ -190,10 +185,10 @@ namespace TappiruCS.GameLogic
 
                 DrawGlow(rectX, rectY, rectW, rectH, borderColor, 0.3f, projection, currentTime);
 
-                _spriteBatch.DrawRect(rectX, rectY, rectW, thickness, borderColor, projection);
-                _spriteBatch.DrawRect(rectX, rectY + rectH - thickness, rectW, thickness, borderColor, projection);
-                _spriteBatch.DrawRect(rectX, rectY, thickness, rectH, borderColor, projection);
-                _spriteBatch.DrawRect(rectX + rectW - thickness, rectY, thickness, rectH, borderColor, projection);
+                _context.SpriteBatch.DrawRect(rectX, rectY, rectW, thickness, borderColor, projection);
+                _context.SpriteBatch.DrawRect(rectX, rectY + rectH - thickness, rectW, thickness, borderColor, projection);
+                _context.SpriteBatch.DrawRect(rectX, rectY, thickness, rectH, borderColor, projection);
+                _context.SpriteBatch.DrawRect(rectX + rectW - thickness, rectY, thickness, rectH, borderColor, projection);
             }
         }
 
@@ -208,7 +203,7 @@ namespace TappiruCS.GameLogic
             if (bounds.width <= 0 || bounds.height <= 0) return;
 
             char currentChar = text[currentCharIdx];
-            if (!_textRenderer.TryGetGlyph(currentChar, out var glyph)) return;
+            if (!_context.TextRenderer.TryGetGlyph(currentChar, out var glyph)) return;
 
             float baseX = bounds.x - glyph.XOffset * finalScaleX;
             float baseY = bounds.y - glyph.YOffset * finalScaleY;
@@ -262,7 +257,7 @@ namespace TappiruCS.GameLogic
                 float dy = (float)Math.Sin(angle) * outerOffsetVirtual;
 
                 Color4 col = new Color4(baseGlow.R * 0.7f, baseGlow.G * 0.7f, baseGlow.B * 0.7f, 0.08f * pulse * alpha);
-                _textRenderer.DrawStringWithCharColorsScaled(
+                _context.TextRenderer.DrawStringWithCharColorsScaled(
                     text, centerX + dx, centerY + dy,
                     Scene.CanvasScale, bestScale, 1.0f,
                     Enumerable.Repeat(col, text.Length).ToArray(),
@@ -277,7 +272,7 @@ namespace TappiruCS.GameLogic
                 float dy = (float)Math.Sin(angle) * innerOffsetVirtual;
 
                 Color4 col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, 0.25f * pulse * alpha);
-                _textRenderer.DrawStringWithCharColorsScaled(
+                _context.TextRenderer.DrawStringWithCharColorsScaled(
                     text, centerX + dx, centerY + dy,
                     Scene.CanvasScale, bestScale, 1.0f,
                     Enumerable.Repeat(col, text.Length).ToArray(),
@@ -291,12 +286,12 @@ namespace TappiruCS.GameLogic
             if (session.CurrentSliders == null || !session.CurrentSliders.TryGetValue(sliderIndex, out var activeSlider))
                 return;
 
-            double currentAudioTime = _audio?.GetCurrentTime() ?? 0.0;
+            double currentAudioTime = _context.Audio?.GetCurrentTime() ?? 0.0;
 
-            float barWidth = _game.ClientSize.X * 0.8f;
+            float barWidth = _context.Game.ClientSize.X * 0.8f;
             float barHeight = 24f;
-            float barX = (_game.ClientSize.X - barWidth) / 2f;
-            float barY = _game.ClientSize.Y - barHeight - 30f;
+            float barX = (_context.Game.ClientSize.X - barWidth) / 2f;
+            float barY = _context.Game.ClientSize.Y - barHeight - 30f;
 
             float duration = Math.Max(activeSlider.endTime - activeSlider.startTime, 0.01f);
             float progress = 0f;
@@ -311,18 +306,18 @@ namespace TappiruCS.GameLogic
                 : (currentAudioTime >= activeSlider.startTime - 0.3f ? SliderBarHolding : SliderBarReady);
 
             // Фон бара
-            _spriteBatch.DrawRect(barX, barY, barWidth, barHeight, SliderBarBackground, projection);
+            _context.SpriteBatch.DrawRect(barX, barY, barWidth, barHeight, SliderBarBackground, projection);
 
             // Заполнение прогресса
             float fillWidth = barWidth * progress;
             if (fillWidth > 0f)
-                _spriteBatch.DrawRect(barX, barY, fillWidth, barHeight, fillColor, projection);
+                _context.SpriteBatch.DrawRect(barX, barY, fillWidth, barHeight, fillColor, projection);
 
             // Обводка
-            _spriteBatch.DrawRect(barX, barY, barWidth, 1f, SliderBarOutline, projection);
-            _spriteBatch.DrawRect(barX, barY + barHeight - 1f, barWidth, 1f, SliderBarOutline, projection);
-            _spriteBatch.DrawRect(barX, barY, 1f, barHeight, SliderBarOutline, projection);
-            _spriteBatch.DrawRect(barX + barWidth - 1f, barY, 1f, barHeight, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY, barWidth, 1f, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY + barHeight - 1f, barWidth, 1f, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY, 1f, barHeight, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX + barWidth - 1f, barY, 1f, barHeight, SliderBarOutline, projection);
         }
 
         private void DrawGlow(float x, float y, float w, float h, Color4 color, float strength, Matrix4 projection, double currentTime)
@@ -333,10 +328,10 @@ namespace TappiruCS.GameLogic
                 float offset = i * 1.8f;
                 float alpha = strength * (0.18f / i) * pulse;
                 Color4 glowCol = new Color4(color.R, color.G, color.B, alpha);
-                _spriteBatch.DrawRect(x - offset, y - offset, w + offset * 2, h + offset * 2, glowCol, projection);
+                _context.SpriteBatch.DrawRect(x - offset, y - offset, w + offset * 2, h + offset * 2, glowCol, projection);
             }
             Color4 nearCol = new Color4(color.R, color.G, color.B, strength * 0.4f * pulse);
-            _spriteBatch.DrawRect(x - 1, y - 1, w + 2, h + 2, nearCol, projection);
+            _context.SpriteBatch.DrawRect(x - 1, y - 1, w + 2, h + 2, nearCol, projection);
         }
 
         private Color4 GetGlowColor(float r, float g, float b)
@@ -393,7 +388,7 @@ namespace TappiruCS.GameLogic
                 float dx = (float)Math.Cos(angle) * 7.5f;
                 float dy = (float)Math.Sin(angle) * 7.5f;
 
-                _textRenderer.DrawString(text, baseX + dx, baseY + dy,
+                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,
                     outerColor.R, outerColor.G, outerColor.B, outerColor.A,
                     projection);
@@ -406,7 +401,7 @@ namespace TappiruCS.GameLogic
                 float dx = (float)Math.Cos(angle) * 4.2f;
                 float dy = (float)Math.Sin(angle) * 4.2f;
 
-                _textRenderer.DrawString(text, baseX + dx, baseY + dy,
+                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,
                     midColor.R, midColor.G, midColor.B, midColor.A,
                     projection);
@@ -419,7 +414,7 @@ namespace TappiruCS.GameLogic
                 float dx = (float)Math.Cos(angle) * 2.2f;
                 float dy = (float)Math.Sin(angle) * 2.2f;
 
-                _textRenderer.DrawString(text, baseX + dx, baseY + dy,
+                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,
                     innerColor.R, innerColor.G, innerColor.B, innerColor.A,
                     projection);
