@@ -1,5 +1,4 @@
-﻿// TextObject.cs — ТОЧНЫЙ HITBOX ЧЕРЕЗ TextRender (рекомендуемый вариант)
-
+﻿// TextObject.cs
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
@@ -11,11 +10,21 @@ namespace TappiruCS.UI
     {
         public string Text { get; set; } = "";
         public Color4 Color { get; set; } = Color4.White;
+
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
         public Action<Vector2>? OnClick { get; set; }
 
         public bool FixedColor { get; set; } = false;
+
+        // === Новые удобные свойства для эффектов ===
+        public bool HasShadow { get; set; } = false;                    
+        public Vector2 ShadowOffset { get; set; } = new Vector2(3f, 3f);
+        public float ShadowOpacity { get; set; } = 0.65f;
+
+        public bool HasOutline { get; set; } = true;
+        public float OutlineThickness { get; set; } = 2.5f;
+        public Color4 OutlineColor { get; set; } = new Color4(0f, 0f, 0f, 1f);
 
         public TextObject(string text, float x, float y, float scale = 1f)
         {
@@ -34,12 +43,15 @@ namespace TappiruCS.UI
 
             if (!FixedColor)
             {
-                Color = IsHovered ? new Color4(1f, 0.9f, 0.4f, 1f) : Color4.White;
+                Color = IsHovered
+                    ? new Color4(1f, 0.9f, 0.4f, 1f)
+                    : Color4.White;
             }
-            if (FixedColor)
+            else
             {
                 Color = Color4.Red;
             }
+
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
             {
                 OnClick?.Invoke(new Vector2(mouse.X / CanvasScale.X, mouse.Y / CanvasScale.Y));
@@ -53,7 +65,6 @@ namespace TappiruCS.UI
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
 
-            // Переводим мировые координаты в локальные относительно начала текста
             float localMouseX = worldX - dLeft;
             float localMouseY = worldY - dTop;
 
@@ -70,24 +81,62 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            if (Context == null)
-            {
-                Console.WriteLine($"[NULL CONTEXT] {GetType().Name} | Parent: {Parent?.GetType().Name ?? "null"}");
+            if (TR == null || string.IsNullOrEmpty(Text))
                 return;
-            }
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
 
-            TR.DrawStringShadow(
-                Text,
-                dLeft * CanvasScale.X,
-                dTop * CanvasScale.Y,
-                effScaleX * CanvasScale.X,
-                effScaleY * CanvasScale.Y,
-                Color.R, Color.G, Color.B, Color.A,
-                projection,
-                Align
-            );
+            // Применяем CanvasScale один раз
+            float finalX = dLeft * CanvasScale.X;
+            float finalY = dTop * CanvasScale.Y;
+            float finalScaleX = effScaleX * CanvasScale.X;
+            float finalScaleY = effScaleY * CanvasScale.Y;
+
+            // === Основная отрисовка с эффектами ===
+            if (HasOutline)
+            {
+                TR.DrawStringOutline(
+                    Text,
+                    finalX,
+                    finalY,
+                    finalScaleX,
+                    finalScaleY,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection,
+                    Align,
+                    OutlineThickness,
+                    OutlineColor
+                );
+            }
+            else if (HasShadow)
+            {
+                TR.DrawStringShadow(
+                    Text,
+                    finalX,
+                    finalY,
+                    finalScaleX,
+                    finalScaleY,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection,
+                    Align,
+                    ShadowOffset,
+                    ShadowOpacity
+                );
+            }
+            else
+            {
+                // Простая отрисовка без эффектов
+                TR.DrawString(
+                    Text,
+                    finalX,
+                    finalY,
+                    finalScaleX,
+                    finalScaleY,
+                    Color.R, Color.G, Color.B, Color.A,
+                    projection,
+                    Align
+                );
+            }
         }
     }
 }
