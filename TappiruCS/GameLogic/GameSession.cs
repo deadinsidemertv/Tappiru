@@ -20,6 +20,8 @@ namespace TappiruCS.GameLogic
 
         public MapData CurrentMap { get; }
         public double endTime { get; private set; }
+        public double CurrentPhaseStartTime { get; private set; }
+        public double CurrentPhaseEndTime { get; private set; }
 
         public string CurrentPhaseText { get; private set; }
         public char[] CurrentPhaseChars { get; private set; }
@@ -143,14 +145,18 @@ namespace TappiruCS.GameLogic
             var ev = CurrentMap.Events[_currentPhaseIndex];
 
             _nextPhaseStartTime = _currentPhaseIndex + 1 < CurrentMap.Events.Count
-                ? CurrentMap.Events[_currentPhaseIndex + 1].startTime   // ← было .time
+                ? CurrentMap.Events[_currentPhaseIndex + 1].startTime
                 : double.PositiveInfinity;
 
-            if (currentTime >= ev.startTime && currentTime < _nextPhaseStartTime)  // ← было .time
+            if (currentTime >= ev.startTime && currentTime < _nextPhaseStartTime)
             {
                 CurrentPhaseText = ev.text;
                 CurrentPhaseChars = CurrentPhaseText.ToCharArray();
                 CurrentCharIndex = 0;
+
+                // ←←← НОВОЕ: Запоминаем реальное время жизни фразы ←←←
+                CurrentPhaseStartTime = ev.startTime;
+                CurrentPhaseEndTime = ev.endTime;        // ← используем endTime из мапы!
 
                 _isActivePhase = true;
                 PhaseComplete = false;
@@ -163,7 +169,7 @@ namespace TappiruCS.GameLogic
                 _successfullyCompletedSliders.Clear();
                 _successfullyHeldSliders.Clear();
 
-                Console.WriteLine($"[PHASE] \"{CurrentPhaseText}\" started at {currentTime:F2}");
+                Console.WriteLine($"[PHASE] \"{CurrentPhaseText}\" started at {currentTime:F2} | visible until {ev.endTime:F2}");
             }
         }
 
