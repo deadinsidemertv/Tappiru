@@ -52,37 +52,55 @@ namespace TappiruCS.State
         
         public void OnEnter()
         {
+           
             Console.WriteLine("Открыт выбор песни (SongSelectState)");
 
-
-            songCount = Directory.GetDirectories("Songs/").Length;
             string[] folders = Directory.GetDirectories("Songs/");
 
+            // === 1. Собираем все карты в список ===
+            var mapList = new List<(JsonMap map, string folderPath, string displayName)>();
 
+            foreach (string folderPath in folders)
+            {
+                string tappFile = Directory.GetFiles(folderPath, "*.tapp").FirstOrDefault();
+                if (string.IsNullOrEmpty(tappFile)) continue;
+
+                string json = File.ReadAllText(tappFile);
+                var mapData = JsonSerializer.Deserialize<JsonMap>(json);
+
+                if (mapData == null) continue;
+
+                string displayName = $"{mapData.title} - [{mapData.artist}]";
+
+                mapList.Add((mapData, folderPath, displayName));
+            }
+
+            // === 2. Сортируем по StarRating (от лёгких к сложным) ===
+            mapList = mapList
+                .OrderBy(item => item.map.StarRating)   // ← самое важное!
+                .ToList();
+
+            // === 3. Создаём кнопки в отсортированном порядке ===
             list = new ScrollList(_spriteBatch, _textRenderer, 1600, 400, 1400, 400)
             {
                 Layer = 1,
                 Opacity = 0.8f,
             };
-            for (int i = 0; i < songCount; i++)
-            {
-                string folderPath = folders[i];
-                string folderName = System.IO.Path.GetFileName(folderPath);
 
+            for (int i = 0; i < mapList.Count; i++)
+            {
+                var item = mapList[i];
+                var mapData = item.map;
+                var folderPath = item.folderPath;
+                var displayName = item.displayName;
+
+                // Ищем обложку
                 string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
-                             ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
-                Console.WriteLine(folderPath);
-                string tappFile = Directory.GetFiles(folderPath, "*.tapp").FirstOrDefault();
-                string displayName = System.IO.Path.GetFileName(folderPath); // fallback
-                string json = File.ReadAllText(tappFile);
-                var mapData = JsonSerializer.Deserialize<JsonMap>(json);
-                // Например: "Название (автор)" или "Название - автор"
-                displayName = $"{mapData?.title ?? "?"} - [{mapData?.artist ?? "?"}]";
+                                  ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
 
                 var button = new ListElementButton(_spriteBatch, _textRenderer,
-                    0, 0, 1400, 212, "SongButton", displayName, Color4.White,mapData)
+                    0, 0, 1400, 212, "SongButton", displayName, Color4.White, mapData)
                 {
-                    //ScaleMultiply = 0.3f,
                     TextScale = 0.3f,
                     TextAlign = TextRender.TextAlign.Right,
                     IsImaged = true,
@@ -91,19 +109,17 @@ namespace TappiruCS.State
                     ImageOffset = new Vector2(-570f, 0f),
                     Layer = list.Layer,
                     Tag = "List"
-
                 };
-                button.SetIndex(i);
-                
 
-                if (bgImagePath != null)
+                button.SetIndex(i);
+
+                if (!string.IsNullOrEmpty(bgImagePath))
                     button.ButtonImage = TextureLoader.Load(bgImagePath);
 
                 string capturedPath = folderPath;
-                button.OnClick += () =>_ = SelectSong(capturedPath);
+                button.OnClick += () => _ = SelectSong(capturedPath);
 
                 list.AddButton(button);
-                
             }
 
 
