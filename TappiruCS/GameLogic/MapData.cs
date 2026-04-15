@@ -5,6 +5,7 @@ namespace TappiruCS.GameLogic
 {
     public class JsonMap
     {
+
         public string MapHash { get; set; } = string.Empty;
         public string title { get; set; } = string.Empty;
         public string artist { get; set; } = string.Empty;

@@ -1,0 +1,169 @@
+{
+  "MapHash": "",
+  "title": "Chiisana Boukensha",
+  "artist": "Amamiya Sora Takahashi Rie Kayano Ai",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 195,
+  "StarRating": 0,
+  "tappedR": 0.42647085,
+  "tappedG": 0.9999998,
+  "tappedB": 0.3692813,
+  "needR": 0.9302835,
+  "needG": 0.9999998,
+  "needB": 0.2031593,
+  "completeR": 0.9999998,
+  "completeG": 0.59259284,
+  "completeB": 0.64161247,
+  "events": [
+    {
+      "startTime": 12.976786,
+      "endTime": 18.250748,
+      "text": "Koronde surimuita toko",
+      "sliders": []
+    },
+    {
+      "startTime": 18.329117,
+      "endTime": 24.96819,
+      "text": "Chi ga nijinde shimiru keredo",
+      "sliders": []
+    },
+    {
+      "startTime": 25.243393,
+      "endTime": 30.400476,
+      "text": "Hecchara sa sugu naoru kara",
+      "sliders": []
+    },
+    {
+      "startTime": 30.50978,
+      "endTime": 37.109295,
+      "text": "Ashita ni wa kasabuta dekiru",
+      "sliders": []
+    },
+    {
+      "startTime": 37.346924,
+      "endTime": 42.593323,
+      "text": "Kyou mo mata baka ni sareta yo",
+      "sliders": []
+    },
+    {
+      "startTime": 42.676655,
+      "endTime": 49.327587,
+      "text": "Hazukashii shi kuyashii keredo",
+      "sliders": []
+    },
+    {
+      "startTime": 49.519077,
+      "endTime": 54.735546,
+      "text": "Hecchara sa oboe te oke yo",
+      "sliders": []
+    },
+    {
+      "startTime": 54.831604,
+      "endTime": 60.86863,
+      "text": "Ima ni waraikaeshi te yaru",
+      "sliders": []
+    },
+    {
+      "startTime": 60.909996,
+      "endTime": 66.836044,
+      "text": "Misaki kara fune o daseba",
+      "sliders": []
+    },
+    {
+      "startTime": 66.923256,
+      "endTime": 72.83918,
+      "text": "Kaze o uke ho ga fukuramu",
+      "sliders": []
+    },
+    {
+      "startTime": 73.00636,
+      "endTime": 78.90749,
+      "text": "Boku wa ima tsuchi o hanare",
+      "sliders": []
+    },
+    {
+      "startTime": 79.07752,
+      "endTime": 85.15941,
+      "text": "Nanatsu no umi o mata ni kakeru",
+      "sliders": []
+    },
+    {
+      "startTime": 110.27479,
+      "endTime": 115.38265,
+      "text": "Kenka shite nagurareta toko",
+      "sliders": []
+    },
+    {
+      "startTime": 115.53489,
+      "endTime": 122.23223,
+      "text": "Murasakiiro aza ni natta",
+      "sliders": []
+    },
+    {
+      "startTime": 122.428375,
+      "endTime": 127.33452,
+      "text": "Hecchara sa kyou tokoro wa",
+      "sliders": []
+    },
+    {
+      "startTime": 127.671425,
+      "endTime": 133.60988,
+      "text": "Maketa koto ni shitoiteyaru",
+      "sliders": []
+    },
+    {
+      "startTime": 133.80704,
+      "endTime": 139.76562,
+      "text": "Oka ni tachi te o hirogete",
+      "sliders": []
+    },
+    {
+      "startTime": 139.90211,
+      "endTime": 145.75381,
+      "text": "Kaze o machi habataku nosa",
+      "sliders": []
+    },
+    {
+      "startTime": 145.97444,
+      "endTime": 151.90071,
+      "text": "Boku wa ima tsuchi o hanare",
+      "sliders": []
+    },
+    {
+      "startTime": 152.05443,
+      "endTime": 157.81578,
+      "text": "Oozora wataru ichiwa no tori",
+      "sliders": []
+    },
+    {
+      "startTime": 158.0152,
+      "endTime": 163.9701,
+      "text": "Minami kara kaze ga fuite",
+      "sliders": []
+    },
+    {
+      "startTime": 164.1382,
+      "endTime": 170.05437,
+      "text": "kyuu ni ame ni furihajimeta",
+      "sliders": []
+    },
+    {
+      "startTime": 170.27379,
+      "endTime": 176.13147,
+      "text": "haru wa sugu tonari ni iru",
+      "sliders": []
+    },
+    {
+      "startTime": 176.25792,
+      "endTime": 182.71123,
+      "text": "sentakumono torikomanakucha",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

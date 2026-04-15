@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -10,57 +11,79 @@ namespace TappiruCS.GameLogic
     {
         public static MapData MapLoad(string mapFolderPath)
         {
+            Console.WriteLine($"[MapLoad] Загрузка папки: {mapFolderPath}");
+
             MapData mapdata = new MapData();
-            string[] bgP = Directory.GetFiles(mapFolderPath, "*.jpg");
-            mapdata.backGroundPath = bgP[0];
-            string[] audioP = Directory.GetFiles(mapFolderPath, "*.mp3");
-            mapdata.audioPath = audioP[0];
-            string[] dataP = Directory.GetFiles(mapFolderPath, "*.tapp");
-            mapdata.dataPath = dataP[0];
             mapdata.Path = mapFolderPath;
 
-            // === ВЫЧИСЛЕНИЕ ХЕША ФАЙЛА .tapp ===
-            string tappFilePath = mapdata.dataPath;
-            string computedHash = ComputeFileHash(tappFilePath);
-            mapdata.MapHash = computedHash;
-            
+            try
+            {
+                // Background
+                var bgP = Directory.GetFiles(mapFolderPath, "*.jpg");
+                if (bgP.Length > 0)
+                {
+                    mapdata.backGroundPath = bgP[0];
+                    Console.WriteLine($"[MapLoad] BG найден: {Path.GetFileName(bgP[0])}");
+                }
+                else
+                {
+                    Console.WriteLine("[MapLoad] WARNING: .jpg файл не найден!");
+                    // можно поставить дефолтный фон, если хочешь
+                }
 
-            string json = File.ReadAllText(tappFilePath);
-            JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json);
-            mapdata.Events = tmp.events;
-            mapdata.endTime = tmp.endTime;
-            mapdata.title = tmp.title;
-            mapdata.creator = tmp.creator;
-            mapdata.artist = tmp.artist;
+                // Audio
+                var audioP = Directory.GetFiles(mapFolderPath, "*.mp3");
+                if (audioP.Length > 0)
+                {
+                    mapdata.audioPath = audioP[0];
+                    Console.WriteLine($"[MapLoad] MP3 найден: {Path.GetFileName(audioP[0])}");
+                }
+                else
+                    Console.WriteLine("[MapLoad] WARNING: .mp3 файл не найден!");
 
-            mapdata.tappedR = tmp.tappedR;
-            mapdata.tappedG = tmp.tappedG;
-            mapdata.tappedB = tmp.tappedB;
-            mapdata.needR = tmp.needR;
-            mapdata.needG = tmp.needG;
-            mapdata.needB = tmp.needB;
-            mapdata.completeR = tmp.completeR;
-            mapdata.completeG = tmp.completeG;
-            mapdata.completeB = tmp.completeB;
-            mapdata.StarRating = tmp.StarRating;
+                // Tapp file
+                var dataP = Directory.GetFiles(mapFolderPath, "*.tapp");
+                if (dataP.Length == 0)
+                    throw new Exception("Не найден .tapp файл в папке!");
 
-            mapdata.GlobalSliderPerfectStartWindow = tmp.GlobalSliderPerfectStartWindow;
-            mapdata.GlobalSliderPerfectEndWindow = tmp.GlobalSliderPerfectEndWindow;
+                string tappFilePath = dataP[0];
+                mapdata.dataPath = tappFilePath;
+                Console.WriteLine($"[MapLoad] TAPP файл: {Path.GetFileName(tappFilePath)}");
 
-            mapdata.GlobalSliderGoodStartWindow = tmp.GlobalSliderGoodStartWindow;
-            mapdata.GlobalSliderGoodEndWindow = tmp.GlobalSliderGoodEndWindow;
+                // Читаем JSON
+                string json = File.ReadAllText(tappFilePath, System.Text.Encoding.UTF8);
 
-            mapdata.SliderApproachTime  = tmp.SliderApproachTime;
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
+                JsonMap tmp = JsonSerializer.Deserialize<JsonMap>(json, options);
 
+                if (tmp == null)
+                    throw new Exception("Не удалось десериализовать JSON");
 
-            foreach (var ev in mapdata.Events)
-                ev.text = ev.text.ToLowerInvariant();
+                // Копируем данные
+                mapdata.MapHash = ComputeFileHash(tappFilePath);
+                mapdata.title = tmp.title ?? "Unknown";
+                mapdata.artist = tmp.artist ?? "";
+                mapdata.creator = tmp.creator ?? "";
+                mapdata.endTime = tmp.endTime;
+                mapdata.StarRating = tmp.StarRating;
 
-            Console.WriteLine($"{mapdata.title} - Хеш: {mapdata.MapHash}");
+                mapdata.tappedR = tmp.tappedR; mapdata.tappedG = tmp.tappedG; mapdata.tappedB = tmp.tappedB;
+                mapdata.needR = tmp.needR; mapdata.needG = tmp.needG; mapdata.needB = tmp.needB;
+                mapdata.completeR = tmp.completeR; mapdata.completeG = tmp.completeG; mapdata.completeB = tmp.completeB;
 
-            
+                mapdata.Events = tmp.events ?? new List<TimingEvent>();
 
-            return mapdata;
+                foreach (var ev in mapdata.Events)
+                    if (ev?.text != null) ev.text = ev.text.ToLowerInvariant();
+
+                Console.WriteLine($"[MapLoad] УСПЕШНО загружена: {mapdata.title}");
+                return mapdata;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MapLoad] ОШИБКА: {ex.Message}");
+                throw;
+            }
         }
 
         // Добавьте этот вспомогательный метод прямо в класс LoadMap
