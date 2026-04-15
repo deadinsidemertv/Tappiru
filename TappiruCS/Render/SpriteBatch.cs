@@ -3,94 +3,138 @@ using OpenTK.Mathematics;
 
 namespace TappiruCS.Render
 {
+    /// <summary>
+    /// Простой immediate-mode quad drawer (не настоящий батчер, но очень удобный).
+    /// </summary>
     public class SpriteBatch
     {
-        private int shaderProgram;
-        private int vao;
-        private int vbo;
-        private int ebo;
-        float[] vertices;
-        private int projectionLoc;
-        Matrix4 projection;
+        private readonly int _shaderProgram;
+        private readonly int _vao;
+        private readonly int _vbo;
+        private readonly int _ebo;
+
+        // Закэшированные locations шейдера
+        private readonly int _projectionLoc;
+        private readonly int _texLoc;
+        private readonly int _colorLoc;
+
         public SpriteBatch(int shaderProgram)
         {
-            this.shaderProgram = shaderProgram;
-            projectionLoc = GL.GetUniformLocation(shaderProgram, "projection");
+            _shaderProgram = shaderProgram;
 
-            // Генерируем VAO
-            vao = GL.GenVertexArray();
-            GL.BindVertexArray(vao);
+            // Кэшируем uniform'ы один раз
+            _projectionLoc = GL.GetUniformLocation(shaderProgram, "projection");
+            _texLoc = GL.GetUniformLocation(shaderProgram, "tex");
+            _colorLoc = GL.GetUniformLocation(shaderProgram, "color");
 
-            // Генерируем VBO (пока без данных)
-            vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            // Данные вершин будут загружаться позже в Draw
+            // === VAO / VBO / EBO ===
+            _vao = GL.GenVertexArray();
+            _vbo = GL.GenBuffer();
+            _ebo = GL.GenBuffer();
 
-            // Генерируем EBO и загружаем индексы (они не меняются)
-            ebo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BindVertexArray(_vao);
+
+            // Индексы (всегда одни и те же)
             uint[] indices = { 0, 1, 2, 2, 3, 0 };
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
-            // Настраиваем атрибуты вершин (позиция и текстурные координаты)
-            // Позиция: 2 float, смещение 0, шаг 4 float (позиция + uv)
+            // VBO (данные будут обновляться каждый Draw)
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+
+            // Атрибуты: Position (2) + UV (2)
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
-            // UV: 2 float, смещение 2 float, шаг 4 float
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
             GL.EnableVertexAttribArray(1);
 
-            // Отвязываем VAO
             GL.BindVertexArray(0);
         }
 
-        public void Draw(int texture, float x, float y, float width, float height,
-                 float u1, float v1, float u2, float v2,
-                 float r, float g, float b, float a,
-                 Matrix4 projection)
+        /// <summary>
+        /// Основной метод отрисовки текстурированного квадрата.
+        /// </summary>
+        public void Draw(int textureId, float x, float y, float width, float height,
+                         float u1, float v1, float u2, float v2,
+                         float r, float g, float b, float a,
+                         Matrix4 projection)
         {
-            // Вершины для пиксельных координат (левая верхняя точка)
-            float[] vertices = {
-        x,     y,           u1, v1,
-        x+width, y,         u2, v1,
-        x+width, y+height,  u2, v2,
-        x,     y+height,    u1, v2
-    };
+            // 1. Подготовка вершин (логический блок)
+            float[] vertices = CreateQuadVertices(x, y, width, height, u1, v1, u2, v2);
 
-            GL.BindVertexArray(vao);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
+            // 2. Загрузка данных в GPU
+            UploadVertices(vertices);
 
-            GL.UseProgram(shaderProgram);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            int texLoc = GL.GetUniformLocation(shaderProgram, "tex");
-            GL.Uniform1(texLoc, 0);
-            int colorLoc = GL.GetUniformLocation(shaderProgram, "color");
-            if (colorLoc != -1)
-                GL.Uniform4(colorLoc, r, g, b, a);
+            // 3. Установка состояния OpenGL + uniform'ов
+            BindAndSetUniforms(textureId, r, g, b, a, projection);
 
-            // Устанавливаем проекцию
-            int projLoc = GL.GetUniformLocation(shaderProgram, "projection");
-            if (projLoc != -1)
-                GL.UniformMatrix4(projLoc, false, ref projection);
-
-
-            GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
-            GL.BindVertexArray(0);
+            // 4. Сама отрисовка
+            DrawElements();
         }
 
-        public void DrawRect(float x, float y, float width, float height,
-                     Color4 color,
-                     Matrix4 projection)
+        /// <summary>
+        /// Отрисовка цветного прямоугольника (использует белую 1x1 текстуру).
+        /// </summary>
+        public void DrawRect(float x, float y, float width, float height, Color4 color, Matrix4 projection)
         {
-            // Используем белую текстуру (или любую 1x1 белую), чтобы цвет работал через uniform
-            int whiteTexture = TextureManager.GetTexture("white"); // ← нужно будет добавить эту функцию
+            int whiteTex = TextureManager.GetTexture("white"); // должна быть в TextureManager
 
-            Draw(whiteTexture, x, y, width, height,
-                 0f, 0f, 1f, 1f,           // UV на всю текстуру
+            Draw(whiteTex, x, y, width, height,
+                 0f, 0f, 1f, 1f,
                  color.R, color.G, color.B, color.A,
                  projection);
+        }
+
+        // ====================== Приватные хелперы ======================
+
+        private static float[] CreateQuadVertices(float x, float y, float w, float h,
+                                                  float u1, float v1, float u2, float v2)
+        {
+            return new[]
+            {
+                x,     y,     u1, v1,
+                x + w, y,     u2, v1,
+                x + w, y + h, u2, v2,
+                x,     y + h, u1, v2
+            };
+        }
+
+        private void UploadVertices(float[] vertices)
+        {
+            GL.BindVertexArray(_vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
+        }
+
+        private void BindAndSetUniforms(int textureId, float r, float g, float b, float a, Matrix4 projection)
+        {
+            GL.UseProgram(_shaderProgram);
+
+            // Текстура
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureId);
+            if (_texLoc != -1) GL.Uniform1(_texLoc, 0);
+
+            // Цвет
+            if (_colorLoc != -1)
+                GL.Uniform4(_colorLoc, r, g, b, a);
+
+            // Проекция
+            if (_projectionLoc != -1)
+                GL.UniformMatrix4(_projectionLoc, false, ref projection);
+        }
+
+        private static void DrawElements()
+        {
+            GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            GL.BindVertexArray(0); // хорошая практика
+        }
+
+        public void Dispose()
+        {
+            GL.DeleteVertexArray(_vao);
+            GL.DeleteBuffer(_vbo);
+            GL.DeleteBuffer(_ebo);
         }
     }
 }

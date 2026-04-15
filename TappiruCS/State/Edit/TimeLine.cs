@@ -18,8 +18,6 @@ namespace TappiruCS.UI
     {
         public event Action<float> OnTimeClicked;
 
-        private readonly RenderContext _context;
-
         // Основные элементы
         public SpriteObject Background { get; private set; }
         public SpriteObject Playhead { get; private set; }

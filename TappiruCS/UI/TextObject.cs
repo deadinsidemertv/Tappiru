@@ -78,7 +78,7 @@ namespace TappiruCS.UI
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
 
-            TR.DrawString(
+            TR.DrawStringShadow(
                 Text,
                 dLeft * CanvasScale.X,
                 dTop * CanvasScale.Y,

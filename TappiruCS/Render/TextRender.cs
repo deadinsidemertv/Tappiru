@@ -1,10 +1,15 @@
 ﻿using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace TappiruCS.Render
 {
     public class TextRender
     {
-        private readonly SpriteBatch spriteBatch;
+        private readonly SpriteBatch _spriteBatch;
 
         public readonly Dictionary<int, int> _pageTextures = new();
         private readonly Dictionary<char, GlyphInfo> _glyphs = new();
@@ -14,7 +19,7 @@ namespace TappiruCS.Render
         public float _scaleW;
         public float _scaleH;
 
-        // Для совместимости
+        // Для совместимости со старым кодом
         public float charWidth, charHeight;
         public float texWidth, texHeight;
 
@@ -26,61 +31,10 @@ namespace TappiruCS.Render
             public float TexX, TexY, Width, Height;
             public float XOffset, YOffset, XAdvance;
         }
-        public bool TryGetCharIndexAtPoint(string text, float localX, float localY,
-                                           float scaleX, float scaleY,
-                                           TextAlign align,
-                                           out int charIndex)
-        {
-            charIndex = -1;
-            if (string.IsNullOrEmpty(text)) return false;
 
-            float textWidth = CalculateTextWidth(text, scaleX);
-            float startX = align switch
-            {
-                TextAlign.Center => -textWidth * 0.5f,
-                TextAlign.Right => -textWidth,
-                _ => 0f
-            };
-
-            float currentX = startX;
-            char prevChar = '\0';
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-
-                if (!_glyphs.TryGetValue(c, out var glyph))
-                {
-                    currentX += charWidth * scaleX;
-                    prevChar = c;
-                    continue;
-                }
-
-                float kern = 0f;
-                if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
-                    kern = k;
-
-                float glyphLeft = currentX + glyph.XOffset * scaleX;
-                float glyphRight = glyphLeft + glyph.Width * scaleX;
-                float glyphTop = glyph.YOffset * scaleY;
-                float glyphBottom = glyphTop + glyph.Height * scaleY;
-
-                if (localX >= glyphLeft && localX <= glyphRight &&
-                    localY >= glyphTop && localY <= glyphBottom)
-                {
-                    charIndex = i;
-                    return true;
-                }
-
-                currentX += (glyph.XAdvance + kern) * scaleX;
-                prevChar = c;
-            }
-
-            return false;
-        }
         public TextRender(SpriteBatch spriteBatch, string fntPath)
         {
-            this.spriteBatch = spriteBatch;
+            _spriteBatch = spriteBatch ?? throw new ArgumentNullException(nameof(spriteBatch));
             LoadBMFont(fntPath);
         }
 
@@ -110,20 +64,11 @@ namespace TappiruCS.Render
             {
                 string assetName = kvp.Value;
                 assetName = Path.ChangeExtension(assetName, null);
-
                 if (!assetName.Contains("/") && !assetName.Contains("\\"))
                     assetName = "Font/" + assetName;
 
                 int texId = TextureManager.GetTexture(assetName);
                 _pageTextures[kvp.Key] = texId;
-
-                Console.WriteLine($"[BMFont] Page {kvp.Key} → {assetName} (ID={texId})");
-            }
-
-            if (_pageTextures.Count == 0)
-            {
-                Console.WriteLine($"[ERROR] Нет страниц в BMFont: {fntPath}");
-                return;
             }
 
             texWidth = _scaleW;
@@ -212,46 +157,56 @@ namespace TappiruCS.Render
 
         private (float u1, float v1, float u2, float v2) GetUV(in GlyphInfo g)
         {
-            float u1 = g.TexX / texWidth;
-            float v1 = g.TexY / texHeight;
-            float u2 = (g.TexX + g.Width) / texWidth;
-            float v2 = (g.TexY + g.Height) / texHeight;
-            return (u1, v1, u2, v2);
+            return (g.TexX / texWidth, g.TexY / texHeight,
+                    (g.TexX + g.Width) / texWidth, (g.TexY + g.Height) / texHeight);
         }
 
         private int GetTextureForPage(int page)
         {
-            return _pageTextures.TryGetValue(page, out int id) ? id : (_pageTextures.Count > 0 ? _pageTextures.First().Value : 0);
+            return _pageTextures.TryGetValue(page, out int id) ? id : _pageTextures.Values.FirstOrDefault();
         }
 
-        // ====================== Основной DrawString (без spacing) ======================
-        public void DrawString(string text, float x, float y, float scaleX, float scaleY,
-                               float r, float g, float b, float a, Matrix4 projection)
+        private float GetKerning(char first, char second)
+        {
+            return _kerningPairs.TryGetValue((first, second), out int k) ? k : 0f;
+        }
+
+        // ====================== ОСНОВНЫЕ МЕТОДЫ ======================
+
+        public void DrawString(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a, Matrix4 projection,TextAlign align = TextAlign.Left)
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            float currentX = x;
+            float startX = CalculateStartX(text, scaleX, x, align);
+            DrawStringInternal(text, startX, y, scaleX, scaleY, r, g, b, a, projection);
+        }
+
+        public void DrawString(string text, float x, float y, float scale,float r, float g, float b, float a, Matrix4 projection,TextAlign align = TextAlign.Left)
+        {
+            DrawString(text, x, y, scale, scale, r, g, b, a, projection, align);
+        }
+
+        private void DrawStringInternal(string text, float startX, float startY,float scaleX, float scaleY,float r, float g, float b, float a, Matrix4 projection)
+        {
+            float currentX = startX;
             char prevChar = '\0';
 
             foreach (char c in text)
             {
                 if (_glyphs.TryGetValue(c, out var glyph))
                 {
-                    float kern = 0f;
-                    if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
-                        kern = k;
-
+                    float kern = GetKerning(prevChar, c);
                     var uv = GetUV(glyph);
 
                     float glyphWidth = glyph.Width * scaleX;
                     float glyphHeight = glyph.Height * scaleY;
 
                     float drawX = currentX + glyph.XOffset * scaleX;
-                    float drawY = y + glyph.YOffset * scaleY;
+                    float drawY = startY + glyph.YOffset * scaleY;
 
                     int textureId = GetTextureForPage(glyph.Page);
 
-                    spriteBatch.Draw(textureId, drawX, drawY, glyphWidth, glyphHeight,
+                    _spriteBatch.Draw(textureId, drawX, drawY, glyphWidth, glyphHeight,
                         uv.u1, uv.v1, uv.u2, uv.v2, r, g, b, a, projection);
 
                     currentX += (glyph.XAdvance + kern) * scaleX;
@@ -265,96 +220,52 @@ namespace TappiruCS.Render
             }
         }
 
-        public void DrawString(string text, float x, float y, float scaleX, float scaleY,
-                               float r, float g, float b, float a, Matrix4 projection, TextAlign align)
+        // ====================== НОВЫЕ УДОБНЫЕ МЕТОДЫ ======================
+        public bool TryGetGlyph(char c, out GlyphInfo glyph)
+        {
+            return _glyphs.TryGetValue(c, out glyph);
+        }
+        public Vector2 MeasureString(string text, float scaleX, float scaleY)
+        {
+            if (string.IsNullOrEmpty(text)) return Vector2.Zero;
+            float width = CalculateTextWidth(text, scaleX);
+            return new Vector2(width, _lineHeight * scaleY);
+        }
+
+        public Vector2 MeasureString(string text, float scale)
+        {
+            return MeasureString(text, scale, scale);
+        }
+
+        public void DrawStringShadow(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a,Matrix4 projection,TextAlign align = TextAlign.Left,Vector2 shadowOffset = default,float shadowOpacity = 0.6f)
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            float textWidth = CalculateTextWidth(text, scaleX);
-            float startX = align switch
-            {
-                TextAlign.Center => x - textWidth / 2f,
-                TextAlign.Right => x - textWidth,
-                _ => x
-            };
+            if (shadowOffset == default) shadowOffset = new Vector2(3f, 3f);
 
-            DrawString(text, startX, y, scaleX, scaleY, r, g, b, a, projection);
+            // Тень
+            DrawString(text, x + shadowOffset.X, y + shadowOffset.Y, scaleX, scaleY,
+                       0f, 0f, 0f, a * shadowOpacity, projection, align);
+
+            // Основной текст
+            DrawString(text, x, y, scaleX, scaleY, r, g, b, a, projection, align);
         }
 
-        public void DrawString(string text, float x, float y, float scale,
-                               float r, float g, float b, float a, Matrix4 projection, TextAlign align = TextAlign.Left)
-            => DrawString(text, x, y, scale, scale, r, g, b, a, projection, align);
-
-        // ====================== Цветной текст с CanvasScale ======================
-        public void DrawStringWithCharColorsScaled(string text,
-                                                   float baseX, float baseY,
-                                                   Vector2 canvasScale,
-                                                   float baseScale,
-                                                   float scaleMultiply,
-                                                   Color4[] charColors,
-                                                   Matrix4 projection,
-                                                   TextAlign align = TextAlign.Center)
+        public void DrawStringOutline(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a,Matrix4 projection,TextAlign align = TextAlign.Left,float outlineThickness = 2f,Color4 outlineColor = default)
         {
-            if (string.IsNullOrEmpty(text) || charColors == null || charColors.Length == 0) return;
+            if (string.IsNullOrEmpty(text)) return;
+            if (outlineColor == default) outlineColor = Color4.Black;
 
-            float x = baseX * canvasScale.X;
-            float y = baseY * canvasScale.Y;
-            float finalScaleX = baseScale * canvasScale.X * scaleMultiply;
-            float finalScaleY = baseScale * canvasScale.Y * scaleMultiply;
+            float t = outlineThickness;
 
-            float textWidth = CalculateTextWidth(text, finalScaleX);
-            float startX = align switch
-            {
-                TextAlign.Center => x - textWidth / 2f,
-                TextAlign.Right => x - textWidth,
-                _ => x
-            };
+            DrawString(text, x - t, y, scaleX, scaleY, outlineColor.R, outlineColor.G, outlineColor.B, outlineColor.A * a, projection, align);
+            DrawString(text, x + t, y, scaleX, scaleY, outlineColor.R, outlineColor.G, outlineColor.B, outlineColor.A * a, projection, align);
+            DrawString(text, x, y - t, scaleX, scaleY, outlineColor.R, outlineColor.G, outlineColor.B, outlineColor.A * a, projection, align);
+            DrawString(text, x, y + t, scaleX, scaleY, outlineColor.R, outlineColor.G, outlineColor.B, outlineColor.A * a, projection, align);
 
-            float currentX = startX;
-            char prevChar = '\0';
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-                Color4 color = i < charColors.Length ? charColors[i] : charColors[^1];
-
-                if (_glyphs.TryGetValue(c, out var glyph))
-                {
-                    float kern = 0f;
-                    if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
-                        kern = k;
-
-                    var uv = GetUV(glyph);
-
-                    float glyphWidth = glyph.Width * finalScaleX;
-                    float glyphHeight = glyph.Height * finalScaleY;
-
-                    float drawX = currentX + glyph.XOffset * finalScaleX;
-                    float drawY = y + glyph.YOffset * finalScaleY;
-
-                    int textureId = GetTextureForPage(glyph.Page);
-
-                    spriteBatch.Draw(textureId, drawX, drawY, glyphWidth, glyphHeight,
-                        uv.u1, uv.v1, uv.u2, uv.v2,
-                        color.R, color.G, color.B, color.A, projection);
-
-                    currentX += (glyph.XAdvance + kern) * finalScaleX;
-                    prevChar = c;
-                }
-                else
-                {
-                    currentX += charWidth * finalScaleX;
-                    prevChar = c;
-                }
-            }
+            DrawString(text, x, y, scaleX, scaleY, r, g, b, a, projection, align);
         }
-
-        public (float x, float y, float width, float height)[] GetCharBounds(string text,
-    float baseX, float baseY,
-    Vector2 canvasScale,
-    float baseScale,
-    float scaleMultiply,
-    TextAlign align)
+        public (float x, float y, float width, float height)[] GetCharBounds(string text,float baseX,float baseY,Vector2 canvasScale,float baseScale,float scaleMultiply,TextAlign align = TextAlign.Left)
         {
             if (string.IsNullOrEmpty(text))
                 return Array.Empty<(float, float, float, float)>();
@@ -372,18 +283,18 @@ namespace TappiruCS.Render
                 _ => x
             };
 
-            var bounds = new (float, float, float, float)[text.Length];
+            var bounds = new (float x, float y, float width, float height)[text.Length];
+
             float currentX = startX;
             char prevChar = '\0';
 
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
+
                 if (_glyphs.TryGetValue(c, out var glyph))
                 {
-                    float kern = 0f;
-                    if (prevChar != '\0' && _kerningPairs.TryGetValue((prevChar, c), out int k))
-                        kern = k;
+                    float kern = GetKerning(prevChar, c);
 
                     float glyphX = currentX + glyph.XOffset * finalScaleX;
                     float glyphY = y + glyph.YOffset * finalScaleY;
@@ -404,10 +315,24 @@ namespace TappiruCS.Render
                     prevChar = c;
                 }
             }
+
             return bounds;
         }
 
-        // ====================== CalculateTextWidth (единственная версия) ======================
+        public void DrawStringMultiline(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a,Matrix4 projection,TextAlign align = TextAlign.Left,float lineSpacing = 1.2f)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+
+            var lines = text.Split('\n');
+            float currentY = y;
+
+            foreach (var line in lines)
+            {
+                DrawString(line, x, currentY, scaleX, scaleY, r, g, b, a, projection, align);
+                currentY += _lineHeight * scaleY * lineSpacing;
+            }
+        }
+
         public float CalculateTextWidth(string text, float scale)
         {
             if (string.IsNullOrEmpty(text)) return 0f;
@@ -419,10 +344,7 @@ namespace TappiruCS.Render
             {
                 if (_glyphs.TryGetValue(c, out var glyph))
                 {
-                    float kern = 0f;
-                    if (prev != '\0' && _kerningPairs.TryGetValue((prev, c), out int k))
-                        kern = k;
-
+                    float kern = GetKerning(prev, c);
                     total += (glyph.XAdvance + kern) * scale;
                     prev = c;
                 }
@@ -435,10 +357,120 @@ namespace TappiruCS.Render
             return total;
         }
 
-        public bool TryGetGlyph(char c, out GlyphInfo glyph)
+        private float CalculateStartX(string text, float scaleX, float baseX, TextAlign align)
         {
-            return _glyphs.TryGetValue(c, out glyph);
+            float width = CalculateTextWidth(text, scaleX);
+            return align switch
+            {
+                TextAlign.Center => baseX - width / 2f,
+                TextAlign.Right => baseX - width,
+                _ => baseX
+            };
         }
 
+        public bool TryGetCharIndexAtPoint(string text, float localX, float localY,float scaleX, float scaleY,TextAlign align,out int charIndex)
+        {
+            charIndex = -1;
+            if (string.IsNullOrEmpty(text)) return false;
+
+            float textWidth = CalculateTextWidth(text, scaleX);
+            float startX = align switch
+            {
+                TextAlign.Center => -textWidth * 0.5f,
+                TextAlign.Right => -textWidth,
+                _ => 0f
+            };
+
+            float currentX = startX;
+            char prevChar = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+
+                if (!_glyphs.TryGetValue(c, out var glyph))
+                {
+                    currentX += charWidth * scaleX;
+                    prevChar = c;
+                    continue;
+                }
+
+                float kern = GetKerning(prevChar, c);
+
+                float glyphLeft = currentX + glyph.XOffset * scaleX;
+                float glyphRight = glyphLeft + glyph.Width * scaleX;
+                float glyphTop = glyph.YOffset * scaleY;
+                float glyphBottom = glyphTop + glyph.Height * scaleY;
+
+                if (localX >= glyphLeft && localX <= glyphRight &&
+                    localY >= glyphTop && localY <= glyphBottom)
+                {
+                    charIndex = i;
+                    return true;
+                }
+
+                currentX += (glyph.XAdvance + kern) * scaleX;
+                prevChar = c;
+            }
+
+            return false;
+        }
+
+    public void DrawStringWithCharColorsScaled(string text,float baseX,float baseY,Vector2 canvasScale,float baseScale,float scaleMultiply,Color4[] charColors,Matrix4 projection,TextAlign align = TextAlign.Center)
+        {
+            if (string.IsNullOrEmpty(text) || charColors == null || charColors.Length == 0)
+                return;
+
+            // Применяем масштаб канваса и ScaleMultiply
+            float finalScaleX = baseScale * canvasScale.X * scaleMultiply;
+            float finalScaleY = baseScale * canvasScale.Y * scaleMultiply;
+
+            float x = baseX * canvasScale.X;
+            float y = baseY * canvasScale.Y;
+
+            float textWidth = CalculateTextWidth(text, finalScaleX);
+            float startX = align switch
+            {
+                TextAlign.Center => x - textWidth / 2f,
+                TextAlign.Right => x - textWidth,
+                _ => x
+            };
+
+            float currentX = startX;
+            char prevChar = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                Color4 color = i < charColors.Length ? charColors[i] : charColors[^1]; // последний цвет для оставшихся символов
+
+                if (_glyphs.TryGetValue(c, out var glyph))
+                {
+                    float kern = GetKerning(prevChar, c);
+                    var uv = GetUV(glyph);
+
+                    float glyphWidth = glyph.Width * finalScaleX;
+                    float glyphHeight = glyph.Height * finalScaleY;
+
+                    float drawX = currentX + glyph.XOffset * finalScaleX;
+                    float drawY = y + glyph.YOffset * finalScaleY;
+
+                    int textureId = GetTextureForPage(glyph.Page);
+
+                    _spriteBatch.Draw(textureId, drawX, drawY, glyphWidth, glyphHeight,
+                        uv.u1, uv.v1, uv.u2, uv.v2,
+                        color.R, color.G, color.B, color.A,
+                        projection);
+
+                    currentX += (glyph.XAdvance + kern) * finalScaleX;
+                    prevChar = c;
+                }
+                else
+                {
+                    currentX += charWidth * finalScaleX;
+                    prevChar = c;
+                }
+            }
+        }
     }
 }
