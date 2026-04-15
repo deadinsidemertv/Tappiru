@@ -1,10 +1,10 @@
 {
   "MapHash": "",
-  "title": "EGOIST Eiyuu Unmei no uta",
-  "artist": "",
-  "creator": "",
+  "title": "Eiyu Unmei No Uta",
+  "artist": "EGOIST",
+  "creator": "neroqwe",
   "previewTime": 0,
-  "endTime": 169,
+  "endTime": 275,
   "StarRating": 0,
   "tappedR": 0.36111137,
   "tappedG": 0.3447715,
@@ -326,7 +326,7 @@
       "sliders": []
     },
     {
-      "startTime": 160.34688,
+      "startTime": 162.75723,
       "endTime": 162.95723,
       "text": "kono sora moyashite",
       "sliders": []
@@ -335,6 +335,249 @@
       "startTime": 163.0041,
       "endTime": 166.29594,
       "text": "nidoto okashi wa shinai",
+      "sliders": []
+    },
+    {
+      "startTime": 171.30515,
+      "endTime": 173.81757,
+      "text": "narihibiku fue",
+      "sliders": []
+    },
+    {
+      "startTime": 173.82663,
+      "endTime": 176.90604,
+      "text": "wasure nano hana yo",
+      "sliders": []
+    },
+    {
+      "startTime": 177.00748,
+      "endTime": 178.44318,
+      "text": "konna ni mo",
+      "sliders": []
+    },
+    {
+      "startTime": 178.47514,
+      "endTime": 182.2531,
+      "text": "utsukushiku saki hokoru",
+      "sliders": []
+    },
+    {
+      "startTime": 182.36217,
+      "endTime": 187.57489,
+      "text": "to give up who you are",
+      "sliders": [
+        {
+          "charIndex": 1,
+          "startTime": 182.60217,
+          "endTime": 183.08234
+        },
+        {
+          "charIndex": 8,
+          "startTime": 183.80362,
+          "endTime": 184.33727
+        },
+        {
+          "charIndex": 13,
+          "startTime": 185.3414,
+          "endTime": 185.97302
+        }
+      ]
+    },
+    {
+      "startTime": 187.59526,
+      "endTime": 191.10492,
+      "text": "and live without your faith",
+      "sliders": []
+    },
+    {
+      "startTime": 191.14983,
+      "endTime": 194.26318,
+      "text": "is more regrettable than dying",
+      "sliders": []
+    },
+    {
+      "startTime": 194.2779,
+      "endTime": 202.1293,
+      "text": "than dying so young",
+      "sliders": [
+        {
+          "charIndex": 15,
+          "startTime": 196.54399,
+          "endTime": 200.4406
+        }
+      ]
+    },
+    {
+      "startTime": 203.37866,
+      "endTime": 203.57866,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 204.6964,
+      "endTime": 204.8964,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 206.05443,
+      "endTime": 206.25443,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 207.41393,
+      "endTime": 207.61392,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 208.79459,
+      "endTime": 208.99458,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 210.07323,
+      "endTime": 210.27322,
+      "text": "ha",
+      "sliders": []
+    },
+    {
+      "startTime": 210.78381,
+      "endTime": 211.43526,
+      "text": "ha ha",
+      "sliders": []
+    },
+    {
+      "startTime": 211.46208,
+      "endTime": 212.17702,
+      "text": "ha ha",
+      "sliders": []
+    },
+    {
+      "startTime": 212.21582,
+      "endTime": 214.64171,
+      "text": "hito wa kataru darou shinnen wo",
+      "sliders": []
+    },
+    {
+      "startTime": 214.68875,
+      "endTime": 217.61612,
+      "text": "sono hata wo takeku kakage",
+      "sliders": []
+    },
+    {
+      "startTime": 217.63832,
+      "endTime": 222.07697,
+      "text": "mizukara furuitate",
+      "sliders": [
+        {
+          "charIndex": 12,
+          "startTime": 218.75655,
+          "endTime": 219.34433
+        },
+        {
+          "charIndex": 17,
+          "startTime": 220.55328,
+          "endTime": 221.66884
+        }
+      ]
+    },
+    {
+      "startTime": 222.32825,
+      "endTime": 225.16188,
+      "text": "yami wo harai susume",
+      "sliders": []
+    },
+    {
+      "startTime": 225.33513,
+      "endTime": 227.99458,
+      "text": "unmei tsukiru tomo",
+      "sliders": []
+    },
+    {
+      "startTime": 228.11487,
+      "endTime": 230.6483,
+      "text": "dare yori kedakaku",
+      "sliders": []
+    },
+    {
+      "startTime": 230.67606,
+      "endTime": 233.58011,
+      "text": "kono na wa kegasanai",
+      "sliders": []
+    },
+    {
+      "startTime": 233.62753,
+      "endTime": 236.21648,
+      "text": "sei araba susume",
+      "sliders": []
+    },
+    {
+      "startTime": 236.25774,
+      "endTime": 238.81905,
+      "text": "ganzen no shouri wo",
+      "sliders": []
+    },
+    {
+      "startTime": 238.93741,
+      "endTime": 241.5082,
+      "text": "akatsuki tabidate",
+      "sliders": []
+    },
+    {
+      "startTime": 241.57678,
+      "endTime": 244.39946,
+      "text": "yowake wa mou sugu",
+      "sliders": []
+    },
+    {
+      "startTime": 244.46971,
+      "endTime": 247.10706,
+      "text": "eiyuu ni uta wo",
+      "sliders": []
+    },
+    {
+      "startTime": 247.17896,
+      "endTime": 249.72173,
+      "text": "ooku wo ushinau tomo",
+      "sliders": []
+    },
+    {
+      "startTime": 249.75648,
+      "endTime": 252.4403,
+      "text": "jiyuu wo kono te ni",
+      "sliders": []
+    },
+    {
+      "startTime": 252.49976,
+      "endTime": 255.39534,
+      "text": "jidai no hasha to naru",
+      "sliders": []
+    },
+    {
+      "startTime": 255.41837,
+      "endTime": 257.92334,
+      "text": "zanka kare ochita",
+      "sliders": []
+    },
+    {
+      "startTime": 257.96964,
+      "endTime": 260.55756,
+      "text": "monogatari to nari",
+      "sliders": []
+    },
+    {
+      "startTime": 260.6182,
+      "endTime": 263.24332,
+      "text": "akatsuki tabidatsu",
+      "sliders": []
+    },
+    {
+      "startTime": 263.28644,
+      "endTime": 266.4748,
+      "text": "anata to tomo ni naru",
       "sliders": []
     }
   ],
