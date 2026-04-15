@@ -8,6 +8,7 @@
     
     <!-- Важные настройки для portable сборки -->
     <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
