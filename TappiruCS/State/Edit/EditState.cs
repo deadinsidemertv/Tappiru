@@ -371,10 +371,16 @@ namespace TappiruCS.State.Edit
             };
             _addPhraseButton.OnClick += AddNewPhrase;
 
-            _saveProjectButton = new Button( 1780, 30, 700, 120, "button", "Save Project")
+            _saveProjectButton = new Button( 1780, 30, 500, 100, "button", "Save Project")
             {
                 Layer = 1,
-                TextScale = 0.7f
+                TextColor = Color4.White,
+                TextOffset = new Vector2(-180f, -60f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                TextScale = 0.7f,
+                ScaleMultiply = 0.4f,
+                TextAlign = TextRender.TextAlign.Center,
+                Tag = "topButton"
             };
             _saveProjectButton.OnClick += SaveProject;
 

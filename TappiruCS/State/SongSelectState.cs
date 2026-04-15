@@ -350,7 +350,6 @@ namespace TappiruCS.State
         public void OnExit()
         {
             _scene.Clear();
-            Console.WriteLine("Закрыт выбор песни");
         }
         public void Update(double currentTime)
         {

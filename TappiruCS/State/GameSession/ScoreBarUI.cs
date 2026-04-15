@@ -36,12 +36,12 @@ namespace TappiruCS.UI
                 Align = TextAlign.Center
             };
 
-            _comboText = new TextObject("0", 70, 900, 0.7f)
+            _comboText = new TextObject("0", 35, 990, 0.5f)
             {
                 Align = TextAlign.Left
             };
 
-            _comboXText = new TextObject("x", 55, 915, 0.4f);
+            _comboXText = new TextObject("x", 55, 915, 0.3f);
         }
 
         // Метод обновления — принимает session каждый кадр
