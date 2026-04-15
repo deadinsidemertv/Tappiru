@@ -1,0 +1,346 @@
+{
+  "MapHash": "",
+  "title": "EGOIST Eiyuu Unmei no uta",
+  "artist": "",
+  "creator": "",
+  "previewTime": 0,
+  "endTime": 169,
+  "StarRating": 0,
+  "tappedR": 0.36111137,
+  "tappedG": 0.3447715,
+  "tappedB": 0.3447715,
+  "needR": 0.9466233,
+  "needG": 0.020697434,
+  "needB": 0.05337717,
+  "completeR": 0.9999998,
+  "completeG": 0.90305036,
+  "completeB": 0.4,
+  "events": [
+    {
+      "startTime": 1.3208861,
+      "endTime": 4.373988,
+      "text": "sore wa oroka naru na",
+      "sliders": []
+    },
+    {
+      "startTime": 4.4239883,
+      "endTime": 7.0598946,
+      "text": "daga toki wa motomu",
+      "sliders": []
+    },
+    {
+      "startTime": 7.15233,
+      "endTime": 9.797045,
+      "text": "fukutsu no eiyuu",
+      "sliders": []
+    },
+    {
+      "startTime": 9.824005,
+      "endTime": 13.929876,
+      "text": "sono monogatari wo",
+      "sliders": [
+        {
+          "charIndex": 12,
+          "startTime": 11.546624,
+          "endTime": 12.152913
+        },
+        {
+          "charIndex": 14,
+          "startTime": 12.3551235,
+          "endTime": 12.823181
+        },
+        {
+          "charIndex": 17,
+          "startTime": 13.020923,
+          "endTime": 13.929876
+        }
+      ]
+    },
+    {
+      "startTime": 14.220254,
+      "endTime": 17.321558,
+      "text": "a",
+      "sliders": [
+        {
+          "charIndex": 0,
+          "startTime": 14.220254,
+          "endTime": 16.926466
+        }
+      ]
+    },
+    {
+      "startTime": 35.92488,
+      "endTime": 38.443226,
+      "text": "chiisaku kanadeta",
+      "sliders": []
+    },
+    {
+      "startTime": 38.532333,
+      "endTime": 41.188736,
+      "text": "ai wa hazama wo samayou",
+      "sliders": []
+    },
+    {
+      "startTime": 41.222214,
+      "endTime": 42.579807,
+      "text": "todokanai",
+      "sliders": []
+    },
+    {
+      "startTime": 42.596535,
+      "endTime": 46.722107,
+      "text": "unmei ga azawarau",
+      "sliders": [
+        {
+          "charIndex": 15,
+          "startTime": 45.532272,
+          "endTime": 46.07952
+        }
+      ]
+    },
+    {
+      "startTime": 46.78895,
+      "endTime": 49.382847,
+      "text": "hedateru sekai wo",
+      "sliders": []
+    },
+    {
+      "startTime": 49.432846,
+      "endTime": 52.077114,
+      "text": "umete anata ni aitai",
+      "sliders": []
+    },
+    {
+      "startTime": 52.08664,
+      "endTime": 54.883102,
+      "text": "mi wokogasu sono ai ga",
+      "sliders": []
+    },
+    {
+      "startTime": 54.92794,
+      "endTime": 57.511925,
+      "text": "wakatsu made",
+      "sliders": [
+        {
+          "charIndex": 9,
+          "startTime": 56.320637,
+          "endTime": 56.90077
+        }
+      ]
+    },
+    {
+      "startTime": 57.607597,
+      "endTime": 60.132412,
+      "text": "hito wa sekenda seigi wo",
+      "sliders": []
+    },
+    {
+      "startTime": 60.17097,
+      "endTime": 62.919178,
+      "text": "sono hata wo takeku kakage",
+      "sliders": []
+    },
+    {
+      "startTime": 63.029682,
+      "endTime": 67.47182,
+      "text": "kako no ue ni ni tate",
+      "sliders": [
+        {
+          "charIndex": 20,
+          "startTime": 65.85455,
+          "endTime": 67.40663
+        }
+      ]
+    },
+    {
+      "startTime": 67.76292,
+      "endTime": 70.75824,
+      "text": "yami wo harai susume",
+      "sliders": []
+    },
+    {
+      "startTime": 70.81881,
+      "endTime": 73.541824,
+      "text": "kono mi ushinau tomo",
+      "sliders": []
+    },
+    {
+      "startTime": 73.59365,
+      "endTime": 76.15526,
+      "text": "osore yo hirefuse",
+      "sliders": []
+    },
+    {
+      "startTime": 76.20797,
+      "endTime": 79.08685,
+      "text": "watashi ga hasha to naru",
+      "sliders": []
+    },
+    {
+      "startTime": 79.11062,
+      "endTime": 81.592995,
+      "text": "sei araba susume",
+      "sliders": []
+    },
+    {
+      "startTime": 81.654915,
+      "endTime": 84.36462,
+      "text": "ganzen no shouri wo",
+      "sliders": []
+    },
+    {
+      "startTime": 84.38088,
+      "endTime": 86.88905,
+      "text": "akatsuki tabidate",
+      "sliders": []
+    },
+    {
+      "startTime": 87.051445,
+      "endTime": 90.60547,
+      "text": "yowake wa mou sugu",
+      "sliders": []
+    },
+    {
+      "startTime": 111.92119,
+      "endTime": 114.39793,
+      "text": "hagukami ataeru",
+      "sliders": []
+    },
+    {
+      "startTime": 114.457825,
+      "endTime": 116.95711,
+      "text": "ai no hana saki shitta",
+      "sliders": []
+    },
+    {
+      "startTime": 117.136086,
+      "endTime": 119.854744,
+      "text": "nokosareta toki wa mou",
+      "sliders": []
+    },
+    {
+      "startTime": 119.912926,
+      "endTime": 122.56341,
+      "text": "wazuka to",
+      "sliders": [
+        {
+          "charIndex": 8,
+          "startTime": 121.57888,
+          "endTime": 122.33315
+        }
+      ]
+    },
+    {
+      "startTime": 122.740616,
+      "endTime": 125.291336,
+      "text": "kanashii sekai ni",
+      "sliders": []
+    },
+    {
+      "startTime": 125.35035,
+      "endTime": 128.004,
+      "text": "negai wo hitotsu inoru",
+      "sliders": []
+    },
+    {
+      "startTime": 128.02837,
+      "endTime": 129.28357,
+      "text": "aishiteru",
+      "sliders": []
+    },
+    {
+      "startTime": 129.32765,
+      "endTime": 133.44193,
+      "text": "sayonara no serenade",
+      "sliders": [
+        {
+          "charIndex": 17,
+          "startTime": 131.96622,
+          "endTime": 132.80246
+        }
+      ]
+    },
+    {
+      "startTime": 133.4719,
+      "endTime": 136.06998,
+      "text": "hito wa eranda kyousou wo",
+      "sliders": []
+    },
+    {
+      "startTime": 136.08931,
+      "endTime": 138.90857,
+      "text": "sono hata wo takaku kakage",
+      "sliders": []
+    },
+    {
+      "startTime": 138.94153,
+      "endTime": 143.47025,
+      "text": "tasha noue ni tate",
+      "sliders": [
+        {
+          "charIndex": 15,
+          "startTime": 141.17874,
+          "endTime": 141.49892
+        },
+        {
+          "charIndex": 17,
+          "startTime": 141.89046,
+          "endTime": 143.47025
+        }
+      ]
+    },
+    {
+      "startTime": 143.76091,
+      "endTime": 146.59714,
+      "text": "yami wo harai susume",
+      "sliders": []
+    },
+    {
+      "startTime": 146.70335,
+      "endTime": 149.42496,
+      "text": "ooku wo ushinau tomo",
+      "sliders": []
+    },
+    {
+      "startTime": 149.43993,
+      "endTime": 151.962,
+      "text": "jiyuu wo kono te ni",
+      "sliders": []
+    },
+    {
+      "startTime": 152.01361,
+      "endTime": 155.09906,
+      "text": "jidai no hasha to naru",
+      "sliders": []
+    },
+    {
+      "startTime": 155.13084,
+      "endTime": 157.57236,
+      "text": "tetsui wo kudase",
+      "sliders": []
+    },
+    {
+      "startTime": 157.59926,
+      "endTime": 160.32478,
+      "text": "samatageru mono yo",
+      "sliders": []
+    },
+    {
+      "startTime": 160.34688,
+      "endTime": 162.95723,
+      "text": "kono sora moyashite",
+      "sliders": []
+    },
+    {
+      "startTime": 163.0041,
+      "endTime": 166.29594,
+      "text": "nidoto okashi wa shinai",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

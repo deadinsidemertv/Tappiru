@@ -65,6 +65,9 @@ namespace TappiruCS.GameLogic
         private const int PointsPerHit = 100;
         private const int PointsPerPhase = 300;
 
+        public event Action<int> OnComboChanged;        // вызывается при любом изменении комбо
+        public event Action OnComboBreak;
+
         public GameSession(MapData mapData)
         {
             CurrentMap = mapData;
@@ -200,6 +203,7 @@ namespace TappiruCS.GameLogic
                 FailedPhases++;
                 Combo = 0;
                 Misses += CurrentPhaseChars.Length - CurrentCharIndex;
+                OnComboBreak?.Invoke();
                 PhaseComplete = false;
             }
             else
@@ -257,6 +261,7 @@ namespace TappiruCS.GameLogic
             {
                 Combo = 0;
                 judgement = "MISS";
+                OnComboBreak?.Invoke();
                 isSuccess = false;
             }
 
@@ -314,6 +319,7 @@ namespace TappiruCS.GameLogic
             Console.WriteLine($"[SLIDER BAD TIMING] '{expected}' delta={delta:F3}s (goodWindow={goodStartWindow})");
 
             Combo = 0;
+            OnComboBreak?.Invoke();
             Misses++;
 
             if (CurrentCharIndex == CurrentPhaseChars.Length - 1)
@@ -338,12 +344,14 @@ namespace TappiruCS.GameLogic
             if (inputChar != expected)
             {
                 Combo = 0;
+                OnComboBreak?.Invoke();
                 return;
             }
 
             CurrentCharIndex++;
             CorrectHits++;
             Combo++;
+            OnComboChanged?.Invoke(Combo);
             if (Combo > MaxCombo) MaxCombo = Combo;
             TotalScore += PointsPerHit * Combo;
 

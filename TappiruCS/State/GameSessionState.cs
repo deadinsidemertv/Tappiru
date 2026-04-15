@@ -149,6 +149,9 @@ namespace TappiruCS.State
 
             InitializeUIElements();
 
+            
+
+
             _scene.Add(bg);
             _scene.Add(Fade);
             _scene.Add(scorebarBG);
@@ -157,7 +160,7 @@ namespace TappiruCS.State
             _scene.Add(combo);
             _scene.Add(comboApof);
         }
-
+        
         public void OnExit()
         {
             _audio.Stop();
