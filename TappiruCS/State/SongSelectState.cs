@@ -265,11 +265,12 @@ namespace TappiruCS.State
         {
             Console.WriteLine($"[SelectSong] Начало для {SP}");
 
-            _context.Audio.Stop();
-
             MapData tempMap = null;
             string bgPath = null;
 
+            string audioPath = null;
+
+            _context.Audio.Stop();
             Console.WriteLine("[SelectSong] Запускаем Task.Run (MapLoad)...");
 
             ImageResult? image =null;
@@ -280,7 +281,7 @@ namespace TappiruCS.State
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
                 tempMap = LoadMap.MapLoad(SP);
-
+                audioPath = tempMap.audioPath;
 
                 if (tempMap != null)
                     bgPath = tempMap.backGroundPath;
@@ -291,8 +292,10 @@ namespace TappiruCS.State
                     image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
                 }
                 watch.Stop();
-                _context.Audio.LoadMusic(SelectedMap.audioPath);
-                _context.Audio.Play();
+                _context.Audio.LoadMusic(audioPath);
+                _context.Audio.Stop();
+                
+
                 Console.WriteLine($"[SelectSong] MapLoad завершён за {watch.ElapsedMilliseconds} мс");
             });
 
@@ -301,7 +304,7 @@ namespace TappiruCS.State
             _context.Game.InvokeOnMainThread(() =>
             {
                 Console.WriteLine("[SelectSong] Выполняется в главном потоке");
-
+                _context.Audio.Play();
                 if (tempMap == null)
                 {
                     Console.WriteLine("Не удалось загрузить карту");
@@ -339,6 +342,7 @@ namespace TappiruCS.State
 
                 topScores = ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10);
                 UpdateRankingDisplay(ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10));
+                
             });
         }
 

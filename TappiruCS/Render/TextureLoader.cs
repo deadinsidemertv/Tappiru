@@ -56,21 +56,12 @@ namespace TappiruCS.Render
             return id;
         }
 
-        /// <summary>
-        /// Загружает текстуру из уже декодированных пикселей (RGBA).
-        /// Используется для фонов SongSelect — данные пришли из Task.Run.
-        /// generateMipmaps=false → быстрее для превью.
-        /// </summary>
         public static int CreateTextureFromRawDataAsync(
             byte[] data, int width, int height, bool generateMipmaps = false)
         {
             return UploadTexture(data, width, height, generateMipmaps);
         }
 
-        /// <summary>
-        /// Освобождает текстуру и убирает её из кэша.
-        /// Вызывай когда карта больше не нужна, чтобы не копить VRAM.
-        /// </summary>
         public static void Unload(int textureId)
         {
             // Удаляем из кэша
