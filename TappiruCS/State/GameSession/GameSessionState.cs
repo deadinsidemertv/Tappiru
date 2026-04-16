@@ -6,6 +6,7 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
 
@@ -134,6 +135,7 @@ namespace TappiruCS.State
 
             var newScore = new PlayerScore
             {
+                MapName = session.CurrentMap.title,
                 MapHash = session.CurrentMap.MapHash,
                 _score = session.TotalScore,
                 _accuraci = session.Accuracy,
@@ -148,6 +150,16 @@ namespace TappiruCS.State
 
             ScoreManager.AddScore(newScore);
             _context.Audio.Stop();
+
+            if (string.IsNullOrEmpty(Auth.AuthToken))
+            {
+                Console.WriteLine("Нет токена — результат не отправлен (оффлайн)");
+                
+            }
+            if (PlayerProfile.Instance.IsLoggedIn)
+            {
+                _ = ScoreSubmitter.SubmitScoreAsync(newScore);   // fire-and-forget
+            }
 
             _context.Game.ChangeState(new ScoreBoardState(_context, newScore, _mapData));
         }

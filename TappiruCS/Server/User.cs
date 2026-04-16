@@ -14,7 +14,7 @@ namespace TappiruCS.Server
                 using var client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Auth.AuthToken);
 
-                var response = await client.GetAsync("https://localhost:7068/api/user/me");
+                var response = await client.GetAsync("https://tappiruserver.onrender.com/api/user/me");
 
                 if (response.IsSuccessStatusCode)
                 {

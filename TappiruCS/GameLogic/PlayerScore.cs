@@ -3,6 +3,7 @@
     public class PlayerScore
     {
         public string MapHash { get; set; } = string.Empty;
+        public string MapName { get; set; }
         public float _accuraci { get; set; }
         public int _maxCobmo { get; set; }
         public float _score { get; set; }
