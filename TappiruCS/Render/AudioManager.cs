@@ -37,9 +37,10 @@ namespace TappiruCS.Render
         }
 
         // ====================== МУЗЫКА ======================
-
         public void LoadMusic(string filePath)
         {
+
+
             Stop();
 
             AL.Source(_musicSource, ALSourcei.Buffer, 0);

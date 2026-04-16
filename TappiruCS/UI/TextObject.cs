@@ -10,7 +10,6 @@ namespace TappiruCS.UI
     {
         public string Text { get; set; } = "";
         public Color4 Color { get; set; } = Color4.White;
-
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
 
         public Action<Vector2>? OnClick { get; set; }

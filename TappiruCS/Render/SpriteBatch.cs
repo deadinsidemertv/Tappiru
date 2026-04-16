@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using TappiruCS.Server;
+using TappiruCS.UI;
 
 namespace TappiruCS.Render
 {
@@ -21,7 +23,6 @@ namespace TappiruCS.Render
         public SpriteBatch(int shaderProgram)
         {
             _shaderProgram = shaderProgram;
-
             // Кэшируем uniform'ы один раз
             _projectionLoc = GL.GetUniformLocation(shaderProgram, "projection");
             _texLoc = GL.GetUniformLocation(shaderProgram, "tex");
@@ -49,6 +50,8 @@ namespace TappiruCS.Render
             GL.EnableVertexAttribArray(1);
 
             GL.BindVertexArray(0);
+
+            
         }
 
         public void Draw(int textureId, float x, float y, float width, float height,float u1, float v1, float u2, float v2,float r, float g, float b, float a,Matrix4 projection)

@@ -24,6 +24,7 @@ namespace TappiruCS
         private IGameState currentState;
 
         private SpriteBatch spriteBatch;
+        public static TextRender japanFONT;
         private TextRender textRenderer;
         private AudioManager audio;
 
@@ -67,7 +68,7 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            textRenderer = new TextRender(spriteBatch, "Textures\\Font\\font_cyrillic.fnt"); 
+            textRenderer = new TextRender(spriteBatch, "Textures\\Font\\font_cyrillic.fnt");
             audio = new AudioManager();
 
             RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);

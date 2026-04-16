@@ -22,7 +22,6 @@ namespace TappiruCS.State
         public static MapData SelectedMap;
 
         private readonly Scene _scene = new Scene();
-        private readonly TextRender _manrope;
 
         public Background bg;
 
@@ -45,10 +44,12 @@ namespace TappiruCS.State
         public SongSelectState(RenderContext context)
         {
             _context = context;
+            
         }
-        
+
         public void OnEnter()
         {
+            
             _scene.Initialize(_context);
 
             string[] folders = Directory.GetDirectories("Songs/");
@@ -270,7 +271,7 @@ namespace TappiruCS.State
 
             string audioPath = null;
 
-            _context.Audio.Stop();
+            //_context.Audio.Stop();
             Console.WriteLine("[SelectSong] Запускаем Task.Run (MapLoad)...");
 
             ImageResult? image =null;
@@ -293,7 +294,7 @@ namespace TappiruCS.State
                 }
                 watch.Stop();
                 _context.Audio.LoadMusic(audioPath);
-                _context.Audio.Stop();
+                //_context.Audio.Stop();
                 
 
                 Console.WriteLine($"[SelectSong] MapLoad завершён за {watch.ElapsedMilliseconds} мс");
@@ -320,7 +321,7 @@ namespace TappiruCS.State
 
 
                 _bgPreview = TextureLoader.CreateTextureFromRawDataAsync(image.Data, image.Width, image.Height, generateMipmaps: false);
-                bg.TransitionTo(_bgPreview, 0.15f);
+                bg.TransitionTo(_bgPreview, 0.4f);
 
                 watch.Stop();
                 Console.WriteLine($"[SelectSong] Текстура загружена за {watch.ElapsedMilliseconds} мс");
