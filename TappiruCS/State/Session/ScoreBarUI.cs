@@ -3,9 +3,10 @@ using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.UI;
 using static TappiruCS.Render.TextRender;
 
-namespace TappiruCS.UI
+namespace TappiruCS.State.Session
 {
     public class ScoreBarUI
     {

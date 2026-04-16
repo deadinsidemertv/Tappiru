@@ -1,5 +1,4 @@
-﻿// State/GameSessionState.cs
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
@@ -10,7 +9,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
 
-namespace TappiruCS.State
+namespace TappiruCS.State.Session
 {
     public class GameSessionState : IGameState
     {

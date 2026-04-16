@@ -1,5 +1,6 @@
 ﻿using Gdk;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Collections.Generic;
 
 namespace TappiruCS.GameLogic
 {

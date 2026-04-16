@@ -9,6 +9,8 @@ using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
+using TappiruCS.State.Session;
+
 
 namespace TappiruCS.State
 {
@@ -260,8 +262,6 @@ namespace TappiruCS.State
         }
         public async Task SelectSong(string SP)
         {
-            
-
             Console.WriteLine($"[SelectSong] Начало для {SP}");
 
             _context.Audio.Stop();

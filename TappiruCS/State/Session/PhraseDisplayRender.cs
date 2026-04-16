@@ -1,11 +1,9 @@
-﻿// GameLogic/PhraseDisplayRenderer.cs
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
-using TappiruCS.Render;
-using static System.Collections.Specialized.BitVector32;
+using TappiruCS.GameLogic;
 using static TappiruCS.Render.TextRender;
 
-namespace TappiruCS.GameLogic
+namespace TappiruCS.State.Session
 {
     public class PhraseDisplayRenderer
     {

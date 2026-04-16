@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.State.Edit;
+using TappiruCS.UI;
 
-namespace TappiruCS.UI
+namespace TappiruCS.State.Edit
 {
     /// <summary>
     /// Основной таймлайн редактора. Поддерживает waveform, фразы с draggable ручками,

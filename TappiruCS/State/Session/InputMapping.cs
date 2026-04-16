@@ -1,9 +1,11 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.GameLogic;
 
-public static class InputMapping
+namespace TappiruCS.State.Session
 {
-    public static readonly Dictionary<Keys, char[]> KeyToCharsMap = new()
+    public static class InputMapping
+    {
+        public static readonly Dictionary<Keys, char[]> KeyToCharsMap = new()
     {
             { Keys.A,      new char[] { 'a', 'ф' } },
             { Keys.B,      new char[] { 'b', 'и' } },
@@ -41,5 +43,6 @@ public static class InputMapping
             { Keys.Space,        new char[] { ' ' } },
     };
 
-    public static void Initialize() => GameSession.InitCharToKeyMap(KeyToCharsMap);
+        public static void Initialize() => GameSession.InitCharToKeyMap(KeyToCharsMap);
+    }
 }
