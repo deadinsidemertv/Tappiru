@@ -2,14 +2,15 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using StbImageSharp;
 using System.Text.Json;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server.Player;
-using TappiruCS.UI;
 using TappiruCS.State.Session;
+using TappiruCS.UI;
 
 
 namespace TappiruCS.State
@@ -271,6 +272,8 @@ namespace TappiruCS.State
 
             Console.WriteLine("[SelectSong] Запускаем Task.Run (MapLoad)...");
 
+            ImageResult? image =null;
+
             await Task.Run(() =>
             {
                 Console.WriteLine("[SelectSong] Внутри Task.Run — начинаем MapLoad");
@@ -278,11 +281,19 @@ namespace TappiruCS.State
 
                 tempMap = LoadMap.MapLoad(SP);
 
-                watch.Stop();
-                Console.WriteLine($"[SelectSong] MapLoad завершён за {watch.ElapsedMilliseconds} мс");
 
                 if (tempMap != null)
                     bgPath = tempMap.backGroundPath;
+
+                
+                using (var stream = File.OpenRead(bgPath))
+                {
+                    image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+                }
+                watch.Stop();
+                _context.Audio.LoadMusic(SelectedMap.audioPath);
+                _context.Audio.Play();
+                Console.WriteLine($"[SelectSong] MapLoad завершён за {watch.ElapsedMilliseconds} мс");
             });
 
             Console.WriteLine("[SelectSong] Вернулись в главный поток, вызываем InvokeOnMainThread");
@@ -300,35 +311,19 @@ namespace TappiruCS.State
                 SelectedMap = tempMap;
 
                 PlayerScore? best = ScoreManager.GetBestScoreForMap(SelectedMap.MapHash);
-                if (best != null)
-                {
-                    Console.WriteLine($"Лучший счёт: {best._score} (Точность: {best._accuraci:F1}%)");
-                    // отобразите в UI
-                }
 
                 Console.WriteLine("[SelectSong] Начинаем загрузку текстуры фона...");
                 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-                if (!string.IsNullOrEmpty(bgPath))
-                {
-                    try
-                    {
-                        _bgPreview = TextureLoader.Load(bgPath);
-                        if (bg != null)
-                            bg._textureId = _bgPreview;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Ошибка текстуры: {ex.Message}");
-                    }
-                }
+
+                _bgPreview = TextureLoader.CreateTextureFromRawDataAsync(image.Data, image.Width, image.Height, generateMipmaps: false);
+                bg._textureId = _bgPreview;
 
                 watch.Stop();
                 Console.WriteLine($"[SelectSong] Текстура загружена за {watch.ElapsedMilliseconds} мс");
 
                 Console.WriteLine("[SelectSong] Загружаем музыку...");
-                _context.Audio.LoadMusic(SelectedMap.audioPath);
-                _context.Audio.Play();
+                
 
                 Console.WriteLine("[SelectSong] Обновляем текст...");
 

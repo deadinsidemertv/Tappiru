@@ -10,6 +10,10 @@ namespace TappiruCS.Render
         public static int vbo;
         public static int ebo;
 
+        private static int _uploadPBO = 0;
+        private static int _pboSize = 0;
+        private const int MAX_PBO_SIZE = 128 * 1024 * 1024;
+
         public static int Load(string path)
         {
             if (!File.Exists(path))
@@ -94,7 +98,17 @@ namespace TappiruCS.Render
             return textureID;
         }
 
-        
+        public static void InitializeAsyncTextureUpload()
+        {
+            if (_uploadPBO != 0) return;
+
+            _uploadPBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, _uploadPBO);
+            GL.BufferData(BufferTarget.PixelUnpackBuffer, MAX_PBO_SIZE, IntPtr.Zero, BufferUsageHint.StreamDraw);
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
+
+            Console.WriteLine("[TextureLoader] PBO для асинхронной загрузки текстур создан");
+        }
 
         public static void SetupGraphics()
         {
@@ -174,6 +188,8 @@ namespace TappiruCS.Render
             // Blend включаем один раз здесь
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            InitializeAsyncTextureUpload();
         }
 
         private static int CompileShader(string source, ShaderType type)
@@ -190,20 +206,51 @@ namespace TappiruCS.Render
             return shader;
         }
 
-        public static int CreateTextureFromRawData(byte[] data, int width, int height)
+        public static int CreateTextureFromRawDataAsync(byte[] data, int width, int height, bool generateMipmaps = false)
         {
+            if (_uploadPBO == 0)
+                InitializeAsyncTextureUpload();
+
             int texId = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texId);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                          width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            // Важно: для превью в SongSelect mipmap почти не нужен — экономим время
+            TextureMinFilter minFilter = generateMipmaps
+                ? TextureMinFilter.LinearMipmapLinear
+                : TextureMinFilter.Linear;
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            // === Асинхронная загрузка через PBO ===
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, _uploadPBO);
+
+            // Чтобы избежать stall — сначала "отбрасываем" старые данные
+            if (data.Length > _pboSize)
+            {
+                _pboSize = (int)Math.Min(MAX_PBO_SIZE, (long)data.Length * 2); // с запасом
+                GL.BufferData(BufferTarget.PixelUnpackBuffer, _pboSize, IntPtr.Zero, BufferUsageHint.StreamDraw);
+            }
+            else
+            {
+                // Орфаннинг буфера (самый важный трюк против stall)
+                GL.BufferData(BufferTarget.PixelUnpackBuffer, _pboSize, IntPtr.Zero, BufferUsageHint.StreamDraw);
+            }
+
+            // Копируем данные CPU → PBO (быстро)
+            GL.BufferSubData(BufferTarget.PixelUnpackBuffer, IntPtr.Zero, data.Length, data);
+
+            // Загружаем в текстуру из PBO (последний параметр = 0 — offset в PBO)
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                          width, height, 0,
+                          PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+
+            if (generateMipmaps)
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             return texId;

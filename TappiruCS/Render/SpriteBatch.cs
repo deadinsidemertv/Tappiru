@@ -51,15 +51,8 @@ namespace TappiruCS.Render
             GL.BindVertexArray(0);
         }
 
-        /// <summary>
-        /// Основной метод отрисовки текстурированного квадрата.
-        /// </summary>
-        public void Draw(int textureId, float x, float y, float width, float height,
-                         float u1, float v1, float u2, float v2,
-                         float r, float g, float b, float a,
-                         Matrix4 projection)
+        public void Draw(int textureId, float x, float y, float width, float height,float u1, float v1, float u2, float v2,float r, float g, float b, float a,Matrix4 projection)
         {
-            // 1. Подготовка вершин (логический блок)
             float[] vertices = CreateQuadVertices(x, y, width, height, u1, v1, u2, v2);
 
             // 2. Загрузка данных в GPU
@@ -71,10 +64,6 @@ namespace TappiruCS.Render
             // 4. Сама отрисовка
             DrawElements();
         }
-
-        /// <summary>
-        /// Отрисовка цветного прямоугольника (использует белую 1x1 текстуру).
-        /// </summary>
         public void DrawRect(float x, float y, float width, float height, Color4 color, Matrix4 projection)
         {
             int whiteTex = TextureManager.GetTexture("white"); // должна быть в TextureManager
@@ -87,8 +76,7 @@ namespace TappiruCS.Render
 
         // ====================== Приватные хелперы ======================
 
-        private static float[] CreateQuadVertices(float x, float y, float w, float h,
-                                                  float u1, float v1, float u2, float v2)
+        private static float[] CreateQuadVertices(float x, float y, float w, float h,float u1, float v1, float u2, float v2)
         {
             return new[]
             {

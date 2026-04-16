@@ -49,7 +49,7 @@ namespace TappiruCS.Server.Player
                     if (AvatarTextureId != 0)
                         GL.DeleteTexture(AvatarTextureId);
 
-                    AvatarTextureId = TextureLoader.CreateTextureFromRawData(
+                    AvatarTextureId = TextureLoader.CreateTextureFromRawDataAsync(
                         result.Data, result.Width, result.Height);
 
                     OnProfileChanged?.Invoke();
