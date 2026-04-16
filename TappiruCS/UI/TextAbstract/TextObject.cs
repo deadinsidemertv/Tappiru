@@ -4,7 +4,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
-namespace TappiruCS.UI
+namespace TappiruCS.UI.TextAbstract
 {
     public class TextObject : GameObject
     {
@@ -83,13 +83,13 @@ namespace TappiruCS.UI
             if (TR == null || string.IsNullOrEmpty(Text))
                 return;
 
-            var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
+            var bounds = GetDesignBounds();
 
             // Применяем CanvasScale один раз
-            float finalX = dLeft * CanvasScale.X;
-            float finalY = dTop * CanvasScale.Y;
-            float finalScaleX = effScaleX * CanvasScale.X;
-            float finalScaleY = effScaleY * CanvasScale.Y;
+            float finalX = bounds.designLeft * CanvasScale.X;
+            float finalY = bounds.designTop * CanvasScale.Y;
+            float finalScaleX = bounds.effWidth * CanvasScale.X;
+            float finalScaleY = bounds.effHeight * CanvasScale.Y;
 
             // === Основная отрисовка с эффектами ===
             if (HasOutline)

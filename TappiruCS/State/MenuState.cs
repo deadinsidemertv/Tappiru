@@ -11,6 +11,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
 using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State
 {
@@ -96,7 +97,6 @@ namespace TappiruCS.State
             {
                 Layer = 4,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(-5f, -25f),
                 TextScale = 0.4f,
                 ScaleMultiply = 0.8f
             };

@@ -14,6 +14,7 @@ using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.Core.GameObject;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Edit
 {

@@ -11,6 +11,7 @@ using TappiruCS.Render;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Session;
 using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
 
 
 namespace TappiruCS.State

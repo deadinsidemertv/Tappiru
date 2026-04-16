@@ -8,6 +8,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.State.Edit;
 using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Edit
 {

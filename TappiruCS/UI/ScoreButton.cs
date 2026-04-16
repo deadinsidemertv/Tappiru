@@ -5,6 +5,7 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Server.Player;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.UI
 {

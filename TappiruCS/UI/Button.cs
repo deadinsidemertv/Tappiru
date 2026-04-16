@@ -4,6 +4,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using static TappiruCS.Render.TextRender;
 using TappiruCS.Tween;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.UI
 {
@@ -14,7 +15,7 @@ namespace TappiruCS.UI
 
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
-        public Vector2 TextOffset { get; set; } = new Vector2(0f, 0f);
+        public Vector2 TextOffset { get; set; } = Vector2.Zero;
         public float TextScale { get; set; } = 0.5f;
         public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
@@ -47,6 +48,8 @@ namespace TappiruCS.UI
             Position = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
+            Pivot = new Vector2(0.5f, 0.5f);
+
             _textureId = TextureManager.GetTexture(textureName);
 
             TextColor = TextColor;
@@ -59,10 +62,10 @@ namespace TappiruCS.UI
 
             _textObject = new TextObject(text, x, y, 1f)
             {
-                Color = TextColor,
+                Align = TextRender.TextAlign.Center,
+                Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = TextScale,
-                Align = TextAlign.Left,
-                Pivot = new Vector2(0.0f, 0.0f),
+                Color = TextColor,
                 AllowHover = false
             };
 
@@ -96,21 +99,25 @@ namespace TappiruCS.UI
                 OnClick?.Invoke();
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
-
+            _textObject.Position = Position;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
             _textObject.ScaleMultiply = TextScale;
+            _textObject.Pivot = new Vector2(0.5f, 0.5f);
 
+
+            _textObject.Align = TextRender.TextAlign.Left;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
             // Главное исправление:
             _buttonBackground.Position = Position;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+            if (TextOffset != Vector2.Zero)
+            {
+                float s = ScaleMultiply;
+                _textObject.Position += new Vector2(TextOffset.X * s, TextOffset.Y * s);
+            }
 
             float offsetScale = ScaleMultiply;
-
-            _textObject.Position = new Vector2(
-                Position.X + TextOffset.X * offsetScale,
-                Position.Y + TextOffset.Y * offsetScale);
 
             if (IsImaged)
             {

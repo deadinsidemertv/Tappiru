@@ -6,6 +6,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.TextRender;
 
 namespace TappiruCS.State
