@@ -3,168 +3,241 @@ using StbImageSharp;
 
 namespace TappiruCS.Render
 {
+    /// <summary>
+    /// Загрузчик текстур с кэшем, PBO-загрузкой и чистым разделением ответственности.
+    /// </summary>
     public static class TextureLoader
     {
+        // ── Публичные поля (нужны снаружи) ────────────────────────────────
         public static int shaderProgram;
-        public static int vao;
-        public static int vbo;
-        public static int ebo;
+        public static int vao, vbo, ebo;
 
-        private static int _uploadPBO = 0;
-        private static int _pboSize = 0;
-        private const int MAX_PBO_SIZE = 128 * 1024 * 1024;
+        // ── Кэш: путь → ID текстуры ────────────────────────────────────────
+        private static readonly Dictionary<string, int> _cache = new();
 
+        // ── PBO: двойной буфер чтобы CPU и GPU не ждали друг друга ─────────
+        private const int PBO_COUNT = 2;
+        private const int PBO_MAX_SIZE = 64 * 1024 * 1024; // 64 МБ хватает для 4K RGBA
+        private static readonly int[] _pbos = new int[PBO_COUNT];
+        private static int _pboIndex = 0;        // чередуем 0 → 1 → 0 → ...
+        private static bool _pbosReady = false;
+
+        // ══════════════════════════════════════════════════════════════════
+        //  ПУБЛИЧНЫЙ API
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Загружает текстуру из файла. Повторные вызовы с тем же путём
+        /// возвращают кэшированный ID без лишней работы.
+        /// </summary>
         public static int Load(string path)
         {
+            if (_cache.TryGetValue(path, out int cached))
+                return cached;
+
             if (!File.Exists(path))
             {
-                Console.WriteLine($"[TextureLoader] Ошибка: файл не найден {path}");
+                Console.WriteLine($"[TextureLoader] ❌ Файл не найден: {path}");
                 return 0;
             }
 
-            int textureID = GL.GenTexture();
+            ImageResult image;
+            using (var stream = File.OpenRead(path))
+                image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
 
-            using var stream = File.OpenRead(path);
-            var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            byte[] pixels = IsFontTexture(path)
+                ? ProcessFontPixels(image.Data)
+                : image.Data;
 
-            byte[] pixelData = image.Data;
+            int id = UploadTexture(pixels, image.Width, image.Height, generateMipmaps: true);
 
-            // === СПЕЦИАЛЬНЫЙ ФИКС ДЛЯ ТВОЕГО ШРИФТА "main_*.tga" ===
-            // У тебя белые буквы на чёрном фоне → альфа должна браться из яркости RGB
-            bool isFontTexture = path.Contains("main_") || path.Contains("font");
+            _cache[path] = id;
+            Console.WriteLine($"[TextureLoader] ✅ {Path.GetFileName(path)} | ID={id} | {image.Width}×{image.Height}");
+            return id;
+        }
 
-            if (isFontTexture)
-            {
-                var newData = new byte[image.Width * image.Height * 4];
+        /// <summary>
+        /// Загружает текстуру из уже декодированных пикселей (RGBA).
+        /// Используется для фонов SongSelect — данные пришли из Task.Run.
+        /// generateMipmaps=false → быстрее для превью.
+        /// </summary>
+        public static int CreateTextureFromRawDataAsync(
+            byte[] data, int width, int height, bool generateMipmaps = false)
+        {
+            return UploadTexture(data, width, height, generateMipmaps);
+        }
 
-                for (int i = 0, j = 0; i < pixelData.Length; i += 4, j += 4)
-                {
-                    byte r = pixelData[i];
-                    byte g = pixelData[i + 1];
-                    byte b = pixelData[i + 2];
-                    // byte a = pixelData[i + 3]; // этот альфа-канал у тебя почти всегда 255 или мусор
+        /// <summary>
+        /// Освобождает текстуру и убирает её из кэша.
+        /// Вызывай когда карта больше не нужна, чтобы не копить VRAM.
+        /// </summary>
+        public static void Unload(int textureId)
+        {
+            // Удаляем из кэша
+            var key = _cache.FirstOrDefault(kv => kv.Value == textureId).Key;
+            if (key != null) _cache.Remove(key);
 
-                    // Берём яркость (обычно зелёный канал самый чистый у BMFont)
-                    byte alpha = (byte)((r + g + b) / 3);   // или просто g, если зелёный канал чистый
+            GL.DeleteTexture(textureId);
+        }
 
-                    newData[j] = 255;   // R = белый
-                    newData[j + 1] = 255;   // G = белый
-                    newData[j + 2] = 255;   // B = белый
-                    newData[j + 3] = alpha; // A = из яркости символа
-                }
-                pixelData = newData;
-            }
-            else
-            {
-                // Для обычных текстур (btn, black, menubg и т.д.) — нормальная обработка
-                if (image.Comp != ColorComponents.RedGreenBlueAlpha)
-                {
-                    var newData = new byte[image.Width * image.Height * 4];
-                    // ... (твой предыдущий код для обычных текстур)
-                    for (int i = 0, j = 0; i < pixelData.Length; i += image.Comp == ColorComponents.RedGreenBlue ? 3 : 1, j += 4)
-                    {
-                        if (image.Comp == ColorComponents.RedGreenBlue)
-                        {
-                            newData[j] = pixelData[i];
-                            newData[j + 1] = pixelData[i + 1];
-                            newData[j + 2] = pixelData[i + 2];
-                            newData[j + 3] = 255;
-                        }
-                        else // Grey
-                        {
-                            byte val = pixelData[i];
-                            newData[j] = newData[j + 1] = newData[j + 2] = val;
-                            newData[j + 3] = 255;
-                        }
-                    }
-                    pixelData = newData;
-                }
-            }
+        // ══════════════════════════════════════════════════════════════════
+        //  SETUP
+        // ══════════════════════════════════════════════════════════════════
 
-            GL.BindTexture(TextureTarget.Texture2D, textureID);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                          image.Width, image.Height, 0,
-                          PixelFormat.Rgba, PixelType.UnsignedByte, pixelData);
+        public static void SetupGraphics()
+        {
+            SetupShaders();
+            SetupQuadGeometry();
+            SetupPBOs();
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-            Console.WriteLine($"[TextureLoader] ✅ Загружена: {Path.GetFileName(path)} | ID={textureID} | {image.Width}x{image.Height}");
-
-            return textureID;
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
 
         public static void InitializeAsyncTextureUpload()
         {
-            if (_uploadPBO != 0) return;
-
-            _uploadPBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, _uploadPBO);
-            GL.BufferData(BufferTarget.PixelUnpackBuffer, MAX_PBO_SIZE, IntPtr.Zero, BufferUsageHint.StreamDraw);
-            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
-
-            Console.WriteLine("[TextureLoader] PBO для асинхронной загрузки текстур создан");
+            // Оставлено для обратной совместимости — SetupGraphics уже вызывает SetupPBOs
+            if (!_pbosReady) SetupPBOs();
         }
 
-        public static void SetupGraphics()
+        // ══════════════════════════════════════════════════════════════════
+        //  ВНУТРЕННЯЯ ЛОГИКА
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Загружает пиксели в GPU через PBO (быстрее прямой передачи).
+        /// Двойной буфер (ping-pong) устраняет stall между CPU и GPU.
+        /// </summary>
+        private static int UploadTexture(byte[] data, int width, int height, bool generateMipmaps)
         {
-            // Vertex Shader
-            string vertexShaderSource = @"
-            #version 330 core
-            layout(location = 0) in vec2 aPos;
-            layout(location = 1) in vec2 aTexCoord;
-            out vec2 TexCoord;
-            uniform mat4 projection;
+            if (!_pbosReady) SetupPBOs();
 
-            void main()
+            // — Выбираем следующий PBO в очереди —
+            int pbo = _pbos[_pboIndex];
+            _pboIndex = (_pboIndex + 1) % PBO_COUNT;
+
+            // — Копируем данные CPU → PBO (без ожидания GPU) —
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, pbo);
+            GL.BufferData(BufferTarget.PixelUnpackBuffer, data.Length, IntPtr.Zero, BufferUsageHint.StreamDraw); // orphaning
+            GL.BufferSubData(BufferTarget.PixelUnpackBuffer, IntPtr.Zero, data.Length, data);
+
+            // — Создаём текстуру и загружаем из PBO —
+            int texId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+
+            GL.TexImage2D(
+                TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                width, height, 0,
+                PixelFormat.Rgba, PixelType.UnsignedByte,
+                IntPtr.Zero   // ← IntPtr.Zero = читать из PBO, а не из RAM
+            );
+
+            // — Параметры фильтрации —
+            var minFilter = generateMipmaps
+                ? TextureMinFilter.LinearMipmapLinear
+                : TextureMinFilter.Linear;
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            if (generateMipmaps)
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+            // — Отвязываем всё —
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            return texId;
+        }
+
+        private static void SetupPBOs()
+        {
+            for (int i = 0; i < PBO_COUNT; i++)
             {
-                gl_Position = projection * vec4(aPos, 0.0, 1.0);
-                TexCoord = aTexCoord;
-            }";
+                _pbos[i] = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.PixelUnpackBuffer, _pbos[i]);
+                GL.BufferData(BufferTarget.PixelUnpackBuffer, PBO_MAX_SIZE, IntPtr.Zero, BufferUsageHint.StreamDraw);
+            }
+            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
+            _pbosReady = true;
 
-            // Fragment Shader
-            string fragmentShaderSource = @"
-            #version 330 core
-            in vec2 TexCoord;
-            out vec4 FragColor;
-            uniform sampler2D tex;
-            uniform vec4 color;
+            Console.WriteLine($"[TextureLoader] PBO ×{PBO_COUNT} готовы ({PBO_MAX_SIZE / 1024 / 1024} МБ каждый)");
+        }
 
-            void main()
+        // ── Обработка пикселей ─────────────────────────────────────────────
+
+        private static bool IsFontTexture(string path) =>
+            path.Contains("main_") || path.Contains("font");
+
+        /// <summary>
+        /// Шрифты BMFont: белые буквы на чёрном → переводим яркость в альфа-канал.
+        /// </summary>
+        private static byte[] ProcessFontPixels(byte[] src)
+        {
+            var dst = new byte[src.Length];
+            for (int i = 0; i < src.Length; i += 4)
             {
-                FragColor = texture(tex, TexCoord) * color;
-            }";
+                byte alpha = (byte)((src[i] + src[i + 1] + src[i + 2]) / 3);
+                dst[i] = 255;
+                dst[i + 1] = 255;
+                dst[i + 2] = 255;
+                dst[i + 3] = alpha;
+            }
+            return dst;
+        }
 
-            int vertexShader = CompileShader(vertexShaderSource, ShaderType.VertexShader);
-            int fragmentShader = CompileShader(fragmentShaderSource, ShaderType.FragmentShader);
+        // ── Шейдеры и геометрия ────────────────────────────────────────────
+
+        private static void SetupShaders()
+        {
+            const string vert = @"
+                #version 330 core
+                layout(location = 0) in vec2 aPos;
+                layout(location = 1) in vec2 aTexCoord;
+                out vec2 TexCoord;
+                uniform mat4 projection;
+                void main()
+                {
+                    gl_Position = projection * vec4(aPos, 0.0, 1.0);
+                    TexCoord = aTexCoord;
+                }";
+
+            const string frag = @"
+                #version 330 core
+                in vec2 TexCoord;
+                out vec4 FragColor;
+                uniform sampler2D tex;
+                uniform vec4 color;
+                void main()
+                {
+                    FragColor = texture(tex, TexCoord) * color;
+                }";
+
+            int vs = CompileShader(vert, ShaderType.VertexShader);
+            int fs = CompileShader(frag, ShaderType.FragmentShader);
 
             shaderProgram = GL.CreateProgram();
-            GL.AttachShader(shaderProgram, vertexShader);
-            GL.AttachShader(shaderProgram, fragmentShader);
+            GL.AttachShader(shaderProgram, vs);
+            GL.AttachShader(shaderProgram, fs);
             GL.LinkProgram(shaderProgram);
+            GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out int ok);
+            if (ok == 0)
+                Console.WriteLine("[TextureLoader] ❌ Ошибка линковки: " + GL.GetProgramInfoLog(shaderProgram));
 
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
+            GL.DeleteShader(vs);
+            GL.DeleteShader(fs);
+        }
 
-            // Проверка линковки
-            GL.GetProgram(shaderProgram, GetProgramParameterName.LinkStatus, out int linkSuccess);
-            if (linkSuccess == 0)
-            {
-                Console.WriteLine("Ошибка линковки шейдера: " + GL.GetProgramInfoLog(shaderProgram));
-            }
-
-            // Вершины (это можно вынести в SpriteBatch позже)
+        private static void SetupQuadGeometry()
+        {
             float[] vertices = {
-                -0.8f,  0.8f,  0.0f, 0.0f,
-                 0.8f,  0.8f,  1.0f, 0.0f,
-                 0.8f, -0.8f,  1.0f, 1.0f,
-                -0.8f, -0.8f,  0.0f, 1.0f
+                -0.8f,  0.8f,  0f, 0f,
+                 0.8f,  0.8f,  1f, 0f,
+                 0.8f, -0.8f,  1f, 1f,
+                -0.8f, -0.8f,  0f, 1f,
             };
-
             uint[] indices = { 0, 1, 2, 2, 3, 0 };
 
             vao = GL.GenVertexArray();
@@ -184,12 +257,6 @@ namespace TappiruCS.Render
             GL.EnableVertexAttribArray(1);
 
             GL.BindVertexArray(0);
-
-            // Blend включаем один раз здесь
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
-            InitializeAsyncTextureUpload();
         }
 
         private static int CompileShader(string source, ShaderType type)
@@ -197,63 +264,10 @@ namespace TappiruCS.Render
             int shader = GL.CreateShader(type);
             GL.ShaderSource(shader, source);
             GL.CompileShader(shader);
-
-            GL.GetShader(shader, ShaderParameter.CompileStatus, out int success);
-            if (success == 0)
-            {
-                Console.WriteLine($"Ошибка компиляции {type}: " + GL.GetShaderInfoLog(shader));
-            }
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out int ok);
+            if (ok == 0)
+                Console.WriteLine($"[TextureLoader] ❌ Ошибка {type}: " + GL.GetShaderInfoLog(shader));
             return shader;
-        }
-
-        public static int CreateTextureFromRawDataAsync(byte[] data, int width, int height, bool generateMipmaps = false)
-        {
-            if (_uploadPBO == 0)
-                InitializeAsyncTextureUpload();
-
-            int texId = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texId);
-
-            // Важно: для превью в SongSelect mipmap почти не нужен — экономим время
-            TextureMinFilter minFilter = generateMipmaps
-                ? TextureMinFilter.LinearMipmapLinear
-                : TextureMinFilter.Linear;
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-            // === Асинхронная загрузка через PBO ===
-            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, _uploadPBO);
-
-            // Чтобы избежать stall — сначала "отбрасываем" старые данные
-            if (data.Length > _pboSize)
-            {
-                _pboSize = (int)Math.Min(MAX_PBO_SIZE, (long)data.Length * 2); // с запасом
-                GL.BufferData(BufferTarget.PixelUnpackBuffer, _pboSize, IntPtr.Zero, BufferUsageHint.StreamDraw);
-            }
-            else
-            {
-                // Орфаннинг буфера (самый важный трюк против stall)
-                GL.BufferData(BufferTarget.PixelUnpackBuffer, _pboSize, IntPtr.Zero, BufferUsageHint.StreamDraw);
-            }
-
-            // Копируем данные CPU → PBO (быстро)
-            GL.BufferSubData(BufferTarget.PixelUnpackBuffer, IntPtr.Zero, data.Length, data);
-
-            // Загружаем в текстуру из PBO (последний параметр = 0 — offset в PBO)
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                          width, height, 0,
-                          PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
-
-            if (generateMipmaps)
-                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-
-            GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            return texId;
         }
     }
 }
