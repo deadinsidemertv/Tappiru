@@ -317,7 +317,7 @@ namespace TappiruCS.State
 
 
                 _bgPreview = TextureLoader.CreateTextureFromRawDataAsync(image.Data, image.Width, image.Height, generateMipmaps: false);
-                bg._textureId = _bgPreview;
+                bg.TransitionTo(_bgPreview, 0.15f);
 
                 watch.Stop();
                 Console.WriteLine($"[SelectSong] Текстура загружена за {watch.ElapsedMilliseconds} мс");

@@ -9,21 +9,51 @@ namespace TappiruCS.UI
         public bool ParalaxEffect = false;
         public bool AutoBreathingParallax = false;
 
-        public float BreathingSpeed = 0.4f;          // частота "дыхания" (меньше = медленнее)
-        public float BreathingStrength = 12f;        // максимальное смещение в пикселях (10-20 обычно хватает)
+        public float BreathingSpeed = 0.4f;
+        public float BreathingStrength = 12f;
 
         public int _textureId;
-
         public float Opacity = 1f;
+
+        // === Crossfade ===
+        private int _nextTextureId = -1;
+        private float _fadeProgress = 0f;
+        private float _fadeDuration = 0.5f;
+        private bool _isFading = false;
+
         public Background(int textureId)
         {
             _textureId = textureId;
         }
+
+        // Вызови этот метод вместо bg._textureId = ...
+        public void TransitionTo(int newTextureId, float duration = 0.5f)
+        {
+            _nextTextureId = newTextureId;
+            _fadeProgress = 0f;
+            _fadeDuration = duration;
+            _isFading = true;
+        }
+
         double time = 0.0;
+
         public override void Draw(Matrix4 projection)
         {
+            // Тик фейда
+            if (_isFading)
+            {
+                _fadeProgress += (float)Game.UpdateTime / _fadeDuration;
+                if (_fadeProgress >= 1f)
+                {
+                    _textureId = _nextTextureId;
+                    _nextTextureId = -1;
+                    _fadeProgress = 1f;
+                    _isFading = false;
+                }
+            }
+
             const float bgScale = 1.2f;
-            const float strength = 0.25f;         // запас от краёв
+            const float strength = 0.25f;
 
             float screenW = Game.ClientSize.X;
             float screenH = Game.ClientSize.Y;
@@ -39,13 +69,10 @@ namespace TappiruCS.UI
             float offsetX = 0f;
             float offsetY = 0f;
 
-            
-
-            time += Game.UpdateTime;   // или Scene.CurrentTime / Audio.GetCurrentTime() — что удобнее
+            time += Game.UpdateTime;
 
             if (ParalaxEffect)
             {
-                // твой старый код с мышью (оставляем как есть)
                 float nx = (Scene.LogicMouse.X / screenW) * 2f - 1f;
                 float ny = (Scene.LogicMouse.Y / screenH) * 2f - 1f;
                 nx = Math.Clamp(nx, -1f, 1f);
@@ -62,13 +89,10 @@ namespace TappiruCS.UI
             }
             else if (AutoBreathingParallax)
             {
-                // === Автоматический "дышащий" параллакс ===
                 float breathX = (float)Math.Sin(time * BreathingSpeed) * BreathingStrength;
                 float breathY = (float)Math.Sin(time * BreathingSpeed * 0.7f + 1.3f) * (BreathingStrength * 0.6f);
-                // 0.7f и фазовый сдвиг +1.3f — чтобы движение не было идеально круговым/синхронным (выглядит живее)
 
-                // Ограничиваем, чтобы не вылезать за края
-                float safeMaxX = extraW * 0.5f * strength * 0.6f;   // чуть слабее, чем у мыши
+                float safeMaxX = extraW * 0.5f * strength * 0.6f;
                 float safeMaxY = extraH * 0.5f * strength * 0.6f;
 
                 offsetX = Math.Clamp(breathX, -safeMaxX, safeMaxX);
@@ -78,8 +102,25 @@ namespace TappiruCS.UI
             float drawX = baseX + offsetX;
             float drawY = baseY + offsetY;
 
-            SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
-                1f, 1f, 1f, Opacity, projection);
+            // Если идёт фейд — рисуем два слоя
+            if (_isFading && _nextTextureId != -1)
+            {
+                // Смягчение через SmoothStep (плавнее чем линейный)
+                float t = _fadeProgress * _fadeProgress * (3f - 2f * _fadeProgress);
+
+                // Старый фон уходит
+                SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                    1f, 1f, 1f, Opacity * (1f - t), projection);
+
+                // Новый фон приходит
+                SB.Draw(_nextTextureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                    1f, 1f, 1f, Opacity * t, projection);
+            }
+            else
+            {
+                SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                    1f, 1f, 1f, Opacity, projection);
+            }
         }
     }
 }
