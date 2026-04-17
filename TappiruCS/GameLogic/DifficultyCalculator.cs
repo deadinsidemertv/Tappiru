@@ -86,39 +86,5 @@ namespace TappiruCS.GameLogic
                 }
                 return maxCount;
             }
-
-            // ====================== Пересчёт всех карт ======================
-            public static void RecalculateAllStarRatings(bool force = false)
-        {
-            string songsDir = Path.Combine(Directory.GetCurrentDirectory(), "Songs");
-            if (!Directory.Exists(songsDir)) return;
-
-            foreach (var folder in Directory.GetDirectories(songsDir))
-            {
-                var tappFiles = Directory.GetFiles(folder, "*.tapp");
-                if (tappFiles.Length == 0) continue;
-
-                string tappPath = tappFiles[0];
-                string json = File.ReadAllText(tappPath);
-                var map = System.Text.Json.JsonSerializer.Deserialize<JsonMap>(json);
-                if (map == null) continue;
-
-                var tempMapData = new MapData
-                {
-                    Events = map.events,
-                    endTime = map.endTime
-                };
-
-                float newRating = CalculateStarRating(tempMapData);
-
-                if (force || Math.Abs(map.StarRating - newRating) > 0.05f)
-                {
-                    map.StarRating = newRating;
-                    string newJson = System.Text.Json.JsonSerializer.Serialize(map, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(tappPath, newJson);
-                    Console.WriteLine($"[Difficulty] {Path.GetFileName(folder)} → {newRating}★");
-                }
-            }
         }
     }
-}

@@ -91,6 +91,8 @@ namespace TappiruCS.UI.TextAbstract
             float finalScaleX = bounds.effWidth * CanvasScale.X;
             float finalScaleY = bounds.effHeight * CanvasScale.Y;
 
+            TextRender.TextAlign renderAlign = Align;
+
             // === Основная отрисовка с эффектами ===
             if (HasOutline)
             {

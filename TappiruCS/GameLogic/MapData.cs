@@ -6,15 +6,12 @@ namespace TappiruCS.GameLogic
     public class JsonMap
     {
 
-        public string MapHash { get; set; } = string.Empty;
         public string title { get; set; } = string.Empty;
         public string artist { get; set; } = string.Empty;
         public string creator { get; set; } = string.Empty;
 
         public double previewTime { get; set; } = 0;
         public double endTime { get; set; } = 0;
-
-        public float StarRating { get; set; } = 0f;
 
         // Цвета
         public float tappedR { get; set; } = 0.4f;
@@ -49,11 +46,12 @@ namespace TappiruCS.GameLogic
         public string artist { get; set; } = string.Empty;
         public string creator { get; set; } = string.Empty;
 
+        public bool IsOnServer { get; set; } = false;
+
         public string Path { get; set; } = string.Empty;
         public string audioPath { get; set; } = string.Empty;
         public string backGroundPath { get; set; } = string.Empty;
         public string dataPath { get; set; } = string.Empty;
-
         public float StarRating { get; set; }
 
         public double previewTime { get; set; }

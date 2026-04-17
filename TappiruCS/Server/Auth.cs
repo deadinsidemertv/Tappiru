@@ -26,7 +26,7 @@ namespace TappiruCS.Server
         {
             using var client = new HttpClient();
             var loginData = new { userName = username, password = password };
-            var response = await client.PostAsJsonAsync("https://tappiruserver.onrender.com/api/auth/login", loginData);
+            var response = await client.PostAsJsonAsync("https://localhost:7068/api/auth/login", loginData);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<LoginResponse>();

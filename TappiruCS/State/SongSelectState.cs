@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
+using System.Net.Http.Json;
 using System.Text.Json;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
@@ -12,12 +13,14 @@ using TappiruCS.Server.Player;
 using TappiruCS.State.Session;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.Server.MapLogic;
 
 
 namespace TappiruCS.State
 {
     public class SongSelectState : IGameState
     {
+
         private readonly RenderContext _context;
 
         public static MapData SelectedMap;
@@ -52,33 +55,38 @@ namespace TappiruCS.State
         {
             
             _scene.Initialize(_context);
+            var _serverMapHashes =  LoadMapHashes.GetServerMapHashesAsync().Result;
+            // === 1. Собираем все карты в список ===
+            var mapList = new List<(MapData mapData, string folderPath, string displayName, float starRating)>();
 
             string[] folders = Directory.GetDirectories("Songs/");
 
-            // === 1. Собираем все карты в список ===
-            var mapList = new List<(JsonMap map, string folderPath, string displayName)>();
-
             foreach (string folderPath in folders)
             {
-                string tappFile = Directory.GetFiles(folderPath, "*.tapp").FirstOrDefault();
-                if (string.IsNullOrEmpty(tappFile)) continue;
+                try
+                {
+                    // Полностью загружаем карту через LoadMap (там уже считается StarRating)
+                    MapData mapData = LoadMap.MapLoad(folderPath);
 
-                string json = File.ReadAllText(tappFile);
-                var mapData = JsonSerializer.Deserialize<JsonMap>(json);
+                    mapData.IsOnServer = _serverMapHashes.Contains(mapData.MapHash);
 
-                if (mapData == null) continue;
+                    string displayName = $"{mapData.title} - [{mapData.artist}]";
 
-                string displayName = $"{mapData.title} - [{mapData.artist}]";
-
-                mapList.Add((mapData, folderPath, displayName));
+                    mapList.Add((mapData, folderPath, displayName, mapData.StarRating));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SongSelect] Ошибка загрузки карты из {folderPath}: {ex.Message}");
+                }
             }
 
-            // === 2. Сортируем по StarRating (от лёгких к сложным) ===
+            // === 2. Сортируем по StarRating (от сложных к лёгким) ===
             mapList = mapList
-                .OrderBy(item => item.map.StarRating)   // ← самое важное!
+                .OrderByDescending(item => item.starRating)
+                .ThenBy(item => item.mapData.title)
                 .ToList();
 
-            // === 3. Создаём кнопки в отсортированном порядке ===
+            // === 3. Создаём кнопки ===
             list = new ScrollList(1600, 400, 1400, 400)
             {
                 Layer = 1,
@@ -88,7 +96,7 @@ namespace TappiruCS.State
             for (int i = 0; i < mapList.Count; i++)
             {
                 var item = mapList[i];
-                var mapData = item.map;
+                var mapData = item.mapData;           // Теперь это MapData!
                 var folderPath = item.folderPath;
                 var displayName = item.displayName;
 
@@ -96,6 +104,7 @@ namespace TappiruCS.State
                 string bgImagePath = Directory.GetFiles(folderPath, "*.jpg").FirstOrDefault()
                                   ?? Directory.GetFiles(folderPath, "*.png").FirstOrDefault();
 
+                // ←←← ИСПРАВЛЕНИЕ ЗДЕСЬ ←←←
                 var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, mapData)
                 {
                     TextScale = 0.3f,
@@ -109,6 +118,13 @@ namespace TappiruCS.State
                 };
 
                 button.SetIndex(i);
+
+                if (mapData.IsOnServer)
+                {
+                    button.Text += "!Сервер!";   // или любой другой текст
+                    button.TextColor = new Color4(0.3f, 1f, 0.3f, 1f);                            // Можно сделать другой цвет текста, например:
+                                                   // button.TextColor = new Color4(0.2f, 1f, 0.2f, 1f);
+                }
 
                 if (!string.IsNullOrEmpty(bgImagePath))
                     button.ButtonImage = TextureLoader.Load(bgImagePath);
@@ -315,7 +331,7 @@ namespace TappiruCS.State
 
                 SelectedMap = tempMap;
 
-                PlayerScore? best = ScoreManager.GetBestScoreForMap(SelectedMap.MapHash);
+                //PlayerScore? best = ScoreManager.GetBestScoreForMap(SelectedMap.MapHash);
 
                 Console.WriteLine("[SelectSong] Начинаем загрузку текстуры фона...");
                 var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -338,12 +354,12 @@ namespace TappiruCS.State
                 int totalSeconds = (int)_context.Audio.Duration;
                 int minutes = totalSeconds / 60;
                 int seconds = totalSeconds % 60;
-                MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count} Сложность:{SelectedMap.StarRating}";
+                MetaData.Text = $"Длина: {minutes}:{seconds:D2}  Строк: {SelectedMap.Events.Count} Сложность:{SelectedMap.StarRating:F2}";
 
                 Console.WriteLine($"[SelectSong] Успешно завершено для {SelectedMap.title}");
 
-                topScores = ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10);
-                UpdateRankingDisplay(ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10));
+                //topScores = ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10);
+                //UpdateRankingDisplay(ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 10));
                 
             });
         }

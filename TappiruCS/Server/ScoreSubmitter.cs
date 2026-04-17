@@ -13,7 +13,7 @@ namespace TappiruCS.Server
     {
         private static readonly HttpClient client = new HttpClient
         {
-            BaseAddress = new Uri("https://tappiruserver.onrender.com")   
+            BaseAddress = new Uri("https://localhost:7068/")   
         };
 
         public static async Task<bool> SubmitScoreAsync(PlayerScore score)

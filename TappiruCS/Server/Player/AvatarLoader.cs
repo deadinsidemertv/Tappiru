@@ -7,7 +7,7 @@ namespace TappiruCS.Server.Player
 {
     public static class AvatarLoader
     {
-        private static readonly string BaseUrl = "https://tappiruserver.onrender.com/";
+        private static readonly string BaseUrl = "https://localhost:7068/";
 
         public static async Task<AvatarLoadResult> LoadAsync(string relativeUrl)
         {

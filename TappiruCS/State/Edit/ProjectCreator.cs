@@ -78,7 +78,6 @@ namespace TappiruCS.State.Edit
                 title = title,
                 artist = "",
                 creator = "",
-                StarRating = 0f,
                 previewTime = 0,
                 endTime = 1,
 

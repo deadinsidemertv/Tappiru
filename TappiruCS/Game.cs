@@ -56,7 +56,6 @@ namespace TappiruCS
         protected override void OnLoad()
         {
             base.OnLoad();
-            DifficultyCalculator.RecalculateAllStarRatings(force: true);
             UpdateProjection();
 
 
