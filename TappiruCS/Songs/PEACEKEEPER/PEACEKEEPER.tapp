@@ -1,0 +1,232 @@
+{
+  "title": "PEACEKEEPER",
+  "artist": "STEREO DIVE FOUNDATION",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 88,
+  "tappedR": 0,
+  "tappedG": 0.7505449,
+  "tappedB": 0.7505449,
+  "needR": 0,
+  "needG": 0.71786517,
+  "needB": 0.9999998,
+  "completeR": 0,
+  "completeG": 0,
+  "completeB": 0.8540307,
+  "events": [
+    {
+      "startTime": 0.4398751,
+      "endTime": 2.513989,
+      "text": "Give me a reason to forgive",
+      "sliders": []
+    },
+    {
+      "startTime": 2.522377,
+      "endTime": 4.4332485,
+      "text": "If I am strong enough",
+      "sliders": []
+    },
+    {
+      "startTime": 4.4466906,
+      "endTime": 5.587148,
+      "text": "its black and white",
+      "sliders": []
+    },
+    {
+      "startTime": 5.6134243,
+      "endTime": 7.9478226,
+      "text": "this message is for you",
+      "sliders": []
+    },
+    {
+      "startTime": 18.808676,
+      "endTime": 21.078455,
+      "text": "feeling like im giving up on you in every way",
+      "sliders": []
+    },
+    {
+      "startTime": 21.193949,
+      "endTime": 23.659224,
+      "text": "otherwise im gonna lose myself",
+      "sliders": [
+        {
+          "charIndex": 27,
+          "startTime": 22.700788,
+          "endTime": 23.196716
+        }
+      ]
+    },
+    {
+      "startTime": 23.673334,
+      "endTime": 26.046837,
+      "text": "want it back im trying to be someone i used to be",
+      "sliders": []
+    },
+    {
+      "startTime": 26.070219,
+      "endTime": 28.40347,
+      "text": "dont you want me to be like you",
+      "sliders": []
+    },
+    {
+      "startTime": 28.432972,
+      "endTime": 30.74387,
+      "text": "kimi ni tsutaetai kotoba wa",
+      "sliders": []
+    },
+    {
+      "startTime": 30.754084,
+      "endTime": 33.689335,
+      "text": "ibitsu ni katachi wo kaete yuku",
+      "sliders": [
+        {
+          "charIndex": 25,
+          "startTime": 32.812477,
+          "endTime": 33.109993
+        }
+      ]
+    },
+    {
+      "startTime": 33.72596,
+      "endTime": 36.865467,
+      "text": "sou janai wakatte yo",
+      "sliders": [
+        {
+          "charIndex": 19,
+          "startTime": 35.749866,
+          "endTime": 36.61157
+        }
+      ]
+    },
+    {
+      "startTime": 36.875797,
+      "endTime": 41.790108,
+      "text": "no matter how you feel i need your story now",
+      "sliders": []
+    },
+    {
+      "startTime": 41.976845,
+      "endTime": 46.59524,
+      "text": "giving you honesty i need you by my side",
+      "sliders": []
+    },
+    {
+      "startTime": 46.653484,
+      "endTime": 49.4884,
+      "text": "Shinyou toka shinraida to ka",
+      "sliders": []
+    },
+    {
+      "startTime": 49.57041,
+      "endTime": 52.70118,
+      "text": "Tsumiageteiku beki taimingu de",
+      "sliders": []
+    },
+    {
+      "startTime": 52.757767,
+      "endTime": 56.708412,
+      "text": "Yorisotteirarenakatta",
+      "sliders": [
+        {
+          "charIndex": 20,
+          "startTime": 55.695545,
+          "endTime": 56.455036
+        }
+      ]
+    },
+    {
+      "startTime": 56.95367,
+      "endTime": 59.16048,
+      "text": "Karamiau kotae kasanatte",
+      "sliders": []
+    },
+    {
+      "startTime": 59.19247,
+      "endTime": 61.592506,
+      "text": "Surechigatta omoi hodoite",
+      "sliders": []
+    },
+    {
+      "startTime": 61.60303,
+      "endTime": 66.32728,
+      "text": "Akirameru no ni wa mada hayai yo",
+      "sliders": [
+        {
+          "charIndex": 31,
+          "startTime": 65.49411,
+          "endTime": 66.178406
+        }
+      ]
+    },
+    {
+      "startTime": 66.51984,
+      "endTime": 68.838615,
+      "text": "Modokashisa kakae takara tte",
+      "sliders": []
+    },
+    {
+      "startTime": 68.84721,
+      "endTime": 71.138176,
+      "text": "Kakechigatta mama ja dame datte",
+      "sliders": []
+    },
+    {
+      "startTime": 71.14495,
+      "endTime": 75.27126,
+      "text": "Wakatteru wakatte yo mou ichido sa",
+      "sliders": [
+        {
+          "charIndex": 3,
+          "startTime": 71.470215,
+          "endTime": 71.72413
+        },
+        {
+          "charIndex": 13,
+          "startTime": 72.66421,
+          "endTime": 72.8796
+        }
+      ]
+    },
+    {
+      "startTime": 75.4939,
+      "endTime": 78.436165,
+      "text": "whoa o",
+      "sliders": [
+        {
+          "charIndex": 5,
+          "startTime": 76.345146,
+          "endTime": 78.27302
+        }
+      ]
+    },
+    {
+      "startTime": 78.456474,
+      "endTime": 81.01383,
+      "text": "wish upon a heart did you get my message",
+      "sliders": []
+    },
+    {
+      "startTime": 81.04697,
+      "endTime": 83.22005,
+      "text": "o",
+      "sliders": [
+        {
+          "charIndex": 0,
+          "startTime": 81.17722,
+          "endTime": 83.10876
+        }
+      ]
+    },
+    {
+      "startTime": 83.27547,
+      "endTime": 85.95503,
+      "text": "wish upon a heart did you get my message",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}
