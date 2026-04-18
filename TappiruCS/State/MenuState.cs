@@ -98,7 +98,8 @@ namespace TappiruCS.State
                 Layer = 4,
                 TextColor = Color4.White,
                 TextScale = 0.4f,
-                ScaleMultiply = 0.8f
+                ScaleMultiply = 0.8f,
+                TextOffset = new Vector2(-45, -30)
             };
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
