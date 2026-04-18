@@ -43,7 +43,7 @@ namespace TappiruCS
         {
             
             this.ClientSize = new Vector2i(1920, 1080);
-            this.WindowState = WindowState.Fullscreen;
+            this.WindowState = WindowState.Normal;
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
             
         }

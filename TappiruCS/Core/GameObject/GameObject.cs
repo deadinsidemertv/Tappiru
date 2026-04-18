@@ -107,6 +107,11 @@ namespace TappiruCS.Core.GameObject
             if (child == null || _children.Contains(child)) return;
             child.Parent = this;
             _children.Add(child);
+
+            if (Context != null)
+            {
+                child.SetRenderContext(Context);
+            }
         }
 
         public void RemoveChild(GameObject child)

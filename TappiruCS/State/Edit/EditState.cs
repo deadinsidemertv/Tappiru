@@ -305,33 +305,16 @@ namespace TappiruCS.State.Edit
 
         private void ActiveEditMode(string tappzPath)
         {
-            _tappPath = tappzPath;                    // путь к .tappz файлу (ZIP)
+            _tappPath = tappzPath;
 
             string projectName = Path.GetFileNameWithoutExtension(tappzPath);
             _projectDir = Path.Combine(Directory.GetCurrentDirectory(), "Edit", projectName);
 
             Directory.CreateDirectory(_projectDir);
 
-            // Распаковываем .tappz в рабочую папку
             if (File.Exists(tappzPath))
             {
                 ZipFile.ExtractToDirectory(tappzPath, _projectDir, overwriteFiles: true);
-            }
-
-            // === ИЩЕМ ЛЮБОЙ ФАЙЛ *.tapp внутри распакованной папки ===
-            string[] tappFiles = Directory.GetFiles(_projectDir, "*.tapp", SearchOption.TopDirectoryOnly);
-
-            string dataFilePath;
-            if (tappFiles.Length > 0)
-            {
-                dataFilePath = tappFiles[0];           // берём первый найденный .tapp файл
-                Console.WriteLine($"[INFO] Загружен файл карты: {Path.GetFileName(dataFilePath)}");
-            }
-            else
-            {
-                Console.WriteLine("[WARNING] Не найден .tapp файл внутри проекта! Создаём новый.");
-                dataFilePath = Path.Combine(_projectDir, "data.tapp");
-                // Можно создать пустой JsonMap здесь, если нужно
             }
 
             LoadProjectAssets(_projectDir);
@@ -340,11 +323,26 @@ namespace TappiruCS.State.Edit
             CreateEditorButtons();
             CreateColorSliders();
 
+            // === ТВОЙ СТАРЫЙ КОД ===
+            string[] tappFiles = Directory.GetFiles(_projectDir, "*.tapp", SearchOption.TopDirectoryOnly);
+            string dataFilePath = tappFiles.Length > 0 ? tappFiles[0] : Path.Combine(_projectDir, "data.tapp");
+
             JsonMap? map = LoadMapData(dataFilePath);
+
             LoadPhrasesFromMap(map);
             LoadColorsFromMap(map);
 
+            // === ЭТО ИСПРАВЛЯЕТ ПРОБЛЕМУ ===
+            if (_timeline != null)
+            {
+                _timeline.SetDuration((float)_context.Audio.Duration);
+                _timeline.SetPhrases(_phrases);           // повторно принудительно
+                _timeline.RefreshAllVisuals();            // ← нужно сделать публичным
+            }
+
             _inEditMode = true;
+
+            Console.WriteLine($"[EditState] Проект загружен | Фраз загружено: {_phrases.Count}");
         }
 
         private void CreateTimeline()

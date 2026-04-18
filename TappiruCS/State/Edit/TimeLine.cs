@@ -66,24 +66,28 @@ namespace TappiruCS.State.Edit
 
             Background = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, width, height)
             {
-                Color = new Color4(0.13f, 0.13f, 0.19f, 1f)
+                Color = new Color4(0.13f, 0.13f, 0.19f, 1f),
+                Layer = 5
             };
 
-            Playhead = new SpriteObject( TextureManager.GetTexture("marker"), x, y - 35f, 28, 28)
+            Playhead = new SpriteObject(TextureManager.GetTexture("marker"), x, y - 35f, 28, 28)
             {
                 Color = new Color4(1f, 0.35f, 0.35f, 1f),
-                Pivot = new Vector2(0.5f, 1f)
+                Pivot = new Vector2(0.5f, 1f),
+                Layer = 6
             };
 
             _playheadLine = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, 4, height)
             {
                 Color = new Color4(1f, 0.35f, 0.35f, 0.9f),
-                Pivot = new Vector2(0.5f, 0.5f)
+                Pivot = new Vector2(0.5f, 0.5f),
+                Layer = 6
             };
 
             AddChild(Background);
             AddChild(Playhead);
             AddChild(_playheadLine);
+            
         }
 
         #region Public API
@@ -370,7 +374,7 @@ namespace TappiruCS.State.Edit
         #endregion
 
         #region Visual Updates
-        private void RefreshAllVisuals()
+        public void RefreshAllVisuals()
         {
             UpdateWaveformVisuals();
             UpdatePhrasesVisuals();        // ← теперь содержит оба пула
@@ -432,7 +436,8 @@ namespace TappiruCS.State.Edit
                 {
                     Color = new Color4(0.55f, 0.25f, 0.85f, 0.5f),
                     Opacity = 0.5f,
-                    Pivot = new Vector2(0.5f, 0.5f)
+                    Pivot = new Vector2(0.5f, 0.5f),
+                    Layer=6
                 };
                 AddChild(bar);
                 _phraseBars.Add(bar);
@@ -440,7 +445,7 @@ namespace TappiruCS.State.Edit
                 var lh = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
                 {
                     Color = new Color4(1f, 1f, 1f, 0.95f),
-                    Pivot = new Vector2(0.5f, 0.5f)
+                    Pivot = new Vector2(0.5f, 0.5f),
                 };
                 AddChild(lh);
                 _leftHandles.Add(lh);
@@ -632,6 +637,7 @@ namespace TappiruCS.State.Edit
                     _timeLabels.Add(label);
                 }
             }
+            Console.WriteLine($"[TIMELINE] Ticks: {_tickLines.Count}, Labels: {_timeLabels.Count}, Total children: {_children.Count}");
         }
         #endregion
     }
