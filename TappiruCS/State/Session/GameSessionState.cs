@@ -8,6 +8,7 @@ using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
+using System.IO;
 
 namespace TappiruCS.State.Session
 {
@@ -25,6 +26,8 @@ namespace TappiruCS.State.Session
         public Background bg;
         public Background Fade;
         public SpriteObject scorebarBG;
+
+        public VideoBackground videoBg;
 
         private readonly PhraseDisplayRenderer _phraseRenderer;     // ← вынесен
         private ScoreBarUI _scoreBarUI;                    // ← вынесен (по желанию)
@@ -48,24 +51,36 @@ namespace TappiruCS.State.Session
 
             session = new GameSession(_mapData);
 
-            // Загрузка текстур и создание фона
-            int backgroundTex = TextureLoader.Load(_mapData.backGroundPath);
             int scoreBarTex = TextureManager.GetTexture("scorebg");
 
-            bg = new Background(backgroundTex)
+            // === ПРИОРИТЕТ ВИДЕО ===
+            if (!string.IsNullOrEmpty(_mapData.videoPath) && File.Exists(_mapData.videoPath))
             {
-                AutoBreathingParallax = true,
-                BreathingSpeed = 0.65f,
-                BreathingStrength = 12f
-            };
+                videoBg = new VideoBackground(_mapData.videoPath);
+                _scene.Add(videoBg);
+                videoBg.LoadVideo();
+
+                Console.WriteLine($"[GameSession] ✅ Видео-фон активирован: {Path.GetFileName(_mapData.videoPath)}");
+            }
+            else
+            {
+                int bgTex = TextureLoader.Load(_mapData.backGroundPath);
+                bg = new Background(bgTex)
+                {
+                    AutoBreathingParallax = true,
+                    BreathingSpeed = 0.65f,
+                    BreathingStrength = 12f
+                };
+                _scene.Add(bg);
+                Console.WriteLine("[GameSession] Используется статичный фон");
+            }
 
             Fade = new Background(0) { Opacity = 0.7f };
             scorebarBG = new SpriteObject(scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
 
-            _scoreBarUI = new ScoreBarUI(_context.TextRenderer);   // передаём session
+            _scoreBarUI = new ScoreBarUI(_context.TextRenderer);
             _scoreBarUI.AddToScene(_scene);
 
-            _scene.Add(bg);
             _scene.Add(Fade);
             _scene.Add(scorebarBG);
 
@@ -76,6 +91,8 @@ namespace TappiruCS.State.Session
         public void OnExit()
         {
             _context.Audio.Stop();
+            videoBg?.DisposeVideo();
+            videoBg = null;
             _scene.Clear();
         }
 

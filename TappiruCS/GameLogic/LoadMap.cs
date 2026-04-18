@@ -18,6 +18,23 @@ namespace TappiruCS.GameLogic
 
             try
             {
+                // === ВИДЕО — ИЩЕМ ПЕРВЫМ (приоритет как в osu!) ===
+                var videoFiles = Directory.GetFiles(mapFolderPath, "*.mp4")
+                    .Concat(Directory.GetFiles(mapFolderPath, "*.webm"))
+                    .Concat(Directory.GetFiles(mapFolderPath, "*.mkv"))
+                    .ToArray();
+
+                if (videoFiles.Length > 0)
+                {
+                    mapdata.videoPath = videoFiles[0];
+                    Console.WriteLine($"[MapLoad] ✅ Найдено видео: {Path.GetFileName(mapdata.videoPath)}");
+                }
+                else
+                {
+                    mapdata.videoPath = string.Empty;
+                    Console.WriteLine("[MapLoad] Видео не найдено");
+                }
+
                 // Background
                 var bgP = Directory.GetFiles(mapFolderPath, "*.jpg");
                 if (bgP.Length > 0)

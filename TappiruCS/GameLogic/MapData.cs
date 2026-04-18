@@ -52,6 +52,7 @@ namespace TappiruCS.GameLogic
         public string audioPath { get; set; } = string.Empty;
         public string backGroundPath { get; set; } = string.Empty;
         public string dataPath { get; set; } = string.Empty;
+        public string videoPath { get; set; } = string.Empty;
         public float StarRating { get; set; }
 
         public double previewTime { get; set; }
