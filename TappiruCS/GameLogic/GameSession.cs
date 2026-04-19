@@ -22,13 +22,14 @@ namespace TappiruCS.GameLogic
 
         public MapData CurrentMap { get; }
         public double endTime { get; private set; }
+
         public double CurrentPhaseStartTime { get; private set; }
         public double CurrentPhaseEndTime { get; private set; }
-
         public string CurrentPhaseText { get; private set; }
         public char[] CurrentPhaseChars { get; private set; }
         public int CurrentCharIndex { get; private set; }
         public bool PhaseComplete { get; private set; }
+
 
         public bool IsActivePhase => _isActivePhase;
 
@@ -72,8 +73,12 @@ namespace TappiruCS.GameLogic
         public event Action<int> OnComboChanged;        // вызывается при любом изменении комбо
         public event Action OnComboBreak;
 
+        public float healt = 100f;
+
         public GameSession(MapData mapData)
         {
+
+
             CurrentMap = mapData;
             endTime = mapData.endTime;
 
@@ -92,18 +97,18 @@ namespace TappiruCS.GameLogic
         /// </summary>
         public void Update(double currentTime, KeyboardState keyboard)
         {
-            UpdateAccuracy();
-            TryActivateNewPhase(currentTime);
+                UpdateAccuracy();
+                TryActivateNewPhase(currentTime);
 
-            if (!_isActivePhase) return;
+                if (!_isActivePhase) return;
 
-            SkipSpacesInPhase();
-            TryHandlePhaseTimeout(currentTime);
+                SkipSpacesInPhase();
+                TryHandlePhaseTimeout(currentTime);
 
-            if (!_isActivePhase) return;
+                if (!_isActivePhase) return;
 
-            HandleOngoingSlider(currentTime);
-            TryHandleSliderRelease(keyboard, currentTime);
+                HandleOngoingSlider(currentTime);
+                TryHandleSliderRelease(keyboard, currentTime);
         }
 
         /// <summary>

@@ -35,17 +35,27 @@ namespace TappiruCS.State.Session
         // === Состояние ввода ===
         private readonly HashSet<Keys> _pressedKeys = new HashSet<Keys>();
 
+        public enum gameState
+        {
+            GameOver,
+            Pause,
+            Play
+        }
+
+        public gameState currentGameState { get; private set; }
+
         public GameSessionState(RenderContext context, MapData mapdata)
         {
             _context = context;
             _mapData = mapdata;
 
             _phraseRenderer = new PhraseDisplayRenderer(context, mapdata);
-            _scoreBarUI = new ScoreBarUI(context.TextRenderer); 
+            _scoreBarUI = new ScoreBarUI(context.TextRenderer);
         }
 
         public void OnEnter()
         {
+            currentGameState = gameState.Play;
             _scene.Initialize(_context);
             InputMapping.Initialize();
 
@@ -102,12 +112,45 @@ namespace TappiruCS.State.Session
 
             if (session == null) return;
 
-            float audioTime = _context.Audio?.GetCurrentTime() ?? 0f;
-            session.Update(audioTime, _context.Game.KeyboardState);
 
-            CheckForMapCompletion(audioTime);
-            _scoreBarUI.Update(session, currentTime);
+           float audioTime = _context.Audio?.GetCurrentTime() ?? 0f;
+           session.Update(audioTime, _context.Game.KeyboardState);
+
+           CheckForMapCompletion(audioTime);
+           _scoreBarUI.Update(session, currentTime);
+         
+
         }
+
+        public void CreatePauseMenu()
+        {
+            Background LoseBG=null;
+            Button backButton = null;
+            Button retryButton = null;
+
+            if (currentGameState == gameState.Play)
+            {
+                LoseBG = new Background(TextureManager.GetTexture("gol")) { Layer = 10 };
+                backButton = new Button(960, 540, 400, 100, "button", "back") { Layer = 10 };
+                retryButton = new Button(960, 700, 400, 100, "button", "retry") { Layer = 10 };
+
+                retryButton.OnClick += RestartGame;
+                backButton.OnClick += BackToSongSelector;
+
+                _scene.Add(LoseBG);
+                _scene.Add(backButton);
+                _scene.Add(retryButton);
+            }
+            else if(currentGameState == gameState.Pause)
+            {
+                _scene.Remove(LoseBG);
+                _scene.Remove(backButton);
+                _scene.Remove(retryButton);
+            }
+        }
+
+        public void BackToSongSelector()=> _context.Game.ChangeState(new SongSelectState(_context));
+        public void RestartGame()=> _context.Game.ChangeState(new GameSessionState(_context, _mapData));
 
         public void Render(Matrix4 projection)
         {
@@ -118,6 +161,19 @@ namespace TappiruCS.State.Session
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
             if (session == null) return;
+
+            if (e.Key == Keys.Escape && currentGameState == gameState.Play)
+            {  
+                CreatePauseMenu();
+                currentGameState = gameState.Pause;
+                Console.WriteLine("GOTO PAUSE");
+            }
+            else if (e.Key == Keys.Escape && currentGameState == gameState.Pause)
+            {
+                CreatePauseMenu();
+                currentGameState = gameState.Play;
+                Console.WriteLine("GOTO Play");
+            }
 
             double currentTime = _context.Audio?.GetCurrentTime() ?? 0.0;
 

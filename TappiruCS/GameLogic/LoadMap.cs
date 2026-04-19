@@ -66,6 +66,7 @@ namespace TappiruCS.GameLogic
                 mapdata.artist = tmp.artist ?? "";
                 mapdata.creator = tmp.creator ?? "";
                 mapdata.endTime = tmp.endTime;
+                mapdata.previewTime = tmp.previewTime;
 
                 mapdata.tappedR = tmp.tappedR;
                 mapdata.tappedG = tmp.tappedG;
