@@ -33,7 +33,7 @@ namespace TappiruCS.UI.TextAbstract
 
             Pivot = new Vector2(0.5f, 0.5f);
             AllowHover = true;
-            Layer = 150;
+            Layer = 5;
         }
 
         public override void Update(double deltaTime, MouseState mouse)

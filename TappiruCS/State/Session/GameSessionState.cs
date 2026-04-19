@@ -129,9 +129,17 @@ namespace TappiruCS.State.Session
 
             if (currentGameState == gameState.Play)
             {
-                LoseBG = new Background(TextureManager.GetTexture("gol")) { Layer = 10 };
-                backButton = new Button(960, 540, 400, 100, "button", "back") { Layer = 10 };
-                retryButton = new Button(960, 700, 400, 100, "button", "retry") { Layer = 10 };
+                LoseBG = new Background(TextureManager.GetTexture("pause-panel")) { Layer = 10,ParalaxEffect = true };
+                backButton = new Button(960, 540, 400, 100, "button", "back")
+                {
+                    Layer = 10,
+                    TextOffset = new Vector2(-55f, -40f)
+                };
+                retryButton = new Button(960, 700, 400, 100, "button", "retry") 
+                { 
+                    Layer = 10,
+                    TextOffset = new Vector2(-55f, -40f)
+                };
 
                 retryButton.OnClick += RestartGame;
                 backButton.OnClick += BackToSongSelector;
