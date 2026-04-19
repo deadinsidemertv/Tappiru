@@ -75,6 +75,8 @@ namespace TappiruCS.GameLogic
 
         public float healt = 100f;
 
+        public bool IsPause = false;
+
         public GameSession(MapData mapData)
         {
 
@@ -97,6 +99,8 @@ namespace TappiruCS.GameLogic
         /// </summary>
         public void Update(double currentTime, KeyboardState keyboard)
         {
+            if (!IsPause)
+            {
                 UpdateAccuracy();
                 TryActivateNewPhase(currentTime);
 
@@ -109,6 +113,7 @@ namespace TappiruCS.GameLogic
 
                 HandleOngoingSlider(currentTime);
                 TryHandleSliderRelease(keyboard, currentTime);
+            }     
         }
 
         /// <summary>
@@ -139,7 +144,8 @@ namespace TappiruCS.GameLogic
             if (TryStartSlider(inputChar, expected, currentTime))
                 return;
 
-            HandleRegularTap(inputChar, expected);
+            if(!IsPause)
+                HandleRegularTap(inputChar, expected);
         }
         private void UpdateAccuracy()
         {

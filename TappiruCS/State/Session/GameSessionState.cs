@@ -112,7 +112,7 @@ namespace TappiruCS.State.Session
 
             if (session == null) return;
 
-
+        
            float audioTime = _context.Audio?.GetCurrentTime() ?? 0f;
            session.Update(audioTime, _context.Game.KeyboardState);
 
@@ -121,12 +121,11 @@ namespace TappiruCS.State.Session
          
 
         }
-
+        Background LoseBG = null;
+        Button backButton = null;
+        Button retryButton = null;
         public void CreatePauseMenu()
         {
-            Background LoseBG=null;
-            Button backButton = null;
-            Button retryButton = null;
 
             if (currentGameState == gameState.Play)
             {
@@ -163,15 +162,19 @@ namespace TappiruCS.State.Session
             if (session == null) return;
 
             if (e.Key == Keys.Escape && currentGameState == gameState.Play)
-            {  
+            {
+                session.IsPause = true;
+                _context.Audio.Pause();
                 CreatePauseMenu();
                 currentGameState = gameState.Pause;
                 Console.WriteLine("GOTO PAUSE");
             }
             else if (e.Key == Keys.Escape && currentGameState == gameState.Pause)
             {
+                session.IsPause = false;
                 CreatePauseMenu();
                 currentGameState = gameState.Play;
+                _context.Audio.Resume();
                 Console.WriteLine("GOTO Play");
             }
 

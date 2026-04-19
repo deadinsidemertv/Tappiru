@@ -26,7 +26,7 @@ namespace TappiruCS.State.Session
 
         public void Draw(GameSession session, Matrix4 projection, float centerX, float y)
         {
-            if (session.CurrentPhaseChars == null || session.CurrentPhaseChars.Length == 0)
+            if (session.CurrentPhaseChars == null || session.CurrentPhaseChars.Length == 0 || session.IsPause)
                 return;
 
             double currentAudioTime = _context.Audio?.GetCurrentTime() ?? 0.0;
