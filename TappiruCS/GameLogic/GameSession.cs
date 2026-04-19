@@ -179,8 +179,6 @@ namespace TappiruCS.GameLogic
                 _sliderCharIndex = -1;
                 _successfullyCompletedSliders.Clear();
                 _successfullyHeldSliders.Clear();
-
-                Console.WriteLine($"[PHASE] \"{CurrentPhaseText}\" started at {currentTime:F2} | visible until {ev.endTime:F2}");
             }
         }
 
@@ -212,7 +210,6 @@ namespace TappiruCS.GameLogic
                 TotalScore += PointsPerPhase * Combo;
                 _successfullyCompletedSliders.Add(_sliderCharIndex);
 
-                Console.WriteLine($"[PHASE COMPLETE FROM HELD SLIDER] (passive, no release) Combo: {Combo}");
                 PhaseComplete = true;
             }
             else if (CurrentCharIndex < CurrentPhaseChars.Length)

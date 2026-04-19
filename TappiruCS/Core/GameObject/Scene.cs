@@ -34,12 +34,8 @@ namespace TappiruCS.Core.GameObject
         {
             if (obj == null) return;
 
-            Console.WriteLine($"[SCENE ADD] {obj.GetType().Name} | Context was: {(obj.Context != null ? "SET" : "NULL")}");
-
             if (RenderContext != null)
                 obj.SetRenderContext(RenderContext);
-            else
-                Console.WriteLine($"[WARNING] Adding {obj.GetType().Name} while RenderContext is still NULL!");
 
             _objects.Add(obj);
         }

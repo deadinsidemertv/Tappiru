@@ -52,7 +52,6 @@ namespace TappiruCS.Render
             int id = UploadTexture(pixels, image.Width, image.Height, generateMipmaps: true);
 
             _cache[path] = id;
-            Console.WriteLine($"[TextureLoader] ✅ {Path.GetFileName(path)} | ID={id} | {image.Width}×{image.Height}");
             return id;
         }
 
@@ -154,7 +153,7 @@ namespace TappiruCS.Render
             GL.BindBuffer(BufferTarget.PixelUnpackBuffer, 0);
             _pbosReady = true;
 
-            Console.WriteLine($"[TextureLoader] PBO ×{PBO_COUNT} готовы ({PBO_MAX_SIZE / 1024 / 1024} МБ каждый)");
+            
         }
 
         // ── Обработка пикселей ─────────────────────────────────────────────

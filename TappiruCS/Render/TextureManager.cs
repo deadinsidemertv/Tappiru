@@ -55,7 +55,7 @@ namespace TappiruCS.Render
             id = TextureLoader.Load(fullPath);
             _textures[assetPath] = id;
 
-            Console.WriteLine($"[TextureManager] ✅ Загружена: {assetPath} (ID={id}) | файл: {Path.GetFileName(fullPath)}");
+            
             return id;
         }
 
@@ -65,7 +65,7 @@ namespace TappiruCS.Render
                 GL.DeleteTexture(id);
 
             _textures.Clear();
-            Console.WriteLine("[TextureManager] Все текстуры выгружены.");
+            
         }
     }
 }

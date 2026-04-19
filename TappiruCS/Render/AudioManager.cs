@@ -139,7 +139,7 @@ namespace TappiruCS.Render
                 preview[bin] = maxAmp;
             }
 
-            Console.WriteLine($"[AudioManager] Waveform preview computed: {previewBins} bins for {Duration:F1}s track");
+            
             return preview;
         }
 

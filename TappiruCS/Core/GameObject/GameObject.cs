@@ -44,8 +44,6 @@ namespace TappiruCS.Core.GameObject
         internal void SetRenderContext(RenderContext context)
         {
             Context = context;
-            Console.WriteLine($"[CONTEXT SET] {GetType().Name} (and its children) | Parent: {Parent?.GetType().Name ?? "null"}");
-
             OnContextSet();
 
             // Рекурсивно детям (на всякий случай)

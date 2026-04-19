@@ -11,7 +11,6 @@ namespace TappiruCS.GameLogic
     {
         public static MapData MapLoad(string mapFolderPath)
         {
-            Console.WriteLine($"[MapLoad] Загрузка папки: {mapFolderPath}");
 
             MapData mapdata = new MapData();
             mapdata.Path = mapFolderPath;
@@ -27,12 +26,12 @@ namespace TappiruCS.GameLogic
                 if (videoFiles.Length > 0)
                 {
                     mapdata.videoPath = videoFiles[0];
-                    Console.WriteLine($"[MapLoad] ✅ Найдено видео: {Path.GetFileName(mapdata.videoPath)}");
+                    
                 }
                 else
                 {
                     mapdata.videoPath = string.Empty;
-                    Console.WriteLine("[MapLoad] Видео не найдено");
+
                 }
 
                 // Background
@@ -93,7 +92,7 @@ namespace TappiruCS.GameLogic
 
                 mapdata.StarRating = DifficultyCalculator.CalculateStarRating(calcData);
 
-                Console.WriteLine($"[MapLoad] УСПЕШНО загружена: {mapdata.title} → {mapdata.StarRating:F2}★");
+                
 
                 return mapdata;
             }
