@@ -1,7 +1,7 @@
 ﻿// UI/ScoreBarUI.cs
 using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
-using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Logic;
 using TappiruCS.Render;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.TextRender;

@@ -127,5 +127,28 @@ namespace TappiruCS.Render
             GL.DeleteBuffer(_vbo);
             GL.DeleteBuffer(_ebo);
         }
+
+        public void DrawGlow(int textureId, float x, float y, float width, float height,float r, float g, float b, float baseAlpha,float glowIntensity, Matrix4 projection,int steps = 5, float spread = 4f)
+        {
+            if (glowIntensity <= 0f) return;
+
+            // Рисуем несколько слоёв от большого к маленькому
+            for (int i = steps; i >= 1; i--)
+            {
+                float factor = i / (float)steps;
+                float offset = spread * factor;
+                float alpha = baseAlpha * glowIntensity * (0.12f / i);   // убывание альфы с расстоянием
+
+                float glowW = width + offset * 2f;
+                float glowH = height + offset * 2f;
+                float glowX = x - offset;
+                float glowY = y - offset;
+
+                Draw(textureId, glowX, glowY, glowW, glowH,
+                     0f, 0f, 1f, 1f,
+                     r, g, b, alpha,
+                     projection);
+            }
+        }
     }
 }

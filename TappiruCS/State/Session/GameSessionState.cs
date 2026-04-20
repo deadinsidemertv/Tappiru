@@ -9,6 +9,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using System.IO;
+using TappiruCS.GameLogic.Logic;
 
 namespace TappiruCS.State.Session
 {
@@ -26,6 +27,7 @@ namespace TappiruCS.State.Session
         public Background bg;
         public Background Fade;
         public SpriteObject scorebarBG;
+        public ProgressBar progressbar;
 
         public VideoBackground videoBg;
 
@@ -43,6 +45,7 @@ namespace TappiruCS.State.Session
         }
 
         public gameState currentGameState { get; private set; }
+        private bool _isGameOverHandled = false;
 
         public GameSessionState(RenderContext context, MapData mapdata)
         {
@@ -88,6 +91,9 @@ namespace TappiruCS.State.Session
             Fade = new Background(0) { Opacity = 0.7f };
             scorebarBG = new SpriteObject(scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
 
+            progressbar = new ProgressBar(20, 20, 700, 5);
+            _scene.Add(progressbar);
+
             _scoreBarUI = new ScoreBarUI(_context.TextRenderer);
             _scoreBarUI.AddToScene(_scene);
 
@@ -112,11 +118,22 @@ namespace TappiruCS.State.Session
 
             if (session == null) return;
 
+
+            progressbar.Value = session.Health;
+            progressbar.MaxValue = 100f;
+
         
            float audioTime = _context.Audio?.GetCurrentTime() ?? 0f;
            session.Update(audioTime, _context.Game.KeyboardState);
 
-           CheckForMapCompletion(audioTime);
+
+            if (session.Health <= 0f && currentGameState != gameState.GameOver && !_isGameOverHandled)
+            {
+                TriggerGameOver();
+                return;
+            }
+
+            CheckForMapCompletion(audioTime);
            _scoreBarUI.Update(session, currentTime);
          
 
@@ -153,6 +170,43 @@ namespace TappiruCS.State.Session
                 _scene.Remove(LoseBG);
                 _scene.Remove(backButton);
                 _scene.Remove(retryButton);
+            }
+        }
+        private void TriggerGameOver()
+        {
+            _isGameOverHandled = true;
+            session.IsPause = true;                    // останавливаем логику
+            _context.Audio.Pause();
+
+            currentGameState = gameState.GameOver;
+
+            CreateGameOver();                          // показываем экран Game Over
+
+            Console.WriteLine("[GameSession] ИГРОК УМЕР — HP <= 0");
+        }
+
+        public void CreateGameOver()
+        {
+            if (currentGameState == gameState.GameOver)
+            {
+                LoseBG = new Background(TextureManager.GetTexture("gameover-panel")) { Layer = 10, ParalaxEffect = true };
+                backButton = new Button(960, 540, 400, 100, "button", "back")
+                {
+                    Layer = 10,
+                    TextOffset = new Vector2(-55f, -40f)
+                };
+                retryButton = new Button(960, 700, 400, 100, "button", "retry")
+                {
+                    Layer = 10,
+                    TextOffset = new Vector2(-55f, -40f)
+                };
+
+                retryButton.OnClick += RestartGame;
+                backButton.OnClick += BackToSongSelector;
+
+                _scene.Add(LoseBG);
+                _scene.Add(backButton);
+                _scene.Add(retryButton);
             }
         }
 
@@ -214,7 +268,7 @@ namespace TappiruCS.State.Session
 
         private void CheckForMapCompletion(float currentAudioTime)
         {
-            if (currentAudioTime < session.endTime) return;
+            if (currentAudioTime < session.EndTime) return;
 
             var newScore = new PlayerScore
             {

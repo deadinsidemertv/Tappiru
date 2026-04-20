@@ -1,5 +1,5 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
-using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Logic;
 
 namespace TappiruCS.State.Session
 {

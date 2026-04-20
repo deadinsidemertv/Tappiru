@@ -9,6 +9,12 @@ namespace TappiruCS.UI
         public int _textureId;
         public Color4 Color { get; set; } = Color4.White;
 
+        // === Glow свойства ===
+        public bool EnableGlow { get; set; } = false;
+        public float GlowIntensity { get; set; } = 1f;   // сила свечения 0..1
+        public float GlowSpread { get; set; } = 12f;         // радиус размытия
+        public int GlowSteps { get; set; } = 6;             // количество слоёв
+
         public SpriteObject(int textureId, float x, float y, float scaleX, float scaleY)
         {
             _textureId = textureId;
@@ -18,19 +24,34 @@ namespace TappiruCS.UI
 
         public override void Draw(Matrix4 projection)
         {
-            // Самая жёсткая защита именно здесь, потому что SpriteObject — самый частый
             if (!Active || Context == null || SB == null)
                 return;
 
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
 
+            float drawX = AutoScale ? dLeft * CanvasScale.X : dLeft;
+            float drawY = AutoScale ? dTop * CanvasScale.Y : dTop;
+            float drawW = AutoScale ? effW * CanvasScale.X : effW;
+            float drawH = AutoScale ? effH * CanvasScale.Y : effH;
+
+            // === GLOW: рисуем перед основным спрайтом ===
+            if (EnableGlow && GlowIntensity > 0.01f)
+            {
+                SB.DrawGlow(_textureId, drawX, drawY, drawW, drawH,
+                            Color.R, Color.G, Color.B, Opacity,
+                            GlowIntensity, projection, GlowSteps, GlowSpread);
+
+               
+            }
+
+            // === Основной спрайт (оригинальная логика без изменений) ===
             if (AutoScale)
             {
                 SB.Draw(_textureId,
-                    dLeft * CanvasScale.X,
-                    dTop * CanvasScale.Y,
-                    effW * CanvasScale.X,
-                    effH * CanvasScale.Y,
+                    drawX,
+                    drawY,
+                    drawW,
+                    drawH,
                     0, 0, 1, 1,
                     Color.R, Color.G, Color.B, Opacity,
                     projection);
@@ -38,10 +59,10 @@ namespace TappiruCS.UI
             else
             {
                 SB.Draw(_textureId,
-                    dLeft,
-                    dTop,
-                    effW,
-                    effH,
+                    drawX,
+                    drawY,
+                    drawW,
+                    drawH,
                     0, 0, 1, 1,
                     Color.R, Color.G, Color.B, Opacity,
                     projection);
