@@ -1,0 +1,238 @@
+{
+  "title": "crossing field -TV ver.-",
+  "artist": "LiSA",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 128,
+  "tappedR": 0.9999998,
+  "tappedG": 0.4618739,
+  "tappedB": 0.18409613,
+  "needR": 0,
+  "needG": 0,
+  "needB": 0,
+  "completeR": 0.5544665,
+  "completeG": 0.9999998,
+  "completeB": 0.9999998,
+  "events": [
+    {
+      "startTime": 11.416561,
+      "endTime": 15.974518,
+      "text": "Mitomete ita okubyou na kako",
+      "sliders": []
+    },
+    {
+      "startTime": 16.071545,
+      "endTime": 20.105804,
+      "text": "Wakaranai",
+      "sliders": [
+        {
+          "charIndex": 7,
+          "startTime": 17.523712,
+          "endTime": 19.269058
+        }
+      ]
+    },
+    {
+      "startTime": 20.129065,
+      "endTime": 22.069386,
+      "text": "mama ni",
+      "sliders": []
+    },
+    {
+      "startTime": 22.111998,
+      "endTime": 24.042942,
+      "text": "kowagatte ita",
+      "sliders": []
+    },
+    {
+      "startTime": 24.252518,
+      "endTime": 30.62955,
+      "text": "Ushiro no jibun ga genjitsu wo ima ni",
+      "sliders": [
+        {
+          "charIndex": 36,
+          "startTime": 28.065992,
+          "endTime": 30.065992
+        }
+      ]
+    },
+    {
+      "startTime": 30.704786,
+      "endTime": 32.806133,
+      "text": "utsusu",
+      "sliders": []
+    },
+    {
+      "startTime": 32.836765,
+      "endTime": 35.078384,
+      "text": "Ikutsu mono",
+      "sliders": [
+        {
+          "charIndex": 0,
+          "startTime": 32.87026,
+          "endTime": 33.534763
+        }
+      ]
+    },
+    {
+      "startTime": 35.09731,
+      "endTime": 36.739357,
+      "text": "sora wo",
+      "sliders": []
+    },
+    {
+      "startTime": 36.815033,
+      "endTime": 38.159306,
+      "text": "kaita",
+      "sliders": []
+    },
+    {
+      "startTime": 38.22832,
+      "endTime": 40.1769,
+      "text": "koko wa kitto",
+      "sliders": []
+    },
+    {
+      "startTime": 40.188496,
+      "endTime": 45.522373,
+      "text": "Hakanai kokoro midashite",
+      "sliders": [
+        {
+          "charIndex": 23,
+          "startTime": 44.826515,
+          "endTime": 45.48377
+        }
+      ]
+    },
+    {
+      "startTime": 45.58821,
+      "endTime": 48.29421,
+      "text": "Yume de takaku",
+      "sliders": [
+        {
+          "charIndex": 9,
+          "startTime": 46.534912,
+          "endTime": 47.097263
+        }
+      ]
+    },
+    {
+      "startTime": 48.323086,
+      "endTime": 49.952126,
+      "text": "tonda",
+      "sliders": [
+        {
+          "charIndex": 4,
+          "startTime": 49.009678,
+          "endTime": 49.744675
+        }
+      ]
+    },
+    {
+      "startTime": 49.969093,
+      "endTime": 51.151928,
+      "text": "karada wa",
+      "sliders": []
+    },
+    {
+      "startTime": 51.16326,
+      "endTime": 54.106647,
+      "text": "Donna fuan matotte mo",
+      "sliders": []
+    },
+    {
+      "startTime": 54.166756,
+      "endTime": 56.23597,
+      "text": "furiharatte iku",
+      "sliders": []
+    },
+    {
+      "startTime": 56.266056,
+      "endTime": 60.536488,
+      "text": "Nemuru chiisana omoi ",
+      "sliders": []
+    },
+    {
+      "startTime": 60.576214,
+      "endTime": 62.833557,
+      "text": "hirogari dashite",
+      "sliders": []
+    },
+    {
+      "startTime": 62.85578,
+      "endTime": 64.26734,
+      "text": "Kizuku yowai",
+      "sliders": []
+    },
+    {
+      "startTime": 64.317345,
+      "endTime": 66.9201,
+      "text": "watashi kimi ga ireba",
+      "sliders": []
+    },
+    {
+      "startTime": 66.93635,
+      "endTime": 71.93565,
+      "text": "Kurai sekai tsuyoku ireta",
+      "sliders": [
+        {
+          "charIndex": 9,
+          "startTime": 67.68154,
+          "endTime": 68.17471
+        },
+        {
+          "charIndex": 24,
+          "startTime": 70.36197,
+          "endTime": 71.81968
+        }
+      ]
+    },
+    {
+      "startTime": 72.23736,
+      "endTime": 75.68898,
+      "text": "Nagai yume miru kokoro wa sou",
+      "sliders": []
+    },
+    {
+      "startTime": 75.73898,
+      "endTime": 75.93898,
+      "text": "ei",
+      "sliders": []
+    },
+    {
+      "startTime": 76.18029,
+      "endTime": 76.73672,
+      "text": "en",
+      "sliders": []
+    },
+    {
+      "startTime": 76.75561,
+      "endTime": 77.439354,
+      "text": "de",
+      "sliders": []
+    },
+    {
+      "startTime": 78.71592,
+      "endTime": 81.47439,
+      "text": "I wanna always be with you",
+      "sliders": []
+    },
+    {
+      "startTime": 81.52439,
+      "endTime": 87.18865,
+      "text": "i ll give you everething i have",
+      "sliders": [
+        {
+          "charIndex": 28,
+          "startTime": 83.849335,
+          "endTime": 85.849335
+        }
+      ]
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}
