@@ -10,6 +10,8 @@ namespace TappiruCS.Render
         private readonly ALDevice _device;
         private readonly ALContext _context;
 
+        public static float MainVolume;
+
         public static AudioManager Instance;
         // Основной источник для музыки
         private int _musicSource;
@@ -44,6 +46,7 @@ namespace TappiruCS.Render
             Stop();
 
             AL.Source(_musicSource, ALSourcei.Buffer, 0);
+            ApplyMainVolume();
             if (_musicBuffer != 0) AL.DeleteBuffer(_musicBuffer);
 
             _musicBuffer = AL.GenBuffer();
@@ -145,11 +148,12 @@ namespace TappiruCS.Render
 
         public void Play()
         {
+            ApplyMainVolume();
             AL.SourcePlay(_musicSource); IsPlaying = true;
             AL.Source(_musicSource, ALSourcef.Gain, 0.5f);
         }
-        public void Pause() { AL.SourcePause(_musicSource); IsPlaying = false; }
-        public void Resume() { AL.SourcePlay(_musicSource); IsPlaying = true; }
+        public void Pause() {ApplyMainVolume(); AL.SourcePause(_musicSource); IsPlaying = false; }
+        public void Resume() { ApplyMainVolume(); AL.SourcePlay(_musicSource); IsPlaying = true; }
         public void Stop() { AL.SourceStop(_musicSource); IsPlaying = false; }
 
         public void SetLooping(bool loop)
@@ -209,7 +213,7 @@ namespace TappiruCS.Render
 
             int source = AL.GenSource();
             AL.Source(source, ALSourcei.Buffer, buffer);
-            AL.Source(source, ALSourcef.Gain, volume);
+            AL.Source(source, ALSourcef.Gain, MainVolume*volume);
             AL.Source(source, ALSourcef.Pitch, pitch);
 
             AL.SourcePlay(source);
@@ -290,6 +294,23 @@ namespace TappiruCS.Render
 
             ALC.DestroyContext(_context);
             ALC.CloseDevice(_device);
+        }
+
+        public void ApplyMainVolume()
+        {
+            // Применяем к музыке
+            if (_musicSource != 0)
+            {
+                float musicGain = MainVolume * 0.8f; // музыка обычно чуть тише
+                AL.Source(_musicSource, ALSourcef.Gain, musicGain);
+            }
+
+            // Применяем ко всем активным эффектам
+            foreach (var source in _activeEffectSources)
+            {
+                if (source != 0)
+                    AL.Source(source, ALSourcef.Gain, MainVolume);
+            }
         }
     }
 }

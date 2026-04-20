@@ -15,9 +15,26 @@ namespace TappiruCS.UI
         public TextObject maxValueText;
         public TextObject ValueText;
 
+        public event Action<float> OnValueChanged;
         public float minValue { get; private set; } = 0f;
         public float maxValue { get; set; } = 100f;
-        public float Value { get; private set; } = 50f;
+
+        private float _value = 50f;
+        public float Value
+        {
+            get => _value;
+            private set   // оставляем private set, чтобы снаружи только через SetValue
+            {
+                float clamped = Math.Clamp(value, minValue, maxValue);
+                if (Math.Abs(clamped - _value) > 0.001f)   // чтобы не спамить при одинаковом значении
+                {
+                    _value = clamped;
+                    OnValueChanged?.Invoke(_value);        // ← Вот главное!
+                    UpdatePointPositionFromValue();
+                    UpdateVisuals();
+                }
+            }
+        }
 
         public List<SpriteObject> _markers = new List<SpriteObject>();
         public List<float> _markersTime = new List<float>();
@@ -29,8 +46,8 @@ namespace TappiruCS.UI
         {
             minValue = min;
             maxValue = max;
-            Value = Math.Clamp(Value, min, max);
 
+            // Сначала создаём все объекты
             int lineTexture = TextureManager.GetTexture("slider_line");
 
             // === Линия ===
@@ -47,8 +64,8 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            // === Тексты (локальный ScaleMultiply) ===
-            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y , 1f)
+            // === Тексты ===
+            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y, 1f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -64,7 +81,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            ValueText = new TextObject(Value.ToString("F1"), x, y, 1f)
+            ValueText = new TextObject("", x, y, 1f)   // пока пусто
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.2f,
@@ -77,7 +94,11 @@ namespace TappiruCS.UI
             AddChild(minValueText);
             AddChild(maxValueText);
             AddChild(ValueText);
+
+            // Теперь можно безопасно установить значение
+            _value = Math.Clamp(50f, minValue, maxValue);   // напрямую в приватное поле
             UpdatePointPositionFromValue();
+            UpdateVisuals();   // обновит ValueText
         }
 
         public float GetPositionFromTime(float timeSeconds)
@@ -141,18 +162,19 @@ namespace TappiruCS.UI
 
         private void UpdateValueFromPosition()
         {
-            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
+            if (line == null) return;
 
+            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
             float normalized = (point.Position.X - lineLeft) / lineWidth;
-            Value = minValue + normalized * (maxValue - minValue);
-            Value = Math.Clamp(Value, minValue, maxValue);
+            Value = minValue + normalized * (maxValue - minValue);   // через setter
         }
 
         private void UpdatePointPositionFromValue()
         {
-            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
+            if (line == null) return;
 
-            float normalized = (Value - minValue) / (maxValue - minValue);
+            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
+            float normalized = (_value - minValue) / (maxValue - minValue);
             float newX = lineLeft + normalized * lineWidth;
 
             point.Position = new Vector2(newX, line.Position.Y);
@@ -171,7 +193,7 @@ namespace TappiruCS.UI
                 pointTop - finalOffsetY              
             );
 
-            ValueText.Text = Value.ToString("F1");
+            ValueText.Text = Value.ToString("F2");
         }
 
         public override void Draw(Matrix4 projection)
@@ -181,8 +203,7 @@ namespace TappiruCS.UI
 
         public void SetValue(float newValue)
         {
-            Value = Math.Clamp(newValue, minValue, maxValue);
-            UpdatePointPositionFromValue();
+            Value = newValue;
         }
     }
 }

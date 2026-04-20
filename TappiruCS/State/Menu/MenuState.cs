@@ -13,7 +13,7 @@ using TappiruCS.State.Edit;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 
-namespace TappiruCS.State
+namespace TappiruCS.State.Menu
 {
     public class MenuState : IGameState
     {
@@ -30,6 +30,9 @@ namespace TappiruCS.State
         private TextObject _ratingText;
         private SpriteObject _avatarSprite;
         private SpriteObject _avatarBackground;
+
+        private OptionModule setting;
+        private bool _isSetting = false;
 
         public MenuState(RenderContext context)
         {
@@ -62,8 +65,31 @@ namespace TappiruCS.State
                 }
             }
             GetRandomSong();
+
         }
 
+        private void ToggleSettings()
+        {
+            _isSetting = !_isSetting;
+
+            if (_isSetting)
+            {
+                setting = new OptionModule(_scene, 300, 540, 600);   // или другую позицию
+            }
+            else
+            {
+                if (setting != null)
+                {
+                    // Удаляем окно настроек из сцены
+                    _scene.Remove(setting.Bg);
+                    if (setting.VolumeSlider != null) 
+                        _scene.Remove(setting.VolumeSlider);
+
+                    _scene.Remove(setting.SettingVol);
+                    setting = null;
+                }
+            }
+        }
         public void GetRandomSong()
         {
             string[] folders = Directory.GetDirectories("Songs/");
@@ -106,7 +132,7 @@ namespace TappiruCS.State
             // Main menu buttons (всегда видны)
             var playBtn = CreateMenuButton(540, "Play", StartGame);
             var editBtn = CreateMenuButton(640, "Edit", GoEdit);
-            var optionsBtn = CreateMenuButton(740, "Options", null);
+            var optionsBtn = CreateMenuButton(740, "Options", ToggleSettings);
             var exitBtn = CreateMenuButton(840, "exit", ExitGame);
 
             _scene.Add(playBtn);
