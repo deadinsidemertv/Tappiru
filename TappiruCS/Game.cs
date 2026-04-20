@@ -43,8 +43,8 @@ namespace TappiruCS
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
-            this.ClientSize = new Vector2i(1280, 720);
-            this.WindowState = WindowState.Normal;
+            this.ClientSize = new Vector2i(1920, 1080);
+            this.WindowState = WindowState.Fullscreen;
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
             
         }
