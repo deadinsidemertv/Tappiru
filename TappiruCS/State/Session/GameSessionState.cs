@@ -174,6 +174,9 @@ namespace TappiruCS.State.Session
         }
         private void TriggerGameOver()
         {
+            if (session.mods == GameSession.GameMods.NoFail)
+                return;
+
             _isGameOverHandled = true;
             session.IsPause = true;                    // останавливаем логику
             _context.Audio.Pause();

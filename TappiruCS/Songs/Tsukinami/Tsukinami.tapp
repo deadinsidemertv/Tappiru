@@ -1,0 +1,468 @@
+{
+  "title": "Tsukinami",
+  "artist": "Kanon Wakeshima",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 285,
+  "tappedR": 0.9999998,
+  "tappedG": 0.62254924,
+  "tappedB": 0.1323532,
+  "needR": 0.9999998,
+  "needG": 0.9999998,
+  "needB": 0,
+  "completeR": 0.9999998,
+  "completeG": 0.64978236,
+  "completeB": 0.9999998,
+  "events": [
+    {
+      "startTime": 11.53373,
+      "endTime": 14.341863,
+      "text": "kikoeru kai kono oto",
+      "sliders": []
+    },
+    {
+      "startTime": 14.410308,
+      "endTime": 16.74218,
+      "text": "detarame ni ugoiteru",
+      "sliders": []
+    },
+    {
+      "startTime": 16.769493,
+      "endTime": 19.468716,
+      "text": "ponpusuru shinzou to",
+      "sliders": []
+    },
+    {
+      "startTime": 19.476711,
+      "endTime": 22.18495,
+      "text": "pankushichaisou na nou",
+      "sliders": []
+    },
+    {
+      "startTime": 22.293041,
+      "endTime": 24.893597,
+      "text": "kikoeru kai kono note",
+      "sliders": []
+    },
+    {
+      "startTime": 24.944283,
+      "endTime": 27.459684,
+      "text": "kieteshimau setsuna wo tsukamu",
+      "sliders": []
+    },
+    {
+      "startTime": 27.509684,
+      "endTime": 31.47125,
+      "text": "umarete wa sugu ni shindeiku",
+      "sliders": [
+        {
+          "charIndex": 27,
+          "startTime": 29.801521,
+          "endTime": 31.315693
+        }
+      ]
+    },
+    {
+      "startTime": 31.48801,
+      "endTime": 32.44182,
+      "text": "isshun",
+      "sliders": []
+    },
+    {
+      "startTime": 54.180584,
+      "endTime": 59.054253,
+      "text": "hidarite wa bannen ooisogashi da yo",
+      "sliders": []
+    },
+    {
+      "startTime": 59.10425,
+      "endTime": 61.31966,
+      "text": "migite wa datte",
+      "sliders": []
+    },
+    {
+      "startTime": 61.32778,
+      "endTime": 64.27174,
+      "text": "chanto hataraiteiru yo",
+      "sliders": []
+    },
+    {
+      "startTime": 64.30723,
+      "endTime": 66.61254,
+      "text": "shiji wo okureyo",
+      "sliders": []
+    },
+    {
+      "startTime": 66.662674,
+      "endTime": 71.44786,
+      "text": "naritai mono no mae de hajiteru",
+      "sliders": []
+    },
+    {
+      "startTime": 71.468895,
+      "endTime": 75.000435,
+      "text": "you ja dame da",
+      "sliders": []
+    },
+    {
+      "startTime": 75.125854,
+      "endTime": 79.38879,
+      "text": "yugen no naka hashitteiru",
+      "sliders": [
+        {
+          "charIndex": 1,
+          "startTime": 75.35154,
+          "endTime": 75.89123
+        },
+        {
+          "charIndex": 18,
+          "startTime": 77.723015,
+          "endTime": 78.55708
+        }
+      ]
+    },
+    {
+      "startTime": 79.46887,
+      "endTime": 81.831375,
+      "text": "ouka suru hima mo naku",
+      "sliders": []
+    },
+    {
+      "startTime": 81.85159,
+      "endTime": 83.6861,
+      "text": "sei ippai ni",
+      "sliders": []
+    },
+    {
+      "startTime": 84.49899,
+      "endTime": 88.23064,
+      "text": "meirei da kaiuma yo dou ka todomete okure",
+      "sliders": []
+    },
+    {
+      "startTime": 88.271515,
+      "endTime": 91.65221,
+      "text": "hibi no boukyaku kyokusen no sutoppa wa",
+      "sliders": []
+    },
+    {
+      "startTime": 91.686165,
+      "endTime": 97.19614,
+      "text": "doko ni mo uttenai yo",
+      "sliders": [
+        {
+          "charIndex": 1,
+          "startTime": 91.8853,
+          "endTime": 92.3168
+        },
+        {
+          "charIndex": 3,
+          "startTime": 92.63741,
+          "endTime": 93.0895
+        },
+        {
+          "charIndex": 20,
+          "startTime": 96.480034,
+          "endTime": 97.09053
+        }
+      ]
+    },
+    {
+      "startTime": 97.34774,
+      "endTime": 100.90918,
+      "text": "ima aru mono no subete",
+      "sliders": []
+    },
+    {
+      "startTime": 100.929184,
+      "endTime": 102.166954,
+      "text": "zeitaku da",
+      "sliders": []
+    },
+    {
+      "startTime": 102.20764,
+      "endTime": 106.20764,
+      "text": "kokoro ni utsusu koto ga yurusareteiru ma ni",
+      "sliders": []
+    },
+    {
+      "startTime": 106.235695,
+      "endTime": 109.34298,
+      "text": "itsuka anata ga kono hahen wo",
+      "sliders": []
+    },
+    {
+      "startTime": 109.42562,
+      "endTime": 113.59216,
+      "text": "hirotte mune ni kazaru you na",
+      "sliders": []
+    },
+    {
+      "startTime": 113.70662,
+      "endTime": 120.230446,
+      "text": "yorokobi ga hoshii nda",
+      "sliders": [
+        {
+          "charIndex": 21,
+          "startTime": 118.00524,
+          "endTime": 120.00524
+        }
+      ]
+    },
+    {
+      "startTime": 128.84537,
+      "endTime": 130.4974,
+      "text": "omoide wa",
+      "sliders": []
+    },
+    {
+      "startTime": 130.5454,
+      "endTime": 133.71846,
+      "text": "moumaku nno shattaa oto no kazu",
+      "sliders": []
+    },
+    {
+      "startTime": 133.72752,
+      "endTime": 135.37175,
+      "text": "hai to kekkan wa",
+      "sliders": []
+    },
+    {
+      "startTime": 135.84467,
+      "endTime": 141.09764,
+      "text": "natsukashisa wo fukumu netsu wo kureyo",
+      "sliders": []
+    },
+    {
+      "startTime": 141.14764,
+      "endTime": 146.67921,
+      "text": "narenai mono no ushiro de kogareru",
+      "sliders": []
+    },
+    {
+      "startTime": 146.7393,
+      "endTime": 149.78764,
+      "text": "no wa yame da",
+      "sliders": []
+    },
+    {
+      "startTime": 149.82271,
+      "endTime": 154.17708,
+      "text": "eien janai no wa shitteiru",
+      "sliders": [
+        {
+          "charIndex": 0,
+          "startTime": 149.9269,
+          "endTime": 150.57294
+        },
+        {
+          "charIndex": 19,
+          "startTime": 152.48601,
+          "endTime": 153.18727
+        }
+      ]
+    },
+    {
+      "startTime": 154.22644,
+      "endTime": 158.22644,
+      "text": "kizumareta nokori hanarerarenai yo",
+      "sliders": []
+    },
+    {
+      "startTime": 159.23726,
+      "endTime": 162.88937,
+      "text": "unmei da nao to aka dochira ka wo kittatte",
+      "sliders": []
+    },
+    {
+      "startTime": 162.90506,
+      "endTime": 166.40292,
+      "text": "techigai no era okoshitagatteiru",
+      "sliders": []
+    },
+    {
+      "startTime": 166.42796,
+      "endTime": 171.87495,
+      "text": "jikan wa kaenai yo",
+      "sliders": [
+        {
+          "charIndex": 1,
+          "startTime": 166.63515,
+          "endTime": 167.1231
+        },
+        {
+          "charIndex": 13,
+          "startTime": 169.87335,
+          "endTime": 170.24257
+        }
+      ]
+    },
+    {
+      "startTime": 172.06302,
+      "endTime": 175.48097,
+      "text": "ima megutteru kisetsu",
+      "sliders": [
+        {
+          "charIndex": 15,
+          "startTime": 173.76561,
+          "endTime": 174.51753
+        }
+      ]
+    },
+    {
+      "startTime": 175.53098,
+      "endTime": 176.8327,
+      "text": "nakisou da",
+      "sliders": []
+    },
+    {
+      "startTime": 176.89046,
+      "endTime": 180.89046,
+      "text": "toutosa wa hitotsu dake shika nai koto mitai",
+      "sliders": []
+    },
+    {
+      "startTime": 180.90138,
+      "endTime": 184.00365,
+      "text": "kitto anata ga hohoendari",
+      "sliders": []
+    },
+    {
+      "startTime": 184.03307,
+      "endTime": 188.03307,
+      "text": "namida wo nagasu you na",
+      "sliders": [
+        {
+          "charIndex": 22,
+          "startTime": 187.26387,
+          "endTime": 187.94955
+        }
+      ]
+    },
+    {
+      "startTime": 188.11183,
+      "endTime": 195.25276,
+      "text": "tsukinami na shiawase",
+      "sliders": [
+        {
+          "charIndex": 20,
+          "startTime": 192.62965,
+          "endTime": 195.08383
+        }
+      ]
+    },
+    {
+      "startTime": 213.73628,
+      "endTime": 218.08731,
+      "text": "yugen no naka hashitteiru",
+      "sliders": []
+    },
+    {
+      "startTime": 218.20952,
+      "endTime": 223.39449,
+      "text": "ouka suru hima mo naku sei ippai ni",
+      "sliders": []
+    },
+    {
+      "startTime": 224.42227,
+      "endTime": 228.71901,
+      "text": "eien janai no wa shitteiru",
+      "sliders": []
+    },
+    {
+      "startTime": 228.92639,
+      "endTime": 234.45499,
+      "text": "kizamareta nokori hanarerarenai yo",
+      "sliders": [
+        {
+          "charIndex": 33,
+          "startTime": 232.50494,
+          "endTime": 234.38615
+        }
+      ]
+    },
+    {
+      "startTime": 234.59148,
+      "endTime": 235.091,
+      "text": "a",
+      "sliders": []
+    },
+    {
+      "startTime": 235.1275,
+      "endTime": 238.61935,
+      "text": "ima ga hoshii nante",
+      "sliders": []
+    },
+    {
+      "startTime": 238.64854,
+      "endTime": 241.19366,
+      "text": "kanai mo shinai nante",
+      "sliders": []
+    },
+    {
+      "startTime": 241.25633,
+      "endTime": 244.9318,
+      "text": "dakara itoshiku naru no ka na",
+      "sliders": []
+    },
+    {
+      "startTime": 244.97025,
+      "endTime": 247.58891,
+      "text": "ushinatte wasurenai you ni",
+      "sliders": []
+    },
+    {
+      "startTime": 247.61165,
+      "endTime": 249.92647,
+      "text": "koushite utatteirunda yo",
+      "sliders": []
+    },
+    {
+      "startTime": 249.93732,
+      "endTime": 251.92215,
+      "text": "kodou myaku wo narasu",
+      "sliders": []
+    },
+    {
+      "startTime": 251.9869,
+      "endTime": 256.05057,
+      "text": "shinzou to no ga",
+      "sliders": [
+        {
+          "charIndex": 15,
+          "startTime": 253.89082,
+          "endTime": 255.89082
+        }
+      ]
+    },
+    {
+      "startTime": 256.11624,
+      "endTime": 259.55112,
+      "text": "iya",
+      "sliders": [
+        {
+          "charIndex": 2,
+          "startTime": 256.5108,
+          "endTime": 259.36383
+        }
+      ]
+    },
+    {
+      "startTime": 259.58618,
+      "endTime": 267.25342,
+      "text": "tsukiru made",
+      "sliders": [
+        {
+          "charIndex": 11,
+          "startTime": 262.27078,
+          "endTime": 267.1102
+        }
+      ]
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

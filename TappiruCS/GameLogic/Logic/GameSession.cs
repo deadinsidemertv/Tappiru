@@ -61,10 +61,24 @@ namespace TappiruCS.GameLogic.Logic
         public event Action<int> OnComboChanged;
         public event Action OnComboBreak;
 
+        public enum GameMods
+        {
+            None = 0,
+            NoFail = 1 << 0,     // NF — здоровье не убывает
+                                 // Easy = 1 << 1,
+                                 // Hidden = 1 << 2,
+                                 // HardRock = 1 << 3,
+                                 // DoubleTime = 1 << 4,
+                                 // и т.д. — можешь добавлять позже
+        }
+        public GameMods mods;
+
         public bool IsPause { get; set; }
 
         public GameSession(MapData mapData)
         {
+            mods = GameMods.NoFail;
+
             CurrentMap = mapData;
             EndTime = mapData.endTime;
 

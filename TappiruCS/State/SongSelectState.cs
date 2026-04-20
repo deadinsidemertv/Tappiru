@@ -83,7 +83,7 @@ namespace TappiruCS.State
 
             // === 2. Сортируем по StarRating (от сложных к лёгким) ===
             mapList = mapList
-                .OrderByDescending(item => item.starRating)
+                .OrderBy(item => item.starRating)
                 .ThenBy(item => item.mapData.title)
                 .ToList();
 

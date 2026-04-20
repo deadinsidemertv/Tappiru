@@ -63,6 +63,8 @@ namespace TappiruCS.UI
             SelectedButton = selected;
             SelectedIndex = index;
 
+            ScrollToIndex(index);
+
             OnSelectionChanged?.Invoke(selected);
 
 
@@ -215,5 +217,20 @@ namespace TappiruCS.UI
             SelectedIndex = -1;
         }
         public void ResetScroll() => _targetScrollOffsetY = ScrollOffsetY = 0f;
+
+        public void ScrollToIndex(int index)
+        {
+            if (index < 0 || index >= Buttons.Count) return;
+
+            float contentY = index * (_itemHeight + _itemSpacing);
+            float buttonCenter = contentY + _itemHeight / 2f;
+            float targetOffset = buttonCenter - _visibleHeight / 2f;
+
+            // Ограничиваем допустимыми пределами прокрутки
+            float maxScroll = Math.Max(0, Buttons.Count * (_itemHeight + _itemSpacing) - _visibleHeight);
+            targetOffset = Math.Clamp(targetOffset, 0, maxScroll);
+
+            _targetScrollOffsetY = targetOffset;
+        }
     }
 }

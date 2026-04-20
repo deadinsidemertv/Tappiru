@@ -115,5 +115,7 @@ namespace TappiruCS.UI
             if (IsSelected == selected) return;
             IsSelected = selected;
         }
+
+
     }
 }
