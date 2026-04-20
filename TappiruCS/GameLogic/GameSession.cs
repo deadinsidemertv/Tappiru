@@ -74,6 +74,7 @@ namespace TappiruCS.GameLogic
         public event Action OnComboBreak;
 
         public float healt = 100f;
+        public float hpDrain = 0.5f;
 
         public bool IsPause = false;
 
@@ -99,6 +100,7 @@ namespace TappiruCS.GameLogic
         /// </summary>
         public void Update(double currentTime, KeyboardState keyboard)
         {
+            Console.WriteLine($"HP: {healt}");
             if (!IsPause)
             {
                 UpdateAccuracy();
@@ -217,6 +219,8 @@ namespace TappiruCS.GameLogic
                 _successfullyCompletedSliders.Add(_sliderCharIndex);
 
                 PhaseComplete = true;
+
+                healt += 10f;
             }
             else if (CurrentCharIndex < CurrentPhaseChars.Length)
             {
@@ -225,6 +229,8 @@ namespace TappiruCS.GameLogic
                 Misses += CurrentPhaseChars.Length - CurrentCharIndex;
                 OnComboBreak?.Invoke();
                 PhaseComplete = false;
+
+                healt -= hpDrain * (CurrentPhaseChars.Length - CurrentCharIndex);
             }
             else
             {
@@ -246,7 +252,7 @@ namespace TappiruCS.GameLogic
                 _successfullyHeldSliders.Add(_sliderCharIndex);
                 TotalScore += PointsPerHit * Combo * 2;
 
-                Console.WriteLine($"[SLIDER AUTO SUCCESS] '{CurrentPhaseChars[_sliderCharIndex]}' — время вышло, можно отпускать! (now green)");
+                healt += 10f;
             }
         }
 
@@ -270,12 +276,14 @@ namespace TappiruCS.GameLogic
                 TotalScore += PointsPerHit * Combo * 2;
                 judgement = "PERFECT";
                 isSuccess = true;
+                healt += 10f;
             }
             else if (delta <= goodEnd)
             {
                 TotalScore += PointsPerHit * Combo;
                 judgement = "GOOD";
                 isSuccess = true;
+                healt += 7f;
             }
             else
             {
@@ -283,6 +291,7 @@ namespace TappiruCS.GameLogic
                 judgement = "MISS";
                 OnComboBreak?.Invoke();
                 isSuccess = false;
+                healt -= hpDrain;
             }
 
             Console.WriteLine($"[SLIDER RELEASE] '{CurrentPhaseChars[_sliderCharIndex]}' delta={delta:F3}s → {judgement}");
@@ -341,11 +350,13 @@ namespace TappiruCS.GameLogic
             Combo = 0;
             OnComboBreak?.Invoke();
             Misses++;
+            healt -= hpDrain;
 
             if (CurrentCharIndex == CurrentPhaseChars.Length - 1)
             {
                 CompletedPhases++;
                 TotalScore += PointsPerPhase * Combo;
+                healt += 10f;
                 PhaseComplete = true;
                 _isActivePhase = false;
                 _currentPhaseIndex++;
@@ -365,6 +376,7 @@ namespace TappiruCS.GameLogic
             {
                 Combo = 0;
                 OnComboBreak?.Invoke();
+                healt -= hpDrain;
                 return;
             }
 
@@ -374,6 +386,7 @@ namespace TappiruCS.GameLogic
             OnComboChanged?.Invoke(Combo);
             if (Combo > MaxCombo) MaxCombo = Combo;
             TotalScore += PointsPerHit * Combo;
+            healt += 10f;
 
             Console.WriteLine($"[TAP] '{expected}' OK");
 
@@ -398,6 +411,7 @@ namespace TappiruCS.GameLogic
 
             CompletedPhases++;
             TotalScore += PointsPerPhase * Combo;
+            healt += 10f;
 
             _currentPhaseIndex++;
             CurrentCharIndex = 0;
