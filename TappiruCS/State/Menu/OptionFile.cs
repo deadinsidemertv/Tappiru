@@ -4,9 +4,9 @@ using System.Text;
 
 namespace TappiruCS.State.Menu
 {
-    public class OptionFile
+    public static class OptionFile
     {
-        public float Volume;
+        public static float Volume = 0.2f;
 
     }
 }

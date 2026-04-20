@@ -11,12 +11,9 @@ namespace TappiruCS.State.Menu
         public SpriteObject Bg;
         public Slider VolumeSlider;
         public TextObject SettingVol;
-        public OptionFile Settings { get; private set; }
 
         public OptionModule(Scene scene, float x, float y, float width)
         {
-            Settings = new OptionFile();
-            Settings.Volume = 0.2f;        // хороший дефолт
 
             Bg = new SpriteObject(0, x, y, width, 1080)
             {
@@ -45,7 +42,7 @@ namespace TappiruCS.State.Menu
             // Подписываемся на изменение
             VolumeSlider.OnValueChanged += OnVolumeChanged;
 
-            VolumeSlider.SetValue(Settings.Volume);   // установит начальное значение
+            VolumeSlider.SetValue(OptionFile.Volume);   // установит начальное значение
 
             Bg.AddChild(VolumeSlider);
             scene.Add(VolumeSlider);
@@ -55,7 +52,7 @@ namespace TappiruCS.State.Menu
         // Этот метод будет вызываться каждый кадр, пока игрок двигает слайдер!
         private void OnVolumeChanged(float newVolume)
         {
-            Settings.Volume = newVolume;
+            OptionFile.Volume = newVolume;
             AudioManager.MainVolume = newVolume;
 
             // Применяем громкость сразу — музыка будет реагировать в реальном времени

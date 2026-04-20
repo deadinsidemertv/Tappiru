@@ -2,6 +2,7 @@
 using NAudio.Wave;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
+using TappiruCS.State.Menu;
 
 namespace TappiruCS.Render
 {
@@ -29,6 +30,7 @@ namespace TappiruCS.Render
 
         public AudioManager()
         {
+            MainVolume = OptionFile.Volume;
             Instance = this;
             _device = ALC.OpenDevice(null);
             _context = ALC.CreateContext(_device, (int[])null);
@@ -150,7 +152,7 @@ namespace TappiruCS.Render
         {
             ApplyMainVolume();
             AL.SourcePlay(_musicSource); IsPlaying = true;
-            AL.Source(_musicSource, ALSourcef.Gain, 0.5f);
+            
         }
         public void Pause() {ApplyMainVolume(); AL.SourcePause(_musicSource); IsPlaying = false; }
         public void Resume() { ApplyMainVolume(); AL.SourcePlay(_musicSource); IsPlaying = true; }
@@ -301,7 +303,7 @@ namespace TappiruCS.Render
             // Применяем к музыке
             if (_musicSource != 0)
             {
-                float musicGain = MainVolume * 0.8f; // музыка обычно чуть тише
+                float musicGain = MainVolume; // музыка обычно чуть тише
                 AL.Source(_musicSource, ALSourcef.Gain, musicGain);
             }
 
