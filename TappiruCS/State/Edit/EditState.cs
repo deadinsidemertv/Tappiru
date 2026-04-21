@@ -237,12 +237,15 @@ namespace TappiruCS.State.Edit
                 var charObj = new TextObject(text[i].ToString(),
                                              startX + i * charSpacing, 480, 1.05f);
 
+                bool hasSlider = _currentActivePhrase.Sliders.Any(s => s.charIndex == i);
+                charObj.FixedColor = hasSlider;
+
+                if (hasSlider)
+                    charObj.Color = Color4.Red;   // ← вот это главное изменение
+                else
+                    charObj.Color = Color4.White; // можно явно, но необязательно
+
                 int index = i;
-
-                // Фиксируем цвет, если для этой буквы уже есть слайдер
-                charObj.FixedColor = _currentActivePhrase.Sliders.Any(s => s.charIndex == index);
-                    
-
                 charObj.OnClick = _ => CreateSliderForChar(_currentActivePhrase!, index);
 
                 _scene.Add(charObj);

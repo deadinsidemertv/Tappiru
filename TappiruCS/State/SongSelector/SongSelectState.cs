@@ -15,9 +15,10 @@ using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Server.MapLogic;
 using TappiruCS.State.Menu;
+using TappiruCS.GameLogic.Mod;
 
 
-namespace TappiruCS.State
+namespace TappiruCS.State.SongSelector
 {
     public class SongSelectState : IGameState
     {
@@ -25,6 +26,7 @@ namespace TappiruCS.State
         private readonly RenderContext _context;
 
         public static MapData SelectedMap;
+        
 
         private readonly Scene _scene = new Scene();
 
@@ -39,12 +41,17 @@ namespace TappiruCS.State
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
 
+        public ModuleWindow _moduleWND;
+
         public int _bgPreview;
 
         public string songPath = "";
         public int songCount;
 
         List<PlayerScore> topScores;
+
+
+        public bool IsOpenModule=false;
 
         public SongSelectState(RenderContext context)
         {
@@ -185,8 +192,12 @@ namespace TappiruCS.State
 
 
             };
+            var modsButton = new Button(480, 1015, 77, 90, "selection-mode", "") { Layer = 5,Tag = "selection-mode",ScaleMultiply = 1.4f };
+            _scene.Add(modsButton);
+
             backButton.OnClick += BackMenu;
             playButton.OnClick += () => PlaySong(songPath);
+            modsButton.OnClick += CreateModsModule;
 
 
             _ = SelectSong(SelectedMap.Path);
@@ -206,6 +217,7 @@ namespace TappiruCS.State
 
         public void PlaySong(string SongPath)
         {
+            SelectedMap.mods = Game._activeMods;
             Console.WriteLine("игра началась");
             _context.Audio.PlaySoundEffect("matchStart");
             _context.Game.ChangeState(new GameSessionState(_context, SelectedMap));
@@ -280,6 +292,28 @@ namespace TappiruCS.State
         {
             _context.Game.ChangeState(new ScoreBoardState(_context,score,SelectedMap));
         }
+
+        public void CreateModsModule()
+        {
+            if (IsOpenModule == false)
+            {
+                _moduleWND = new ModsModule(_scene, Game._activeMods);
+                IsOpenModule = true;
+            }
+            else if (IsOpenModule) 
+            {
+                CloseModuleWindow(_moduleWND);
+            }
+                
+        }
+
+        public void CloseModuleWindow(ModuleWindow wind)
+        {
+            wind.Dispose();
+            wind = null;
+            IsOpenModule = false;
+        }
+
         public async Task SelectSong(string SP)
         {
             Console.WriteLine($"[SelectSong] Начало для {SP}");
@@ -386,6 +420,8 @@ namespace TappiruCS.State
         }
         public void OnMouseWheel(MouseWheelEventArgs e)
         {
+            if (IsOpenModule)
+                return;
 
             list.Scroll(e.Offset.Y);
             
@@ -393,10 +429,11 @@ namespace TappiruCS.State
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            if (e.Key == Keys.Backspace)
-            {
+
+            if (e.Key == Keys.Escape && IsOpenModule)
+                CloseModuleWindow(_moduleWND);
+            else if (e.Key == Keys.Escape && IsOpenModule == false)
                 _context.Game.ChangeState(new MenuState(_context));
-            }
 
         }
 

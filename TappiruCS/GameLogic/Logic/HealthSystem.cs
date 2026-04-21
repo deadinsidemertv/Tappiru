@@ -2,6 +2,12 @@
 {
     public class HealthSystem
     {
+        public GameSession session;
+
+        public HealthSystem(GameSession _session)
+        {
+            session = _session;
+        }
         public float Health { get; private set; } = 100f;
 
         private const float HP_GAIN_TAP = 3.5f;
@@ -11,6 +17,7 @@
         private const float HP_GAIN_PHASE = 8f;
         private const float HP_MISS = 7f;
         private const float HP_PHASE_FAIL_MULTIPLIER = 5.5f;
+
 
         public void GainTap() => Adjust(HP_GAIN_TAP);
         public void GainSliderHold() => Adjust(HP_GAIN_SLIDER_HOLD);
@@ -22,6 +29,8 @@
 
         private void Adjust(float delta)
         {
+            if(session.NoFail) return;
+
             Health = Math.Clamp(Health + delta, 0f, 100f);
         }
 

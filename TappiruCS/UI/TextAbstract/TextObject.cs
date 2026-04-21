@@ -1,4 +1,4 @@
-﻿// TextObject.cs
+﻿// TextObject.cs — исправленная версия
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
@@ -9,15 +9,27 @@ namespace TappiruCS.UI.TextAbstract
     public class TextObject : GameObject
     {
         public string Text { get; set; } = "";
-        public Color4 Color { get; set; } = Color4.White;
+
+        private Color4 _baseColor = Color4.White;
+        private Color4 _displayColor = Color4.White;
+
+        public Color4 Color
+        {
+            get => _baseColor;
+            set
+            {
+                _baseColor = value;
+                if (!FixedColor && !IsHovered)
+                    _displayColor = _baseColor;
+            }
+        }
+
         public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
-
         public Action<Vector2>? OnClick { get; set; }
-
         public bool FixedColor { get; set; } = false;
 
-        // === Новые удобные свойства для эффектов ===
-        public bool HasShadow { get; set; } = false;                    
+        // Эффекты
+        public bool HasShadow { get; set; } = false;
         public Vector2 ShadowOffset { get; set; } = new Vector2(3f, 3f);
         public float ShadowOpacity { get; set; } = 0.65f;
 
@@ -30,10 +42,11 @@ namespace TappiruCS.UI.TextAbstract
             Text = text;
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
-
             Pivot = new Vector2(0.5f, 0.5f);
             AllowHover = true;
             Layer = 5;
+            _baseColor = Color4.White;
+            _displayColor = Color4.White;
         }
 
         public override void Update(double deltaTime, MouseState mouse)
@@ -42,13 +55,14 @@ namespace TappiruCS.UI.TextAbstract
 
             if (!FixedColor)
             {
-                Color = IsHovered
-                    ? new Color4(1f, 0.9f, 0.4f, 1f)
-                    : Color4.White;
+                if (IsHovered)
+                    _displayColor = new Color4(1f, 0.9f, 0.4f, 1f); // жёлтый при ховере
+                else
+                    _displayColor = _baseColor;
             }
             else
             {
-                Color = Color4.Red;
+                _displayColor = _baseColor;
             }
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
@@ -63,7 +77,6 @@ namespace TappiruCS.UI.TextAbstract
                 return false;
 
             var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
-
             float localMouseX = worldX - dLeft;
             float localMouseY = worldY - dTop;
 
@@ -84,58 +97,33 @@ namespace TappiruCS.UI.TextAbstract
                 return;
 
             var bounds = GetDesignBounds();
-
-            // Применяем CanvasScale один раз
             float finalX = bounds.designLeft * CanvasScale.X;
             float finalY = bounds.designTop * CanvasScale.Y;
             float finalScaleX = bounds.effWidth * CanvasScale.X;
             float finalScaleY = bounds.effHeight * CanvasScale.Y;
 
-            TextRender.TextAlign renderAlign = Align;
-
-            // === Основная отрисовка с эффектами ===
             if (HasOutline)
             {
                 TR.DrawStringOutline(
-                    Text,
-                    finalX,
-                    finalY,
-                    finalScaleX,
-                    finalScaleY,
-                    Color.R, Color.G, Color.B, Color.A,
-                    projection,
-                    Align,
-                    OutlineThickness,
-                    OutlineColor
+                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align, OutlineThickness, OutlineColor
                 );
             }
             else if (HasShadow)
             {
                 TR.DrawStringShadow(
-                    Text,
-                    finalX,
-                    finalY,
-                    finalScaleX,
-                    finalScaleY,
-                    Color.R, Color.G, Color.B, Color.A,
-                    projection,
-                    Align,
-                    ShadowOffset,
-                    ShadowOpacity
+                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align, ShadowOffset, ShadowOpacity
                 );
             }
             else
             {
-                // Простая отрисовка без эффектов
                 TR.DrawString(
-                    Text,
-                    finalX,
-                    finalY,
-                    finalScaleX,
-                    finalScaleY,
-                    Color.R, Color.G, Color.B, Color.A,
-                    projection,
-                    Align
+                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align
                 );
             }
         }

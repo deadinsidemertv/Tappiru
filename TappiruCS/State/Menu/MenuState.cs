@@ -10,6 +10,7 @@ using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
+using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 

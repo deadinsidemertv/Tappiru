@@ -1,5 +1,6 @@
 ﻿// MapData.cs
 using System.Collections.Generic;
+using TappiruCS.GameLogic.Mod;
 
 namespace TappiruCS.GameLogic
 {
@@ -45,6 +46,8 @@ namespace TappiruCS.GameLogic
         public string title { get; set; } = string.Empty;
         public string artist { get; set; } = string.Empty;
         public string creator { get; set; } = string.Empty;
+
+        public List<GameMod> mods { get; set; } = new List<GameMod>();
 
         public bool IsOnServer { get; set; } = false;
 

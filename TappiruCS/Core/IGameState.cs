@@ -5,6 +5,7 @@ namespace TappiruCS.Core
 {
     public interface IGameState
     {
+
         void OnEnter();
         void OnExit();
         void Update(double currentTime);

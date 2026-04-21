@@ -10,6 +10,7 @@ using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using System.IO;
 using TappiruCS.GameLogic.Logic;
+using TappiruCS.State.SongSelector;
 
 namespace TappiruCS.State.Session
 {
@@ -174,8 +175,6 @@ namespace TappiruCS.State.Session
         }
         private void TriggerGameOver()
         {
-            if (session.mods == GameSession.GameMods.NoFail)
-                return;
 
             _isGameOverHandled = true;
             session.IsPause = true;                    // останавливаем логику

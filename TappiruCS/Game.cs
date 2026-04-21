@@ -3,15 +3,16 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
-using System.ComponentModel;
-using TappiruCS.State;
-using TappiruCS.State.Session;
 using TappiruCS.State.Menu;
+using TappiruCS.State.Session;
+using TappiruCS.State.SongSelector;
 
 namespace TappiruCS
 {
@@ -23,6 +24,7 @@ namespace TappiruCS
         public static float WindowHeight;
 
         private IGameState currentState;
+        public static List<GameMod> _activeMods = new List<GameMod>();
 
         private SpriteBatch spriteBatch;
         public static TextRender japanFONT;
@@ -43,8 +45,8 @@ namespace TappiruCS
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
             
-            this.ClientSize = new Vector2i(1920, 1080);
-            this.WindowState = WindowState.Fullscreen;
+            this.ClientSize = new Vector2i(1280, 720);
+            this.WindowState = WindowState.Normal;
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
             
         }
