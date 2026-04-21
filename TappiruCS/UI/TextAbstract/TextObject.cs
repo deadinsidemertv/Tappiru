@@ -33,7 +33,7 @@ namespace TappiruCS.UI.TextAbstract
         public Vector2 ShadowOffset { get; set; } = new Vector2(3f, 3f);
         public float ShadowOpacity { get; set; } = 0.65f;
 
-        public bool HasOutline { get; set; } = true;
+        public bool HasOutline { get; set; } = false;
         public float OutlineThickness { get; set; } = 2.5f;
         public Color4 OutlineColor { get; set; } = new Color4(0f, 0f, 0f, 1f);
 

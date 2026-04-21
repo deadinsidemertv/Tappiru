@@ -71,6 +71,7 @@ namespace TappiruCS
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
             textRenderer = new TextRender(spriteBatch, "Textures\\Font\\font_cyrillic.fnt");
+            //textRenderer = new TextRender(spriteBatch, "Textures\\Font\\main.fnt");
             audio = new AudioManager();
 
             RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);
