@@ -43,7 +43,7 @@ namespace TappiruCS.UI.TextAbstract
             Position = new Vector2(x, y);
             Scale = new Vector2(scale, scale);
             Pivot = new Vector2(0.5f, 0.5f);
-            AllowHover = true;
+            AllowHover = false;
             Layer = 5;
             _baseColor = Color4.White;
             _displayColor = Color4.White;

@@ -66,7 +66,7 @@ namespace TappiruCS.State.Edit
 
             Background = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, width, height)
             {
-                Color = new Color4(0.13f, 0.13f, 0.19f, 1f),
+                Color = new Color4(0.13f, 0.13f, 0.19f, 0.5f),
                 Layer = 5
             };
 

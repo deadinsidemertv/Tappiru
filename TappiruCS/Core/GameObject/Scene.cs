@@ -116,7 +116,7 @@ namespace TappiruCS.Core.GameObject
 
         }
 
-        private Vector2 GetVirtualMousePosition(MouseState mouse)
+        public Vector2 GetVirtualMousePosition(MouseState mouse)
         {
             return new Vector2(
                 mouse.X / CanvasScale.X,

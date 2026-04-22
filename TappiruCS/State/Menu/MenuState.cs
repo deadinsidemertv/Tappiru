@@ -49,6 +49,9 @@ namespace TappiruCS.State.Menu
             AddBackgroundAndDecorations();
             CreateUI();
 
+            var mouseN = new MouseNotification(_scene);
+            _scene.Add(mouseN);
+
             PlayerProfile.Instance.OnProfileChanged += RefreshLoggedInUI;
 
             // === Главная логика показа нужного экрана ===
@@ -150,14 +153,14 @@ namespace TappiruCS.State.Menu
                 ScaleMultiply = 1.1f
             };
 
-            int blackTex = TextureManager.GetTexture("black");
-            var blackTop = new SpriteObject(blackTex, 960, 0, 2000, _context.Game.ClientSize.Y / 3)
+            
+            var blackTop = new SpriteObject(0, 960, 0, 1920, _context.Game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,
                 Opacity = 0.6f
             };
-            var blackBottom = new SpriteObject(blackTex, 960, 1080, 2000, _context.Game.ClientSize.Y / 3)
+            var blackBottom = new SpriteObject(0, 960, 1080, 1920, _context.Game.ClientSize.Y / 3)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,

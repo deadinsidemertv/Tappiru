@@ -51,16 +51,16 @@ namespace TappiruCS.UI
             int lineTexture = TextureManager.GetTexture("slider_line");
 
             // === Линия ===
-            line = new SpriteObject(lineTexture, x, y, width, 8)
+            line = new SpriteObject(lineTexture, x, y, width, 4)
             {
-                Color = new Color4(0.3f, 0.3f, 0.3f, 1f),
+                Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
             // === Ползунок ===
-            point = new SpriteObject(lineTexture, x, y, 16, 40)
+            point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), x, y, 50, 50)
             {
-                Color = Color4.Black,
+                Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 

@@ -235,7 +235,8 @@ namespace TappiruCS.State.Edit
             for (int i = 0; i < text.Length; i++)
             {
                 var charObj = new TextObject(text[i].ToString(),
-                                             startX + i * charSpacing, 480, 1.05f);
+                                             startX + i * charSpacing, 480, 1.05f)
+                {AllowHover =true };
 
                 bool hasSlider = _currentActivePhrase.Sliders.Any(s => s.charIndex == i);
                 charObj.FixedColor = hasSlider;
@@ -366,10 +367,13 @@ namespace TappiruCS.State.Edit
             _playPauseButton = new Button( 960, 1000, 100, 100, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
 
-            _addPhraseButton = new Button(300, 1000, 420, 100, "button", "ADD PHRASE")
+            _addPhraseButton = new Button(1200, 1000, 420, 100, "button", "ADD PHRASE")
             {
                 Layer = 1,
-                TextScale = 0.75f
+                TextScale = 0.5f,
+                TextOffset = new Vector2(-120,-30),
+                Tag ="noanim",
+                ScaleMultiply = 0.5f
             };
             _addPhraseButton.OnClick += AddNewPhrase;
 
