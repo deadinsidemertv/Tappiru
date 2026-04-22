@@ -1,5 +1,4 @@
-﻿using OpenTK.Audio.OpenAL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
@@ -13,139 +12,169 @@ namespace TappiruCS.UI
 {
     public class ScoreButton : Button
     {
+        // ── Публичные дочерние объекты (нужны снаружи для управления видимостью) ──
         public SpriteObject Avatar { get; private set; }
         public SpriteObject Grade { get; private set; }
 
-        public TextObject PlayerNameText { get; private set; }
-        public TextObject ScoreComboText { get; private set; }
-        public TextObject AccuracyText { get; private set; }
+        // ── Приватные текстовые поля ──
+        private readonly TextObject _playerNameText;
+        private readonly TextObject _scoreComboText;
+        private readonly TextObject _accuracyText;
 
-        private readonly PlayerScore _scoreData;
+        private readonly PlayerScore _score;
 
-        public int grade;
+        // ── Константы макета ──
+        private const int ButtonWidth = 700;
+        private const int ButtonHeight = 100;
+        private const float DefaultOpacity = 0.5f;
 
         public ScoreButton(float x, float y, PlayerScore score)
-            : base(x, y, 700, 100, "white", "")
+            : base(x, y, ButtonWidth, ButtonHeight, "white", "")
         {
+            _score = score;
+
             NormalColor = Color4.Black;
-            HoverColor = new Color4(0.2f,0.2f,0.2f,1f);
-            _scoreData = score;
+            HoverColor = new Color4(0.2f, 0.2f, 0.2f, 1f);
             Tag = "scorebutton";
             Text = "";
-            Opacity = 0.5f;
+            Opacity = DefaultOpacity;
             AllowHover = true;
             Layer = 10;
 
-            if (score._accuraci == 100f && score._failChar == 0)
-                grade = TextureLoader.Load("Textures/grade/grade5.png");
-            else if (score._accuraci > 90.0f && score._failChar == 0)
-                grade = TextureLoader.Load("Textures/grade/grade4.png");
-            else if ((score._accuraci > 80.0f && score._failChar == 0) || (score._accuraci > 90.0f))
-                grade = TextureLoader.Load("Textures/grade/grade3.png");
-            else if ((score._accuraci > 70.0f && score._failChar == 0) || (score._accuraci > 80.0f))  
-                grade = TextureLoader.Load("Textures/grade/grade2.png");                                
-            else if (score._accuraci > 60.0f)
-                grade = TextureLoader.Load("Textures/grade/grade1.png");
-            else
-                grade = TextureLoader.Load("Textures/grade/grade0.png");
+            Avatar = BuildAvatar();
+            Grade = BuildGrade(ResolveGradeTexture(score));
 
-            // === Аватар ===
-            if (PlayerProfile.Instance.IsLoggedIn)
+            _playerNameText = BuildPlayerNameText();
+            _scoreComboText = BuildScoreComboText();
+            _accuracyText = BuildAccuracyText();
+
+            AddChild(Avatar);
+            AddChild(Grade);
+            AddChild(_playerNameText);
+            AddChild(_scoreComboText);
+            AddChild(_accuracyText);
+
+            RefreshContent();
+        }
+
+        // ─────────────────────────────────────────────
+        //  Публичный API
+        // ─────────────────────────────────────────────
+
+        /// <summary>Добавляет номер позиции перед именем игрока.</summary>
+        public void SetRank(int rank)
+        {
+            _playerNameText.Text = $"{rank}. {_score.PlayerName}";
+        }
+
+        // ─────────────────────────────────────────────
+        //  Overrides
+        // ─────────────────────────────────────────────
+
+        public override void Update(double deltaTime, MouseState mouse)
+        {
+            base.Update(deltaTime, mouse);
+
+            // Аватар и грейд всегда полностью непрозрачны — независимо от opacity кнопки
+            Avatar.Opacity = 1f;
+            Grade.Opacity = 1f;
+
+            RefreshContent();
+        }
+
+        public override void Draw(Matrix4 projection)
+        {
+            base.Draw(projection);
+        }
+
+        // ─────────────────────────────────────────────
+        //  Приватные методы построения UI
+        // ─────────────────────────────────────────────
+
+        private SpriteObject BuildAvatar()
+        {
+            int avatarTexture = PlayerProfile.Instance.IsLoggedIn
+                ? PlayerProfile.Instance.AvatarTextureId
+                : TextureManager.GetTexture("defaultprofile");
+
+            return new SpriteObject(avatarTexture, Position.X - 130, Position.Y, 80, 80)
             {
-                Avatar = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
-                {
-                    Pivot = new Vector2(0.5f, 0.5f),
-                    Parent = this,
-                    AllowHover = false,
-                };
-            }
-            else
-            {
-                Avatar = new SpriteObject(TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
-                {
-                    Pivot = new Vector2(0.5f, 0.5f),
-                    Parent = this,
-                    AllowHover = false
+                Pivot = new Vector2(0.5f, 0.5f),
+                Parent = this,
+                AllowHover = false,
+            };
+        }
 
-                };
-            }
-
-            // === Грейд — сразу справа от аватарки ===
-            Grade = new SpriteObject(grade, Position.X - 58, Position.Y, 37, 44)
+        private SpriteObject BuildGrade(int gradeTexture)
+        {
+            return new SpriteObject(gradeTexture, Position.X - 58, Position.Y, 37, 44)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f,
                 AllowHover = false,
-                Parent = this
+                Parent = this,
             };
+        }
 
-            // === Тексты ===
-            PlayerNameText = new TextObject("", Position.X-30, Position.Y-50, 36f)
+        private TextObject BuildPlayerNameText() =>
+            new TextObject("", Position.X - 30, Position.Y - 50, 36f)
             {
                 ScaleMultiply = 0.29f,
                 Align = TextAlign.Left,
                 Color = Color4.White,
                 AllowHover = false,
-                Parent = this
+                Parent = this,
             };
 
-            ScoreComboText = new TextObject("", Position.X - 30, Position.Y, 36f)
+        private TextObject BuildScoreComboText() =>
+            new TextObject("", Position.X - 30, Position.Y, 36f)
             {
                 ScaleMultiply = 0.245f,
                 Align = TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f),
                 AllowHover = false,
-                Parent = this
+                Parent = this,
             };
 
-            AccuracyText = new TextObject("", Position.X+324, Position.Y+19, 32f)
+        private TextObject BuildAccuracyText() =>
+            new TextObject("", Position.X + 324, Position.Y + 19, 32f)
             {
                 ScaleMultiply = 0.22f,
                 Align = TextAlign.Right,
                 AllowHover = false,
-                Parent = this
+                Parent = this,
             };
 
-            AddChild(Avatar);
-            AddChild(Grade);
-            AddChild(PlayerNameText);
-            AddChild(ScoreComboText);
-            AddChild(AccuracyText);
-
-            UpdateContent();
-        }
-
-        private void UpdateContent()
+        private void RefreshContent()
         {
-            PlayerNameText.Text = _scoreData.PlayerName;
-            ScoreComboText.Text = $"Очки:{_scoreData._score:N0} (x{_scoreData._maxCobmo})";
-            AccuracyText.Text = $"{_scoreData._accuraci:F2}%";
+            _playerNameText.Text = _score.PlayerName;
+            _scoreComboText.Text = $"Очки: {_score._score:N0}  (x{_score._maxCobmo})";
+            _accuracyText.Text = $"{_score._accuraci:F2}%";
         }
 
-        public void SetRank(int rank)
+        // ─────────────────────────────────────────────
+        //  Статика: определение грейда
+        // ─────────────────────────────────────────────
+
+        private static int ResolveGradeTexture(PlayerScore score)
         {
-            PlayerNameText.Text = $"{rank}. {_scoreData.PlayerName}";
+            string gradeName = CalculateGrade(score._accuraci, score._failChar);
+            return TextureLoader.Load($"Textures/grade/{gradeName}.png");
         }
-        public override void SetHover(bool hover)
+
+        private static string CalculateGrade(float accuracy, int failCount)
         {
-            base.SetHover(hover);
+            bool noFail = failCount == 0;
 
-        }
-        public override void Update(double deltaTime, MouseState mouse)
-        {
-            base.Update(deltaTime, mouse);
-            Avatar.Opacity = 1f;
-            Grade.Opacity = 1f;
-            UpdateContent();
+            if (accuracy == 100f && noFail) return "grade5";
+            if (accuracy > 90f && noFail) return "grade4";
+            if ((accuracy > 80f && noFail) ||
+                accuracy > 90f) return "grade3";
+            if ((accuracy > 70f && noFail) ||
+                accuracy > 80f) return "grade2";
+            if (accuracy > 60f) return "grade1";
 
-        }
-
-        public override void Draw(Matrix4 projection)
-        {  
-
-            var (dLeft, dTop, _, _) = GetDesignBounds();
-            base.Draw(projection);
-
+            return "grade0";
         }
     }
 }
