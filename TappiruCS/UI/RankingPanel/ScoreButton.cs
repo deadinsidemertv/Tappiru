@@ -8,7 +8,7 @@ using TappiruCS.Server.Player;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.Text.Font;
 
-namespace TappiruCS.UI
+namespace TappiruCS.UI.RankingPanel
 {
     public class ScoreButton : Button
     {
@@ -40,6 +40,7 @@ namespace TappiruCS.UI
             Opacity = DefaultOpacity;
             AllowHover = true;
             Layer = 10;
+            Description = "player score";
 
             Avatar = BuildAvatar();
             Grade = BuildGrade(ResolveGradeTexture(score));
@@ -75,7 +76,12 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime, mouse);
 
-            // Аватар и грейд всегда полностью непрозрачны — независимо от opacity кнопки
+            Avatar.Position = new Vector2(Position.X - 130, Position.Y);
+            Grade.Position = new Vector2(Position.X - 58, Position.Y);
+            _scoreComboText.Position = new Vector2(Position.X - 30, Position.Y);
+            _playerNameText.Position = new Vector2(Position.X - 30, Position.Y - 50);
+            _accuracyText.Position = new Vector2(Position.X + 324, Position.Y + 19);
+
             Avatar.Opacity = 1f;
             Grade.Opacity = 1f;
 

@@ -12,6 +12,7 @@ using TappiruCS.Server.Player;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.UI;
+using TappiruCS.UI.RankingPanel;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.Text.Font;
 
@@ -36,7 +37,7 @@ namespace TappiruCS.State.SongSelector
         private TextObject _metaDataText;
 
         // ── Лидерборд ──
-        private readonly List<ScoreButton> _rankingButtons = new List<ScoreButton>();
+        private RankingPanel _rankingPanel;
 
         // ── Управление фоновой загрузкой ──
         private CancellationTokenSource _songSelectCts = new CancellationTokenSource();
@@ -61,6 +62,13 @@ namespace TappiruCS.State.SongSelector
             _mapList = BuildMapList();
             _scene.Add(_mapList);
 
+            IScoreProvider provider = PlayerProfile.Instance.IsLoggedIn ? new OnlineScoreProvider() : new OfflineScoreProvider();
+            
+            _rankingPanel = new RankingPanel(180f, 275f, provider);
+
+            _rankingPanel.OnScoreClicked += OpenScoreBoard;
+            _scene.Add(_rankingPanel);
+
             _ = SelectSongAsync(SelectedMap.Path);
             _ = LoadMapListAsync();
         }
@@ -84,6 +92,7 @@ namespace TappiruCS.State.SongSelector
         public void OnMouseWheel(MouseWheelEventArgs e)
         {
             _mapList.Scroll(e.Offset.Y);
+            _rankingPanel.Scroll(e.Offset.Y);
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e) { }
@@ -99,6 +108,8 @@ namespace TappiruCS.State.SongSelector
             AddMapInfoTexts();
             AddDecorationSprites();
             AddButtons();
+
+            
         }
 
         private void AddBackgrounds()
@@ -213,10 +224,6 @@ namespace TappiruCS.State.SongSelector
             Console.WriteLine($"[SongSelect] Список загружен: {mapItems.Count} карт");
         }
 
-        /// <summary>
-        /// Онлайн: запрашиваем хэши карт с сервера.
-        /// Офлайн: возвращаем пустой набор — карты будут без серверной отметки.
-        /// </summary>
         private Task<HashSet<string>> FetchServerHashesIfOnlineAsync()
         {
             if (PlayerProfile.Instance.IsLoggedIn)
@@ -397,11 +404,9 @@ namespace TappiruCS.State.SongSelector
             _creatorText.Text = $"Автор: {map.creator}";
             _metaDataText.Text = FormatMetaData(map);
 
-            // Обновляем лидерборд
-            var scores = LoadScoresForCurrentMap();
-            UpdateRankingDisplay(scores);
-
-            Console.WriteLine($"[SelectSong] Готово: {map.title}");
+            
+            _rankingPanel.Refresh(SelectedMap.MapHash);
+            
         }
 
         private string FormatMetaData(MapData map)
@@ -410,100 +415,6 @@ namespace TappiruCS.State.SongSelector
             int minutes = total / 60;
             int seconds = total % 60;
             return $"Длина: {minutes}:{seconds:D2}  Строк: {map.Events.Count}  Сложность: {map.StarRating:F2}";
-        }
-
-        // ─────────────────────────────────────────────
-        //  Загрузка очков: онлайн / офлайн
-        // ─────────────────────────────────────────────
-
-        private List<PlayerScore> LoadScoresForCurrentMap()
-        {
-            return PlayerProfile.Instance.IsLoggedIn
-                ? LoadOnlineScores(SelectedMap.MapHash)
-                : LoadOfflineScores(SelectedMap.MapHash);
-        }
-
-        /// <summary>
-        /// Офлайн: берём очки из локальной базы.
-        /// </summary>
-        private List<PlayerScore> LoadOfflineScores(string mapHash)
-        {
-            return ScoreManager.GetTopScoresForMap(mapHash, 7);
-        }
-
-        private List<PlayerScore> LoadOnlineScores(string mapHash)
-        {
-            // TODO: запросить очки с сервера и вернуть список
-            return new List<PlayerScore>();
-        }
-
-        // ─────────────────────────────────────────────
-        //  Отображение лидерборда
-        // ─────────────────────────────────────────────
-
-        private void UpdateRankingDisplay(List<PlayerScore> scores)
-        {
-            ClearRankingButtons();
-
-            const int startY = 275;
-            const int spacing = 102;
-            const int maxShown = 10;
-
-            if (scores == null || scores.Count == 0)
-            {
-                AddEmptyRankingPlaceholder(startY);
-                return;
-            }
-
-            int count = Math.Min(scores.Count, maxShown);
-            for (int i = 0; i < count; i++)
-            {
-                var score = scores[i];
-                var button = new ScoreButton(180, startY + i * spacing, score)
-                {
-                    Layer = 3,
-                    Position = new Vector2(180, startY + i * spacing),
-                    ScaleMultiply = 1.0f,
-                    Opacity = 0.5f,
-                };
-
-                button.SetRank(i + 1);
-                button.OnClick += () => OpenScoreBoard(score);
-
-                _rankingButtons.Add(button);
-                _scene.Add(button);
-            }
-        }
-
-        private void ClearRankingButtons()
-        {
-            foreach (var btn in _rankingButtons)
-                _scene.Remove(btn);
-
-            _rankingButtons.Clear();
-        }
-
-        private void AddEmptyRankingPlaceholder(float y)
-        {
-            var emptyScore = new PlayerScore
-            {
-                PlayerName = "Нет результатов",
-                _score = 0,
-                _accuraci = 0,
-                _maxCobmo = 0,
-            };
-
-            var btn = new ScoreButton(180, y, emptyScore)
-            {
-                Layer = 3,
-                Position = new Vector2(180, y),
-            };
-
-            btn.Avatar.Active = false;
-            btn.Grade.Active = false;
-
-            _rankingButtons.Add(btn);
-            _scene.Add(btn);
         }
 
         // ─────────────────────────────────────────────

@@ -28,6 +28,8 @@ namespace TappiruCS.UI
         private int _hoveredIndex = -1;
         public int HoveredIndex => _hoveredIndex;
 
+        public bool mouseOverList = false;
+
         // === ПЛАВНЫЕ СМЕЩЕНИЯ ДЛЯ КАЖДОЙ КНОПКИ ===
         private float[] _hoverX;
         private float[] _hoverY;
@@ -99,6 +101,7 @@ namespace TappiruCS.UI
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
+            mouseOverList = IsPointInsideList(mouse.X, mouse.Y);
             float dt = (float)deltaTime;
 
             ScrollOffsetY = MathHelper.Lerp(ScrollOffsetY, _targetScrollOffsetY, Smoothness * dt);
@@ -153,7 +156,7 @@ namespace TappiruCS.UI
 
         private void HandleDragging(MouseState mouse)
         {
-            bool mouseOverList = IsPointInsideList(mouse.X, mouse.Y);
+            
 
             if (mouse.IsButtonDown(MouseButton.Left) && mouseOverList)
             {
@@ -178,16 +181,19 @@ namespace TappiruCS.UI
 
         private bool IsPointInsideList(float x, float y)
         {
-            float left = Position.X - 700f * EffectiveScaleMultiply;   // половина ширины 1400
+            float left = Position.X - 900f * EffectiveScaleMultiply;   // половина ширины 1400
             float right = left + 1400f * EffectiveScaleMultiply;
-            float top = Position.Y;
-            float bottom = top + _visibleHeight;
+            float top = 0;
+            float bottom = 1080;
 
             return x >= left && x <= right && y >= top && y <= bottom;
         }
 
         public void Scroll(float deltaY) // от колёсика
         {
+            if (!mouseOverList)
+                return;
+
             _targetScrollOffsetY -= deltaY * ScrollSpeed;
             ClampScroll();
         }
