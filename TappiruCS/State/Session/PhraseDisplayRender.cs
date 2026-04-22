@@ -18,11 +18,13 @@ namespace TappiruCS.State.Session
         private static readonly Color4 SliderBarSuccess = new Color4(0.1f, 1.0f, 0.35f, 1.0f);
         private static readonly Color4 SliderBarOutline = new Color4(1f, 1f, 1f, 0.5f);
 
-        public PhraseDisplayRenderer(RenderContext context,MapData mapData)
+        // Базовый размер шрифта, от которого считаются все масштабы
+        private const float BaseFontSize = 144f;
+
+        public PhraseDisplayRenderer(RenderContext context, MapData mapData)
         {
             _context = context;
             _mapData = mapData;
-            
         }
 
         public void Draw(GameSession session, Matrix4 projection, float centerX, float y)
@@ -41,10 +43,11 @@ namespace TappiruCS.State.Session
             float maxPixelWidth = _context.Game.ClientSize.X * 0.85f;
 
             float bestScale = CalculateBestTextScale(text, maxPixelWidth);
+            float screenX = centerX * Scene.CanvasScale.X;
+            float screenY = y * Scene.CanvasScale.Y;
             float finalScaleX = bestScale * Scene.CanvasScale.X;
             float finalScaleY = bestScale * Scene.CanvasScale.Y;
 
-            // Плавное затухание в конце фразы
             float alpha = CalculateFadeAlpha(session, currentAudioTime);
 
             Color4[] colors = ComputeCharColors(session, text, currentAudioTime);
@@ -62,11 +65,13 @@ namespace TappiruCS.State.Session
 
             // 3. Свечение завершённой фразы
             if (session.PhaseComplete)
-                DrawCompletedPhraseGlow(text, centerX, y, bestScale, projection, currentAudioTime, alpha);
+                DrawCompletedPhraseGlow(text, screenX, screenY, finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
 
             // 4. Основной текст
-            _context.TextRenderer.DrawStringWithCharColorsScaled(
-                text, centerX, y, Scene.CanvasScale, bestScale, 1.0f, colors, projection, TextAlign.Center);
+            _context.TextRenderer.DrawStringWithCharColors(
+                text, screenX, screenY,
+                BaseFontSize, finalScaleX, finalScaleY,
+                colors, projection, TextAlign.Center);
 
             // 5. Прогресс-бар холда
             if (session.IsHoldingSlider)
@@ -91,7 +96,6 @@ namespace TappiruCS.State.Session
             double timeLeft = session.CurrentPhaseEndTime - currentAudioTime;
             if (timeLeft < 0.18)
                 return Math.Max(0.0f, (float)(timeLeft / 0.18));
-
             return 1.0f;
         }
 
@@ -191,7 +195,6 @@ namespace TappiruCS.State.Session
             }
         }
 
-
         private void DrawCurrentCharGlow(int currentCharIdx, string text, (float x, float y, float width, float height)[] charBounds,
             float finalScaleX, float finalScaleY, Matrix4 projection, double currentTime, float alpha)
         {
@@ -207,10 +210,9 @@ namespace TappiruCS.State.Session
             float baseX = bounds.x - glyph.XOffset * finalScaleX;
             float baseY = bounds.y - glyph.YOffset * finalScaleY;
 
-            Color4 glowColor = GetGlowColor(_mapData.needR, _mapData.needG, _mapData.needB);
-            glowColor.A *= alpha;                    // ← уже есть
+            Color4 glowColor = GetCurrentCharGlowColor();
+            glowColor.A *= alpha;
 
-            // ←←←←← ИСПРАВЛЕНИЕ ЗДЕСЬ ←←←←←
             DrawTextGlow(currentChar.ToString(), baseX, baseY, finalScaleX, finalScaleY, glowColor, projection, currentTime, alpha);
         }
 
@@ -220,7 +222,6 @@ namespace TappiruCS.State.Session
             float g = _mapData.needG;
             float b = _mapData.needB;
 
-            // Исключение для чёрного цвета карты — свечение становится белым
             if (r < 0.1f && g < 0.1f && b < 0.1f)
                 return Color4.White;
 
@@ -232,33 +233,31 @@ namespace TappiruCS.State.Session
             );
         }
 
-        private void DrawCompletedPhraseGlow(string text, float centerX, float centerY, float bestScale,
+        private void DrawCompletedPhraseGlow(string text, float screenX, float screenY,
+            float finalScaleX, float finalScaleY,
             Matrix4 projection, double currentTime, float alpha)
         {
             if (string.IsNullOrEmpty(text)) return;
 
             Color4 baseGlow = GetGlowColor(_mapData.completeR, _mapData.completeG, _mapData.completeB);
-            baseGlow.A *= alpha;                      // ← применяем альфу к базовому цвету
+            baseGlow.A *= alpha;
 
             float pulse = 0.8f + 0.2f * (float)Math.Sin(currentTime * 6.0);
 
-            const float outerThicknessPx = 12f;
-            const float innerThicknessPx = 6f;
-
-            float outerOffsetVirtual = outerThicknessPx / Scene.CanvasScale.X;
-            float innerOffsetVirtual = innerThicknessPx / Scene.CanvasScale.X;
+            const float outerOffsetPx = 12f;
+            const float innerOffsetPx = 6f;
 
             // Внешнее свечение
             for (int i = 0; i < 16; i++)
             {
                 float angle = i * MathHelper.TwoPi / 16f;
-                float dx = (float)Math.Cos(angle) * outerOffsetVirtual;
-                float dy = (float)Math.Sin(angle) * outerOffsetVirtual;
+                float dx = (float)Math.Cos(angle) * outerOffsetPx;
+                float dy = (float)Math.Sin(angle) * outerOffsetPx;
 
                 Color4 col = new Color4(baseGlow.R * 0.7f, baseGlow.G * 0.7f, baseGlow.B * 0.7f, 0.08f * pulse * alpha);
-                _context.TextRenderer.DrawStringWithCharColorsScaled(
-                    text, centerX + dx, centerY + dy,
-                    Scene.CanvasScale, bestScale, 1.0f,
+                _context.TextRenderer.DrawStringWithCharColors(
+                    text, screenX + dx, screenY + dy,
+                    BaseFontSize, finalScaleX, finalScaleY,
                     Enumerable.Repeat(col, text.Length).ToArray(),
                     projection, TextAlign.Center);
             }
@@ -267,13 +266,13 @@ namespace TappiruCS.State.Session
             for (int i = 0; i < 12; i++)
             {
                 float angle = i * MathHelper.TwoPi / 12f;
-                float dx = (float)Math.Cos(angle) * innerOffsetVirtual;
-                float dy = (float)Math.Sin(angle) * innerOffsetVirtual;
+                float dx = (float)Math.Cos(angle) * innerOffsetPx;
+                float dy = (float)Math.Sin(angle) * innerOffsetPx;
 
                 Color4 col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, 0.25f * pulse * alpha);
-                _context.TextRenderer.DrawStringWithCharColorsScaled(
-                    text, centerX + dx, centerY + dy,
-                    Scene.CanvasScale, bestScale, 1.0f,
+                _context.TextRenderer.DrawStringWithCharColors(
+                    text, screenX + dx, screenY + dy,
+                    BaseFontSize, finalScaleX, finalScaleY,
                     Enumerable.Repeat(col, text.Length).ToArray(),
                     projection, TextAlign.Center);
             }
@@ -304,15 +303,12 @@ namespace TappiruCS.State.Session
                 ? SliderBarSuccess
                 : (currentAudioTime >= activeSlider.startTime - 0.3f ? SliderBarHolding : SliderBarReady);
 
-            // Фон бара
             _context.SpriteBatch.DrawRect(barX, barY, barWidth, barHeight, SliderBarBackground, projection);
 
-            // Заполнение прогресса
             float fillWidth = barWidth * progress;
             if (fillWidth > 0f)
                 _context.SpriteBatch.DrawRect(barX, barY, fillWidth, barHeight, fillColor, projection);
 
-            // Обводка
             _context.SpriteBatch.DrawRect(barX, barY, barWidth, 1f, SliderBarOutline, projection);
             _context.SpriteBatch.DrawRect(barX, barY + barHeight - 1f, barWidth, 1f, SliderBarOutline, projection);
             _context.SpriteBatch.DrawRect(barX, barY, 1f, barHeight, SliderBarOutline, projection);
@@ -351,41 +347,33 @@ namespace TappiruCS.State.Session
         {
             float pulse = 0.7f + 0.3f * (float)Math.Sin(currentTime * 10.0);
 
-            // Умножаем ВСЁ на переданный alpha сразу — это главное исправление
             float outerAlpha = 0.12f * pulse * alpha;
             float midAlpha = 0.35f * pulse * alpha;
-            float innerAlpha = 0.70f * pulse * alpha;     // было 0.7f, сделал чуть ярче
+            float innerAlpha = 0.70f * pulse * alpha;
 
-            // Внешнее свечение
             Color4 outerColor = new Color4(
                 MathHelper.Clamp(baseGlowColor.R * 0.6f, 0f, 1f),
                 MathHelper.Clamp(baseGlowColor.G * 0.8f, 0f, 1f),
                 MathHelper.Clamp(baseGlowColor.B * 1.2f, 0f, 1f),
-                outerAlpha
-            );
+                outerAlpha);
 
-            // Среднее свечение
-            Color4 midColor = new Color4(
-                baseGlowColor.R,
-                baseGlowColor.G,
-                baseGlowColor.B,
-                midAlpha
-            );
-
-            // Внутреннее свечение
+            Color4 midColor = new Color4(baseGlowColor.R, baseGlowColor.G, baseGlowColor.B, midAlpha);
             Color4 innerColor = new Color4(
                 MathHelper.Clamp(baseGlowColor.R * 1.4f, 0f, 1f),
                 MathHelper.Clamp(baseGlowColor.G * 1.2f, 0f, 1f),
                 MathHelper.Clamp(baseGlowColor.B * 0.9f, 0f, 1f),
-                innerAlpha
-            );
+                innerAlpha);
 
-            // Внешний слой (самый большой радиус)
+            const float outerRadius = 7.5f;
+            const float midRadius = 4.2f;
+            const float innerRadius = 2.2f;
+
+            // Внешний слой
             for (int dir = 0; dir < 24; dir++)
             {
                 float angle = dir * MathHelper.TwoPi / 24f;
-                float dx = (float)Math.Cos(angle) * 7.5f;
-                float dy = (float)Math.Sin(angle) * 7.5f;
+                float dx = (float)Math.Cos(angle) * outerRadius;
+                float dy = (float)Math.Sin(angle) * outerRadius;
 
                 _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,
@@ -397,8 +385,8 @@ namespace TappiruCS.State.Session
             for (int dir = 0; dir < 18; dir++)
             {
                 float angle = dir * MathHelper.TwoPi / 18f;
-                float dx = (float)Math.Cos(angle) * 4.2f;
-                float dy = (float)Math.Sin(angle) * 4.2f;
+                float dx = (float)Math.Cos(angle) * midRadius;
+                float dy = (float)Math.Sin(angle) * midRadius;
 
                 _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,
@@ -406,12 +394,12 @@ namespace TappiruCS.State.Session
                     projection);
             }
 
-            // Внутренний слой (самый яркий)
+            // Внутренний слой
             for (int dir = 0; dir < 12; dir++)
             {
                 float angle = dir * MathHelper.TwoPi / 12f;
-                float dx = (float)Math.Cos(angle) * 2.2f;
-                float dy = (float)Math.Sin(angle) * 2.2f;
+                float dx = (float)Math.Cos(angle) * innerRadius;
+                float dy = (float)Math.Sin(angle) * innerRadius;
 
                 _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
                     scaleX, scaleY,

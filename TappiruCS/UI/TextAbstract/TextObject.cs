@@ -1,4 +1,4 @@
-﻿// TextObject.cs — исправленная версия
+﻿// TextObject.cs — адаптированная версия
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
@@ -9,6 +9,9 @@ namespace TappiruCS.UI.TextAbstract
     public class TextObject : GameObject
     {
         public string Text { get; set; } = "";
+
+        // Размер шрифта в логических единицах (пикселях дизайна)
+        public float FontSize { get; set; } = 144f;
 
         private Color4 _baseColor = Color4.White;
         private Color4 _displayColor = Color4.White;
@@ -37,11 +40,12 @@ namespace TappiruCS.UI.TextAbstract
         public float OutlineThickness { get; set; } = 2.5f;
         public Color4 OutlineColor { get; set; } = new Color4(0f, 0f, 0f, 1f);
 
-        public TextObject(string text, float x, float y, float scale = 1f)
+        public TextObject(string text, float x, float y, float fontSize = 144f)
         {
             Text = text;
             Position = new Vector2(x, y);
-            Scale = new Vector2(scale, scale);
+            FontSize = fontSize;
+            Scale = Vector2.One;
             Pivot = new Vector2(0.5f, 0.5f);
             AllowHover = false;
             Layer = 5;
@@ -55,10 +59,9 @@ namespace TappiruCS.UI.TextAbstract
 
             if (!FixedColor)
             {
-                if (IsHovered)
-                    _displayColor = new Color4(1f, 0.9f, 0.4f, 1f); // жёлтый при ховере
-                else
-                    _displayColor = _baseColor;
+                _displayColor = IsHovered
+                    ? new Color4(1f, 0.9f, 0.4f, 1f)
+                    : _baseColor;
             }
             else
             {
@@ -76,16 +79,21 @@ namespace TappiruCS.UI.TextAbstract
             if (string.IsNullOrEmpty(Text) || TR == null)
                 return false;
 
-            var (dLeft, dTop, effScaleX, effScaleY) = GetDesignBounds();
-            float localMouseX = worldX - dLeft;
-            float localMouseY = worldY - dTop;
+            // Вычисляем финальные масштабы с учётом FontSize, Scale и CanvasScale
+            float baseScale = TR.GetScaleFromFontSize(FontSize);
+            float finalScaleX = baseScale * Scale.X * CanvasScale.X;
+            float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
+
+            // Преобразуем мировые координаты в локальные относительно позиции текста
+            float localMouseX = worldX - Position.X * CanvasScale.X;
+            float localMouseY = worldY - Position.Y * CanvasScale.Y;
 
             return TR.TryGetCharIndexAtPoint(
                 Text,
                 localMouseX,
                 localMouseY,
-                effScaleX,
-                effScaleY,
+                finalScaleX,
+                finalScaleY,
                 Align,
                 out _
             );
@@ -96,32 +104,43 @@ namespace TappiruCS.UI.TextAbstract
             if (TR == null || string.IsNullOrEmpty(Text))
                 return;
 
-            var bounds = GetDesignBounds();
-            float finalX = bounds.designLeft * CanvasScale.X;
-            float finalY = bounds.designTop * CanvasScale.Y;
-            float finalScaleX = bounds.effWidth * CanvasScale.X;
-            float finalScaleY = bounds.effHeight * CanvasScale.Y;
+            float baseScale = TR.GetScaleFromFontSize(FontSize);
+            float finalScaleX = baseScale * Scale.X * CanvasScale.X;
+            float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
+
+            float finalX = Position.X * CanvasScale.X;
+            float finalY = Position.Y * CanvasScale.Y;
+
+            Console.WriteLine($"[FONT] BaseLineHeight = {TR.BaseLineHeight}");
+            Console.WriteLine($"[FONT] FontSize = {FontSize} → baseScale = {baseScale}");
+            Console.WriteLine($"[FONT] CanvasScale = {CanvasScale}");
+            Console.WriteLine($"[FONT] Final scale = ({finalScaleX}, {finalScaleY})");
 
             if (HasOutline)
             {
                 TR.DrawStringOutline(
-                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align, OutlineThickness, OutlineColor
+                    projection, Align,
+                    OutlineThickness, OutlineColor
                 );
             }
             else if (HasShadow)
             {
                 TR.DrawStringShadow(
-                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align, ShadowOffset, ShadowOpacity
+                    projection, Align,
+                    ShadowOffset, ShadowOpacity
                 );
             }
             else
             {
                 TR.DrawString(
-                    Text, finalX, finalY, finalScaleX, finalScaleY,
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
                     projection, Align
                 );

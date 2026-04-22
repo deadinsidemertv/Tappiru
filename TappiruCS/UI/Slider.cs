@@ -65,7 +65,7 @@ namespace TappiruCS.UI
             };
 
             // === Тексты ===
-            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y, 1f)
+            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y, 36f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -73,7 +73,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            maxValueText = new TextObject(max.ToString("F0"), x + width / 2f, y, 1f)
+            maxValueText = new TextObject(max.ToString("F0"), x + width / 2f, y, 36f)
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
@@ -81,7 +81,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            ValueText = new TextObject("", x, y, 1f)   // пока пусто
+            ValueText = new TextObject("", x, y, 12f)   // пока пусто
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.2f,

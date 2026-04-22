@@ -110,7 +110,6 @@ namespace TappiruCS.State.Edit
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f,0.5f),
-                TextScale = 0.7f,
                 ScaleMultiply = 0.4f,
                 TextAlign = TextRender.TextAlign.Center,
                 Tag = "topButton"
@@ -370,7 +369,6 @@ namespace TappiruCS.State.Edit
             _addPhraseButton = new Button(1200, 1000, 420, 100, "button", "ADD PHRASE")
             {
                 Layer = 1,
-                TextScale = 0.5f,
                 TextOffset = new Vector2(-120,-30),
                 Tag ="noanim",
                 ScaleMultiply = 0.5f
@@ -383,7 +381,6 @@ namespace TappiruCS.State.Edit
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f, 0.5f),
-                TextScale = 0.7f,
                 ScaleMultiply = 0.4f,
                 TextAlign = TextRender.TextAlign.Center,
                 Tag = "topButton"
@@ -611,10 +608,10 @@ namespace TappiruCS.State.Edit
         private void CreateDemoTexts(float startX, float startY, float groupSpacingX)
         {
             float centerXTop = startX + groupSpacingX / 2;
-            _demoNewT = new TextObject( "new t", centerXTop - 28, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoE = new TextObject( " e", centerXTop + 45, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoXt = new TextObject( "xt", centerXTop + 90, startY - 90, 1f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
-            _demoCompleteText = new TextObject( "new text", startX + groupSpacingX / 2, startY + 90, 1f) { ScaleMultiply = 0.5f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoNewT = new TextObject( "new t", centerXTop - 28, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoE = new TextObject( " e", centerXTop + 45, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoXt = new TextObject( "xt", centerXTop + 90, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextRender.TextAlign.Center, Color = Color4.White };
+            _demoCompleteText = new TextObject( "new text", startX + groupSpacingX / 2, startY + 90, 86f) { ScaleMultiply = 0.5f, Align = TextRender.TextAlign.Center, Color = Color4.White };
 
             _scene.Add(_demoNewT);
             _scene.Add(_demoE);

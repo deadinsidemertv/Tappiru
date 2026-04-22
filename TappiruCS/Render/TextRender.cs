@@ -10,18 +10,24 @@ namespace TappiruCS.Render
     public class TextRender
     {
         private readonly SpriteBatch _spriteBatch;
-
         public readonly Dictionary<int, int> _pageTextures = new();
         private readonly Dictionary<char, GlyphInfo> _glyphs = new();
         public readonly Dictionary<(char first, char second), int> _kerningPairs = new();
 
-        public float _lineHeight;
-        public float _scaleW;
-        public float _scaleH;
+        private float _lineHeight;
+        private float _scaleW;
+        private float _scaleH;
 
-        // Для совместимости со старым кодом
-        public float charWidth, charHeight;
-        public float texWidth, texHeight;
+        // НОВОЕ: базовая высота шрифта (из BMFont)
+        public float BaseLineHeight => _lineHeight;
+
+        // Размеры текстурного атласа (только для UV)
+        public float TexWidth => _scaleW;
+        public float TexHeight => _scaleH;
+
+        // Fallback-ширина глифа (будет пересчитана после загрузки)
+        public float CharWidth { get; private set; }
+        public float CharHeight { get; private set; }
 
         public enum TextAlign { Left, Center, Right }
 
@@ -36,7 +42,26 @@ namespace TappiruCS.Render
         {
             _spriteBatch = spriteBatch ?? throw new ArgumentNullException(nameof(spriteBatch));
             LoadBMFont(fntPath);
+            CalculateFallbackMetrics();
         }
+
+        private void CalculateFallbackMetrics()
+        {
+            if (_glyphs.Count == 0)
+            {
+                CharWidth = _lineHeight * 0.5f;
+                CharHeight = _lineHeight;
+                return;
+            }
+
+            float totalWidth = 0;
+            foreach (var glyph in _glyphs.Values)
+                totalWidth += glyph.XAdvance;
+            CharWidth = totalWidth / _glyphs.Count;
+            CharHeight = _lineHeight;
+        }
+
+        public float GetScaleFromFontSize(float fontSize) => fontSize / _lineHeight;
 
         private void LoadBMFont(string fntPath)
         {
@@ -71,10 +96,8 @@ namespace TappiruCS.Render
                 _pageTextures[kvp.Key] = texId;
             }
 
-            texWidth = _scaleW;
-            texHeight = _scaleH;
-            charWidth = texWidth / 20f;
-            charHeight = _lineHeight;
+            // Вычисляем fallback-ширину и высоту после загрузки всех глифов
+            CalculateFallbackMetrics();
 
             Console.WriteLine($"[BMFont] УСПЕШНО ЗАГРУЖЕН: {fntPath} | Страниц: {_pageTextures.Count} | Глифов: {_glyphs.Count}");
         }
@@ -157,8 +180,8 @@ namespace TappiruCS.Render
 
         private (float u1, float v1, float u2, float v2) GetUV(in GlyphInfo g)
         {
-            return (g.TexX / texWidth, g.TexY / texHeight,
-                    (g.TexX + g.Width) / texWidth, (g.TexY + g.Height) / texHeight);
+            return (g.TexX / TexWidth, g.TexY / TexHeight,
+                    (g.TexX + g.Width) / TexWidth, (g.TexY + g.Height) / TexHeight);
         }
 
         private int GetTextureForPage(int page)
@@ -173,17 +196,32 @@ namespace TappiruCS.Render
 
         // ====================== ОСНОВНЫЕ МЕТОДЫ ======================
 
-        public void DrawString(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a, Matrix4 projection,TextAlign align = TextAlign.Left)
+        public void DrawString(
+            string text,
+            float x, float y,
+            float fontSize,
+            float scaleX, float scaleY,
+            float r, float g, float b, float a,
+            Matrix4 projection,
+            TextAlign align = TextAlign.Left)
         {
-            if (string.IsNullOrEmpty(text)) return;
-
-            float startX = CalculateStartX(text, scaleX, x, align);
-            DrawStringInternal(text, startX, y, scaleX, scaleY, r, g, b, a, projection);
+            float baseScale = GetScaleFromFontSize(fontSize);
+            float finalScaleX = baseScale * scaleX;
+            float finalScaleY = baseScale * scaleY;
+            DrawString(text, x, y, finalScaleX, finalScaleY, r, g, b, a, projection, align);
         }
 
-        public void DrawString(string text, float x, float y, float scale,float r, float g, float b, float a, Matrix4 projection,TextAlign align = TextAlign.Left)
+        public void DrawString(
+            string text,
+            float x, float y,
+            float scaleX, float scaleY,
+            float r, float g, float b, float a,
+            Matrix4 projection,
+            TextAlign align = TextAlign.Left)
         {
-            DrawString(text, x, y, scale, scale, r, g, b, a, projection, align);
+            if (string.IsNullOrEmpty(text)) return;
+            float startX = CalculateStartX(text, scaleX, x, align);
+            DrawStringInternal(text, startX, y, scaleX, scaleY, r, g, b, a, projection);
         }
 
         private void DrawStringInternal(string text, float startX, float startY,float scaleX, float scaleY,float r, float g, float b, float a, Matrix4 projection)
@@ -214,7 +252,7 @@ namespace TappiruCS.Render
                 }
                 else
                 {
-                    currentX += charWidth * scaleX;
+                    currentX += CharWidth * scaleX;
                     prevChar = c;
                 }
             }
@@ -232,9 +270,10 @@ namespace TappiruCS.Render
             return new Vector2(width, _lineHeight * scaleY);
         }
 
-        public Vector2 MeasureString(string text, float scale)
+        public Vector2 MeasureString(string text, float fontSize, float scaleX, float scaleY)
         {
-            return MeasureString(text, scale, scale);
+            float baseScale = GetScaleFromFontSize(fontSize);
+            return MeasureString(text, baseScale * scaleX, baseScale * scaleY);
         }
 
         public void DrawStringShadow(string text, float x, float y, float scaleX, float scaleY,float r, float g, float b, float a,Matrix4 projection,TextAlign align = TextAlign.Left,Vector2 shadowOffset = default,float shadowOpacity = 0.6f)
@@ -309,7 +348,7 @@ namespace TappiruCS.Render
                 else
                 {
                     // fallback для отсутствующих глифов
-                    float fallbackWidth = charWidth * finalScaleX;
+                    float fallbackWidth = CharWidth * finalScaleX;
                     bounds[i] = (currentX, y, fallbackWidth, _lineHeight * finalScaleY);
                     currentX += fallbackWidth;
                     prevChar = c;
@@ -350,7 +389,7 @@ namespace TappiruCS.Render
                 }
                 else
                 {
-                    total += charWidth * scale;
+                    total += CharWidth * scale;
                     prev = c;
                 }
             }
@@ -390,7 +429,7 @@ namespace TappiruCS.Render
 
                 if (!_glyphs.TryGetValue(c, out var glyph))
                 {
-                    currentX += charWidth * scaleX;
+                    currentX += CharWidth * scaleX;
                     prevChar = c;
                     continue;
                 }
@@ -416,24 +455,28 @@ namespace TappiruCS.Render
             return false;
         }
 
-    public void DrawStringWithCharColorsScaled(string text,float baseX,float baseY,Vector2 canvasScale,float baseScale,float scaleMultiply,Color4[] charColors,Matrix4 projection,TextAlign align = TextAlign.Center)
+        public void DrawStringWithCharColors(
+                string text,
+                float baseX, float baseY,
+                float fontSize,
+                float scaleX, float scaleY,
+                Color4[] charColors,
+                Matrix4 projection,
+                TextAlign align = TextAlign.Center)
         {
             if (string.IsNullOrEmpty(text) || charColors == null || charColors.Length == 0)
                 return;
 
-            // Применяем масштаб канваса и ScaleMultiply
-            float finalScaleX = baseScale * canvasScale.X * scaleMultiply;
-            float finalScaleY = baseScale * canvasScale.Y * scaleMultiply;
-
-            float x = baseX * canvasScale.X;
-            float y = baseY * canvasScale.Y;
+            float baseScale = GetScaleFromFontSize(fontSize);
+            float finalScaleX = baseScale * scaleX;
+            float finalScaleY = baseScale * scaleY;
 
             float textWidth = CalculateTextWidth(text, finalScaleX);
             float startX = align switch
             {
-                TextAlign.Center => x - textWidth / 2f,
-                TextAlign.Right => x - textWidth,
-                _ => x
+                TextAlign.Center => baseX - textWidth / 2f,
+                TextAlign.Right => baseX - textWidth,
+                _ => baseX
             };
 
             float currentX = startX;
@@ -442,7 +485,7 @@ namespace TappiruCS.Render
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
-                Color4 color = i < charColors.Length ? charColors[i] : charColors[^1]; // последний цвет для оставшихся символов
+                Color4 color = i < charColors.Length ? charColors[i] : charColors[^1];
 
                 if (_glyphs.TryGetValue(c, out var glyph))
                 {
@@ -453,7 +496,7 @@ namespace TappiruCS.Render
                     float glyphHeight = glyph.Height * finalScaleY;
 
                     float drawX = currentX + glyph.XOffset * finalScaleX;
-                    float drawY = y + glyph.YOffset * finalScaleY;
+                    float drawY = baseY + glyph.YOffset * finalScaleY;
 
                     int textureId = GetTextureForPage(glyph.Page);
 
@@ -467,7 +510,7 @@ namespace TappiruCS.Render
                 }
                 else
                 {
-                    currentX += charWidth * finalScaleX;
+                    currentX += CharWidth * finalScaleX;
                     prevChar = c;
                 }
             }

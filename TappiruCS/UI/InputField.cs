@@ -58,7 +58,7 @@ namespace TappiruCS.UI
                 Active = false
             };
 
-            InputText = new TextObject("", x, y, 1f)
+            InputText = new TextObject("", x, y, 44f)
             {
                 ScaleMultiply = 0.3f,
                 Color = Color4.White,
@@ -67,7 +67,7 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(PlaceHolderText, x, y, 1f)
+            PlaceHolder = new TextObject(PlaceHolderText, x, y, 44f)
             {
                 ScaleMultiply = 0.3f,
                 Color = PlaceHolderColor,

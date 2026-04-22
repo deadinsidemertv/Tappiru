@@ -127,7 +127,6 @@ namespace TappiruCS.State.Menu
             {
                 Layer = 4,
                 TextColor = Color4.White,
-                TextScale = 0.4f,
                 ScaleMultiply = 0.8f,
                 TextOffset = new Vector2(-45, -30)
             };
@@ -181,8 +180,7 @@ namespace TappiruCS.State.Menu
                 TextAlign = TextRender.TextAlign.Center,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-70f, -50f),
-                TextScale = 0.7f,
-                ScaleMultiply = 0.8f
+                ScaleMultiply = 0.8f,
             };
             if (onClick != null) btn.OnClick += onClick;
             return btn;

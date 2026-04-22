@@ -16,7 +16,7 @@ namespace TappiruCS.UI
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
         public Vector2 TextOffset { get; set; } = Vector2.Zero;
-        public float TextScale { get; set; } = 0.5f;
+        public float FontSize { get; set; } = 72f;
         public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
         public int ButtonImage { get; set; } = 0;
@@ -60,11 +60,10 @@ namespace TappiruCS.UI
                 
             };
 
-            _textObject = new TextObject(text, x, y, 1f)
+            _textObject = new TextObject(text, x, y,FontSize)
             {
                 Align = TextRender.TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = TextScale,
                 Color = TextColor,
                 AllowHover = false
             };
@@ -100,9 +99,10 @@ namespace TappiruCS.UI
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
             _textObject.Position = Position;
+            _textObject.Scale = new Vector2(ScaleMultiply,ScaleMultiply);
+            _textObject.FontSize = FontSize;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
-            _textObject.ScaleMultiply = TextScale;
             _textObject.Pivot = new Vector2(0.5f, 0.5f);
 
 

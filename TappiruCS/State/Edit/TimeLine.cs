@@ -627,7 +627,7 @@ namespace TappiruCS.State.Edit
                 if (major)
                 {
                     string labelText = TimeSpan.FromSeconds(t).ToString(t >= 60 ? @"m\:ss" : @"s\.ff");
-                    var label = new TextObject(labelText, x, bottomY, 0.9f)
+                    var label = new TextObject(labelText, x, bottomY, 24f)
                     {
                         Color = Color4.White,
                         Align = TextRender.TextAlign.Center,

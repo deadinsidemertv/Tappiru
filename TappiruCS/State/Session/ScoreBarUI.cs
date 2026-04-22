@@ -25,24 +25,24 @@ namespace TappiruCS.State.Session
         {
             _textRenderer = textRenderer;
 
-            _scoreText = new TextObject("000000000", 1900, 0, 0.35f)
+            _scoreText = new TextObject("000000000", 1900, 0, 48f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
 
-            _accuracyText = new TextObject("100.00%", 1840, 40, 0.3f)
+            _accuracyText = new TextObject("100.00%", 1840, 40, 36f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Center
             };
 
-            _comboText = new TextObject("0", 35, 990, 0.5f)
+            _comboText = new TextObject("0", 35, 990, 64f)
             {
                 Align = TextAlign.Left
             };
 
-            _comboXText = new TextObject("x", 55, 915, 0.3f);
+            _comboXText = new TextObject("x", 55, 915, 36f);
         }
 
         // Метод обновления — принимает session каждый кадр

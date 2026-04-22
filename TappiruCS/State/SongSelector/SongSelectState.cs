@@ -99,9 +99,9 @@ namespace TappiruCS.State.SongSelector
                 AllowHover = false
             };
 
-            MapTitle = new TextObject("", 10, 5, 0.4f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            Creator = new TextObject("", 10, 50, 0.25f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            MetaData = new TextObject("", 10, 90, 0.30f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MapTitle = new TextObject("", 10, 5, 64f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            Creator = new TextObject("", 10, 60, 48f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MetaData = new TextObject("", 10, 110, 36f) { Layer = 3, Align = TextRender.TextAlign.Left };
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
             SelectionMode = new SpriteObject(_selectionmode, 1120, 930, 2140, 400)
@@ -118,7 +118,6 @@ namespace TappiruCS.State.SongSelector
                 Layer = 2,
                 TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
-                TextScale = 0.8f,
                 ScaleMultiply = 0.8f,
                 Tag = "play"
             };
@@ -128,7 +127,6 @@ namespace TappiruCS.State.SongSelector
                 Layer = 2,
                 TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
-                TextScale = 0.8f,
                 ScaleMultiply = 0.72f,
                 Tag = "play"
             };
@@ -245,9 +243,9 @@ namespace TappiruCS.State.SongSelector
                     {
                         var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, mapData)
                         {
-                            TextScale = 0.3f,
                             TextAlign = TextRender.TextAlign.Right,
                             IsImaged = true,
+                            FontSize = 48,
                             TextOffset = new Vector2(-430f, -70f),
                             ImageScale = new Vector2(0.16f, 0.75f),
                             ImageOffset = new Vector2(-570f, 0f),

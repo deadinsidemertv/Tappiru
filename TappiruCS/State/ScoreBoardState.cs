@@ -64,34 +64,34 @@ namespace TappiruCS.State
             };
 
 
-            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), _scoreList.Position.X -500, _scoreList.Position.Y-450, 0.6f) 
+            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), _scoreList.Position.X -500, _scoreList.Position.Y-450, 96f) 
             { Align =TextAlign.Center};
-            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X  -550, _scoreList.Position.Y+120 , 0.5f)
+            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2")+"%", _scoreList.Position.X  -550, _scoreList.Position.Y+120 , 64f)
             { Align = TextAlign.Left };
 
-            title = new TextObject(_mapData.title+$" - [{_mapData.artist}]", 0, 0, 0.5f) { Align = TextAlign.Left};
+            title = new TextObject(_mapData.title+$" - [{_mapData.artist}]", 0, 0, 72f) { Align = TextAlign.Left};
 
-            creator = new TextObject("Автор: "+_mapData.creator, 5, 60, 0.35f) { Align = TextAlign.Left };
+            creator = new TextObject("Автор: "+_mapData.creator, 5, 60, 48f) { Align = TextAlign.Left };
 
-            _dateText = new TextObject("Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 0.2f){ Align = TextAlign.Left };
+            _dateText = new TextObject("Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 36f){ Align = TextAlign.Left };
 
 
-            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), _scoreList.Position.X -880, _scoreList.Position.Y + 120, 0.5f)
+            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), _scoreList.Position.X -880, _scoreList.Position.Y + 120, 64f)
             { Align = TextAlign.Right };
-            _maxComboX = new TextObject("x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 0.3f)
+            _maxComboX = new TextObject("x", _maxCombo.Position.X +10, _maxCombo.Position.Y+10 , 64f)
             { Align = TextAlign.Left };
 
-            _completeChar = new TextObject(_playerScore._completeChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y -160, 0.5f)
+            _completeChar = new TextObject(_playerScore._completeChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y -160, 64f)
             { Align = TextAlign.Left };
             int _hit100tx = TextureManager.GetTexture("hit100");
             var hit100 = new SpriteObject(_hit100tx, _completeChar.Position.X - 150, _completeChar.Position.Y +50, 75, 75);
 
-            _completePhase = new TextObject(_playerScore._completePhase.ToString(), _scoreList.Position.X -745 , _scoreList.Position.Y + -295, 0.5f)
+            _completePhase = new TextObject(_playerScore._completePhase.ToString(), _scoreList.Position.X -745 , _scoreList.Position.Y + -295, 64f)
             { Align = TextAlign.Left };
             int _hit300tx = TextureManager.GetTexture("hit300");
             var hit300 = new SpriteObject(_hit300tx, _completePhase.Position.X - 150, _completePhase.Position.Y + 50, 75, 75);
 
-            _failChar = new TextObject(_playerScore._failChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y - 25, 0.5f)
+            _failChar = new TextObject(_playerScore._failChar.ToString(), _scoreList.Position.X -745, _scoreList.Position.Y - 25, 64f)
             { Align = TextAlign.Left };
             int _hit0tx = TextureManager.GetTexture("hit0");
             var hit0 = new SpriteObject(_hit0tx, _failChar.Position.X - 145, _failChar.Position.Y+45, 100, 100);

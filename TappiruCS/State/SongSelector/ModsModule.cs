@@ -21,7 +21,7 @@ namespace TappiruCS.State.SongSelector
         {
 
             background = new Background(0) { Opacity = 0.7f, Layer = 10,AllowHover = true };
-            EasyMods = new TextObject("Easy mods", 50, 340)
+            EasyMods = new TextObject("Easy mods", 50, 340,96)
             {
                 Color = Color4.Green,
                 HasOutline = false,

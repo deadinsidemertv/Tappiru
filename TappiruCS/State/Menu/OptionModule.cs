@@ -29,7 +29,7 @@ namespace TappiruCS.State.Menu
                 Parent = Bg,
                 Layer = 6,
             };
-            SettingVol = new TextObject("Volume", VolumeSlider.Position.X+100, VolumeSlider.Position.Y+10) 
+            SettingVol = new TextObject("Volume", VolumeSlider.Position.X+100, VolumeSlider.Position.Y+10,36) 
             {
                 Layer = VolumeSlider.Layer,
                 ScaleMultiply =0.5f,

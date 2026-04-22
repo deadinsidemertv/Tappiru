@@ -47,7 +47,6 @@ namespace TappiruCS.State.Edit
             _confirmButton = new Button(960, 720, 500, 110, "button", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
-                TextScale = 0.8f,
                 Layer = 2
                 
             };

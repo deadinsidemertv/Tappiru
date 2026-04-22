@@ -2,13 +2,14 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
+using TappiruCS.Render;
 
 namespace TappiruCS.Core.GameObject
 {
     public abstract class GameObject : IGameObject
     {
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Vector2 Scale { get; set; } = Vector2.One;
+        public Vector2 Scale { get; set; } = Vector2.One; //pixels
         public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
