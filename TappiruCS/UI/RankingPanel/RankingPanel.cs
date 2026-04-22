@@ -14,12 +14,12 @@ namespace TappiruCS.UI.RankingPanel
         private const float ItemHeight = 100f;
         private const float ItemSpacing = 2f;
         private const float PanelX = 180f;   // X позиция кнопок
-        private const int MaxVisible = 10;
+        private const int MaxVisible = 50;
 
         // ── Настройки скролла ──
         private const float ScrollSpeed = 120f;
         private const float Smoothness = 14f;
-        private const float VisibleHeight = MaxVisible * (ItemHeight + ItemSpacing);
+        private const float VisibleHeight = 7 * (ItemHeight + ItemSpacing);
 
         // ── Ширина области для hit-test драга ──
         private const float PanelWidth = 700f;
@@ -70,13 +70,16 @@ namespace TappiruCS.UI.RankingPanel
             {
                 AddScoreButton(scores[i], rank: i + 1);
             }
+            Console.WriteLine($"[RankingPanel] Loaded {_buttons.Count} scores, MaxVisible={MaxVisible}");
         }
 
         /// <summary>Прокрутка от колёсика мыши.</summary>
         public void Scroll(float deltaY)
         {
+            Console.WriteLine($"[RankingPanel] Scroll delta: {deltaY}");
             _targetOffsetY -= deltaY * ScrollSpeed;
             ClampScroll();
+            Console.WriteLine($"[RankingPanel] After clamp: {_targetOffsetY}");
         }
 
         // ─────────────────────────────────────────────
