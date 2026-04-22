@@ -8,6 +8,7 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
@@ -70,7 +71,8 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            textRenderer = new TextRender(spriteBatch, "Textures\\Font\\font_cyrillic.fnt");
+            Font defaultFont = new Font("Textures\\Font\\font_cyrillic.fnt");
+            textRenderer = new TextRender(spriteBatch, defaultFont);
             //textRenderer = new TextRender(spriteBatch, "Textures\\Font\\main.fnt");
             audio = new AudioManager();
 

@@ -2,9 +2,10 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using static TappiruCS.Render.TextRender;
+using TappiruCS.Render.Text;
 using TappiruCS.Tween;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
@@ -38,11 +39,11 @@ namespace TappiruCS.UI
         public event Action OnClick;
         public event Action<Button, bool> HoverStateChanged;
 
-        public Button(float x, float y, float width, float height,string textureName, string text)
+        public Button(float x, float y, float width, float height, string textureName, string text)
         {
-            NormalColor  = new Color4(1f, 1f, 1f, Opacity);
-            HoverColor  = new Color4(0.5f, 0.5f, 1.05f, Opacity);
-            PressColor  = new Color4(0.75f, 0.75f, 0.75f, Opacity);
+            NormalColor = new Color4(1f, 1f, 1f, Opacity);
+            HoverColor = new Color4(0.5f, 0.5f, 1.05f, Opacity);
+            PressColor = new Color4(0.75f, 0.75f, 0.75f, Opacity);
             Text = text;
 
             Position = new Vector2(x, y);
@@ -55,14 +56,14 @@ namespace TappiruCS.UI
             TextColor = TextColor;
             _currentColor = NormalColor;
 
-            _buttonBackground = new SpriteObject( _textureId, x, y, width, height) 
-            { 
-                
+            _buttonBackground = new SpriteObject(_textureId, x, y, width, height)
+            {
+
             };
 
-            _textObject = new TextObject(text, x, y,FontSize)
+            _textObject = new TextObject(text, x, y, FontSize)
             {
-                Align = TextRender.TextAlign.Center,
+                Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
                 Color = TextColor,
                 AllowHover = false
@@ -99,14 +100,14 @@ namespace TappiruCS.UI
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
             _textObject.Position = Position;
-            _textObject.Scale = new Vector2(ScaleMultiply,ScaleMultiply);
+            _textObject.Scale = new Vector2(ScaleMultiply, ScaleMultiply);
             _textObject.FontSize = FontSize;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
             _textObject.Pivot = new Vector2(0.5f, 0.5f);
 
 
-            _textObject.Align = TextRender.TextAlign.Left;
+            _textObject.Align = TextAlign.Left;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
             // Главное исправление:
             _buttonBackground.Position = Position;

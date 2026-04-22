@@ -2,7 +2,9 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
@@ -69,7 +71,7 @@ namespace TappiruCS.UI
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
-                Align = TextRender.TextAlign.Center,
+                Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
@@ -77,7 +79,7 @@ namespace TappiruCS.UI
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
-                Align = TextRender.TextAlign.Center,
+                Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
@@ -85,7 +87,7 @@ namespace TappiruCS.UI
             {
                 Color = Color4.White,
                 ScaleMultiply = 0.2f,
-                Align = TextRender.TextAlign.Center,
+                Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 

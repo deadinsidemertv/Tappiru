@@ -7,12 +7,14 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.State.Menu
 {
@@ -177,7 +179,7 @@ namespace TappiruCS.State.Menu
             var btn = new Button(960, y, 700, 120, "button", text)
             {
                 Layer = 2,
-                TextAlign = TextRender.TextAlign.Center,
+                TextAlign = TextAlign.Center,
                 TextColor = Color4.White,
                 TextOffset = new Vector2(-70f, -50f),
                 ScaleMultiply = 0.8f,
@@ -238,14 +240,14 @@ namespace TappiruCS.State.Menu
             {
                 _welcomeText = new TextObject("", 250, 460, 0.5f)
                 {
-                    Align = TextRender.TextAlign.Left,
+                    Align = TextAlign.Left,
                     Color = Color4.White,
                     Layer = 3
                 };
 
                 _ratingText = new TextObject("", 250, 540, 0.35f)
                 {
-                    Align = TextRender.TextAlign.Left,
+                    Align = TextAlign.Left,
                     Color = Color4.White,
                     Layer = 3
                 };

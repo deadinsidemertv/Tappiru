@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.State.Edit;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.State.Edit
 {
@@ -630,7 +632,7 @@ namespace TappiruCS.State.Edit
                     var label = new TextObject(labelText, x, bottomY, 24f)
                     {
                         Color = Color4.White,
-                        Align = TextRender.TextAlign.Center,
+                        Align = TextAlign.Center,
                         ScaleMultiply = 0.33f
                     };
                     AddChild(label);

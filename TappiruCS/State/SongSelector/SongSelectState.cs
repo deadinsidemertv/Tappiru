@@ -6,12 +6,14 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.Server.MapLogic;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 
 namespace TappiruCS.State.SongSelector
@@ -99,9 +101,9 @@ namespace TappiruCS.State.SongSelector
                 AllowHover = false
             };
 
-            MapTitle = new TextObject("", 10, 5, 64f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            Creator = new TextObject("", 10, 60, 48f) { Layer = 3, Align = TextRender.TextAlign.Left };
-            MetaData = new TextObject("", 10, 110, 36f) { Layer = 3, Align = TextRender.TextAlign.Left };
+            MapTitle = new TextObject("", 10, 5, 64f) { Layer = 3, Align = TextAlign.Left };
+            Creator = new TextObject("", 10, 60, 48f) { Layer = 3, Align = TextAlign.Left };
+            MetaData = new TextObject("", 10, 110, 36f) { Layer = 3, Align = TextAlign.Left };
 
             int _selectionmode = TextureManager.GetTexture("SelectionMode");
             SelectionMode = new SpriteObject(_selectionmode, 1120, 930, 2140, 400)
@@ -243,7 +245,7 @@ namespace TappiruCS.State.SongSelector
                     {
                         var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, mapData)
                         {
-                            TextAlign = TextRender.TextAlign.Right,
+                            TextAlign = TextAlign.Right,
                             IsImaged = true,
                             FontSize = 48,
                             TextOffset = new Vector2(-430f, -70f),

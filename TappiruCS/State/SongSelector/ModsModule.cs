@@ -5,8 +5,10 @@ using System.Text;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
+using TappiruCS.Render.Text;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.State.SongSelector
 {
@@ -25,7 +27,7 @@ namespace TappiruCS.State.SongSelector
             {
                 Color = Color4.Green,
                 HasOutline = false,
-                Align = Render.TextRender.TextAlign.Left,
+                Align = TextAlign.Left,
                 Layer = 12,
                 AllowHover = false,
                 ScaleMultiply = 0.8f

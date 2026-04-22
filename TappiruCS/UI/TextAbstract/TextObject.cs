@@ -2,7 +2,8 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
-using TappiruCS.Render;
+using TappiruCS.Render.Text;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI.TextAbstract
 {
@@ -27,7 +28,7 @@ namespace TappiruCS.UI.TextAbstract
             }
         }
 
-        public TextRender.TextAlign Align { get; set; } = TextRender.TextAlign.Center;
+        public TextAlign Align { get; set; } = TextAlign.Center;
         public Action<Vector2>? OnClick { get; set; }
         public bool FixedColor { get; set; } = false;
 

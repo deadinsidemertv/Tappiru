@@ -7,7 +7,7 @@ using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.TextRender;
+using static TappiruCS.Render.Text.Font;
 using TappiruCS.State.SongSelector;
 
 namespace TappiruCS.State

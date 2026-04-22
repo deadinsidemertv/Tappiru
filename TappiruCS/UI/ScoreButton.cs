@@ -4,8 +4,10 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.Server.Player;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
@@ -72,21 +74,21 @@ namespace TappiruCS.UI
             PlayerNameText = new TextObject("", Position.X-10, Position.Y-50, 1f)
             {
                 ScaleMultiply = 0.29f,
-                Align = TextRender.TextAlign.Left,
+                Align = TextAlign.Left,
                 Color = Color4.White
             };
 
             ScoreComboText = new TextObject("", Position.X - 10, Position.Y, 1f)
             {
                 ScaleMultiply = 0.245f,
-                Align = TextRender.TextAlign.Left,
+                Align = TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f)
             };
 
             AccuracyText = new TextObject("", Position.X+324, Position.Y+19, 1f)
             {
                 ScaleMultiply = 0.22f,
-                Align = TextRender.TextAlign.Right,
+                Align = TextAlign.Right,
 
             };
 

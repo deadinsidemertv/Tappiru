@@ -2,9 +2,9 @@
 using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic.Logic;
-using TappiruCS.Render;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.TextRender;
+using TappiruCS.Render.Text;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.State.Session
 {

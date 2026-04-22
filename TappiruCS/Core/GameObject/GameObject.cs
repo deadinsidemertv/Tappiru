@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
-using TappiruCS.Render;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.Core.GameObject
 {

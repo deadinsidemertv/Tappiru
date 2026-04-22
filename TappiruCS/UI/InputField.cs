@@ -7,7 +7,7 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.TextRender;
+using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
