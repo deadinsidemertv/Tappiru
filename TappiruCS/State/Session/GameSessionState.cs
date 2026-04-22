@@ -1,16 +1,17 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.IO;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Logic;
+using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
-using TappiruCS.UI;
-using System.IO;
-using TappiruCS.GameLogic.Logic;
 using TappiruCS.State.SongSelector;
+using TappiruCS.UI;
 
 namespace TappiruCS.State.Session
 {
@@ -284,6 +285,7 @@ namespace TappiruCS.State.Session
                 _completeChar = session.CorrectHits,
                 _failChar = session.Misses,
                 PlayedAt = DateTime.Now,
+                mods = new List<GameMod>(session.CurrentMap.mods),
                 PlayerName = PlayerProfile.Instance.IsLoggedIn ? " " + PlayerProfile.Instance.UserName : "offline-mode"
             };
 

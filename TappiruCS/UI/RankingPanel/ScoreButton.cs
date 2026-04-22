@@ -1,7 +1,9 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Drawing.Text;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
 using TappiruCS.Server.Player;
@@ -153,11 +155,21 @@ namespace TappiruCS.UI.RankingPanel
 
         private void RefreshContent()
         {
-            _playerNameText.Text = _score.PlayerName;
+            string modsText = FormatMods(_score.mods);
+            _playerNameText.Text = _score.PlayerName+"      "+modsText;
             _scoreComboText.Text = $"Очки: {_score._score:N0}  (x{_score._maxCobmo})";
             _accuracyText.Text = $"{_score._accuraci:F2}%";
-        }
 
+            Description = $"played at: {_score.PlayedAt} | 300x: {_score._completePhase} | 100x: {_score._completeChar} | miss: {_score._failChar}";
+        }
+        private string FormatMods(List<GameMod> mods)
+        {
+            if (mods == null || mods.Count == 0)
+                return "";  // или пусто, если модов нет
+
+            // Предположим, что у GameMod есть string ShortName или переопределён ToString()
+            return string.Join(", ", mods.Select(m => m.ShortName));
+        }
         // ─────────────────────────────────────────────
         //  Статика: определение грейда
         // ─────────────────────────────────────────────

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using TappiruCS.GameLogic;
+using TappiruCS.GameLogic.Mod;
 
 
 namespace TappiruCS.Core
@@ -31,8 +32,26 @@ namespace TappiruCS.Core
                 _scores = new List<PlayerScore>();
                 return;
             }
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             string json = File.ReadAllText(ScoresPath);
-            _scores = JsonSerializer.Deserialize<List<PlayerScore>>(json) ?? new List<PlayerScore>();
+
+            try
+            {
+                _scores = JsonSerializer.Deserialize<List<PlayerScore>>(json, options) ?? new();
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"[ScoreManager] Failed to parse scores.json: {ex.Message}. Starting fresh.");
+                _scores = new List<PlayerScore>();
+                return;
+            }
+
+            // Гарантируем, что Mods никогда не null
+            foreach (var score in _scores)
+            {
+                score.mods ??= new List<GameMod>();
+            }
         }
 
         private static void Save()

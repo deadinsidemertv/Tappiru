@@ -8,5 +8,7 @@ namespace TappiruCS.GameLogic.Mod
     {
         public string ModName { get; set; }
         public float ScoreMultiply { get; set; }
+
+        public string ShortName { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace TappiruCS.GameLogic.Mod
         {
             ModName = "NoFail";
             ScoreMultiply = 0.5f;
+            ShortName = "NF";
         } 
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TappiruCS.GameLogic
+﻿using TappiruCS.GameLogic.Mod;
+
+namespace TappiruCS.GameLogic
 {
     public class PlayerScore
     {
@@ -16,6 +18,8 @@
         public DateTime PlayedAt { get; set; }
 
         public string PlayerName { get; set; } = "Player";
+
+        public List<GameMod>? mods { get; set; } = new List<GameMod>();
 
 
     }
