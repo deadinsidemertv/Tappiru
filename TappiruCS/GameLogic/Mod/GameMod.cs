@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace TappiruCS.GameLogic.Mod
 {
+    [JsonDerivedType(typeof(NoFailMod), typeDiscriminator: "NoFail")]
     public abstract class GameMod
     {
-        public string ModName { get; set; }
-        public float ScoreMultiply { get; set; }
+        public abstract string ModName { get; }
+        public abstract float ScoreMultiply { get; }
 
-        public string ShortName { get; set; }
+        public abstract string ShortName { get; }
+
+        public GameMod() { }
     }
 }

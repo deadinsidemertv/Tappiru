@@ -22,5 +22,6 @@ namespace TappiruCS.GameLogic
         public List<GameMod>? mods { get; set; } = new List<GameMod>();
 
 
+
     }
 }
