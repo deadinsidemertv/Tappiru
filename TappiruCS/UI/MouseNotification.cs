@@ -23,6 +23,8 @@ namespace TappiruCS.UI
 
         public MouseNotification(Scene scene)
         {
+            Active = false;
+
             _scene = scene;
             Pivot = Vector2.Zero;
 
@@ -43,7 +45,7 @@ namespace TappiruCS.UI
                 FontSize = 24f   // задайте желаемый размер шрифта
             };
 
-            Layer = 10;
+            Layer = 1000;
             AllowHover = false;
 
             AddChild(spriteBG);
@@ -86,6 +88,7 @@ namespace TappiruCS.UI
                 spriteBG.Position.Y + Padding.Y
             );
         }
+
 
         public override void Draw(Matrix4 projection)
         {

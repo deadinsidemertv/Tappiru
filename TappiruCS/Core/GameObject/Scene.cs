@@ -1,12 +1,15 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Tween;
+using TappiruCS.UI;
 
 namespace TappiruCS.Core.GameObject
 {
     public class Scene
     {
         public static Scene Current { get; private set; }
+
+        public MouseNotification? MouseNotification { get; set; }
 
         public RenderContext RenderContext { get; private set; }
 
@@ -44,7 +47,11 @@ namespace TappiruCS.Core.GameObject
 
         public Scene()
         {
-            Current = this;        
+            Current = this;
+            var notification = new MouseNotification(this);
+            notification.Active = false;  // пока не показываем
+            Add(notification);
+            MouseNotification = notification;
         }
         public void Update(double deltaTime, MouseState mouse, Game _game)
         {
@@ -111,6 +118,19 @@ namespace TappiruCS.Core.GameObject
             foreach (var root in _objects)
             {
                 root.SetHoverRecursive(top);   // ← передаём top вместо bool
+            }
+
+            if (MouseNotification != null)
+            {
+                if (top != null && !string.IsNullOrEmpty(top.Description))
+                {
+                    MouseNotification.text = top.Description;
+                    MouseNotification.Active = true;
+                }
+                else
+                {
+                    MouseNotification.Active = false;
+                }
             }
 
 

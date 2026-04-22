@@ -15,7 +15,6 @@ namespace TappiruCS.UI
 
         public TextObject minValueText;
         public TextObject maxValueText;
-        public TextObject ValueText;
 
         public event Action<float> OnValueChanged;
         public float minValue { get; private set; } = 0f;
@@ -31,9 +30,9 @@ namespace TappiruCS.UI
                 if (Math.Abs(clamped - _value) > 0.001f)   // чтобы не спамить при одинаковом значении
                 {
                     _value = clamped;
-                    OnValueChanged?.Invoke(_value);        // ← Вот главное!
+                    OnValueChanged?.Invoke(_value);        
                     UpdatePointPositionFromValue();
-                    UpdateVisuals();
+                    
                 }
             }
         }
@@ -46,6 +45,7 @@ namespace TappiruCS.UI
 
         public Slider(float min, float max, float x, float y, float width)
         {
+            Description = Value+"%";
             minValue = min;
             maxValue = max;
 
@@ -64,11 +64,13 @@ namespace TappiruCS.UI
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
+                AllowHover = true,
             };
 
             // === Тексты ===
             minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y, 36f)
             {
+                Description = string.Empty,
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
                 Align = TextAlign.Center,
@@ -77,16 +79,9 @@ namespace TappiruCS.UI
 
             maxValueText = new TextObject(max.ToString("F0"), x + width / 2f, y, 36f)
             {
+                Description = string.Empty,
                 Color = Color4.White,
                 ScaleMultiply = 0.25f,
-                Align = TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f),
-            };
-
-            ValueText = new TextObject("", x, y, 12f)   // пока пусто
-            {
-                Color = Color4.White,
-                ScaleMultiply = 0.2f,
                 Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
@@ -95,12 +90,11 @@ namespace TappiruCS.UI
             AddChild(point);
             AddChild(minValueText);
             AddChild(maxValueText);
-            AddChild(ValueText);
 
             // Теперь можно безопасно установить значение
             _value = Math.Clamp(50f, minValue, maxValue);   // напрямую в приватное поле
             UpdatePointPositionFromValue();
-            UpdateVisuals();   // обновит ValueText
+              // обновит ValueText
         }
 
         public float GetPositionFromTime(float timeSeconds)
@@ -113,10 +107,12 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime);
 
+            point.Description = $"{Math.Round(Value*100)}%";
+
             UpdateDragging(mouse);
             UpdatePointPositionFromValue();// ← новое
             UpdateTextPositions();
-            UpdateVisuals();
+           
         }
         private void UpdateTextPositions()
         {
@@ -180,22 +176,6 @@ namespace TappiruCS.UI
             float newX = lineLeft + normalized * lineWidth;
 
             point.Position = new Vector2(newX, line.Position.Y);
-        }
-
-        private void UpdateVisuals()
-        {
-            var (pointLeft, pointTop, pointWidth, pointHeight) = point.GetDesignBounds();
-            const float baseOffset = 5f;                    
-            float extraOffset = 12f * ValueText.ScaleMultiply;
-
-            float finalOffsetY = baseOffset + extraOffset;
-
-            ValueText.Position = new Vector2(
-                point.Position.X,                 
-                pointTop - finalOffsetY              
-            );
-
-            ValueText.Text = Value.ToString("F2");
         }
 
         public override void Draw(Matrix4 projection)

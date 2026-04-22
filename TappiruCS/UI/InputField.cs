@@ -13,6 +13,7 @@ namespace TappiruCS.UI
 {
     public class InputField : GameObject
     {
+
         private readonly int _bgTextureId;
 
         private readonly SpriteObject InputBackground;

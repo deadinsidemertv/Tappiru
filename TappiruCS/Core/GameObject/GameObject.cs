@@ -8,6 +8,7 @@ namespace TappiruCS.Core.GameObject
 {
     public abstract class GameObject : IGameObject
     {
+        public string Description { get; set; } = string.Empty;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Vector2 Scale { get; set; } = Vector2.One; //pixels
         public float Opacity { get; set; } = 1f;

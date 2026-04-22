@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using TappiruCS.Core;
@@ -14,6 +15,7 @@ using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
+using TappiruCS.UI;
 
 namespace TappiruCS
 {
@@ -28,7 +30,6 @@ namespace TappiruCS
         public static List<GameMod> _activeMods = new List<GameMod>();
 
         private SpriteBatch spriteBatch;
-        public static TextRender japanFONT;
         private TextRender textRenderer;
         private AudioManager audio;
 
@@ -174,7 +175,16 @@ namespace TappiruCS
                     projection);
             }
 
+            if (KeyboardState.IsKeyPressed(Keys.Escape)&& moduleWND != null)
+            {
+
+                    CloseModalWindow();   
+                    return;  
+            }
+
             SwapBuffers();
+
+
         }
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
@@ -189,8 +199,12 @@ namespace TappiruCS
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
+            
+
             audio.PlaySoundEffect("hit",1.2f);
             currentState?.HandleKeyDown(e);
+
+            
         }
         public void UpdateProjection()
         {
@@ -232,6 +246,31 @@ namespace TappiruCS
                 editState.OnExit();  
             // или вызови принудительную очистку
             base.OnClosing(e);
+        }
+
+
+        public ModuleWindow moduleWND;
+        private Type? _currentModalWindowType;
+        public void OpenModalWindow(ModuleWindow window)
+        {
+            if(moduleWND != null && _currentModalWindowType == window.GetType())
+            {
+                CloseModalWindow();
+            }
+            else
+            {
+                CloseModalWindow();
+                moduleWND = window;
+                _currentModalWindowType = window.GetType();
+                moduleWND.Show();
+            }
+        }
+
+        public void CloseModalWindow()
+        {
+            moduleWND?.Close();
+            moduleWND = null;
+            _currentModalWindowType = null;
         }
     }
 }

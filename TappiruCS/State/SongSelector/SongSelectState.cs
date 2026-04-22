@@ -36,8 +36,6 @@ namespace TappiruCS.State.SongSelector
         public SpriteObject SongSelectorTop;
         public SpriteObject SelectionMode;
 
-        public ModuleWindow _moduleWND;
-
         public int _bgPreview;
 
         public string songPath = "";
@@ -45,7 +43,6 @@ namespace TappiruCS.State.SongSelector
 
         List<PlayerScore> topScores;
 
-        public bool IsOpenModule = false;
 
         // --- Флаг для предотвращения гонки при быстром переключении песен ---
         private CancellationTokenSource _songSelectCts = new CancellationTokenSource();
@@ -366,27 +363,11 @@ namespace TappiruCS.State.SongSelector
 
         public void CreateModsModule()
         {
-            if (!IsOpenModule)
-            {
-                _moduleWND = new ModsModule(_scene, Game._activeMods);
-                IsOpenModule = true;
-            }
-            else
-            {
-                CloseModuleWindow(_moduleWND);
-            }
+          _context.Game.OpenModalWindow(new ModsModule(_scene, Game._activeMods));
         }
 
-        public void CloseModuleWindow(ModuleWindow wind)
-        {
-            wind.Dispose();
-            wind = null;
-            IsOpenModule = false;
-        }
+        
 
-        /// <summary>
-        /// Выбор песни — фоновая загрузка с отменой предыдущего запроса при быстром переключении.
-        /// </summary>
         public async Task SelectSong(string SP)
         {
             // Отменяем предыдущий незавершённый SelectSong
@@ -498,16 +479,12 @@ namespace TappiruCS.State.SongSelector
 
         public void OnMouseWheel(MouseWheelEventArgs e)
         {
-            if (IsOpenModule) return;
             list.Scroll(e.Offset.Y);
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            if (e.Key == Keys.Escape && IsOpenModule)
-                CloseModuleWindow(_moduleWND);
-            else if (e.Key == Keys.Escape && !IsOpenModule)
-                _context.Game.ChangeState(new MenuState(_context));
+
         }
     }
 }

@@ -34,9 +34,6 @@ namespace TappiruCS.State.Menu
         private SpriteObject _avatarSprite;
         private SpriteObject _avatarBackground;
 
-        private OptionModule setting;
-        private bool _isSetting = false;
-
         public MenuState(RenderContext context)
         {
             _context = context;
@@ -76,25 +73,7 @@ namespace TappiruCS.State.Menu
 
         private void ToggleSettings()
         {
-            _isSetting = !_isSetting;
-
-            if (_isSetting)
-            {
-                setting = new OptionModule(_scene, 300, 540, 600);   // или другую позицию
-            }
-            else
-            {
-                if (setting != null)
-                {
-                    // Удаляем окно настроек из сцены
-                    _scene.Remove(setting.Bg);
-                    if (setting.VolumeSlider != null) 
-                        _scene.Remove(setting.VolumeSlider);
-
-                    _scene.Remove(setting.SettingVol);
-                    setting = null;
-                }
-            }
+            _context.Game.OpenModalWindow(new OptionModule(_scene));
         }
         public void GetRandomSong()
         {
@@ -155,13 +134,13 @@ namespace TappiruCS.State.Menu
             };
 
             
-            var blackTop = new SpriteObject(0, 960, 0, 1920, _context.Game.ClientSize.Y / 3)
+            var blackTop = new SpriteObject(0, 960, 0, 1920, 200)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,
                 Opacity = 0.6f
             };
-            var blackBottom = new SpriteObject(0, 960, 1080, 1920, _context.Game.ClientSize.Y / 3)
+            var blackBottom = new SpriteObject(0, 960, 1080, 1920, 200)
             {
                 Color = new Color4(0f, 0f, 0f, 0.5f),
                 AutoScale = true,
@@ -316,8 +295,10 @@ namespace TappiruCS.State.Menu
             _scene.Clear();
             Console.WriteLine("Выход из MenuState");
         }
-
-        public void HandleKeyDown(KeyboardKeyEventArgs e) { }
+        public void HandleKeyDown(KeyboardKeyEventArgs e) 
+        {
+            
+        }
 
         private void StartGame() => _context.Game.ChangeState(new SongSelectState(_context));
         private void GoEdit() => _context.Game.ChangeState(new EditState(_context));

@@ -6,25 +6,26 @@ using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Menu
 {
-    public class OptionModule
+    public class OptionModule : ModuleWindow
     {
         public SpriteObject Bg;
         public Slider VolumeSlider;
         public TextObject SettingVol;
 
-        public OptionModule(Scene scene, float x, float y, float width)
+        public OptionModule(Scene scene):base(scene)
         {
 
-            Bg = new SpriteObject(0, x, y, width, 1080)
+            Bg = new SpriteObject(0, 300, 540, 600, 1080)
             {
+                AllowHover = false,
                 Layer = 5,
                 Opacity = 0.85f,
-                
+
             };
 
 
     ////////////////////VOLUME SETTING PART////////////////////////////////////////////        
-            VolumeSlider = new Slider(0f, 1f, x , y -400, width - 100)
+            VolumeSlider = new Slider(0f, 1f, 270 , 140, 500)
             {
                 Parent = Bg,
                 Layer = 6,
@@ -35,18 +36,18 @@ namespace TappiruCS.State.Menu
                 ScaleMultiply =0.5f,
                 AllowHover=false,  
             };
-            scene.Add(SettingVol);
     ////////////////////VOLUME SETTING PART//////////////////////////////////////////// 
-    ///
-
-            // Подписываемся на изменение
             VolumeSlider.OnValueChanged += OnVolumeChanged;
 
-            VolumeSlider.SetValue(OptionFile.Volume);   // установит начальное значение
+            VolumeSlider.SetValue(OptionFile.Volume);
 
             Bg.AddChild(VolumeSlider);
-            scene.Add(VolumeSlider);
-            scene.Add(Bg);
+            Bg.AddChild(SettingVol);
+
+            obj.Add(Bg);
+            obj.Add(SettingVol);
+            obj.Add(VolumeSlider);
+
         }
 
         // Этот метод будет вызываться каждый кадр, пока игрок двигает слайдер!

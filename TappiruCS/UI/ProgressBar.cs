@@ -31,8 +31,6 @@ namespace TappiruCS.UI
 
         public ProgressBar(float x, float y, float scaleX, float scaleY)
         {
-            
-            // Фон прогресс-бара
             _background = new SpriteObject(TextureManager.GetTexture("white"), x, y, scaleX, scaleY)
             {
                 Parent = this,

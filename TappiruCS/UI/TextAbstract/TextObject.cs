@@ -112,11 +112,6 @@ namespace TappiruCS.UI.TextAbstract
             float finalX = Position.X * CanvasScale.X;
             float finalY = Position.Y * CanvasScale.Y;
 
-            Console.WriteLine($"[FONT] BaseLineHeight = {TR.BaseLineHeight}");
-            Console.WriteLine($"[FONT] FontSize = {FontSize} → baseScale = {baseScale}");
-            Console.WriteLine($"[FONT] CanvasScale = {CanvasScale}");
-            Console.WriteLine($"[FONT] Final scale = ({finalScaleX}, {finalScaleY})");
-
             if (HasOutline)
             {
                 TR.DrawStringOutline(

@@ -38,6 +38,7 @@ namespace TappiruCS.UI
         public event Action<ListElementButton> OnSelectionChanged;   // опционально, если нужно уведомлять
         public ScrollList(float x, float y, float width, float height)
         {
+            Description = string.Empty;
             Position = new Vector2(x, y);
             _visibleHeight = 400;
 

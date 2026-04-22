@@ -36,6 +36,7 @@ namespace TappiruCS.State.SongSelector
 
             NoFailBox = new CheckBox(EasyMods.Position.X + 470, EasyMods.Position.Y + 50, 86, 96)
             {
+                Description = "Вы не можете умереть как бы не старались.",
                 Layer = 11,
                 ScaleMultiply = 2f
             };
@@ -61,7 +62,6 @@ namespace TappiruCS.State.SongSelector
             obj.Add(NoFailBox);
             obj.Add(EasyMods);
 
-            Show();
         }
     }
 }
