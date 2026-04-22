@@ -37,7 +37,7 @@ namespace TappiruCS.GameLogic.Logic
         public bool IsHoldingSlider => _sliderManager.IsHoldingSlider;
         public int CurrentSliderCharIndex => _sliderManager.CurrentSliderCharIndex;
 
-        public int TotalScore => _scoring.TotalScore;
+        public float TotalScore => _scoring.TotalScore;
         public int Combo => _scoring.Combo;
         public int MaxCombo => _scoring.MaxCombo;
 
@@ -72,7 +72,20 @@ namespace TappiruCS.GameLogic.Logic
             CurrentMap = mapData;
             EndTime = mapData.endTime;
 
+
+            // ★★★ Расчёт общего множителя очков из модов ★★★
+            float totalMultiplier = 1f;
+            if (mapData.mods != null)
+            {
+                foreach (var mod in mapData.mods)
+                    totalMultiplier *= mod.ScoreMultiply;
+            }
+
             _scoring = new ScoringSystem();
+            _scoring.ScoreMultiply = totalMultiplier;
+
+
+
             _healthSystem = new HealthSystem(this);
             _sliderManager = new SliderManager(mapData, CharToKeyMap);
             _phaseManager = new PhaseManager(mapData, _scoring, _healthSystem, _sliderManager);

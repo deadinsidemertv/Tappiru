@@ -1,16 +1,20 @@
-﻿namespace TappiruCS.GameLogic.Logic
+﻿using TappiruCS.GameLogic.Mod;
+
+namespace TappiruCS.GameLogic.Logic
 {
     public class ScoringSystem
     {
-        public int TotalScore { get; private set; }
+        public float TotalScore { get; private set; }
         public int Combo { get; private set; }
         public int MaxCombo { get; private set; }
         public int CorrectHits { get; private set; }
         public int Misses { get; internal set; }        // internal set — нужно для PhaseManager
         public float Accuracy { get; private set; } = 100f;
 
-        private const int PointsPerHit = 100;
-        private const int PointsPerPhase = 300;
+        public float ScoreMultiply = 1f;
+
+        private  float PointsPerHit => 100 * ScoreMultiply;
+        private  float PointsPerPhase => 300 * ScoreMultiply;
 
         public event Action<int> OnComboChanged;
         public event Action OnComboBreak;
@@ -56,5 +60,6 @@
             TotalScore = Combo = MaxCombo = CorrectHits = Misses = 0;
             Accuracy = 100f;
         }
+
     }
 }

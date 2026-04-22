@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
+using System.Reflection.Metadata;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
@@ -41,7 +42,7 @@ namespace TappiruCS.State.SongSelector
         public string songPath = "";
         public int songCount;
 
-        List<PlayerScore> topScores;
+        public List<PlayerScore> topScores;
 
 
         // --- Флаг для предотвращения гонки при быстром переключении песен ---
@@ -370,6 +371,7 @@ namespace TappiruCS.State.SongSelector
 
         public async Task SelectSong(string SP)
         {
+            
             // Отменяем предыдущий незавершённый SelectSong
             _songSelectCts.Cancel();
             _songSelectCts = new CancellationTokenSource();
@@ -385,6 +387,7 @@ namespace TappiruCS.State.SongSelector
             {
                 await Task.Run(() =>
                 {
+                    
                     token.ThrowIfCancellationRequested();
 
                     var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -431,7 +434,8 @@ namespace TappiruCS.State.SongSelector
                 }
 
                 SelectedMap = tempMap;
-
+                topScores = ScoreManager.GetTopScoresForMap(SelectedMap.MapHash, 7);
+                UpdateRankingDisplay(topScores);
                 if (image != null)
                 {
                     var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -452,6 +456,7 @@ namespace TappiruCS.State.SongSelector
 
                 Console.WriteLine($"[SelectSong] Успешно для {SelectedMap.title}");
             });
+            
         }
 
         public void OnExit()
