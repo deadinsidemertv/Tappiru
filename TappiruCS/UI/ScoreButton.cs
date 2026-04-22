@@ -25,15 +25,16 @@ namespace TappiruCS.UI
         public int grade;
 
         public ScoreButton(float x, float y, PlayerScore score)
-            : base(x, y, 700, 100, "", "")
+            : base(x, y, 700, 100, "white", "")
         {
+            NormalColor = Color4.Black;
+            HoverColor = new Color4(0.2f,0.2f,0.2f,1f);
             _scoreData = score;
             Tag = "scorebutton";
             Text = "";
-            NormalColor = new Color4(1f, 1f, 1f, 0.5f);
-            HoverColor = new Color4(1.5f, 1.5f, 1.5f, 0.8f);
             Opacity = 0.5f;
             AllowHover = true;
+            Layer = 10;
 
             if (score._accuraci == 100f && score._failChar == 0)
                 grade = TextureLoader.Load("Textures/grade/grade5.png");
@@ -54,7 +55,8 @@ namespace TappiruCS.UI
                 Avatar = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, Position.X - 130, Position.Y, 80, 80)
                 {
                     Pivot = new Vector2(0.5f, 0.5f),
-                    Parent = this
+                    Parent = this,
+                    AllowHover = false,
                 };
             }
             else
@@ -62,7 +64,9 @@ namespace TappiruCS.UI
                 Avatar = new SpriteObject(TextureManager.GetTexture("defaultprofile"), Position.X - 130, Position.Y, 80, 80)
                 {
                     Pivot = new Vector2(0.5f, 0.5f),
-                    Parent = this
+                    Parent = this,
+                    AllowHover = false
+
                 };
             }
 
@@ -71,6 +75,7 @@ namespace TappiruCS.UI
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f,
+                AllowHover = false,
                 Parent = this
             };
 
@@ -80,6 +85,7 @@ namespace TappiruCS.UI
                 ScaleMultiply = 0.29f,
                 Align = TextAlign.Left,
                 Color = Color4.White,
+                AllowHover = false,
                 Parent = this
             };
 
@@ -88,6 +94,7 @@ namespace TappiruCS.UI
                 ScaleMultiply = 0.245f,
                 Align = TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f),
+                AllowHover = false,
                 Parent = this
             };
 
@@ -95,6 +102,7 @@ namespace TappiruCS.UI
             {
                 ScaleMultiply = 0.22f,
                 Align = TextAlign.Right,
+                AllowHover = false,
                 Parent = this
             };
 
@@ -121,7 +129,6 @@ namespace TappiruCS.UI
         public override void SetHover(bool hover)
         {
             base.SetHover(hover);
-
 
         }
         public override void Update(double deltaTime, MouseState mouse)

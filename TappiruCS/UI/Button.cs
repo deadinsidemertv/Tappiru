@@ -30,7 +30,7 @@ namespace TappiruCS.UI
         public Color4 HoverColor { get; set; } = new Color4(0.5f, 0.5f, 1.05f, 1f);
         public Color4 PressColor { get; set; } = new Color4(0.75f, 0.75f, 0.75f, 1f);
 
-        private Color4 _currentColor;
+        public Color4 _currentColor;
 
         private readonly SpriteObject _buttonBackground;
         private readonly TextObject _textObject;
