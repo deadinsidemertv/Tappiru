@@ -123,7 +123,7 @@ namespace TappiruCS.State.SongSelector
 
         private void AddUserPanel()
         {
-            var userName = new TextObject(PlayerProfile.Instance.UserName, 1050, 965, 0.26f) { Layer = 3 };
+            var userName = new TextObject(PlayerProfile.Instance.UserName, 1050, 965, 24f) { Layer = 3 };
             var userAvatar = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
 
             _scene.Add(userName);

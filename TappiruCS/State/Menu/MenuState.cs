@@ -217,14 +217,14 @@ namespace TappiruCS.State.Menu
 
             if (_welcomeText == null)
             {
-                _welcomeText = new TextObject("", 250, 460, 0.5f)
+                _welcomeText = new TextObject("", 250, 460, 48f)
                 {
                     Align = TextAlign.Left,
                     Color = Color4.White,
                     Layer = 3
                 };
 
-                _ratingText = new TextObject("", 250, 540, 0.35f)
+                _ratingText = new TextObject("", 250, 540, 72f)
                 {
                     Align = TextAlign.Left,
                     Color = Color4.White,
@@ -236,7 +236,7 @@ namespace TappiruCS.State.Menu
             }
 
             _welcomeText.Text = PlayerProfile.Instance.UserName;
-            _ratingText.Text = $"Ranking MMR: {PlayerProfile.Instance.Rating}";
+            _ratingText.Text = $"TP: {PlayerProfile.Instance.Rating}";
 
             // Аватарка
             if (PlayerProfile.Instance.AvatarTextureId != 0)
