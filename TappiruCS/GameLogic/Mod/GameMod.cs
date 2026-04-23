@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace TappiruCS.GameLogic.Mod
 {
     [JsonDerivedType(typeof(NoFailMod), typeDiscriminator: "NoFail")]
-    public abstract class GameMod
+    public abstract class GameMod 
     {
         public abstract string ModName { get; }
         public abstract float ScoreMultiply { get; }
@@ -14,5 +14,6 @@ namespace TappiruCS.GameLogic.Mod
         public abstract string ShortName { get; }
 
         public GameMod() { }
+
     }
 }

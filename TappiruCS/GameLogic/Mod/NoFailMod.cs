@@ -10,6 +10,7 @@ namespace TappiruCS.GameLogic.Mod
         public override string ModName => "NoFail";
         public override float ScoreMultiply => 0.5f;
         public override string ShortName => "NF";
+
         public NoFailMod(){} 
     }
 }

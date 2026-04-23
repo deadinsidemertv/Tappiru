@@ -102,7 +102,7 @@ namespace TappiruCS.State
                 gradetx[i] = TextureManager.GetTexture("grade" + i);
             }
 
-            float acc = _playerScore._accuraci;
+            float acc = _playerScore._accuraci*100;
             int failChars = _playerScore._failChar;
             int rank;
 
