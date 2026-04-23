@@ -1,65 +1,98 @@
-﻿using TappiruCS.GameLogic.Mod;
-
-namespace TappiruCS.GameLogic.Logic
+﻿namespace TappiruCS.GameLogic.Logic
 {
     public class ScoringSystem
     {
+        // ── Public state ──────────────────────────────────────────────────────────
         public float TotalScore { get; private set; }
         public int Combo { get; private set; }
         public int MaxCombo { get; private set; }
         public int CorrectHits { get; private set; }
-        public int Misses { get; internal set; }        // internal set — нужно для PhaseManager
+        public int Misses { get; internal set; }   // internal: PhaseManager может писать напрямую
         public float Accuracy { get; private set; } = 100f;
 
-        public float ScoreMultiply = 1f;
+        public int PerfectSliders { get; private set; }
+        public int GoodSliders { get; private set; }
 
-        private  float PointsPerHit => 100 * ScoreMultiply;
-        private  float PointsPerPhase => 300 * ScoreMultiply;
+        // Множитель от модов, устанавливается снаружи один раз при создании сессии
+        public float ScoreMultiplier { get; set; } = 1f;
 
+        // ── Events ────────────────────────────────────────────────────────────────
         public event Action<int> OnComboChanged;
         public event Action OnComboBreak;
 
-        public void Hit()
+        // ── Private helpers ───────────────────────────────────────────────────────
+        private float PointsPerHit => 100f * ScoreMultiplier;
+        private float PointsPerPhase => 300f * ScoreMultiplier;
+
+        // ── Public API ────────────────────────────────────────────────────────────
+
+        /// <summary>Засчитать обычный тап.</summary>
+        public void RegisterHit()
         {
-            CorrectHits++;
-            Combo++;
-            OnComboChanged?.Invoke(Combo);
-            if (Combo > MaxCombo) MaxCombo = Combo;
-            TotalScore += PointsPerHit * Combo;
-            UpdateAccuracy();
+            AddHit(gradeMultiplier: 1f);
         }
 
-        public void Miss()
+        /// <summary>
+        /// Засчитать успешный слайдер.
+        /// <param name="gradeMultiplier">1.0 = Perfect, 0.5 = Good.</param>
+        /// </summary>
+        public void RegisterSliderHit(float gradeMultiplier)
+        {
+            if (gradeMultiplier >= 1f)
+                PerfectSliders++;
+            else
+                GoodSliders++;
+
+            AddHit(gradeMultiplier);
+        }
+
+        /// <summary>Засчитать промах (обычный тап или слайдер).</summary>
+        public void RegisterMiss()
         {
             Misses++;
             Combo = 0;
             OnComboBreak?.Invoke();
-            UpdateAccuracy();
+            RecalcAccuracy();
         }
 
-        public void PhaseComplete()
-        {
-            TotalScore += PointsPerPhase * Combo;
-        }
-
-        public void ResetCombo()
+        /// <summary>Сбросить комбо без увеличения счётчика промахов.</summary>
+        public void BreakCombo()
         {
             Combo = 0;
             OnComboBreak?.Invoke();
         }
 
-        private void UpdateAccuracy()
+        /// <summary>Бонус за завершение фазы — берёт текущее комбо на момент вызова.</summary>
+        public void RegisterPhaseComplete()
         {
-            Accuracy = (CorrectHits + Misses) > 0
-                ? CorrectHits / (float)(CorrectHits + Misses) * 100f
-                : 100f;
+            TotalScore += PointsPerPhase * Combo;
         }
 
         public void Reset()
         {
             TotalScore = Combo = MaxCombo = CorrectHits = Misses = 0;
+            PerfectSliders = GoodSliders = 0;
             Accuracy = 100f;
         }
 
+        // ── Private ───────────────────────────────────────────────────────────────
+        private void AddHit(float gradeMultiplier)
+        {
+            CorrectHits++;
+            Combo++;
+            if (Combo > MaxCombo)
+                MaxCombo = Combo;
+
+            TotalScore += PointsPerHit * Combo * gradeMultiplier;
+
+            OnComboChanged?.Invoke(Combo);
+            RecalcAccuracy();
+        }
+
+        private void RecalcAccuracy()
+        {
+            int total = CorrectHits + Misses;
+            Accuracy = total > 0 ? CorrectHits / (float)total * 100f : 100f;
+        }
     }
 }

@@ -46,6 +46,9 @@ namespace TappiruCS.GameLogic.Logic
         public int CompletedPhases => _phaseManager.CompletedPhases;
         public int FailedPhases => _phaseManager.FailedPhases;
 
+        public int PerfectSliders => _scoring.PerfectSliders;
+        public int GoodSliders => _scoring.GoodSliders;
+
         public float Accuracy => _scoring.Accuracy;
         public float Health => _healthSystem.Health;        // было healt
 
@@ -82,7 +85,7 @@ namespace TappiruCS.GameLogic.Logic
             }
 
             _scoring = new ScoringSystem();
-            _scoring.ScoreMultiply = totalMultiplier;
+            _scoring.ScoreMultiplier = totalMultiplier;
 
 
 

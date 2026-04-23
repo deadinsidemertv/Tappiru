@@ -12,6 +12,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TappiruCS.State.Session
 {
@@ -277,17 +278,25 @@ namespace TappiruCS.State.Session
             {
                 MapName = session.CurrentMap.title,
                 MapHash = session.CurrentMap.MapHash,
+
                 _score = session.TotalScore,
                 _accuraci = session.Accuracy,
                 _maxCobmo = session.MaxCombo,
+
                 _completePhase = session.CompletedPhases,
                 _failPhase = session.FailedPhases,
                 _completeChar = session.CorrectHits,
                 _failChar = session.Misses,
+
+                _perfectSlider = session.PerfectSliders,
+                _goodSlider = session.GoodSliders,
+
                 PlayedAt = DateTime.Now,
+
                 mods = new List<GameMod>(session.CurrentMap.mods),
                 PlayerName = PlayerProfile.Instance.IsLoggedIn ? " " + PlayerProfile.Instance.UserName : "offline-mode"
             };
+
 
             ScoreManager.AddScore(newScore);
             _context.Audio.Stop();

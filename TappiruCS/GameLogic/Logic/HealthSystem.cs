@@ -2,38 +2,42 @@
 {
     public class HealthSystem
     {
-        public GameSession session;
+        // ── Constants ─────────────────────────────────────────────────────────────
+        private const float HpGainTap = 3.5f;
+        private const float HpGainSliderPerfect = 6f;
+        private const float HpGainSliderGood = 4f;
+        private const float HpGainPhase = 8f;
+        private const float HpMiss = 7f;
+        private const float HpPhaseFailPerChar = 5.5f;
 
-        public HealthSystem(GameSession _session)
-        {
-            session = _session;
-        }
+        // ── State ─────────────────────────────────────────────────────────────────
         public float Health { get; private set; } = 100f;
 
-        private const float HP_GAIN_TAP = 3.5f;
-        private const float HP_GAIN_SLIDER_HOLD = 5f;
-        private const float HP_GAIN_SLIDER_PERFECT = 6f;
-        private const float HP_GAIN_SLIDER_GOOD = 4f;
-        private const float HP_GAIN_PHASE = 8f;
-        private const float HP_MISS = 7f;
-        private const float HP_PHASE_FAIL_MULTIPLIER = 5.5f;
+        private readonly GameSession _session;
 
+        // ── Constructor ───────────────────────────────────────────────────────────
+        public HealthSystem(GameSession session)
+        {
+            _session = session;
+        }
 
-        public void GainTap() => Adjust(HP_GAIN_TAP);
-        public void GainSliderHold() => Adjust(HP_GAIN_SLIDER_HOLD);
-        public void GainSliderPerfect() => Adjust(HP_GAIN_SLIDER_PERFECT);
-        public void GainSliderGood() => Adjust(HP_GAIN_SLIDER_GOOD);
-        public void GainPhaseComplete() => Adjust(HP_GAIN_PHASE);
-        public void Miss() => Adjust(-HP_MISS);
-        public void PhaseFail(int remaining) => Adjust(-HP_PHASE_FAIL_MULTIPLIER * remaining);
+        // ── Public API ────────────────────────────────────────────────────────────
+        public void GainTap() => Adjust(+HpGainTap);
+        public void GainSliderPerfect() => Adjust(+HpGainSliderPerfect);
+        public void GainSliderGood() => Adjust(+HpGainSliderGood);
+        public void GainPhaseComplete() => Adjust(+HpGainPhase);
+        public void Miss() => Adjust(-HpMiss);
+        public void PhaseFail(int remaining) => Adjust(-HpPhaseFailPerChar * remaining);
 
+        public void Reset() => Health = 100f;
+
+        // ── Private ───────────────────────────────────────────────────────────────
         private void Adjust(float delta)
         {
-            if(session.NoFail) return;
+            if (_session.NoFail)
+                return;
 
             Health = Math.Clamp(Health + delta, 0f, 100f);
         }
-
-        public void Reset() => Health = 100f;
     }
 }

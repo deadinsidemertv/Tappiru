@@ -15,6 +15,9 @@ namespace TappiruCS.GameLogic
         public int _completeChar { get; set; }
         public int _failChar { get; set; }
 
+        public int _perfectSlider { get; set; }
+        public int _goodSlider { get; set; }
+
         public DateTime PlayedAt { get; set; }
 
         public string PlayerName { get; set; } = "Player";
