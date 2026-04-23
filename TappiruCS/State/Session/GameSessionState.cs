@@ -270,7 +270,7 @@ namespace TappiruCS.State.Session
             _pressedKeys.Remove(e.Key);
         }
 
-        private void CheckForMapCompletion(float currentAudioTime)
+        private async Task CheckForMapCompletion(float currentAudioTime)
         {
             if (currentAudioTime < session.EndTime) return;
 
@@ -308,7 +308,7 @@ namespace TappiruCS.State.Session
             }
             if (PlayerProfile.Instance.IsLoggedIn)
             {
-                _ = ScoreSubmitter.SubmitScoreAsync(newScore);   // fire-and-forget
+                await ScoreSubmitter.SubmitScoreAsync(newScore);   // fire-and-forget
             }
 
             _context.Game.ChangeState(new ScoreBoardState(_context, newScore, _mapData));

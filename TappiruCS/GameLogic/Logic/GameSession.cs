@@ -96,6 +96,8 @@ namespace TappiruCS.GameLogic.Logic
             _scoring.OnComboChanged += c => OnComboChanged?.Invoke(c);
             _scoring.OnComboBreak += () => OnComboBreak?.Invoke();
 
+            _sliderManager.OnSliderHit += multiplier => _scoring.RegisterSliderHit(multiplier);
+
             NoFail = mapData.mods.Any(m => m.GetType() == typeof(NoFailMod));
         }
 
