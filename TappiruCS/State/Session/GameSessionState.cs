@@ -280,7 +280,7 @@ namespace TappiruCS.State.Session
                 MapHash = session.CurrentMap.MapHash,
 
                 _score = session.TotalScore,
-                _accuraci = session.Accuracy/100,
+                _accuraci = session.Accuracy / 100,
                 _maxCobmo = session.MaxCombo,
 
                 _completePhase = session.CompletedPhases,
