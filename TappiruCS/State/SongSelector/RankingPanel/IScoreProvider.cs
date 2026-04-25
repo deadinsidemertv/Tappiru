@@ -1,7 +1,7 @@
 ﻿using TappiruCS.GameLogic;
 using TappiruCS.Server.Player;
 
-namespace TappiruCS.UI.RankingPanel
+namespace TappiruCS.State.SongSelector.RankingPanel
 {
     /// <summary>
     /// Источник очков для RankingPanel.

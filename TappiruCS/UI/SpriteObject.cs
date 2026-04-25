@@ -18,7 +18,7 @@ namespace TappiruCS.UI
         public SpriteObject(int textureId, float x, float y, float scaleX, float scaleY)
         {
             _textureId = textureId;
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             Scale = new Vector2(scaleX, scaleY);
         }
 

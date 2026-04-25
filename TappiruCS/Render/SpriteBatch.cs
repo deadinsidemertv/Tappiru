@@ -43,7 +43,7 @@ namespace TappiruCS.Render
             // VBO (данные будут обновляться каждый Draw)
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
 
-            // Атрибуты: Position (2) + UV (2)
+            // Атрибуты: WorldPosition (2) + UV (2)
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));

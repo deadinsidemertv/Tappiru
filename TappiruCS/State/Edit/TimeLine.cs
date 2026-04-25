@@ -115,15 +115,15 @@ namespace TappiruCS.State.Edit
             var bounds = Background.GetDesignBounds();
             float newX = bounds.Item1 + normalized * bounds.Item3;
 
-            Playhead.Position = new Vector2(newX, Background.Position.Y - 35f);
-            _playheadLine.Position = new Vector2(newX, Background.Position.Y);
+            Playhead.WorldPosition = new Vector2(newX, Background.WorldPosition.Y - 35f);
+            _playheadLine.WorldPosition = new Vector2(newX, Background.WorldPosition.Y);
         }
         #endregion
 
         #region Update & Input
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime);
+            base.Update(deltaTime,mouse);
             HandleSimpleZoom(mouse);
             HandleMouseInteraction(mouse);
         }
@@ -175,8 +175,8 @@ namespace TappiruCS.State.Edit
                         if (isLeft) _draggingLeftHandle = true;
                         else _draggingRightHandle = true;
                     }
-                    else if (Math.Abs(virtualX - Playhead.Position.X) < 30f &&
-         Math.Abs(virtualY - Playhead.Position.Y) < 45f)
+                    else if (Math.Abs(virtualX - Playhead.WorldPosition.X) < 30f &&
+         Math.Abs(virtualY - Playhead.WorldPosition.Y) < 45f)
                     {
                         _draggingPlayhead = true;
                     }
@@ -220,11 +220,11 @@ namespace TappiruCS.State.Edit
             const float hitWidthX = 13f;
             const float hitHeightY = 25f;
 
-            float phraseY = Background.Position.Y - Background.Scale.Y * 0.31f;
+            float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
 
             for (int i = 0; i < _leftHandles.Count; i++)
             {
-                float hx = _leftHandles[i].Position.X;
+                float hx = _leftHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hitWidthX && Math.Abs(virtualY - phraseY) < hitHeightY)
                 {
                     _draggedPhrase = _phrases[i];
@@ -236,7 +236,7 @@ namespace TappiruCS.State.Edit
 
             for (int i = 0; i < _rightHandles.Count; i++)
             {
-                float hx = _rightHandles[i].Position.X;
+                float hx = _rightHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hitWidthX && Math.Abs(virtualY - phraseY) < hitHeightY)
                 {
                     _draggedPhrase = _phrases[i];
@@ -282,7 +282,7 @@ namespace TappiruCS.State.Edit
             for (int i = 0; i < _sliderLeftHandles.Count; i++)
             {
                 var h = _sliderLeftHandles[i];
-                if (Math.Abs(virtualX - h.Position.X) < hitWidthX && Math.Abs(virtualY - h.Position.Y) < hitHeightY)
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hitWidthX && Math.Abs(virtualY - h.WorldPosition.Y) < hitHeightY)
                 {
                     _draggedSliderPhrase = _sliderReferences[i].phrase;
                     _draggedSliderIndex = _sliderReferences[i].sliderIndex;
@@ -294,7 +294,7 @@ namespace TappiruCS.State.Edit
             for (int i = 0; i < _sliderRightHandles.Count; i++)
             {
                 var h = _sliderRightHandles[i];
-                if (Math.Abs(virtualX - h.Position.X) < hitWidthX && Math.Abs(virtualY - h.Position.Y) < hitHeightY)
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hitWidthX && Math.Abs(virtualY - h.WorldPosition.Y) < hitHeightY)
                 {
                     _draggedSliderPhrase = _sliderReferences[i].phrase;
                     _draggedSliderIndex = _sliderReferences[i].sliderIndex;
@@ -343,8 +343,8 @@ namespace TappiruCS.State.Edit
             OnTimeClicked?.Invoke(newTime);
 
             float newX = bounds.Item1 + norm * bounds.Item3;
-            Playhead.Position = new Vector2(newX, Background.Position.Y - 35f);
-            _playheadLine.Position = new Vector2(newX, Background.Position.Y);
+            Playhead.WorldPosition = new Vector2(newX, Background.WorldPosition.Y - 35f);
+            _playheadLine.WorldPosition = new Vector2(newX, Background.WorldPosition.Y);
         }
 
         private void ProcessPan(float virtualX, float virtualY)
@@ -393,7 +393,7 @@ namespace TappiruCS.State.Edit
             var bounds = Background.GetDesignBounds();
             float left = bounds.Item1;
             float width = bounds.Item3;
-            float centerY = Background.Position.Y;
+            float centerY = Background.WorldPosition.Y;
             float maxH = Background.Scale.Y * 0.55f;
 
             int target = (int)Math.Clamp(width / 2.8f, 64, 1200);
@@ -422,7 +422,7 @@ namespace TappiruCS.State.Edit
                 float amp = preview.Length > 0 ? preview[bin] : 0.3f;
 
                 float barX = left + i * (width / target) + (width / target) * 0.5f;
-                _waveformBars[i].Position = new Vector2(barX, centerY);
+                _waveformBars[i].WorldPosition = new Vector2(barX, centerY);
                 _waveformBars[i].Scale = new Vector2(width / target * 0.85f, amp * maxH);
             }
         }
@@ -470,7 +470,7 @@ namespace TappiruCS.State.Edit
             }
 
             float phraseHeight = Background.Scale.Y * 0.28f;
-            float phraseY = Background.Position.Y - Background.Scale.Y * 0.31f;
+            float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
 
             for (int i = 0; i < phraseCount; i++)
             {
@@ -485,13 +485,13 @@ namespace TappiruCS.State.Edit
                     continue;
                 }
 
-                _phraseBars[i].Position = new Vector2(centerX, phraseY);
+                _phraseBars[i].WorldPosition = new Vector2(centerX, phraseY);
                 _phraseBars[i].Scale = new Vector2(barWidth, phraseHeight);
 
-                _leftHandles[i].Position = new Vector2(centerX - barWidth * 0.5f, phraseY);
+                _leftHandles[i].WorldPosition = new Vector2(centerX - barWidth * 0.5f, phraseY);
                 _leftHandles[i].Scale = new Vector2(8, phraseHeight * 1.3f);
 
-                _rightHandles[i].Position = new Vector2(centerX + barWidth * 0.5f, phraseY);
+                _rightHandles[i].WorldPosition = new Vector2(centerX + barWidth * 0.5f, phraseY);
                 _rightHandles[i].Scale = new Vector2(8, phraseHeight * 1.3f);
             }
 
@@ -552,13 +552,13 @@ namespace TappiruCS.State.Edit
                     var (sx, sw) = GetTimeBarBounds(slider.startTime, slider.endTime);
                     float visualWidth = Math.Max(sw, minVisualWidth);
 
-                    _sliderBars[sliderIdx].Position = new Vector2(sx, sliderY);
+                    _sliderBars[sliderIdx].WorldPosition = new Vector2(sx, sliderY);
                     _sliderBars[sliderIdx].Scale = new Vector2(visualWidth, phraseHeight * 0.62f);
 
-                    _sliderLeftHandles[sliderIdx].Position = new Vector2(sx - visualWidth * 0.5f, sliderY);
+                    _sliderLeftHandles[sliderIdx].WorldPosition = new Vector2(sx - visualWidth * 0.5f, sliderY);
                     _sliderLeftHandles[sliderIdx].Scale = new Vector2(8, phraseHeight * 1.1f);
 
-                    _sliderRightHandles[sliderIdx].Position = new Vector2(sx + visualWidth * 0.5f, sliderY);
+                    _sliderRightHandles[sliderIdx].WorldPosition = new Vector2(sx + visualWidth * 0.5f, sliderY);
                     _sliderRightHandles[sliderIdx].Scale = new Vector2(8, phraseHeight * 1.1f);
 
                     _sliderReferences.Add((phrase, i));
@@ -606,7 +606,7 @@ namespace TappiruCS.State.Edit
             var bounds = Background.GetDesignBounds();
             float left = bounds.Item1;
             float w = bounds.Item3;
-            float bottomY = Background.Position.Y + 38f;
+            float bottomY = Background.WorldPosition.Y + 38f;
 
             for (float t = (float)Math.Ceiling(_visibleStart / step) * step; t <= _visibleEnd + 0.01f; t += step)
             {
@@ -618,7 +618,7 @@ namespace TappiruCS.State.Edit
                 bool major = Math.Abs(t % 5) < 0.01f || Math.Abs(t % 10) < 0.01f;
 
                 var tick = new SpriteObject(TextureManager.GetTexture("slider_line"),
-                    x, Background.Position.Y, 2, major ? 42 : 24)
+                    x, Background.WorldPosition.Y, 2, major ? 42 : 24)
                 {
                     Color = major ? new Color4(0.8f, 0.8f, 0.9f, 1f) : new Color4(0.5f, 0.5f, 0.55f, 1f),
                     Pivot = new Vector2(0.5f, 0f)

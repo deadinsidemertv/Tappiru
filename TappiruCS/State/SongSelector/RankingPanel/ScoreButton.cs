@@ -7,10 +7,11 @@ using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
 using TappiruCS.Server.Player;
+using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.Text.Font;
 
-namespace TappiruCS.UI.RankingPanel
+namespace TappiruCS.State.SongSelector.RankingPanel
 {
     public class ScoreButton : Button
     {
@@ -78,11 +79,11 @@ namespace TappiruCS.UI.RankingPanel
         {
             base.Update(deltaTime, mouse);
 
-            Avatar.Position = new Vector2(Position.X - 130, Position.Y);
-            Grade.Position = new Vector2(Position.X - 58, Position.Y);
-            _scoreComboText.Position = new Vector2(Position.X - 30, Position.Y);
-            _playerNameText.Position = new Vector2(Position.X - 30, Position.Y - 50);
-            _accuracyText.Position = new Vector2(Position.X + 324, Position.Y + 19);
+            Avatar.WorldPosition = new Vector2(WorldPosition.X - 130, WorldPosition.Y);
+            Grade.WorldPosition = new Vector2(WorldPosition.X - 58, WorldPosition.Y);
+            _scoreComboText.WorldPosition = new Vector2(WorldPosition.X - 30, WorldPosition.Y);
+            _playerNameText.WorldPosition = new Vector2(WorldPosition.X - 30, WorldPosition.Y - 50);
+            _accuracyText.WorldPosition = new Vector2(WorldPosition.X + 324, WorldPosition.Y + 19);
 
             Avatar.Opacity = 1f;
             Grade.Opacity = 1f;
@@ -105,7 +106,7 @@ namespace TappiruCS.UI.RankingPanel
                 ? PlayerProfile.Instance.AvatarTextureId
                 : TextureManager.GetTexture("defaultprofile");
 
-            return new SpriteObject(avatarTexture, Position.X - 130, Position.Y, 80, 80)
+            return new SpriteObject(avatarTexture, WorldPosition.X - 130, WorldPosition.Y, 80, 80)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Parent = this,
@@ -115,7 +116,7 @@ namespace TappiruCS.UI.RankingPanel
 
         private SpriteObject BuildGrade(int gradeTexture)
         {
-            return new SpriteObject(gradeTexture, Position.X - 58, Position.Y, 37, 44)
+            return new SpriteObject(gradeTexture, WorldPosition.X - 58, WorldPosition.Y, 37, 44)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f,
@@ -125,7 +126,7 @@ namespace TappiruCS.UI.RankingPanel
         }
 
         private TextObject BuildPlayerNameText() =>
-            new TextObject("", Position.X - 30, Position.Y - 50, 36f)
+            new TextObject("", WorldPosition.X - 30, WorldPosition.Y - 50, 36f)
             {
                 ScaleMultiply = 0.29f,
                 Align = TextAlign.Left,
@@ -135,7 +136,7 @@ namespace TappiruCS.UI.RankingPanel
             };
 
         private TextObject BuildScoreComboText() =>
-            new TextObject("", Position.X - 30, Position.Y, 36f)
+            new TextObject("", WorldPosition.X - 30, WorldPosition.Y, 36f)
             {
                 ScaleMultiply = 0.245f,
                 Align = TextAlign.Left,
@@ -145,7 +146,7 @@ namespace TappiruCS.UI.RankingPanel
             };
 
         private TextObject BuildAccuracyText() =>
-            new TextObject("", Position.X + 324, Position.Y + 19, 32f)
+            new TextObject("", WorldPosition.X + 324, WorldPosition.Y + 19, 32f)
             {
                 ScaleMultiply = 0.22f,
                 Align = TextAlign.Right,

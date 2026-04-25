@@ -75,7 +75,7 @@ namespace TappiruCS.Core.GameObject
 
             TweenManager.Update(deltaTime);
         }
-        public void Update(double deltaTime)
+        public void Update(double deltaTime,MouseState mouse)
         {
             
             for (int i = 0; i < _objects.Count; i++)
@@ -83,7 +83,7 @@ namespace TappiruCS.Core.GameObject
                 var obj = _objects[i];
                 if (!obj.Active) continue;
                 obj.CanvasScale = CanvasScale;
-                obj.Update(deltaTime);   // вызываем перегрузку с mouse
+                obj.Update(deltaTime,mouse);   // вызываем перегрузку с mouse
             }
         }
 

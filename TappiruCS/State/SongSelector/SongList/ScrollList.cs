@@ -1,10 +1,11 @@
 ﻿using Gtk;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Pango;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
-namespace TappiruCS.UI
+namespace TappiruCS.State.SongSelector.SongList
 {
     public class ScrollList : GameObject
     {
@@ -41,7 +42,7 @@ namespace TappiruCS.UI
         public ScrollList(float x, float y, float width, float height)
         {
             Description = string.Empty;
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             _visibleHeight = 400;
 
             _hoverX = new float[0];
@@ -100,15 +101,11 @@ namespace TappiruCS.UI
         }
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime, mouse);
+            //base.Update(deltaTime, mouse);
             mouseOverList = IsPointInsideList(mouse.X, mouse.Y);
             float dt = (float)deltaTime;
 
             ScrollOffsetY = MathHelper.Lerp(ScrollOffsetY, _targetScrollOffsetY, Smoothness * dt);
-
-            float baseY = Position.Y;
-
-            // === Для каждой кнопки считаем свою цель ===
             for (int i = 0; i < Buttons.Count; i++)
             {
                 float targetX = 0f;
@@ -119,39 +116,40 @@ namespace TappiruCS.UI
                     if (i == _hoveredIndex)
                         targetX = -100f;           // главная кнопка — влево
                     else if (i < _hoveredIndex)
-                        targetY = -25f;           // кнопки выше — вверх
+                        targetY = -25f;            // кнопки выше — вверх
                     else
-                        targetY = 25f;            // кнопки ниже — вниз
+                        targetY = 25f;             // кнопки ниже — вниз
                 }
 
-                // Плавно двигаем каждую кнопку к своей цели
+                // Плавное движение
                 _hoverX[i] = MathHelper.Lerp(_hoverX[i], targetX, 6f * dt);
                 _hoverY[i] = MathHelper.Lerp(_hoverY[i], targetY, 6f * dt);
             }
-
-            // === Применяем позицию ===
+            // Обновляем позиции кнопок
             for (int i = 0; i < Buttons.Count; i++)
             {
+
                 var btn = Buttons[i];
                 btn.ScaleMultiply = ScaleMultiplyList;
 
-                float targetY = baseY + i * (_itemHeight + _itemSpacing) - ScrollOffsetY;
-
-                // Парабола (остаётся)
+                float targetY = i * (_itemHeight + _itemSpacing) - ScrollOffsetY;
+                // парабола и hover-смещения
                 float itemCenterY = targetY + _itemHeight / 2f;
-                float viewCenterY = Position.Y + _visibleHeight / 2f;
+                float viewCenterY = _visibleHeight / 2f;
                 float distanceFromCenter = itemCenterY - viewCenterY;
                 float normalizedDist = distanceFromCenter / (_visibleHeight * 0.5f);
                 float parabolaX = 15f * normalizedDist * normalizedDist;
 
-                float finalX = Position.X + parabolaX + _hoverX[i];
+                float finalX = parabolaX + _hoverX[i];
                 float finalY = targetY + _hoverY[i];
 
-                btn.Position = new Vector2(finalX, finalY);
+                btn.LocalPosition = new Vector2(finalX, finalY);
                 btn.Active = IsButtonVisible(i);
             }
 
             HandleDragging(mouse);
+
+            base.Update(deltaTime, mouse);
         }
 
         private void HandleDragging(MouseState mouse)
@@ -181,7 +179,7 @@ namespace TappiruCS.UI
 
         private bool IsPointInsideList(float x, float y)
         {
-            float left = Position.X - 900f * EffectiveScaleMultiply;   // половина ширины 1400
+            float left = WorldPosition.X - 900f * EffectiveScaleMultiply;   // половина ширины 1400
             float right = left + 1400f * EffectiveScaleMultiply;
             float top = 0;
             float bottom = 1080;

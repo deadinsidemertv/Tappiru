@@ -24,30 +24,32 @@ namespace TappiruCS.State.Menu
             };
 
 
-    ////////////////////VOLUME SETTING PART////////////////////////////////////////////        
-            VolumeSlider = new Slider(0f, 1f, 270 , 140, 500)
+            ////////////////////VOLUME SETTING PART////////////////////////////////////////////        
+            VolumeSlider = new Slider(0f, 1f, 0, -300, 500)
             {
-                Parent = Bg,
                 Layer = 6,
             };
-            SettingVol = new TextObject("Volume", VolumeSlider.Position.X+100, VolumeSlider.Position.Y+10,36) 
+            SettingVol = new TextObject("Звук", -200, -100,36) 
             {
                 Layer = VolumeSlider.Layer,
                 ScaleMultiply =0.5f,
-                AllowHover=false,  
+                AllowHover=false,
+                Color = Color4.BlueViolet
             };
+
     ////////////////////VOLUME SETTING PART//////////////////////////////////////////// 
             VolumeSlider.OnValueChanged += OnVolumeChanged;
 
             VolumeSlider.SetValue(OptionFile.Volume);
 
-            Bg.AddChild(VolumeSlider);
-            Bg.AddChild(SettingVol);
-
             obj.Add(Bg);
             obj.Add(SettingVol);
             obj.Add(VolumeSlider);
 
+            Bg.AddChild(VolumeSlider);
+            VolumeSlider.AddChild(SettingVol);
+
+            Console.WriteLine(SettingVol.Parent);
         }
 
         // Этот метод будет вызываться каждый кадр, пока игрок двигает слайдер!

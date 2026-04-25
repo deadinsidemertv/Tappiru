@@ -24,14 +24,14 @@ namespace TappiruCS.UI
 
         public CheckBox(float x,float y,float scaleX,float scaleY) 
         {
-            Position = new Vector2 (x,y);
+            WorldPosition = new Vector2 (x,y);
             Scale = new Vector2(scaleX,scaleY);
             sprite = new SpriteObject(TextureManager.GetTexture("noFail"), x, y, scaleX, scaleY) { Parent = this};
             AddChild(sprite);
         }
         public override void Update(double deltaTime,MouseState mouse)
         {
-            base.Update(deltaTime);
+            base.Update(deltaTime, mouse);
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
             {

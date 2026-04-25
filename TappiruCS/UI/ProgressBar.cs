@@ -1,4 +1,6 @@
 ﻿using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Reflection;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 
@@ -56,9 +58,9 @@ namespace TappiruCS.UI
             _displayedValue = Value;
         }
 
-        public override void Update(double currentTime) // ← добавили deltaTime
+        public override void Update(double currentTime,MouseState mouse) // ← добавили deltaTime
         {
-            base.Update(currentTime);
+            base.Update(currentTime, mouse);
 
             // Плавное приближение _displayedValue к реальному Value
             _displayedValue = MathHelper.Lerp(_displayedValue, Value, LerpSpeed * (float)currentTime);

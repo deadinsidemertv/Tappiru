@@ -43,7 +43,7 @@ namespace TappiruCS.UI
 
         public DropDown(float x, float y, float width, float height)
         {
-            Position = new Vector2(x, y);
+            WorldPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
             Pivot = new Vector2(0.5f, 0.5f);
             AllowHover = true; // сам дропдаун должен получать события (для закрытия по клику вне)
@@ -144,17 +144,17 @@ namespace TappiruCS.UI
             float panelWidth = Scale.X * EffectiveScaleMultiply; // ширина кнопки с учётом ScaleMultiply
 
             // Позиционируем фон: прямо под кнопкой, с учётом pivot (0.5,0)
-            _listBackground.Position = new Vector2(Position.X, Position.Y + Scale.Y * 0.5f * EffectiveScaleMultiply);
+            _listBackground.WorldPosition = new Vector2(WorldPosition.X, WorldPosition.Y + Scale.Y * 0.5f * EffectiveScaleMultiply);
             _listBackground.Scale = new Vector2(panelWidth, panelHeight);
             _listBackground.ScaleMultiply = 1f; // не удваиваем
 
-            float startY = _listBackground.Position.Y + itemHeight * 0.5f; // центр первого пункта по Y
+            float startY = _listBackground.WorldPosition.Y + itemHeight * 0.5f; // центр первого пункта по Y
 
             for (int i = 0; i < _items.Count; i++)
             {
                 float yPos = startY + i * itemHeight;
                 var itemBtn = new Button(
-                    _listBackground.Position.X,
+                    _listBackground.WorldPosition.X,
                     yPos,
                     panelWidth,
                     itemHeight,

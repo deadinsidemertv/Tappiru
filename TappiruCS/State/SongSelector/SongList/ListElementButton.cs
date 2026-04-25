@@ -3,8 +3,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.UI;
 
-namespace TappiruCS.UI
+namespace TappiruCS.State.SongSelector.SongList
 {
     public class ListElementButton : Button
     {
@@ -22,7 +23,7 @@ namespace TappiruCS.UI
         {
             Tag = "List";
 
-            fade = new SpriteObject(TextureManager.GetTexture("slider_line"), x, y, width, height - 10)
+            fade = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, width, height - 10)
             {
                 Color = new Color4(0.212f, 0, 0.106f, Opacity)
             };
@@ -34,7 +35,7 @@ namespace TappiruCS.UI
 
             for (int i = 0; i < fullStars; i++)
             {
-                var star = new SpriteObject(TextureManager.GetTexture("starRait"), x + i * 15, y, 30, 30);
+                var star = new SpriteObject(TextureManager.GetTexture("starRait"), 0 + i * 15, 0, 30, 30);
                 StarRating.Add(star);
                 AddChild(star);
             }
@@ -43,7 +44,7 @@ namespace TappiruCS.UI
             float fraction = mapdata.StarRating - (int)Math.Floor(mapdata.StarRating);
             if (fraction > 0.01f) // чтобы не рисовать пустую звезду при целом числе
             {
-                var partialStar = new SpriteObject(TextureManager.GetTexture("starRait"), x, y, 30, 30)
+                var partialStar = new SpriteObject(TextureManager.GetTexture("starRait"), 0, 0, 30, 30)
                 {
                     ScaleMultiply = fraction
                 };
@@ -58,21 +59,21 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime, mouse);
 
-            fade.Position = new Vector2(Position.X, Position.Y);
+            //fade.LocalPosition = new Vector2(LocalPosition.X, LocalPosition.Y);
 
             // Позиционируем звёзды
             for (int i = 0; i < StarRating.Count; i++)
             {
                 if (i < StarRating.Count - 1 || StarRating.Count == 1)
                 {
-                    StarRating[i].Position = new Vector2(Position.X - 280 + i * 20, Position.Y + 43);
+                    StarRating[i].WorldPosition = new Vector2(WorldPosition.X - 280 + i * 20, WorldPosition.Y + 43);
                 }
                 else
                 {
                     // Последняя (частичная) звезда
-                    StarRating[i].Position = new Vector2(
-                        StarRating[i - 1].Position.X + 20,
-                        StarRating[i - 1].Position.Y + 1 * StarRating[i].ScaleMultiply);
+                    StarRating[i].WorldPosition = new Vector2(
+                        StarRating[i - 1].WorldPosition.X + 20,
+                        StarRating[i - 1].WorldPosition.Y + 1 * StarRating[i].ScaleMultiply);
                 }
             }
 

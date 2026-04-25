@@ -40,18 +40,18 @@ namespace TappiruCS.UI
 
         public InputField(float x, float y, float width, float height)
         {
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
             _bgTextureId = TextureManager.GetTexture("btn");
 
-            InputBackground = new SpriteObject(_bgTextureId, x, y, width, height)
+            InputBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
             {
                 ScaleMultiply = 1f,
                 Color = new Color4(0.2f, 0.2f, 0.25f, 1f)
             };
 
-            _selectionBackground = new SpriteObject(_bgTextureId, x, y, width, height)
+            _selectionBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
             {
                 ScaleMultiply = 1f,
                 Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
@@ -68,7 +68,7 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(PlaceHolderText, x, y, 44f)
+            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 44f)
             {
                 ScaleMultiply = 0.3f,
                 Color = PlaceHolderColor,
@@ -85,7 +85,7 @@ namespace TappiruCS.UI
 
         protected override void OnContextSet()
         {
-            Console.WriteLine($"[InputField] OnContextSet called for InputField at position {Position}");
+            Console.WriteLine($"[InputField] OnContextSet called for InputField at position {WorldPosition}");
             if (Game != null)
             {
                 Game.KeyDown += HandleKeyDown;
@@ -227,9 +227,9 @@ namespace TappiruCS.UI
             var (left, top, w, h) = GetDesignBounds();
             float padding = 10f * ScaleMultiply;
 
-            InputText.Position = new Vector2(left + padding, top + padding);
-            PlaceHolder.Position = new Vector2(left + padding, top + padding);
-            _selectionBackground.Position = new Vector2(left, top);
+            InputText.WorldPosition = new Vector2(left + padding, top + padding);
+            PlaceHolder.WorldPosition = new Vector2(left + padding, top + padding);
+            _selectionBackground.WorldPosition = new Vector2(left, top);
             _selectionBackground.Scale = new Vector2(w, h);
 
             UpdateDisplayedText();

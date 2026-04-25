@@ -11,8 +11,9 @@ using TappiruCS.Server.MapLogic;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
+using TappiruCS.State.SongSelector.RankingPanel;
+using TappiruCS.State.SongSelector.SongList;
 using TappiruCS.UI;
-using TappiruCS.UI.RankingPanel;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.Text.Font;
 
@@ -37,7 +38,7 @@ namespace TappiruCS.State.SongSelector
         private TextObject _metaDataText;
 
         // ── Лидерборд ──
-        private RankingPanel _rankingPanel;
+        private RankingPanel.RankingPanel _rankingPanel;
 
         // ── Управление фоновой загрузкой ──
         private CancellationTokenSource _songSelectCts = new CancellationTokenSource();
@@ -64,7 +65,7 @@ namespace TappiruCS.State.SongSelector
 
             IScoreProvider provider = PlayerProfile.Instance.IsLoggedIn ? new OnlineScoreProvider() : new OfflineScoreProvider();
             
-            _rankingPanel = new RankingPanel(180f, 275f, provider);
+            _rankingPanel = new RankingPanel.RankingPanel(180f, 275f, provider);
 
             _rankingPanel.OnScoreClicked += OpenScoreBoard;
             _scene.Add(_rankingPanel);

@@ -8,8 +8,13 @@ namespace TappiruCS.Core.GameObject
 {
     public abstract class GameObject : IGameObject
     {
+        //["Debug"]//
+        public bool Debug=true;
+
+        public Vector2 WorldPosition { get; set; } = Vector2.Zero;
+        public Vector2 LocalPosition {  get; set; } = Vector2.Zero;
+
         public string Description { get; set; } = string.Empty;
-        public Vector2 Position { get; set; } = Vector2.Zero;
         public Vector2 Scale { get; set; } = Vector2.One; //pixels
         public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
@@ -57,32 +62,26 @@ namespace TappiruCS.Core.GameObject
 
         // ====================== ЗАЩИЩЁННЫЕ МЕТОДЫ ======================
 
-        public virtual void Update(double deltaTime)
-        {
-            if (!Active || Context == null)
-                return;
 
-            foreach (var child in _children)
-            {
-                if (!child.Active) continue;
-                child.CanvasScale = CanvasScale;
-                child.Opacity = Opacity;
-                child.Update(deltaTime);
-            }
-        }
 
         public virtual void Update(double deltaTime, MouseState mouse)
         {
+
             if (!Active || Context == null)
                 return;
 
-            Update(deltaTime);
+            if (Parent == null)
+                WorldPosition = LocalPosition;
 
             foreach (var child in _children)
             {
                 if (!child.Active) continue;
                 child.CanvasScale = CanvasScale;
-                child.Opacity = Opacity;
+                //child.Opacity = Opacity;
+
+
+                child.WorldPosition = child.GetWorldPosition();
+
                 child.Update(deltaTime, mouse);
             }
         }
@@ -152,8 +151,8 @@ namespace TappiruCS.Core.GameObject
             float pivotOffsetX = effWidth * Pivot.X;
             float pivotOffsetY = effHeight * Pivot.Y;
 
-            float designLeft = Position.X - pivotOffsetX;
-            float designTop = Position.Y - pivotOffsetY;
+            float designLeft = WorldPosition.X - pivotOffsetX;
+            float designTop = WorldPosition.Y - pivotOffsetY;
 
             return (designLeft, designTop, effWidth, effHeight);
         }
@@ -198,6 +197,12 @@ namespace TappiruCS.Core.GameObject
 
             foreach (var child in _children)
                 child.CollectHoverCandidates(virtualX, virtualY, ref top, ref topLayer);
+        }
+
+        public Vector2 GetWorldPosition()
+        {
+            if (Parent == null)return LocalPosition; 
+            return Parent.WorldPosition + LocalPosition;
         }
 
         public event Action<GameObject> OnHoverEnter;

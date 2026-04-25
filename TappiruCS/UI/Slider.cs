@@ -45,6 +45,20 @@ namespace TappiruCS.UI
 
         public Slider(float min, float max, float x, float y, float width)
         {
+
+            if (Debug) 
+            {
+                var debugBg = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, 100) 
+                {
+                    Opacity = 0.4f,
+                    Color = Color4.Red,
+                    AllowHover =false
+                };
+                AddChild(debugBg);
+            }
+                
+
+            LocalPosition = new Vector2(x, y);
             Description = Value+"%";
             minValue = min;
             maxValue = max;
@@ -53,14 +67,14 @@ namespace TappiruCS.UI
             int lineTexture = TextureManager.GetTexture("slider_line");
 
             // === Линия ===
-            line = new SpriteObject(lineTexture, x, y, width, 4)
+            line = new SpriteObject(lineTexture, 0, 0, width, 4)
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
             // === Ползунок ===
-            point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), x, y, 50, 50)
+            point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), 0, 0, 50, 50)
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -68,7 +82,7 @@ namespace TappiruCS.UI
             };
 
             // === Тексты ===
-            minValueText = new TextObject(min.ToString("F0"), x - width / 2f, y, 36f)
+            minValueText = new TextObject(min.ToString("F0"), 0 - width / 2f, 0, 36f)
             {
                 Description = string.Empty,
                 Color = Color4.White,
@@ -77,7 +91,7 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            maxValueText = new TextObject(max.ToString("F0"), x + width / 2f, y, 36f)
+            maxValueText = new TextObject(max.ToString("F0"), 0 + width / 2f, 0, 36f)
             {
                 Description = string.Empty,
                 Color = Color4.White,
@@ -105,8 +119,8 @@ namespace TappiruCS.UI
         }
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime);
-
+            base.Update(deltaTime,mouse);
+            
             point.Description = $"{Math.Round(Value*100)}%";
 
             UpdateDragging(mouse);
@@ -120,8 +134,8 @@ namespace TappiruCS.UI
 
             float offsetBelow = -50f * this.ScaleMultiply;   // отступ для min/max вниз от линии
 
-            minValueText.Position = new Vector2(lineLeft, lineTop + lineHeight / 2 + offsetBelow);
-            maxValueText.Position = new Vector2(lineLeft + lineWidth, lineTop + lineHeight / 2 + offsetBelow);
+            minValueText.WorldPosition = new Vector2(lineLeft, lineTop + lineHeight / 2 + offsetBelow);
+            maxValueText.WorldPosition = new Vector2(lineLeft + lineWidth, lineTop + lineHeight / 2 + offsetBelow);
         }
         private void UpdateDragging(MouseState mouse)
         {
@@ -152,7 +166,7 @@ namespace TappiruCS.UI
                 // Ограничиваем позицию мыши границами линии
                 float clampedX = Math.Clamp(virtualMouseX, lineLeft, lineLeft + lineWidth);
 
-                point.Position = new Vector2(clampedX, point.Position.Y);
+                point.WorldPosition = new Vector2(clampedX, point.WorldPosition.Y);
 
                 UpdateValueFromPosition();
             }
@@ -163,7 +177,7 @@ namespace TappiruCS.UI
             if (line == null) return;
 
             var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
-            float normalized = (point.Position.X - lineLeft) / lineWidth;
+            float normalized = (point.WorldPosition.X - lineLeft) / lineWidth;
             Value = minValue + normalized * (maxValue - minValue);   // через setter
         }
 
@@ -175,7 +189,7 @@ namespace TappiruCS.UI
             float normalized = (_value - minValue) / (maxValue - minValue);
             float newX = lineLeft + normalized * lineWidth;
 
-            point.Position = new Vector2(newX, line.Position.Y);
+            point.WorldPosition = new Vector2(newX, line.WorldPosition.Y);
         }
 
         public override void Draw(Matrix4 projection)

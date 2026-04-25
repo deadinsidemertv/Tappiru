@@ -60,7 +60,7 @@ namespace TappiruCS.State.Session
             _comboText.Text = session.Combo.ToString();
 
             // Обновляем позицию "x"
-            _comboXText.Position = new Vector2(_comboText.Position.X - 15, _comboText.Position.Y + 15);
+            _comboXText.WorldPosition = new Vector2(_comboText.WorldPosition.X - 15, _comboText.WorldPosition.Y + 15);
         }
 
         public void AddToScene(Scene scene)

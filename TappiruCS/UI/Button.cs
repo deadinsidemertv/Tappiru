@@ -46,7 +46,7 @@ namespace TappiruCS.UI
             PressColor = new Color4(0.75f, 0.75f, 0.75f, Opacity);
             Text = text;
 
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
             Pivot = new Vector2(0.5f, 0.5f);
@@ -56,12 +56,12 @@ namespace TappiruCS.UI
             TextColor = TextColor;
             _currentColor = NormalColor;
 
-            _buttonBackground = new SpriteObject(_textureId, x, y, width, height)
+            _buttonBackground = new SpriteObject(_textureId, 0, 0, width, height)
             {
 
             };
 
-            _textObject = new TextObject(text, x, y, FontSize)
+            _textObject = new TextObject(text, 0, 0, FontSize)
             {
                 Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -69,7 +69,7 @@ namespace TappiruCS.UI
                 AllowHover = false
             };
 
-            _imageObject = new SpriteObject(0, x, y, 1f, 1f)
+            _imageObject = new SpriteObject(0, 0, 0, 1f, 1f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Active = false
@@ -82,7 +82,7 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime);
+            base.Update(deltaTime,mouse);
 
             bool isPressed = IsHovered && mouse.IsButtonDown(MouseButton.Left);
 
@@ -99,7 +99,6 @@ namespace TappiruCS.UI
                 OnClick?.Invoke();
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
-            _textObject.Position = Position;
             _textObject.Scale = new Vector2(ScaleMultiply, ScaleMultiply);
             _textObject.FontSize = FontSize;
             _textObject.Text = Text;
@@ -109,13 +108,12 @@ namespace TappiruCS.UI
 
             _textObject.Align = TextAlign.Left;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-            // Главное исправление:
-            _buttonBackground.Position = Position;
+
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
             if (TextOffset != Vector2.Zero)
             {
                 float s = ScaleMultiply;
-                _textObject.Position += new Vector2(TextOffset.X * s, TextOffset.Y * s);
+                _textObject.WorldPosition += new Vector2(TextOffset.X * s, TextOffset.Y * s);
             }
 
             float offsetScale = ScaleMultiply;
@@ -129,7 +127,7 @@ namespace TappiruCS.UI
                 float scaledOffsetX = offset.X * offsetScale;
                 float scaledOffsetY = offset.Y * offsetScale;
 
-                _imageObject.Position = new Vector2(Position.X + scaledOffsetX, Position.Y + scaledOffsetY);
+                _imageObject.WorldPosition = new Vector2(WorldPosition.X + scaledOffsetX, WorldPosition.Y + scaledOffsetY);
                 _imageObject.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
                 _imageObject.ScaleMultiply = 1f;
                 //_imageObject.Opacity = Opacity;

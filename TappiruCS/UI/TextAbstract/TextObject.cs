@@ -44,7 +44,7 @@ namespace TappiruCS.UI.TextAbstract
         public TextObject(string text, float x, float y, float fontSize = 144f)
         {
             Text = text;
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             FontSize = fontSize;
             Scale = Vector2.One;
             Pivot = new Vector2(0.5f, 0.5f);
@@ -86,8 +86,8 @@ namespace TappiruCS.UI.TextAbstract
             float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
 
             // Преобразуем мировые координаты в локальные относительно позиции текста
-            float localMouseX = worldX - Position.X * CanvasScale.X;
-            float localMouseY = worldY - Position.Y * CanvasScale.Y;
+            float localMouseX = worldX - WorldPosition.X * CanvasScale.X;
+            float localMouseY = worldY - WorldPosition.Y * CanvasScale.Y;
 
             return TR.TryGetCharIndexAtPoint(
                 Text,
@@ -109,8 +109,8 @@ namespace TappiruCS.UI.TextAbstract
             float finalScaleX = baseScale * Scale.X * CanvasScale.X;
             float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
 
-            float finalX = Position.X * CanvasScale.X;
-            float finalY = Position.Y * CanvasScale.Y;
+            float finalX = WorldPosition.X * CanvasScale.X;
+            float finalY = WorldPosition.Y * CanvasScale.Y;
 
             if (HasOutline)
             {

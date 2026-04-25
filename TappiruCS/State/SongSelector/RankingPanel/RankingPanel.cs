@@ -3,9 +3,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Server.Player;
-using TappiruCS.UI.RankingPanel;
 
-namespace TappiruCS.UI.RankingPanel
+namespace TappiruCS.State.SongSelector.RankingPanel
 {
 
     public class RankingPanel : GameObject
@@ -43,7 +42,7 @@ namespace TappiruCS.UI.RankingPanel
 
         public RankingPanel(float x, float y, IScoreProvider provider)
         {
-            Position = new Vector2(x, y);
+            LocalPosition = new Vector2(x, y);
             _provider = provider;
             Opacity = 0.5f;
         }
@@ -119,12 +118,11 @@ namespace TappiruCS.UI.RankingPanel
         private void AddScoreButton(PlayerScore score, int rank)
         {
             // Y пока 0 — реальная позиция выставляется в ApplyButtonPositions
-            var button = new ScoreButton(PanelX, 0f, score)
+            var button = new ScoreButton(0, 0f, score)
             {
                 Layer = 3,
                 ScaleMultiply = 1.0f,
                 Opacity = 0.5f,
-                Parent = this,
             };
 
             button.SetRank(rank);
@@ -156,10 +154,10 @@ namespace TappiruCS.UI.RankingPanel
                 _maxCobmo = 0,
             };
 
-            var btn = new ScoreButton(PanelX, Position.Y, empty)
+            var btn = new ScoreButton(PanelX, WorldPosition.Y, empty)
             {
                 Layer = 3,
-                Position = new Vector2(PanelX, Position.Y),
+                LocalPosition = new Vector2(PanelX, WorldPosition.Y),
                 Opacity = 0.5f,
                 Parent = this,
             };
@@ -215,11 +213,11 @@ namespace TappiruCS.UI.RankingPanel
         {
             for (int i = 0; i < _buttons.Count; i++)
             {
-                float rawY = Position.Y + i * (ItemHeight + ItemSpacing) - _currentOffsetY;
+                float rawY = LocalPosition.Y + i * (ItemHeight + ItemSpacing) - _currentOffsetY;
                 float finalX = PanelX + _hoverOffsetX[i];
                 float finalY = rawY + _hoverOffsetY[i];
 
-                _buttons[i].Position = new Vector2(finalX, finalY);
+                _buttons[i].LocalPosition = new Vector2(finalX, finalY);
                 _buttons[i].Active = IsVisible(i);
             }
         }
@@ -262,9 +260,9 @@ namespace TappiruCS.UI.RankingPanel
 
         private bool IsMouseOverPanel(float mouseX, float mouseY)
         {
-            float left = Position.X - PanelWidth * 0.5f;
+            float left = WorldPosition.X - PanelWidth * 0.5f;
             float right = left + PanelWidth;
-            float top = Position.Y;
+            float top = WorldPosition.Y;
             float bottom = top + VisibleHeight;
 
             return mouseX >= left && mouseX <= right &&

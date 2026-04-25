@@ -76,16 +76,16 @@ namespace TappiruCS.UI
             );
 
             // 4. Позиционируем всё относительно курсора
-            Position = virtualMouse;
+            WorldPosition = virtualMouse;
 
-            spriteBG.Position = new Vector2(
-                Position.X + CursorOffset.X,
-                Position.Y + CursorOffset.Y
+            spriteBG.WorldPosition = new Vector2(
+                WorldPosition.X + CursorOffset.X,
+                WorldPosition.Y + CursorOffset.Y
             );
 
-            Text.Position = new Vector2(
-                spriteBG.Position.X + Padding.X,
-                spriteBG.Position.Y + Padding.Y
+            Text.WorldPosition = new Vector2(
+                spriteBG.WorldPosition.X + Padding.X,
+                spriteBG.WorldPosition.Y + Padding.Y
             );
         }
 

@@ -1,9 +1,8 @@
 ﻿using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Server.Player;
-using TappiruCS.UI.RankingPanel;
 
-namespace TappiruCS.UI.RankingPanel
+namespace TappiruCS.State.SongSelector.RankingPanel
 {
     /// <summary>
     /// Читает очки из локальной базы (ScoreManager).
