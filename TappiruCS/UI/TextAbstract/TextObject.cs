@@ -80,22 +80,39 @@ namespace TappiruCS.UI.TextAbstract
             if (string.IsNullOrEmpty(Text) || TR == null)
                 return false;
 
-            // Вычисляем финальные масштабы с учётом FontSize, Scale и CanvasScale
             float baseScale = TR.GetScaleFromFontSize(FontSize);
             float finalScaleX = baseScale * Scale.X * CanvasScale.X;
             float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
 
-            // Преобразуем мировые координаты в локальные относительно позиции текста
-            float localMouseX = worldX - WorldPosition.X * CanvasScale.X;
-            float localMouseY = worldY - WorldPosition.Y * CanvasScale.Y;
+            // Экранные координаты базовой линии текста
+            float screenBaseX = WorldPosition.X * CanvasScale.X;
+            float screenBaseY = WorldPosition.Y * CanvasScale.Y;
 
+            // Экранные координаты мыши
+            float mouseScreenX = worldX * CanvasScale.X;
+            float mouseScreenY = worldY * CanvasScale.Y;
+
+            // Горизонтальное смещение из-за выравнивания (Align)
+            float textWidth = TR.CalculateTextWidth(Text, finalScaleX);
+            float startX = Align switch
+            {
+                TextAlign.Center => screenBaseX - textWidth / 2f,
+                TextAlign.Right => screenBaseX - textWidth,
+                _ => screenBaseX
+            };
+
+            // Локальные координаты относительно левого верхнего угла текста
+            float localX = mouseScreenX - startX;
+            float localY = mouseScreenY - screenBaseY; // базовая линия в Y
+
+            // Вызов метода, который возвращает индекс символа под точкой
             return TR.TryGetCharIndexAtPoint(
                 Text,
-                localMouseX,
-                localMouseY,
+                localX,
+                localY,
                 finalScaleX,
                 finalScaleY,
-                Align,
+                TextAlign.Left,
                 out _
             );
         }

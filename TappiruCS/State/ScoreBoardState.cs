@@ -94,7 +94,7 @@ namespace TappiruCS.State
             {
                 Align = TextAlign.Center
             };
-            _scene.Add(_scoreText);
+            
             _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2") + "%", -550, 120, 64f)
             {
                 Align = TextAlign.Left
@@ -145,9 +145,9 @@ namespace TappiruCS.State
         {
             // Простые локальные смещения относительно панели _scoreList
             // Хиты будут стоять слева от своих цифр
-            _hit300Sprite = new SpriteObject(TextureManager.GetTexture("hit300"), -150, 50, 75, 75);
-            _hit100Sprite = new SpriteObject(TextureManager.GetTexture("hit100"), -150, 50, 75, 75);
-            _hit0Sprite = new SpriteObject(TextureManager.GetTexture("hit0"), -145, 45, 100, 100);
+            _hit300Sprite = new SpriteObject(TextureManager.GetTexture("hit300"), -890, -240, 75, 75);
+            _hit100Sprite = new SpriteObject(TextureManager.GetTexture("hit100"), -890, -110, 75, 75);
+            _hit0Sprite = new SpriteObject(TextureManager.GetTexture("hit0"), -890, 20, 80, 80);
         }
 
         private void CreateGradeSprite()
@@ -188,6 +188,19 @@ namespace TappiruCS.State
 
             // Грейд оставляем отдельно (он обычно в стороне от панели)
             _scene.Add(_gradeSprite);
+
+
+            _scene.Add(_scoreText);
+            _scene.Add(_accuraciText);
+            _scene.Add(_maxCombo);
+            _scene.Add(_maxComboX);
+            _scene.Add(_completePhase);
+            _scene.Add(_completeChar);
+            _scene.Add(_failChar);
+            _scene.Add(_hit300Sprite);
+            _scene.Add(_hit100Sprite);
+            _scene.Add(_hit0Sprite);
+            
         }
 
         public void OnExit()

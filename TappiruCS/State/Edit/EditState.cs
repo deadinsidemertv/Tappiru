@@ -236,7 +236,7 @@ namespace TappiruCS.State.Edit
             for (int i = 0; i < text.Length; i++)
             {
                 var charObj = new TextObject(text[i].ToString(),
-                                             startX + i * charSpacing, 480, 1.05f)
+                                             startX + i * charSpacing, 480, 96)
                 {AllowHover =true };
 
                 bool hasSlider = _currentActivePhrase.Sliders.Any(s => s.charIndex == i);
