@@ -34,8 +34,9 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         public ScoreButton(float x, float y, PlayerScore score)
             : base(x, y, ButtonWidth, ButtonHeight, "white", "")
         {
+            _buttonBackground.Opacity = 0.5f;
             _score = score;
-
+            LocalPosition = new Vector2(x, y);
             NormalColor = Color4.Black;
             HoverColor = new Color4(0.2f, 0.2f, 0.2f, 1f);
             Tag = "scorebutton";
@@ -79,12 +80,6 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         {
             base.Update(deltaTime, mouse);
 
-            Avatar.WorldPosition = new Vector2(WorldPosition.X - 130, WorldPosition.Y);
-            Grade.WorldPosition = new Vector2(WorldPosition.X - 58, WorldPosition.Y);
-            _scoreComboText.WorldPosition = new Vector2(WorldPosition.X - 30, WorldPosition.Y);
-            _playerNameText.WorldPosition = new Vector2(WorldPosition.X - 30, WorldPosition.Y - 50);
-            _accuracyText.WorldPosition = new Vector2(WorldPosition.X + 324, WorldPosition.Y + 19);
-
             Avatar.Opacity = 1f;
             Grade.Opacity = 1f;
 
@@ -106,7 +101,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
                 ? PlayerProfile.Instance.AvatarTextureId
                 : TextureManager.GetTexture("defaultprofile");
 
-            return new SpriteObject(avatarTexture, WorldPosition.X - 130, WorldPosition.Y, 80, 80)
+            return new SpriteObject(avatarTexture, -130, 0, 80, 80)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Parent = this,
@@ -116,7 +111,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
 
         private SpriteObject BuildGrade(int gradeTexture)
         {
-            return new SpriteObject(gradeTexture, WorldPosition.X - 58, WorldPosition.Y, 37, 44)
+            return new SpriteObject(gradeTexture, - 58,0, 37, 44)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 2f,
@@ -126,7 +121,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         }
 
         private TextObject BuildPlayerNameText() =>
-            new TextObject("", WorldPosition.X - 30, WorldPosition.Y - 50, 36f)
+            new TextObject("",  - 30,  - 50, 36f)
             {
                 ScaleMultiply = 0.29f,
                 Align = TextAlign.Left,
@@ -136,7 +131,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
             };
 
         private TextObject BuildScoreComboText() =>
-            new TextObject("", WorldPosition.X - 30, WorldPosition.Y, 36f)
+            new TextObject("",  - 30, 0, 36f)
             {
                 ScaleMultiply = 0.245f,
                 Align = TextAlign.Left,
@@ -146,7 +141,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
             };
 
         private TextObject BuildAccuracyText() =>
-            new TextObject("", WorldPosition.X + 324, WorldPosition.Y + 19, 32f)
+            new TextObject("",  + 324,  + 19, 32f)
             {
                 ScaleMultiply = 0.22f,
                 Align = TextAlign.Right,

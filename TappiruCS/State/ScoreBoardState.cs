@@ -15,139 +15,180 @@ namespace TappiruCS.State
     public class ScoreBoardState : IGameState
     {
         private readonly RenderContext _context;
-
         private readonly PlayerScore _playerScore;
         private readonly MapData _mapData;
 
         private readonly Scene _scene = new Scene();
 
-        private int _scoreListTexture;
-        private int _blackTexture;
-
         private SpriteObject _scoreList;
         private SpriteObject _topBlack;
-        
 
-
+        // Тексты статистики (дети панели)
         private TextObject _scoreText;
-        private TextObject _dateText;
         private TextObject _accuraciText;
         private TextObject _maxCombo;
-        private TextObject _maxComboX; //крестик у комбо
-        private TextObject _completeChar;
-        private TextObject _completePhase;
-        private TextObject _failChar;
-        private TextObject title;
-        private TextObject creator;
+        private TextObject _maxComboX;
+        private TextObject _completePhase;   // 300
+        private TextObject _completeChar;    // 100
+        private TextObject _failChar;        // miss
 
+        // Хиты — тоже дети панели, с простыми локальными смещениями
+        private SpriteObject _hit300Sprite;
+        private SpriteObject _hit100Sprite;
+        private SpriteObject _hit0Sprite;
 
+        private SpriteObject _gradeSprite;
 
-        public ScoreBoardState(RenderContext context, PlayerScore playerscore,MapData mapdata)
+        // Тексты сверху (вне панели)
+        private TextObject _title;
+        private TextObject _creator;
+        private TextObject _dateText;
+
+        public ScoreBoardState(RenderContext context, PlayerScore playerScore, MapData mapData)
         {
             _context = context;
-
-            _playerScore = playerscore;
-            _mapData = mapdata;
+            _playerScore = playerScore;
+            _mapData = mapData;
         }
 
         public void OnEnter()
         {
             _scene.Initialize(_context);
 
-            _scoreListTexture = TextureManager.GetTexture("ranking-panel");
-            _blackTexture = TextureManager.GetTexture("black");
-            var background = new Background(TextureLoader.Load(_mapData.backGroundPath)) {ParalaxEffect = true };
-            var backgroundopacity = new Background(0) { Opacity = 0.5f };
-            _scoreList = new SpriteObject(_scoreListTexture, 980, 600, 1400, 667) { ScaleMultiply = 1.4f};
-            _topBlack = new SpriteObject( 0, 960, 45, 1920, 210) { Color = new Color4(0f, 0f, 0f, 0.7f),
+            // Фон
+            var background = new Background(TextureLoader.Load(_mapData.backGroundPath)) { ParalaxEffect = true };
+            var backgroundOpacity = new Background(0) { Opacity = 0.5f };
+
+            _scoreList = new SpriteObject(TextureManager.GetTexture("ranking-panel"), 980, 600, 1400, 667)
+            {
+                ScaleMultiply = 1.4f
+            };
+
+            _topBlack = new SpriteObject(0, 960, 45, 1920, 210)
+            {
+                Color = new Color4(0f, 0f, 0f, 0.7f),
                 Opacity = 0.6f
             };
 
+            CreateAllTexts();
+            CreateHitSprites();
+            CreateGradeSprite();
 
-            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), _scoreList.WorldPosition.X -500, _scoreList.WorldPosition.Y-450, 96f) 
-            { Align =TextAlign.Center};
-            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2")+"%", _scoreList.WorldPosition.X  -550, _scoreList.WorldPosition.Y+120 , 64f)
-            { Align = TextAlign.Left };
-
-            title = new TextObject(_mapData.title+$" - [{_mapData.artist}]", 0, 0, 72f) { Align = TextAlign.Left};
-
-            creator = new TextObject("Автор: "+_mapData.creator, 5, 60, 48f) { Align = TextAlign.Left };
-
-            _dateText = new TextObject("Played at "+_playerScore.PlayerName+" "+_playerScore.PlayedAt.ToString(), 5, 105, 36f){ Align = TextAlign.Left };
-
-
-            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), _scoreList.WorldPosition.X -880, _scoreList.WorldPosition.Y + 120, 64f)
-            { Align = TextAlign.Right };
-            _maxComboX = new TextObject("x", _maxCombo.WorldPosition.X +10, _maxCombo.WorldPosition.Y+10 , 64f)
-            { Align = TextAlign.Left };
-
-            _completeChar = new TextObject(_playerScore._completeChar.ToString(), _scoreList.WorldPosition.X -745, _scoreList.WorldPosition.Y -160, 64f)
-            { Align = TextAlign.Left };
-            int _hit100tx = TextureManager.GetTexture("hit100");
-            var hit100 = new SpriteObject(_hit100tx, _completeChar.WorldPosition.X - 150, _completeChar.WorldPosition.Y +50, 75, 75);
-
-            _completePhase = new TextObject(_playerScore._completePhase.ToString(), _scoreList.WorldPosition.X -745 , _scoreList.WorldPosition.Y + -295, 64f)
-            { Align = TextAlign.Left };
-            int _hit300tx = TextureManager.GetTexture("hit300");
-            var hit300 = new SpriteObject(_hit300tx, _completePhase.WorldPosition.X - 150, _completePhase.WorldPosition.Y + 50, 75, 75);
-
-            _failChar = new TextObject(_playerScore._failChar.ToString(), _scoreList.WorldPosition.X -745, _scoreList.WorldPosition.Y - 25, 64f)
-            { Align = TextAlign.Left };
-            int _hit0tx = TextureManager.GetTexture("hit0");
-            var hit0 = new SpriteObject(_hit0tx, _failChar.WorldPosition.X - 145, _failChar.WorldPosition.Y+45, 100, 100);
-
-            int[] gradetx = new int[6];
-            for (int i = 0; i < 6; i++)
-            {
-                gradetx[i] = TextureManager.GetTexture("grade" + i);
-            }
-
-            float acc = _playerScore._accuraci*100;
-            int failChars = _playerScore._failChar;
-            int rank;
-
-            if (acc == 100f && failChars == 0)          // 100% accuracy, ни одного промаха
-                rank = 5;                                 // SS
-            else if (acc > 90.0f && failChars == 0)       // >90% и нет промахов
-                rank = 4;                                 // S
-            else if ((acc > 80.0f && failChars == 0) || (acc > 90.0f))   // (>80% без промахов) ИЛИ (>90% с любыми промахами)
-                rank = 3;                                 // A
-            else if ((acc > 70.0f && failChars == 0) || (acc > 80.0f))   // (>70% без промахов) ИЛИ (>80% с любыми промахами)
-                rank = 2;                                 // B
-            else if (acc > 60.0f)                         // >60% (с любыми промахами)
-                rank = 1;                                 // C
-            else
-                rank = 0;                                 // D (всё остальное)
-
-
-            var _grade = new SpriteObject(gradetx[rank], 1600, 440, 80, 100) { ScaleMultiply = 8f};
-
+            // Добавляем в сцену только главные объекты
             _scene.Add(background);
-            _scene.Add(backgroundopacity);
-
-            
+            _scene.Add(backgroundOpacity);
             _scene.Add(_topBlack);
-
             _scene.Add(_scoreList);
 
-            _scene.Add(_scoreText);
-            _scene.Add(_accuraciText);
-            _scene.Add(_maxCombo);
-            _scene.Add(_maxComboX);
-            _scene.Add(_completeChar);
-            _scene.Add(_completePhase);
-            _scene.Add(_failChar);
-            _scene.Add(hit0);
-            _scene.Add(hit300);
-            _scene.Add(hit100);
-            _scene.Add(_grade);
-
-            _scene.Add(title);
-            _scene.Add(creator);
+            _scene.Add(_title);
+            _scene.Add(_creator);
             _scene.Add(_dateText);
+
+            // Добавляем всё как детей панели
+            AddChildrenToScoreList();
         }
 
+        private void CreateAllTexts()
+        {
+            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), -500, -450, 96f)
+            {
+                Align = TextAlign.Center
+            };
+            _scene.Add(_scoreText);
+            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2") + "%", -550, 120, 64f)
+            {
+                Align = TextAlign.Left
+            };
 
+            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), -880, 120, 64f)
+            {
+                Align = TextAlign.Right
+            };
+
+            _maxComboX = new TextObject("x", 15, 5, 64f)          // небольшое смещение от цифры комбо
+            {
+                Align = TextAlign.Left
+            };
+
+            _completePhase = new TextObject(_playerScore._completePhase.ToString(), -745, -295, 64f)
+            {
+                Align = TextAlign.Left
+            };
+
+            _completeChar = new TextObject(_playerScore._completeChar.ToString(), -745, -160, 64f)
+            {
+                Align = TextAlign.Left
+            };
+
+            _failChar = new TextObject(_playerScore._failChar.ToString(), -745, -25, 64f)
+            {
+                Align = TextAlign.Left
+            };
+
+            _title = new TextObject(_mapData.title + $" - [{_mapData.artist}]", 0, 0, 72f)
+            {
+                Align = TextAlign.Left
+            };
+
+            _creator = new TextObject("Автор: " + _mapData.creator, 5, 60, 48f)
+            {
+                Align = TextAlign.Left
+            };
+
+            _dateText = new TextObject($"Played at {_playerScore.PlayerName} {_playerScore.PlayedAt}", 5, 105, 36f)
+            {
+                Align = TextAlign.Left
+            };
+        }
+
+        private void CreateHitSprites()
+        {
+            // Простые локальные смещения относительно панели _scoreList
+            // Хиты будут стоять слева от своих цифр
+            _hit300Sprite = new SpriteObject(TextureManager.GetTexture("hit300"), -150, 50, 75, 75);
+            _hit100Sprite = new SpriteObject(TextureManager.GetTexture("hit100"), -150, 50, 75, 75);
+            _hit0Sprite = new SpriteObject(TextureManager.GetTexture("hit0"), -145, 45, 100, 100);
+        }
+
+        private void CreateGradeSprite()
+        {
+            int[] gradetx = new int[6];
+            for (int i = 0; i < 6; i++)
+                gradetx[i] = TextureManager.GetTexture("grade" + i);
+
+            float acc = _playerScore._accuraci * 100f;
+            int fails = _playerScore._failChar;
+
+            int rank = (acc == 100f && fails == 0) ? 5 :
+                       (acc > 90f && fails == 0) ? 4 :
+                       ((acc > 80f && fails == 0) || acc > 90f) ? 3 :
+                       ((acc > 70f && fails == 0) || acc > 80f) ? 2 :
+                       (acc > 60f) ? 1 : 0;
+
+            _gradeSprite = new SpriteObject(gradetx[rank], 1600, 440, 80, 100)
+            {
+                ScaleMultiply = 8f
+            };
+        }
+
+        private void AddChildrenToScoreList()
+        {
+            _scoreList.AddChild(_scoreText);
+            _scoreList.AddChild(_accuraciText);
+            _scoreList.AddChild(_maxCombo);
+            _scoreList.AddChild(_maxComboX);
+            _scoreList.AddChild(_completePhase);
+            _scoreList.AddChild(_completeChar);
+            _scoreList.AddChild(_failChar);
+
+            // Хиты как дети панели с фиксированными локальными смещениями
+            _scoreList.AddChild(_hit300Sprite);
+            _scoreList.AddChild(_hit100Sprite);
+            _scoreList.AddChild(_hit0Sprite);
+
+            // Грейд оставляем отдельно (он обычно в стороне от панели)
+            _scene.Add(_gradeSprite);
+        }
 
         public void OnExit()
         {
@@ -157,20 +198,12 @@ namespace TappiruCS.State
 
         public void Update(double currentTime)
         {
-            
-
             var mouseState = _context.Game.MouseState;
             _scene.Update(currentTime, mouseState, _context.Game);
-
-
         }
-
-       
 
         public void Render(Matrix4 projection)
         {
-            
-            
             _scene.Draw(projection);
         }
 
@@ -178,7 +211,6 @@ namespace TappiruCS.State
         {
             if (e.Key == Keys.Escape)
             {
-
                 _context.Game.ChangeState(new SongSelectState(_context));
             }
         }

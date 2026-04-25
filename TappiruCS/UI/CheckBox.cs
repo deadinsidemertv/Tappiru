@@ -24,9 +24,9 @@ namespace TappiruCS.UI
 
         public CheckBox(float x,float y,float scaleX,float scaleY) 
         {
-            WorldPosition = new Vector2 (x,y);
+            LocalPosition = new Vector2 (x,y);
             Scale = new Vector2(scaleX,scaleY);
-            sprite = new SpriteObject(TextureManager.GetTexture("noFail"), x, y, scaleX, scaleY) { Parent = this};
+            sprite = new SpriteObject(TextureManager.GetTexture("noFail"), 0, 0, scaleX, scaleY);
             AddChild(sprite);
         }
         public override void Update(double deltaTime,MouseState mouse)

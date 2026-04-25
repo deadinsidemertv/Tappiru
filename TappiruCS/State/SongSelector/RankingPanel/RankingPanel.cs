@@ -213,7 +213,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         {
             for (int i = 0; i < _buttons.Count; i++)
             {
-                float rawY = LocalPosition.Y + i * (ItemHeight + ItemSpacing) - _currentOffsetY;
+                float rawY = WorldPosition.Y + i * (ItemHeight + ItemSpacing) - _currentOffsetY;
                 float finalX = PanelX + _hoverOffsetX[i];
                 float finalY = rawY + _hoverOffsetY[i];
 

@@ -32,7 +32,7 @@ namespace TappiruCS.UI
 
         public Color4 _currentColor;
 
-        private readonly SpriteObject _buttonBackground;
+        public readonly SpriteObject _buttonBackground;
         private readonly TextObject _textObject;
         private readonly SpriteObject _imageObject;
 

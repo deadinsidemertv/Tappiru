@@ -65,7 +65,7 @@ namespace TappiruCS.State.SongSelector
 
             IScoreProvider provider = PlayerProfile.Instance.IsLoggedIn ? new OnlineScoreProvider() : new OfflineScoreProvider();
             
-            _rankingPanel = new RankingPanel.RankingPanel(180f, 275f, provider);
+            _rankingPanel = new RankingPanel.RankingPanel(0f, 140f, provider);
 
             _rankingPanel.OnScoreClicked += OpenScoreBoard;
             _scene.Add(_rankingPanel);
