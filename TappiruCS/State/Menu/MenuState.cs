@@ -15,6 +15,7 @@ using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using static TappiruCS.Render.Text.Font;
+using TappiruCS.State.Menu.Option;
 
 namespace TappiruCS.State.Menu
 {

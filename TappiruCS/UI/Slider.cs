@@ -13,8 +13,7 @@ namespace TappiruCS.UI
         public SpriteObject point;
         public SpriteObject line;
 
-        public TextObject minValueText;
-        public TextObject maxValueText;
+
 
         public event Action<float> OnValueChanged;
         public float minValue { get; private set; } = 0f;
@@ -48,7 +47,7 @@ namespace TappiruCS.UI
 
             if (Debug) 
             {
-                var debugBg = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, 100) 
+                var debugBg = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, 30) 
                 {
                     Opacity = 0.4f,
                     Color = Color4.Red,
@@ -81,41 +80,16 @@ namespace TappiruCS.UI
                 AllowHover = true,
             };
 
-            // === Тексты ===
-            minValueText = new TextObject(min.ToString("F0"), 0 - width / 2f, 0, 36f)
-            {
-                Description = string.Empty,
-                Color = Color4.White,
-                ScaleMultiply = 0.25f,
-                Align = TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f),
-            };
-
-            maxValueText = new TextObject(max.ToString("F0"), 0 + width / 2f, 0, 36f)
-            {
-                Description = string.Empty,
-                Color = Color4.White,
-                ScaleMultiply = 0.25f,
-                Align = TextAlign.Center,
-                Pivot = new Vector2(0.5f, 0.5f),
-            };
+            
 
             AddChild(line);
             AddChild(point);
-            AddChild(minValueText);
-            AddChild(maxValueText);
+
 
             // Теперь можно безопасно установить значение
             _value = Math.Clamp(50f, minValue, maxValue);   // напрямую в приватное поле
             UpdatePointPositionFromValue();
               // обновит ValueText
-        }
-
-        public float GetPositionFromTime(float timeSeconds)
-        {
-            float t = (timeSeconds - minValue) / (maxValue - minValue);
-            var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
-            return lineLeft + t * lineWidth;
         }
         public override void Update(double deltaTime, MouseState mouse)
         {
@@ -134,8 +108,7 @@ namespace TappiruCS.UI
 
             float offsetBelow = -50f * this.ScaleMultiply;   // отступ для min/max вниз от линии
 
-            minValueText.WorldPosition = new Vector2(lineLeft, lineTop + lineHeight / 2 + offsetBelow);
-            maxValueText.WorldPosition = new Vector2(lineLeft + lineWidth, lineTop + lineHeight / 2 + offsetBelow);
+            
         }
         private void UpdateDragging(MouseState mouse)
         {
