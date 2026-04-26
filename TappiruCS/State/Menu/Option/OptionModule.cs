@@ -13,7 +13,8 @@ namespace TappiruCS.State.Menu.Option
 {
     public class OptionModule : ModuleWindow
     {
-        public enum SettingsSection { Audio, Video, Gameplay }
+        public enum SettingsSection { Audio, Video }
+
 
         private SpriteObject _bg;
         private SpriteObject _bgBlack;
@@ -23,6 +24,12 @@ namespace TappiruCS.State.Menu.Option
 
         public OptionModule(Scene scene) : base(scene)
         {
+            var sectionIcons = new Dictionary<SettingsSection, string>
+            {
+                { SettingsSection.Audio, "setting-button-volume" },
+                { SettingsSection.Video, "setting-button-screen" },
+            };
+
             _bg = new SpriteObject(0, 300, 540, 600, 1080)
             {
                 AllowHover = false,
@@ -44,7 +51,10 @@ namespace TappiruCS.State.Menu.Option
             obj.Add(_SectionButtonList);
             foreach (SettingsSection sec in sections)
             {
-                var bttn = new Button(0, 0, 75, 75, "white", "") { Layer = 7};
+                string iconName = sectionIcons[sec];
+                int texId = TextureManager.GetTexture(iconName);
+
+                var bttn = new Button(0, 0, 50, 50, iconName, "") { Layer = 7,Tag = "settin-button"};
                 _SectionButtonList.AddItem(bttn);
                 obj.Add(bttn);
                 int capture = idx;
@@ -94,9 +104,7 @@ namespace TappiruCS.State.Menu.Option
                 case SettingsSection.Video:
                     CreateVideoControls(container);
                     break;
-                case SettingsSection.Gameplay:
-                    CreateGameplayControls(container);
-                    break;
+
             }
         }
 
@@ -146,25 +154,6 @@ namespace TappiruCS.State.Menu.Option
 
             obj.Add(fullscreenToggle);
             obj.Add(fullscreenLabel);
-        }
-
-        private void CreateGameplayControls(SectionContainer container)
-        {
-            var speedSlider = new Slider(0.5f, 2f, 0, 0, 400) { Layer = 7 };
-            var speedLabel = new TextObject("Скорость игры", 0, 80, 28)
-            {
-                Layer = 7,
-                ScaleMultiply = 0.5f,
-                Color = Color4.White
-            };
-            speedSlider.OnValueChanged += (val) => OptionFile.GameSpeed = val;
-            speedSlider.SetValue(OptionFile.GameSpeed);
-
-            container.AddControl(speedSlider, 50, 100);
-            container.AddControl(speedLabel, 50, 70);
-
-            obj.Add(speedSlider);
-            obj.Add(speedLabel);
         }
 
         private void ScrollToSection(int index)

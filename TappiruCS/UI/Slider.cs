@@ -13,8 +13,6 @@ namespace TappiruCS.UI
         public SpriteObject point;
         public SpriteObject line;
 
-
-
         public event Action<float> OnValueChanged;
         public float minValue { get; private set; } = 0f;
         public float maxValue { get; set; } = 100f;
@@ -23,56 +21,45 @@ namespace TappiruCS.UI
         public float Value
         {
             get => _value;
-            private set   // оставляем private set, чтобы снаружи только через SetValue
+            private set
             {
                 float clamped = Math.Clamp(value, minValue, maxValue);
-                if (Math.Abs(clamped - _value) > 0.001f)   // чтобы не спамить при одинаковом значении
+                if (Math.Abs(clamped - _value) > 0.001f)
                 {
                     _value = clamped;
-                    OnValueChanged?.Invoke(_value);        
+                    OnValueChanged?.Invoke(_value);
                     UpdatePointPositionFromValue();
-                    
                 }
             }
         }
-
-        public List<SpriteObject> _markers = new List<SpriteObject>();
-        public List<float> _markersTime = new List<float>();
-        public List<string> _markersText = new List<string>();
 
         public bool _isDragging = false;
 
         public Slider(float min, float max, float x, float y, float width)
         {
-
-            if (Debug) 
+            if (Debug)
             {
-                var debugBg = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, 30) 
+                var debugBg = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, 30)
                 {
                     Opacity = 0.4f,
                     Color = Color4.Red,
-                    AllowHover =false
+                    AllowHover = false
                 };
                 AddChild(debugBg);
             }
-                
 
             LocalPosition = new Vector2(x, y);
-            Description = Value+"%";
             minValue = min;
             maxValue = max;
 
-            // Сначала создаём все объекты
             int lineTexture = TextureManager.GetTexture("slider_line");
 
-            // === Линия ===
             line = new SpriteObject(lineTexture, 0, 0, width, 4)
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
             };
 
-            // === Ползунок ===
             point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), 0, 0, 50, 50)
             {
                 Color = Color4.Pink,
@@ -80,44 +67,26 @@ namespace TappiruCS.UI
                 AllowHover = true,
             };
 
-            
-
             AddChild(line);
             AddChild(point);
 
-
-            // Теперь можно безопасно установить значение
-            _value = Math.Clamp(50f, minValue, maxValue);   // напрямую в приватное поле
+            _value = Math.Clamp(50f, minValue, maxValue);
             UpdatePointPositionFromValue();
-              // обновит ValueText
         }
+
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime,mouse);
-            
-            point.Description = $"{Math.Round(Value*100)}%";
-
+            base.Update(deltaTime, mouse);
+            point.Description = $"{Math.Round(Value * 100)}%";
             UpdateDragging(mouse);
-            UpdatePointPositionFromValue();// ← новое
-            UpdateTextPositions();
-           
+            UpdatePointPositionFromValue();
         }
-        private void UpdateTextPositions()
-        {
-            var (lineLeft, lineTop, lineWidth, lineHeight) = line.GetDesignBounds();
 
-            float offsetBelow = -50f * this.ScaleMultiply;   // отступ для min/max вниз от линии
-
-            
-        }
         private void UpdateDragging(MouseState mouse)
         {
-            // Преобразуем экранные координаты мыши в дизайн-координаты (как в Scene)
             float virtualMouseX = mouse.X / CanvasScale.X;
             float virtualMouseY = mouse.Y / CanvasScale.Y;
 
-            // === УЛУЧШЕННАЯ ПРОВЕРКА НАЖАТИЯ ===
-            // Проверяем нажатие НЕ только на point, а на любую часть слайдера (line или point)
             bool clickedOnSlider = line.IsPointInside(virtualMouseX, virtualMouseY) ||
                                    point.IsPointInside(virtualMouseX, virtualMouseY);
 
@@ -133,13 +102,14 @@ namespace TappiruCS.UI
 
             if (_isDragging)
             {
-                // Получаем актуальные границы линии с учётом всех ScaleMultiply родителей
                 var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
 
                 // Ограничиваем позицию мыши границами линии
                 float clampedX = Math.Clamp(virtualMouseX, lineLeft, lineLeft + lineWidth);
 
-                point.WorldPosition = new Vector2(clampedX, point.WorldPosition.Y);
+                // Переводим в локальные координаты относительно слайдера
+                float localX = clampedX - WorldPosition.X;
+                point.LocalPosition = new Vector2(localX, point.LocalPosition.Y);
 
                 UpdateValueFromPosition();
             }
@@ -150,8 +120,10 @@ namespace TappiruCS.UI
             if (line == null) return;
 
             var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
-            float normalized = (point.WorldPosition.X - lineLeft) / lineWidth;
-            Value = minValue + normalized * (maxValue - minValue);   // через setter
+            // Мировая позиция точки = WorldPosition слайдера + локальная X точки
+            float pointWorldX = WorldPosition.X + point.LocalPosition.X;
+            float normalized = (pointWorldX - lineLeft) / lineWidth;
+            Value = minValue + normalized * (maxValue - minValue);
         }
 
         private void UpdatePointPositionFromValue()
@@ -160,9 +132,12 @@ namespace TappiruCS.UI
 
             var (lineLeft, _, lineWidth, _) = line.GetDesignBounds();
             float normalized = (_value - minValue) / (maxValue - minValue);
-            float newX = lineLeft + normalized * lineWidth;
-
-            point.WorldPosition = new Vector2(newX, line.WorldPosition.Y);
+            float newWorldX = lineLeft + normalized * lineWidth;
+            // Вычисляем локальную X относительно слайдера
+            float localX = newWorldX - WorldPosition.X;
+            // Вертикально позиционируем точку по Y линии (тоже локально)
+            float localY = line.WorldPosition.Y - WorldPosition.Y;
+            point.LocalPosition = new Vector2(localX, localY);
         }
 
         public override void Draw(Matrix4 projection)
