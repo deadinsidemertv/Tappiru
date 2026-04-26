@@ -1,0 +1,208 @@
+{
+  "title": "BLEACH OP 6",
+  "artist": "",
+  "creator": "",
+  "previewTime": 0,
+  "endTime": 88,
+  "tappedR": 0.9999998,
+  "tappedG": 0.3692813,
+  "tappedB": 0.35294142,
+  "needR": 0.366558,
+  "needG": 0.9999998,
+  "needB": 0.9999998,
+  "completeR": 0.9999998,
+  "completeG": 0.9999998,
+  "completeB": 0.49455363,
+  "events": [
+    {
+      "startTime": 0.46759382,
+      "endTime": 4.4675937,
+      "text": "Oreta awai tsubasa",
+      "sliders": [
+        {
+          "charIndex": 4,
+          "startTime": 1.3493438,
+          "endTime": 1.9154671
+        },
+        {
+          "charIndex": 17,
+          "startTime": 3.839284,
+          "endTime": 4.4675937
+        }
+      ]
+    },
+    {
+      "startTime": 4.547166,
+      "endTime": 6.7105036,
+      "text": "kimi wa sukoshi",
+      "sliders": []
+    },
+    {
+      "startTime": 6.8174553,
+      "endTime": 11.944714,
+      "text": "aosugiru sora ni tsukareta dake sa",
+      "sliders": [
+        {
+          "charIndex": 33,
+          "startTime": 11.270019,
+          "endTime": 11.944714
+        }
+      ]
+    },
+    {
+      "startTime": 12.110715,
+      "endTime": 14.574646,
+      "text": "Mou dareka no",
+      "sliders": [
+        {
+          "charIndex": 12,
+          "startTime": 13.905258,
+          "endTime": 14.574646
+        }
+      ]
+    },
+    {
+      "startTime": 14.640884,
+      "endTime": 17.155058,
+      "text": "tame janakute",
+      "sliders": [
+        {
+          "charIndex": 12,
+          "startTime": 16.388605,
+          "endTime": 17.155058
+        }
+      ]
+    },
+    {
+      "startTime": 17.187256,
+      "endTime": 24.15102,
+      "text": "jibun no tame ni waratte ii yo",
+      "sliders": [
+        {
+          "charIndex": 29,
+          "startTime": 21.650679,
+          "endTime": 23.650679
+        }
+      ]
+    },
+    {
+      "startTime": 26.764938,
+      "endTime": 29.773418,
+      "text": "Izen toshite shinobiyoru kodoku",
+      "sliders": []
+    },
+    {
+      "startTime": 29.780714,
+      "endTime": 32.458046,
+      "text": "uchigawa ni tomaru rousoku",
+      "sliders": []
+    },
+    {
+      "startTime": 32.50157,
+      "endTime": 34.130196,
+      "text": "Nigiwau ba ni koukana",
+      "sliders": []
+    },
+    {
+      "startTime": 34.145775,
+      "endTime": 36.754566,
+      "text": "chandelier to wa urahara ni",
+      "sliders": []
+    },
+    {
+      "startTime": 36.785645,
+      "endTime": 38.81675,
+      "text": "Tarinai kotoba no",
+      "sliders": []
+    },
+    {
+      "startTime": 38.852592,
+      "endTime": 43.049023,
+      "text": "kubomi o nanide umetara iin darou",
+      "sliders": []
+    },
+    {
+      "startTime": 43.23988,
+      "endTime": 46.165028,
+      "text": "mou wakaranai yo",
+      "sliders": []
+    },
+    {
+      "startTime": 46.20663,
+      "endTime": 51.192783,
+      "text": "Semete yume no naka de",
+      "sliders": []
+    },
+    {
+      "startTime": 51.25936,
+      "endTime": 53.898235,
+      "text": "jiyuu ni oyogetara anna",
+      "sliders": []
+    },
+    {
+      "startTime": 53.91214,
+      "endTime": 56.53926,
+      "text": "sora mo iranai no ni",
+      "sliders": []
+    },
+    {
+      "startTime": 56.613926,
+      "endTime": 61.32687,
+      "text": "Kinou made no koto o",
+      "sliders": []
+    },
+    {
+      "startTime": 61.49531,
+      "endTime": 64.04092,
+      "text": "nuritsubusa nakutemo,",
+      "sliders": []
+    },
+    {
+      "startTime": 64.06974,
+      "endTime": 66.17555,
+      "text": "asu ni mukaeru no ni",
+      "sliders": []
+    },
+    {
+      "startTime": 66.185455,
+      "endTime": 70.07493,
+      "text": "Oreta awai tsubasa",
+      "sliders": []
+    },
+    {
+      "startTime": 70.102905,
+      "endTime": 72.28957,
+      "text": "kimi wa sukoshi",
+      "sliders": []
+    },
+    {
+      "startTime": 72.32977,
+      "endTime": 77.61716,
+      "text": "aosugiru sora ni tsukareta dake sa",
+      "sliders": []
+    },
+    {
+      "startTime": 77.67428,
+      "endTime": 80.27982,
+      "text": "Mou dareka no",
+      "sliders": []
+    },
+    {
+      "startTime": 80.29644,
+      "endTime": 82.73372,
+      "text": "tame ja nakute",
+      "sliders": []
+    },
+    {
+      "startTime": 82.74499,
+      "endTime": 88.986145,
+      "text": "jibun no tame ni waratte ii yo",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

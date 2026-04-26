@@ -34,7 +34,7 @@ namespace TappiruCS.Server
                     mapHash = score.MapHash,
 
                     score = score._score,
-                    accuracy = score._accuraci,         // если у тебя accuracy в процентах → переводим в 0..1
+                    accuracy = score._accuraci/100,         // если у тебя accuracy в процентах → переводим в 0..1
                     maxCombo = score._maxCobmo,
 
                     completedChars = score._completeChar,
