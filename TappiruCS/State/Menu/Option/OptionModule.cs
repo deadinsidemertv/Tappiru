@@ -47,7 +47,7 @@ namespace TappiruCS.State.Menu.Option
 
             var sections = Enum.GetValues(typeof(SettingsSection));
             int idx = 0;
-            _SectionButtonList = new ScrollContainer(50, 250, 100, 400, 120) { Layer = 6};
+            _SectionButtonList = new ScrollContainer(50, 80, 100, 600,30) { Layer = 6};
             obj.Add(_SectionButtonList);
             foreach (SettingsSection sec in sections)
             {
@@ -64,37 +64,31 @@ namespace TappiruCS.State.Menu.Option
 
             }
 
-            // ScrollContainer
-            const float sectionHeight = 350f;
-            const float sectionSpacing = 20f;
-            const float scrollWidth = 440f;
-            const float scrollHeight = 700f;
-            const float containerX = 350f;
-            const float containerY = 200f;
 
-            _scrollContainer = new ScrollContainer(containerX, containerY, scrollWidth, scrollHeight, sectionHeight, sectionSpacing)
+            _scrollContainer = new ScrollContainer(350, 200, 440, 1080,20)
             {
                 Layer = 6
             };
             obj.Add(_scrollContainer);
-            
+
             // Определяем ширину секции с учётом отступов ScrollContainer
             float horizontalPadding = 10f; // должен совпадать с _horizontalPadding в ScrollContainer
             float sectionWidth = _scrollContainer.Width - horizontalPadding * 2; // 440 - 20 = 420
 
             foreach (SettingsSection sec in sections)
             {
-                CreateSection(sec, sectionWidth, sectionHeight);
+                CreateSection(sec, sectionWidth);
             }
 
             _scrollContainer.RecalcMaxScroll();
         }
 
-        private void CreateSection(SettingsSection section, float width, float height)
+        private void CreateSection(SettingsSection section, float width)
         {
-            var container = new SectionContainer(section.ToString(), width, height, 0, 0);
+            var container = new SectionContainer(section.ToString(), width,0, 0, 0);
             _scrollContainer.AddItem(container);
             obj.Add(container);
+            container.RecalculateSize();
 
             switch (section)
             {
@@ -111,64 +105,48 @@ namespace TappiruCS.State.Menu.Option
         private void CreateAudioControls(SectionContainer container)
         {
 
-            var supri = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red};
-            obj.Add(supri);
-            container.AddControl(supri, 0, -50);
+            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300) { Color = Color4.Gray };
+            
 
-            var supri2 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
-            obj.Add(supri2);
-            container.AddControl(supri2, 0, 0);
-
-            var supri3 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
-            obj.Add(supri3);
-            container.AddControl(supri3, 0, 50);
-
-            var supri4 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
-            obj.Add(supri4);
-            container.AddControl(supri4, 0, 100);
-            var supri5 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Blue };
-            obj.Add(supri5);
-            container.AddControl(supri5, 0, 150);
-            var supri6 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Blue };
-            obj.Add(supri6);
-            container.AddControl(supri6, 0, 200);
-
-
-            var volumeSlider = new Slider(0f, 1f, 0, 0, 400) { Layer = 7 };
-            var volumeLabel = new TextObject("Громкость", 0, 0, 28)
+            var volumeSlider = new Slider(0f, 1f, 0, 0, 400);
+            var Label = new TextObject("Звук", 0, 0, 64)
             {
                 Layer = 7,
                 ScaleMultiply = 1f,
                 AllowHover = false,
-                Color = Color4.Black,
-                 Align = TextAlign.Center
+                Color = Color4.Bisque,
+                 Align = TextAlign.Right
              };
              volumeSlider.OnValueChanged += OnVolumeChanged;
              volumeSlider.SetValue(OptionFile.Volume);
 
-             container.AddControl(volumeSlider, 0, 400);
-             container.AddControl(volumeLabel, 0, 100);
+             container.AddControl(decorationLine, -225, 0);
+             container.AddControl(volumeSlider, 0, 100);
+             container.AddControl(Label, 180, -170);
+
+             obj.Add(decorationLine);
 
              obj.Add(volumeSlider);
-             obj.Add(volumeLabel);
+             obj.Add(Label);
 
             container.RecalculateSize();
-            Console.WriteLine("///////////////////////////////////////////////////////STOP////////////////////////");
         }
 
         private void CreateVideoControls(SectionContainer container)
         {
+            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300) { Color = Color4.Gray };
+
             var fullscreenToggle = new CheckBox(0, 0, 30, 30)
             {
                 Layer = 7,
                 IsSelected = OptionFile.IsFullscreen
             };
-            var fullscreenLabel = new TextObject("Полный экран", 0, -30, 28)
+            var Label = new TextObject("Экран", 0, -30, 64)
             {
                 Layer = 7,
                 ScaleMultiply = 1f,
-                Color = Color4.Black,
-                Align = TextAlign.Center,
+                Color = Color4.Bisque,
+                Align = TextAlign.Right,
             };
 
             fullscreenToggle.OnSelectedChanged += (isChecked) =>
@@ -176,11 +154,17 @@ namespace TappiruCS.State.Menu.Option
                 OptionFile.IsFullscreen = isChecked;
             };
 
-            container.AddControl(fullscreenToggle, 50, 100);
-            container.AddControl(fullscreenLabel, -50, 300);
+
+            container.AddControl(decorationLine, -225, 0);
+            container.AddControl(fullscreenToggle, 50, 0);
+            container.AddControl(Label, 180, -170);
+
+            obj.Add(decorationLine);
 
             obj.Add(fullscreenToggle);
-            obj.Add(fullscreenLabel);
+            obj.Add(Label);
+
+            container.RecalculateSize();
         }
 
         private void ScrollToSection(int index)

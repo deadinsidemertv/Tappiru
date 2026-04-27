@@ -9,13 +9,13 @@ namespace TappiruCS.Core.GameObject
     public abstract class GameObject : IGameObject
     {
         //["Debug"]//
-        public bool Debug=true;
+        public bool Debug=false;
 
         public Vector2 WorldPosition { get; set; } = Vector2.Zero;
         public Vector2 LocalPosition {  get; set; } = Vector2.Zero;
 
         public string Description { get; set; } = string.Empty;
-        public Vector2 Scale { get; set; } = Vector2.One; //pixels
+        public Vector2 Scale { get; set; } = Vector2.One; //pixels  
         public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
@@ -79,7 +79,7 @@ namespace TappiruCS.Core.GameObject
                 child.CanvasScale = CanvasScale;
                 //child.Opacity = Opacity;
 
-
+               
                 child.WorldPosition = child.GetWorldPosition();
 
                 child.Update(deltaTime, mouse);
@@ -177,10 +177,18 @@ namespace TappiruCS.Core.GameObject
             bool shouldBeHovered = (this == targetHover);
 
             if (IsHovered != shouldBeHovered)
+            {
                 SetHover(shouldBeHovered);
+                if (shouldBeHovered && !string.IsNullOrEmpty(Description))
+                {
+                    Console.WriteLine($"[HOVER] {GetType().Name} ({Description}) теперь под мышью");
+                }
+            }
+                
 
             foreach (var child in _children)
                 child.SetHoverRecursive(targetHover);
+
         }
 
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
@@ -193,6 +201,7 @@ namespace TappiruCS.Core.GameObject
             {
                 topLayer = Layer;
                 top = this;
+                Console.WriteLine($"Candidate: {GetType().Name}, Layer={Layer}, Desc={(string.IsNullOrEmpty(Description) ? "<empty>" : Description)}");
             }
 
             foreach (var child in _children)
@@ -203,11 +212,6 @@ namespace TappiruCS.Core.GameObject
         {
             if (Parent == null)return LocalPosition; 
             return Parent.WorldPosition + LocalPosition;
-        }
-        public virtual (float left, float top, float width, float height) GetVisualBoundsForContainer()
-        {
-            // По умолчанию используем обычные дизайн-бounds
-            return GetDesignBounds();
         }
 
         public event Action<GameObject> OnHoverEnter;

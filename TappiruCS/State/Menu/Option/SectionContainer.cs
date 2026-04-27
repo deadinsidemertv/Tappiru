@@ -16,12 +16,5 @@ namespace TappiruCS.State.Menu.Option
             LocalPosition = new Vector2(x, y);
         }
 
-        public void AddControl(GameObject control, float localX, float localY)
-        {
-            control.LocalPosition = new Vector2(localX, localY);
-            AddChild(control);
-            RecalculateSize();
-
-        }
     }
 }

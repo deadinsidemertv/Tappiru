@@ -23,14 +23,24 @@ namespace TappiruCS.Core.GameObject
                 {
                     Color = new Color4(1f, 0f, 0f, 0.3f), // красный полупрозрачный
                     Opacity = 0.5f,
-                    Tag = "Debug"
+                    Tag = "Debug",
+                    AllowHover = false,
+                    Description = "Debug",
                 };
                 AddChild(_debugBackground);
             }
+            AllowHover = false;
         }
 
         public Vector2 RecalculateSize()
         {
+            if (Children.Count == 0)
+            {
+                MaxWidth = 400;
+                MaxHeight = 150;
+                return Vector2.Zero;
+            }
+
             float topmost = float.MaxValue;
             float bottommost = float.MinValue;
             float leftmost = float.MaxValue;
@@ -38,48 +48,44 @@ namespace TappiruCS.Core.GameObject
 
             foreach (var child in Children)
             {
-                if (child.Tag == "Debug") continue; // игнорируем отладочные объекты
+                if (child.Tag == "Debug") continue;
 
+                float halfW = child.Scale.X / 2f;
+                float halfH = child.Scale.Y / 2f;
 
+                float left = child.LocalPosition.X - halfW;
+                float right = child.LocalPosition.X + halfW;
+                float top = child.LocalPosition.Y - halfH;
+                float bottom = child.LocalPosition.Y + halfH;
 
-                float halfHeight = child.Scale.Y / 2;
-                float halfWidth = child.Scale.X / 2;
-
-                float top = child.LocalPosition.Y - halfHeight;
-                float bottom = child.LocalPosition.Y + halfHeight;
-                float left = child.LocalPosition.X - halfWidth;
-                float right = child.LocalPosition.X + halfWidth;
-
-                if (top < topmost) topmost = top;
-                if (bottom > bottommost) bottommost = bottom;
                 if (left < leftmost) leftmost = left;
                 if (right > rightmost) rightmost = right;
+                if (top < topmost) topmost = top;
+                if (bottom > bottommost) bottommost = bottom;
             }
 
-            if (Children.Count == 0)
-            {
-                MaxHeight = 0;
-                MaxWidth = 400;
-                return Vector2.Zero;
-            }
+            MaxWidth = Math.Max(50f, rightmost - leftmost);
+            MaxHeight = Math.Max(50f, bottommost - topmost);
 
-            MaxHeight = bottommost - topmost;
-            MaxWidth = rightmost - leftmost;
-
-            float centerX = (leftmost + rightmost) / 2;
-            float centerY = (topmost + bottommost) / 2;
-
-            // Обновляем отладочный фон (если он есть)
+            // Обновляем debug фон, но БЕЗ сдвига позиции контейнера
             if (_debugBackground != null)
             {
+                float centerX = (leftmost + rightmost) / 2f;
+                float centerY = (topmost + bottommost) / 2f;
+
                 _debugBackground.LocalPosition = new Vector2(centerX, centerY);
                 _debugBackground.Scale = new Vector2(MaxWidth, MaxHeight);
             }
 
-            Console.WriteLine($"Top: {topmost}, Bottom: {bottommost}, Height: {MaxHeight}");
-            Console.WriteLine($"Left: {leftmost}, Right: {rightmost}, Width: {MaxWidth}");
+            return new Vector2((leftmost + rightmost) / 2f, (topmost + bottommost) / 2f);
+        }
 
-            return new Vector2(centerX, centerY);
+        public void AddControl(GameObject control, float localX, float localY)
+        {
+            control.LocalPosition = new Vector2(localX, localY);
+            AddChild(control);
+            RecalculateSize();
+
         }
     }
 }
