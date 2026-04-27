@@ -138,16 +138,16 @@ namespace TappiruCS.State.Menu.Option
             var volumeLabel = new TextObject("Громкость", 0, 0, 28)
             {
                 Layer = 7,
-                ScaleMultiply = 0.5f,
+                ScaleMultiply = 1f,
                 AllowHover = false,
-                Color = Color4.White,
-                 Align = TextAlign.Left
+                Color = Color4.Black,
+                 Align = TextAlign.Center
              };
              volumeSlider.OnValueChanged += OnVolumeChanged;
              volumeSlider.SetValue(OptionFile.Volume);
 
              container.AddControl(volumeSlider, 0, 400);
-             container.AddControl(volumeLabel, -170, 150);
+             container.AddControl(volumeLabel, 0, 100);
 
              obj.Add(volumeSlider);
              obj.Add(volumeLabel);
@@ -166,9 +166,9 @@ namespace TappiruCS.State.Menu.Option
             var fullscreenLabel = new TextObject("Полный экран", 0, -30, 28)
             {
                 Layer = 7,
-                ScaleMultiply = 0.5f,
-                Color = Color4.White,
-                Align = TextAlign.Left,
+                ScaleMultiply = 1f,
+                Color = Color4.Black,
+                Align = TextAlign.Center,
             };
 
             fullscreenToggle.OnSelectedChanged += (isChecked) =>
@@ -177,7 +177,7 @@ namespace TappiruCS.State.Menu.Option
             };
 
             container.AddControl(fullscreenToggle, 50, 100);
-            container.AddControl(fullscreenLabel, 50, 70);
+            container.AddControl(fullscreenLabel, -50, 300);
 
             obj.Add(fullscreenToggle);
             obj.Add(fullscreenLabel);

@@ -20,7 +20,7 @@ namespace TappiruCS.Render.Text
         public float CharHeight { get; private set; }
 
         public readonly Dictionary<int, int> PageTextures = new();
-        private readonly Dictionary<char, GlyphInfo> _glyphs = new();
+        public readonly Dictionary<char, GlyphInfo> _glyphs = new();
         public readonly Dictionary<(char first, char second), int> KerningPairs = new();
 
         public enum TextAlign { Left, Center, Right }

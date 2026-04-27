@@ -52,12 +52,14 @@ namespace TappiruCS.UI.TextAbstract
             Layer = 5;
             _baseColor = Color4.White;
             _displayColor = Color4.White;
+            
+            Console.WriteLine($"Text Scale:X:{Scale.X}, Y: {Scale.Y} ");
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
-
+            
             if (!FixedColor)
             {
                 _displayColor = IsHovered
@@ -73,6 +75,29 @@ namespace TappiruCS.UI.TextAbstract
             {
                 OnClick?.Invoke(new Vector2(mouse.X / CanvasScale.X, mouse.Y / CanvasScale.Y));
             }
+            UpdateTextScale();
+        }
+        public void UpdateTextScale()
+        {
+            if (TR == null || string.IsNullOrEmpty(Text))
+            {
+                Scale = Vector2.Zero;
+                return;
+            }
+
+            float baseScale = TR.GetScaleFromFontSize(FontSize);
+            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+
+            Vector2 measured = TR.MeasureString(Text, finalScaleX, finalScaleY);
+
+            // Реальная визуальная высота с учётом всех YOffset
+            float visualHeight = CalculateRealTextHeight(finalScaleY);
+
+            // Ширина оставляем как была (она обычно точная)
+            Scale = new Vector2(measured.X, visualHeight);
+
+            Console.WriteLine($"Text '{Text}' | Measured Y: {measured.Y:F1} | Real Visual Height: {visualHeight:F1} | Scale = {Scale}");
         }
 
         public override bool IsPointInside(float worldX, float worldY)
@@ -116,7 +141,37 @@ namespace TappiruCS.UI.TextAbstract
                 out _
             );
         }
+        private float CalculateRealTextHeight(float finalScaleY)
+        {
+            if (TR == null) return TR.CurrentFont.LineHeight * finalScaleY;
 
+            float minY = 0f;   // самый верх (будет отрицательным)
+            float maxY = 0f;   // самый низ
+
+            // Можно оптимизировать — пройти только по уникальным символам текста
+            var uniqueChars = Text.ToHashSet();
+
+            foreach (char c in uniqueChars)
+            {
+                if (TR.CurrentFont.TryGetGlyph(c, out var glyph))
+                {
+                    float top = glyph.YOffset * finalScaleY;
+                    float bottom = top + glyph.Height * finalScaleY;
+
+                    if (top < minY) minY = top;
+                    if (bottom > maxY) maxY = bottom;
+                }
+            }
+
+            // Если ничего не нашлось — fallback
+            if (maxY == 0f)
+                maxY = TR.CurrentFont.LineHeight * finalScaleY;
+
+            float realHeight = maxY - minY;
+
+            // Небольшой запас (на всякий случай)
+            return realHeight * 1.05f;
+        }
         public override void Draw(Matrix4 projection)
         {
             if (TR == null || string.IsNullOrEmpty(Text))

@@ -204,6 +204,11 @@ namespace TappiruCS.Core.GameObject
             if (Parent == null)return LocalPosition; 
             return Parent.WorldPosition + LocalPosition;
         }
+        public virtual (float left, float top, float width, float height) GetVisualBoundsForContainer()
+        {
+            // По умолчанию используем обычные дизайн-бounds
+            return GetDesignBounds();
+        }
 
         public event Action<GameObject> OnHoverEnter;
         public event Action<GameObject> OnHoverExit;

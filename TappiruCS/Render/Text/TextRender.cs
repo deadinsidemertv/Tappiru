@@ -278,6 +278,7 @@ namespace TappiruCS.Render.Text
             }
         }
 
+
         private float CalculateStartX(string text, float scaleX, float baseX, TextAlign align)
         {
             float width = _currentFont.CalculateTextWidth(text, scaleX);

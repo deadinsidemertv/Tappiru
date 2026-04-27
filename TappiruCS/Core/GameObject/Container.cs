@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using TappiruCS.Render;
 using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.Core.GameObject
 {
@@ -38,6 +39,8 @@ namespace TappiruCS.Core.GameObject
             foreach (var child in Children)
             {
                 if (child.Tag == "Debug") continue; // игнорируем отладочные объекты
+
+
 
                 float halfHeight = child.Scale.Y / 2;
                 float halfWidth = child.Scale.X / 2;
