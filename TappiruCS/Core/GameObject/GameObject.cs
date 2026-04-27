@@ -144,7 +144,7 @@ namespace TappiruCS.Core.GameObject
                    worldY >= top && worldY <= bottom;
         }
 
-        public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
+        public virtual (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
         {
             float effWidth = Scale.X * EffectiveScaleMultiply;
             float effHeight = Scale.Y * EffectiveScaleMultiply;

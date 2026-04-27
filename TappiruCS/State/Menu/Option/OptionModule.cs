@@ -110,23 +110,50 @@ namespace TappiruCS.State.Menu.Option
 
         private void CreateAudioControls(SectionContainer container)
         {
+
+            var supri = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red};
+            obj.Add(supri);
+            container.AddControl(supri, 0, -50);
+
+            var supri2 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
+            obj.Add(supri2);
+            container.AddControl(supri2, 0, 0);
+
+            var supri3 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
+            obj.Add(supri3);
+            container.AddControl(supri3, 0, 50);
+
+            var supri4 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Red };
+            obj.Add(supri4);
+            container.AddControl(supri4, 0, 100);
+            var supri5 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Blue };
+            obj.Add(supri5);
+            container.AddControl(supri5, 0, 150);
+            var supri6 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 50, 50) { Color = Color4.Blue };
+            obj.Add(supri6);
+            container.AddControl(supri6, 0, 200);
+
+
             var volumeSlider = new Slider(0f, 1f, 0, 0, 400) { Layer = 7 };
-            var volumeLabel = new TextObject("Громкость", 0, 80, 28)
+            var volumeLabel = new TextObject("Громкость", 0, 0, 28)
             {
                 Layer = 7,
                 ScaleMultiply = 0.5f,
                 AllowHover = false,
                 Color = Color4.White,
-                Align = TextAlign.Left
-            };
-            volumeSlider.OnValueChanged += OnVolumeChanged;
-            volumeSlider.SetValue(OptionFile.Volume);
+                 Align = TextAlign.Left
+             };
+             volumeSlider.OnValueChanged += OnVolumeChanged;
+             volumeSlider.SetValue(OptionFile.Volume);
 
-            container.AddControl(volumeSlider, 0, -100);
-            container.AddControl(volumeLabel, -170, -150);
+             container.AddControl(volumeSlider, 0, 400);
+             container.AddControl(volumeLabel, -170, 150);
 
-            obj.Add(volumeSlider);
-            obj.Add(volumeLabel);
+             obj.Add(volumeSlider);
+             obj.Add(volumeLabel);
+
+            container.RecalculateSize();
+            Console.WriteLine("///////////////////////////////////////////////////////STOP////////////////////////");
         }
 
         private void CreateVideoControls(SectionContainer container)

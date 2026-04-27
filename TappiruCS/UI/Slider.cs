@@ -48,6 +48,8 @@ namespace TappiruCS.UI
                 AddChild(debugBg);
             }
 
+            Scale = new Vector2(width, 30);
+
             LocalPosition = new Vector2(x, y);
             minValue = min;
             maxValue = max;
