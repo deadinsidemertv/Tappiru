@@ -123,7 +123,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         private TextObject BuildPlayerNameText() =>
             new TextObject("",  - 30,  - 50, 36f)
             {
-                ScaleMultiply = 0.29f,
+                ScaleMultiply = 1f,
                 Align = TextAlign.Left,
                 Color = Color4.White,
                 AllowHover = false,
@@ -133,7 +133,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         private TextObject BuildScoreComboText() =>
             new TextObject("",  - 30, 0, 36f)
             {
-                ScaleMultiply = 0.245f,
+                ScaleMultiply = 1f,
                 Align = TextAlign.Left,
                 Color = new Color4(0.95f, 0.95f, 0.95f, 1f),
                 AllowHover = false,
@@ -143,7 +143,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         private TextObject BuildAccuracyText() =>
             new TextObject("",  + 324,  + 19, 32f)
             {
-                ScaleMultiply = 0.22f,
+                ScaleMultiply = 1f,
                 Align = TextAlign.Right,
                 AllowHover = false,
                 Parent = this,

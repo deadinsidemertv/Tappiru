@@ -81,8 +81,8 @@ namespace TappiruCS.UI.TextAbstract
                 return false;
 
             float baseScale = TR.GetScaleFromFontSize(FontSize);
-            float finalScaleX = baseScale * Scale.X * CanvasScale.X;
-            float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
+            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
 
             // Экранные координаты базовой линии текста
             float screenBaseX = WorldPosition.X * CanvasScale.X;
@@ -123,8 +123,8 @@ namespace TappiruCS.UI.TextAbstract
                 return;
 
             float baseScale = TR.GetScaleFromFontSize(FontSize);
-            float finalScaleX = baseScale * Scale.X * CanvasScale.X;
-            float finalScaleY = baseScale * Scale.Y * CanvasScale.Y;
+            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
 
             float finalX = WorldPosition.X * CanvasScale.X;
             float finalY = WorldPosition.Y * CanvasScale.Y;

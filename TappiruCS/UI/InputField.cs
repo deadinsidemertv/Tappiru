@@ -61,7 +61,7 @@ namespace TappiruCS.UI
 
             InputText = new TextObject("", x, y, 44f)
             {
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 1f,
                 Color = Color4.White,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0f, 0f),
@@ -70,7 +70,7 @@ namespace TappiruCS.UI
 
             PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 44f)
             {
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 1f,
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
                 Pivot = new Vector2(0f, 0f),

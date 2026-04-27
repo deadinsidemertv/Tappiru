@@ -99,7 +99,7 @@ namespace TappiruCS.UI
                 OnClick?.Invoke();
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
-            _textObject.Scale = new Vector2(ScaleMultiply, ScaleMultiply);
+            _textObject.ScaleMultiply = ScaleMultiply;
             _textObject.FontSize = FontSize;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
