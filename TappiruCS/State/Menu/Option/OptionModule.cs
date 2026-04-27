@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Atk;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
@@ -37,7 +38,7 @@ namespace TappiruCS.State.Menu.Option
                 Opacity = 0.85f,
             };
             obj.Add(_bg);
-            _bgBlack = new SpriteObject(0, 60, 540, 120, 1080)
+            _bgBlack = new SpriteObject(0, 35, 540, 70, 1080)
             {
                 AllowHover = false,
                 Layer = 5,
@@ -47,7 +48,7 @@ namespace TappiruCS.State.Menu.Option
 
             var sections = Enum.GetValues(typeof(SettingsSection));
             int idx = 0;
-            _SectionButtonList = new ScrollContainer(50, 80, 100, 600,30) { Layer = 6};
+            _SectionButtonList = new ScrollContainer(25, 80, 100, 600,30) { Layer = 6};
             obj.Add(_SectionButtonList);
             foreach (SettingsSection sec in sections)
             {
@@ -65,7 +66,7 @@ namespace TappiruCS.State.Menu.Option
             }
 
 
-            _scrollContainer = new ScrollContainer(350, 200, 440, 1080,20)
+            _scrollContainer = new ScrollContainer(300, 200, 500, 1080,20)
             {
                 Layer = 6
             };
@@ -104,30 +105,37 @@ namespace TappiruCS.State.Menu.Option
 
         private void CreateAudioControls(SectionContainer container)
         {
+            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300) { Color = Color4.Gray,Layer=8 };
+            container.AddControl(decorationLine, -225, 0);
+            obj.Add(decorationLine);
 
-            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300) { Color = Color4.Gray };
-            
+            var Label = new TextObject("Звук", 0, 0, 64) { Align = TextAlign.Right, Color = Color4.Bisque };
+            container.AddControl(Label, 270, -170);
+            obj.Add(Label);
 
-            var volumeSlider = new Slider(0f, 1f, 0, 0, 400);
-            var Label = new TextObject("Звук", 0, 0, 64)
-            {
-                Layer = 7,
-                ScaleMultiply = 1f,
-                AllowHover = false,
-                Color = Color4.Bisque,
-                 Align = TextAlign.Right
-             };
-             volumeSlider.OnValueChanged += OnVolumeChanged;
-             volumeSlider.SetValue(OptionFile.Volume);
+            var decorativeMaster = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50){Color = Color4.Black,Pivot = new Vector2(0, 0.5f)};
+            var decorativeMusic = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50) { Color = Color4.Black, Pivot = new Vector2(0, 0.5f) };
+            var decorativeSFX = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50) { Color = Color4.Black, Pivot = new Vector2(0, 0.5f) };
+            container.AddControl(decorativeMaster, -225, -60);
+            container.AddControl(decorativeMusic, -225, 0);
+            container.AddControl(decorativeSFX, -225, 60);
+            obj.Add(decorativeMaster);
+            obj.Add(decorativeMusic);
+            obj.Add(decorativeSFX);
 
-             container.AddControl(decorationLine, -225, 0);
-             container.AddControl(volumeSlider, 0, 100);
-             container.AddControl(Label, 180, -170);
+            var volumeSliderMaster = new Slider(0f, 1f, 0, 0, 490) { Layer = 8};
+            var volumeSliderMusic = new Slider(0f, 1f, 0, 0, 490) { Layer = 8 };
+            var volumeSliderSFX = new Slider(0f, 1f, 0, 0, 490) { Layer = 8 };
+            container.AddControl(volumeSliderMaster, 25, -60);
+            container.AddControl(volumeSliderMusic, 25, 0);
+            container.AddControl(volumeSliderSFX, 25, 60);
+            obj.Add(volumeSliderMaster);
+            obj.Add(volumeSliderMusic);
+            obj.Add(volumeSliderSFX);
 
-             obj.Add(decorationLine);
 
-             obj.Add(volumeSlider);
-             obj.Add(Label);
+            volumeSliderMaster.OnValueChanged += OnVolumeChanged;
+            volumeSliderMaster.SetValue(OptionFile.Volume);
 
             container.RecalculateSize();
         }

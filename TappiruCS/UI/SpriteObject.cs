@@ -15,12 +15,17 @@ namespace TappiruCS.UI
         public float GlowSpread { get; set; } = 12f;         // радиус размытия
         public int GlowSteps { get; set; } = 6;             // количество слоёв
 
+        public float HoverBrightness = 1.5f;
+        
+
         public SpriteObject(int textureId, float x, float y, float scaleX, float scaleY)
         {
             _textureId = textureId;
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(scaleX, scaleY);
+            AllowHover = false;
         }
+
 
         public override void Draw(Matrix4 projection)
         {
