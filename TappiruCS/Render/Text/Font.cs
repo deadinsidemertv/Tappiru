@@ -25,13 +25,6 @@ namespace TappiruCS.Render.Text
 
         public enum TextAlign { Left, Center, Right }
 
-        public struct GlyphInfo
-        {
-            public int Page;
-            public float TexX, TexY, Width, Height;
-            public float XOffset, YOffset, XAdvance;
-        }
-
         public Font(string fntPath)
         {
             LoadBMFont(fntPath);

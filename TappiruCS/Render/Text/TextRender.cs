@@ -289,5 +289,31 @@ namespace TappiruCS.Render.Text
                 _ => baseX
             };
         }
+
+        // ========== FreeType поддержка - временный метод для теста ==========
+        public void DrawFreeTypeGlyph(FreeTypeGlyph glyph, float x, float y,
+    float scaleX, float scaleY, Color4 color, Matrix4 projection)
+        {
+            if (glyph == null || glyph.TextureId <= 0)
+                return;
+
+            // Рисуем БОЛЬШОЙ белый прямоугольник в фиксированной позиции, чтобы точно увидеть
+            float testX = 400f;
+            float testY = 400f;
+            float testSize = 200f;
+
+            Console.WriteLine($"[TEST DRAW] Drawing big white quad at ({testX}, {testY}) size {testSize}");
+
+            _spriteBatch.Draw(
+                glyph.TextureId,
+                testX, testY,
+                testSize, testSize,
+                0, 0,
+                glyph.Info.Width,   // <- вместо 1
+                glyph.Info.Height,  // <- вместо 1
+                1f, 1f, 1f, 1f,
+                projection
+            );
+        }
     }
 }

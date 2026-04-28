@@ -21,6 +21,8 @@ namespace TappiruCS
 {
     public class Game : GameWindow
     {
+        private FreeTypeFont? ftFont;
+
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
         public static float WindowWidth;
@@ -74,7 +76,41 @@ namespace TappiruCS
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
             Font defaultFont = new Font("Textures\\Font\\font_cyrillic.fnt");
             textRenderer = new TextRender(spriteBatch, defaultFont);
-            //textRenderer = new TextRender(spriteBatch, "Textures\\Font\\main.fnt");
+            // === ТЕСТ FREETYPE (с отрисовкой глифов) ===
+            try
+            {
+                Console.WriteLine("=== ТЕСТ FREETYPE ===");
+
+                string fontPath = "Textures\\Font\\NotoSansJP-Regular.otf";   // твой путь
+
+                var ftFont = new FreeTypeFont(fontPath, 64);
+
+                // Получаем готовые к отрисовке глифы
+                bool ok1 = ftFont.TryGetRenderedGlyph('あ', out var glyphA);
+                bool ok2 = ftFont.TryGetRenderedGlyph('Я', out var glyphYa);
+                bool ok3 = ftFont.TryGetRenderedGlyph('A', out var glyphA_eng);
+
+                Console.WriteLine($"あ загружен: {ok1}, TextureId = {glyphA?.TextureId}");
+                Console.WriteLine($"Я загружен: {ok2}, TextureId = {glyphYa?.TextureId}");
+                Console.WriteLine($"A  загружен: {ok3}, TextureId = {glyphA_eng?.TextureId}");
+
+                Console.WriteLine("=== FreeType тест завершён ===\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ОШИБКА FreeType: {ex.Message}");
+            }
+
+            ftFont = new FreeTypeFont("Textures\\Font\\NotoSansJP-Regular.otf", 64);
+
+
+
+
+
+
+
+
+
             audio = new AudioManager();
 
             RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);
@@ -162,6 +198,40 @@ namespace TappiruCS
         {
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            // === ТЕСТ ОТРИСОВКИ FREETYPE ГЛИФОВ (нажми F1) ===
+            if (KeyboardState.IsKeyDown(Keys.F1) && ftFont != null && textRenderer != null)
+            {
+                float baseX = 100f;
+                float baseY = 300f;        // чуть ниже, чтобы было видно
+                float scale = 3.0f;        // увеличим масштаб для видимости
+
+                float x = baseX;
+
+                Console.WriteLine($"[Debug] F1 pressed - Trying to draw glyphs at Y={baseY}");
+
+                if (ftFont.TryGetRenderedGlyph('あ', out var g1))
+                {
+                    Console.WriteLine($"[Debug] Drawing あ at ({x:F0}, {baseY:F0}) Size: {g1.Info.Width}x{g1.Info.Height}");
+                    textRenderer.DrawFreeTypeGlyph(g1, x, baseY, scale, scale, Color4.Red, projection);   // Красный для заметности
+                    x += g1.Info.XAdvance * scale * 1.2f;
+                }
+
+                if (ftFont.TryGetRenderedGlyph('Я', out var g2))
+                {
+                    textRenderer.DrawFreeTypeGlyph(g2, x, baseY, scale, scale, Color4.White, projection);
+                    x += g2.Info.XAdvance * scale * 1.2f;
+                }
+
+                if (ftFont.TryGetRenderedGlyph('A', out var g3))
+                {
+                    textRenderer.DrawFreeTypeGlyph(g3, x, baseY, scale, scale, Color4.Green, projection);
+                }
+            }
+
+
+
             currentState.Render(projection);
             // === BLACK FADE (рисуется поверх всего) ===
             if (_fadeAlpha > 0.001f)
