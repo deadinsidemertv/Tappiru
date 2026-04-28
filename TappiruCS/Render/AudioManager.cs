@@ -11,7 +11,16 @@ namespace TappiruCS.Render
         private readonly ALDevice _device;
         private readonly ALContext _context;
 
-        public static float MainVolume;
+        private static float _mainVolume;
+        public static float MainVolume
+        {
+            get => _mainVolume;
+            set
+            {
+                _mainVolume = value;
+                Instance?.ApplyMainVolume();
+            }
+        }
 
         public static AudioManager Instance;
         // Основной источник для музыки
@@ -30,7 +39,7 @@ namespace TappiruCS.Render
 
         public AudioManager()
         {
-            MainVolume = OptionFile.Volume;
+            MainVolume = OptionFile.MasterVolume;
             Instance = this;
             _device = ALC.OpenDevice(null);
             _context = ALC.CreateContext(_device, (int[])null);
