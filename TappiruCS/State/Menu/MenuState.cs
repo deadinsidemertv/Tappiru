@@ -13,7 +13,7 @@ using TappiruCS.State.Edit;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 using TappiruCS.State.Menu.Option;
 
 namespace TappiruCS.State.Menu

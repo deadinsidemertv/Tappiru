@@ -4,7 +4,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.Tween;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.UI
 {

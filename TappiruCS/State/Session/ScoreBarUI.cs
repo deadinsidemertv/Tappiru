@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic.Logic;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 using TappiruCS.Render.Text.BMFont;
 
 namespace TappiruCS.State.Session
@@ -25,24 +25,24 @@ namespace TappiruCS.State.Session
         {
             _textRenderer = textRenderer;
 
-            _scoreText = new TextObject("000000000", 1900, 0, 48f)
+            _scoreText = new TextObject("000000000", 1900, 40, 36f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Right
             };
 
-            _accuracyText = new TextObject("100.00%", 1840, 40, 36f)
+            _accuracyText = new TextObject("100.00%", 1850, 70, 24f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Center
             };
 
-            _comboText = new TextObject("0", 35, 990, 64f)
+            _comboText = new TextObject("0", 35, 1070, 36f)
             {
                 Align = TextAlign.Left
             };
 
-            _comboXText = new TextObject("x", 55, 915, 36f);
+            _comboXText = new TextObject("x", 55, 1040, 24f);
         }
 
         // Метод обновления — принимает session каждый кадр
@@ -60,7 +60,7 @@ namespace TappiruCS.State.Session
             _comboText.Text = session.Combo.ToString();
 
             // Обновляем позицию "x"
-            _comboXText.WorldPosition = new Vector2(_comboText.WorldPosition.X - 15, _comboText.WorldPosition.Y + 15);
+            _comboXText.WorldPosition = new Vector2(_comboText.WorldPosition.X - 15, _comboText.WorldPosition.Y );
         }
 
         public void AddToScene(Scene scene)

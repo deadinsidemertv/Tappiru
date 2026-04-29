@@ -8,7 +8,7 @@ using TappiruCS.Render;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.State.SongSelector.RankingPanel
 {

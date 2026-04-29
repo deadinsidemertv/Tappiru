@@ -7,7 +7,7 @@ using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.State.SongSelector
 {

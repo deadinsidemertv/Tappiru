@@ -4,7 +4,6 @@ using SharpFont;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.Render.Text.FreeType
 {
@@ -27,16 +26,22 @@ namespace TappiruCS.Render.Text.FreeType
             SetSize(pixelSize);
         }
 
+        // ── Размер ────────────────────────────────────────────────────────────────
+
         public void SetSize(int pixelSize)
         {
             CurrentSize = pixelSize;
             _face.SetPixelSizes(0, (uint)pixelSize);
             var m = _face.Size.Metrics;
-            LineHeight = m.Height.ToSingle() / 64f;
+            LineHeight = m.Height.ToSingle();
             Ascender = m.Ascender.ToSingle();
         }
 
-        public float GetScaleFromFontSize(float fontSize) => fontSize / CurrentSize;
+        /// <summary>
+        /// Возвращает scale такой, что текст с fontSize визуально совпадает
+        /// с высотой строки (как было в BMFont).
+        /// </summary>
+        public float GetScaleFromFontSize(float fontSize) => fontSize / LineHeight;
 
         // ── Кэш глифов ────────────────────────────────────────────────────────────
 
@@ -45,10 +50,21 @@ namespace TappiruCS.Render.Text.FreeType
             uint cp = (uint)c;
             if (_glyphCache.TryGetValue(cp, out glyph))
                 return glyph != null;
-
             glyph = RenderGlyphToTexture(cp);
             _glyphCache[cp] = glyph;
             return glyph != null;
+        }
+
+        /// <summary>Совместимость с PhraseDisplayRenderer — возвращает GlyphInfo.</summary>
+        public bool TryGetGlyph(char c, out GlyphInfo info)
+        {
+            if (TryGetRenderedGlyph(c, out var g) && g != null)
+            {
+                info = g.Info;
+                return true;
+            }
+            info = GlyphInfo.Empty;
+            return false;
         }
 
         private FreeTypeGlyph? RenderGlyphToTexture(uint codepoint)
@@ -61,7 +77,6 @@ namespace TappiruCS.Render.Text.FreeType
 
                 float xAdvance = slot.Advance.X.ToSingle();
 
-                // Пробел и символы без растра — только advance, без текстуры
                 if (bitmap.Width == 0 || bitmap.Rows == 0)
                 {
                     var empty = new GlyphInfo
@@ -78,17 +93,14 @@ namespace TappiruCS.Render.Text.FreeType
                 int width = bitmap.Width;
                 int height = bitmap.Rows;
 
-                // Grayscale → RGBA
                 byte[] rgba = new byte[width * height * 4];
                 IntPtr src = bitmap.Buffer;
                 for (int i = 0; i < width * height; i++)
                 {
-                    byte alpha = Marshal.ReadByte(src, i);
+                    byte a = Marshal.ReadByte(src, i);
                     int d = i * 4;
-                    rgba[d] = 255;
-                    rgba[d + 1] = 255;
-                    rgba[d + 2] = 255;
-                    rgba[d + 3] = alpha;
+                    rgba[d] = rgba[d + 1] = rgba[d + 2] = 255;
+                    rgba[d + 3] = a;
                 }
 
                 int tex = GL.GenTexture();
@@ -133,8 +145,7 @@ namespace TappiruCS.Render.Text.FreeType
 
         public float CalculateTextWidth(string text, float scaleX)
         {
-            float w = 0f;
-            char prev = '\0';
+            float w = 0f; char prev = '\0';
             foreach (char c in text)
             {
                 if (TryGetRenderedGlyph(c, out var g) && g != null)
@@ -147,6 +158,62 @@ namespace TappiruCS.Render.Text.FreeType
             return w;
         }
 
+        // ── GetCharBounds ──────────────────────────────────────────────────────────
+        /// <summary>
+        /// Возвращает экранные bounds каждого символа строки.
+        /// x,y — верхний левый угол растра символа в экранных пикселях.
+        /// Используется в PhraseDisplayRenderer для рамок слайдеров и glow.
+        /// </summary>
+        public (float x, float y, float width, float height)[]? GetCharBounds(
+            string text,
+            float centerX, float centerY,
+            Vector2 canvasScale,
+            float baseScale, float scaleMultiply,
+            TextAlign align)
+        {
+            if (string.IsNullOrEmpty(text)) return null;
+
+            float scaleX = baseScale * scaleMultiply * canvasScale.X;
+            float scaleY = baseScale * scaleMultiply * canvasScale.Y;
+
+            float screenX = centerX * canvasScale.X;
+            float screenY = centerY * canvasScale.Y;
+
+            float totalWidth = CalculateTextWidth(text, scaleX);
+            float penX = screenX;
+            switch (align)
+            {
+                case TextAlign.Center: penX -= totalWidth * 0.5f; break;
+                case TextAlign.Right: penX -= totalWidth; break;
+            }
+
+            var result = new (float x, float y, float width, float height)[text.Length];
+            char prev = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (TryGetRenderedGlyph(c, out var g) && g != null)
+                {
+                    if (prev != '\0') penX += GetKerning(prev, c) * scaleX;
+
+                    float x = penX + g.Info.BearingX * scaleX;
+                    float y = screenY - g.Info.BearingY * scaleY;
+                    float w = g.Info.Width * scaleX;
+                    float h = g.Info.Height * scaleY;
+
+                    result[i] = (x, y, w, h);
+                    penX += g.Info.XAdvance * scaleX;
+                }
+                else
+                {
+                    result[i] = (penX, screenY, 0f, 0f);
+                }
+                prev = c;
+            }
+            return result;
+        }
+
         // ── Хит-тест символа ──────────────────────────────────────────────────────
 
         public bool TryGetCharIndexAtPoint(
@@ -155,9 +222,7 @@ namespace TappiruCS.Render.Text.FreeType
             TextAlign align, out int charIndex)
         {
             charIndex = -1;
-            float pen = 0f;
-            char prev = '\0';
-            int idx = 0;
+            float pen = 0f; char prev = '\0'; int idx = 0;
             foreach (char c in text)
             {
                 if (TryGetRenderedGlyph(c, out var g) && g != null)
@@ -168,21 +233,13 @@ namespace TappiruCS.Render.Text.FreeType
                     if (localX >= x0 && localX < x1) { charIndex = idx; return true; }
                     pen += g.Info.XAdvance * scaleX;
                 }
-                prev = c;
-                idx++;
+                prev = c; idx++;
             }
             return false;
         }
 
         // ── DrawString ────────────────────────────────────────────────────────────
-        //
-        // SpriteBatch: Y идёт ВНИЗ.
-        // startY — Y базовой линии.
-        //
-        // xPos = penX + BearingX * scaleX
-        // yPos = startY - BearingY * scaleY   (BearingY > 0 = вверх от baseline,
-        //                                       но экран вниз, поэтому минус)
-        //
+
         public void DrawString(
             string text, float startX, float startY,
             float scaleX, float scaleY,
@@ -193,7 +250,6 @@ namespace TappiruCS.Render.Text.FreeType
             if (string.IsNullOrEmpty(text)) return;
 
             float totalWidth = CalculateTextWidth(text, scaleX);
-
             float penX = startX;
             switch (align)
             {
@@ -204,26 +260,71 @@ namespace TappiruCS.Render.Text.FreeType
             char prev = '\0';
             foreach (char c in text)
             {
-                if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null)
-                    continue;
-
+                if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null) continue;
                 var info = glyph.Info;
 
                 if (prev != '\0') penX += GetKerning(prev, c) * scaleX;
 
                 if (glyph.TextureId > 0 && info.Width > 0 && info.Height > 0)
                 {
-                    float w = info.Width * scaleX;
-                    float h = info.Height * scaleY;
-                    float xPos = penX + info.BearingX * scaleX;
-                    float yPos = startY - info.BearingY * scaleY;
-
                     _spriteBatch.Draw(
                         glyph.TextureId,
-                        xPos, yPos, w, h,
+                        penX + info.BearingX * scaleX,
+                        startY - info.BearingY * scaleY,
+                        info.Width * scaleX, info.Height * scaleY,
                         0f, 0f, 1f, 1f,
-                        r, g, b, a,
-                        projection);
+                        r, g, b, a, projection);
+                }
+
+                penX += info.XAdvance * scaleX;
+                prev = c;
+            }
+        }
+
+        // ── DrawStringWithCharColors ───────────────────────────────────────────────
+        /// <summary>
+        /// Рисует строку где каждый символ может иметь свой цвет.
+        /// Используется в PhraseDisplayRenderer.
+        /// </summary>
+        public void DrawStringWithCharColors(
+            string text,
+            float startX, float startY,
+            float baseFontSize,
+            float scaleX, float scaleY,
+            Color4[] colors,
+            Matrix4 projection,
+            TextAlign align = TextAlign.Left)
+        {
+            if (string.IsNullOrEmpty(text) || colors == null) return;
+
+            float totalWidth = CalculateTextWidth(text, scaleX);
+            float penX = startX;
+            switch (align)
+            {
+                case TextAlign.Center: penX -= totalWidth * 0.5f; break;
+                case TextAlign.Right: penX -= totalWidth; break;
+            }
+
+            char prev = '\0';
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null) continue;
+
+                var info = glyph.Info;
+                Color4 color = i < colors.Length ? colors[i] : Color4.White;
+
+                if (prev != '\0') penX += GetKerning(prev, c) * scaleX;
+
+                if (glyph.TextureId > 0 && info.Width > 0 && info.Height > 0)
+                {
+                    _spriteBatch.Draw(
+                        glyph.TextureId,
+                        penX + info.BearingX * scaleX,
+                        startY - info.BearingY * scaleY,
+                        info.Width * scaleX, info.Height * scaleY,
+                        0f, 0f, 1f, 1f,
+                        color.R, color.G, color.B, color.A, projection);
                 }
 
                 penX += info.XAdvance * scaleX;
@@ -254,9 +355,9 @@ namespace TappiruCS.Render.Text.FreeType
             Matrix4 projection, TextAlign align,
             float thickness, Color4 outlineColor)
         {
-            float[] offsets = { -1f, 0f, 1f };
-            foreach (float dx in offsets)
-                foreach (float dy in offsets)
+            float[] d = { -1f, 0f, 1f };
+            foreach (float dx in d)
+                foreach (float dy in d)
                 {
                     if (dx == 0f && dy == 0f) continue;
                     DrawString(text,
@@ -269,12 +370,52 @@ namespace TappiruCS.Render.Text.FreeType
         }
 
         // ── Dispose ────────────────────────────────────────────────────────────────
+        public void DrawSingleGlyph(
+    char c,
+    float screenX,      // левый край растра глифа (как в charBounds)
+    float screenY,      // верхний край растра глифа (как в charBounds)
+    float scaleX,
+    float scaleY,
+    float r, float g, float b, float a,
+    Matrix4 projection)
+        {
+            if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null || glyph.TextureId <= 0)
+                return;
 
+            var info = glyph.Info;
+
+            if (info.Width <= 0 || info.Height <= 0)
+                return;
+
+            _spriteBatch.Draw(
+                glyph.TextureId,
+                screenX,                    // уже правильная X с bearing
+                screenY,                    // уже правильная Y с bearing
+                info.Width * scaleX,
+                info.Height * scaleY,
+                0f, 0f, 1f, 1f,
+                r, g, b, a, projection);
+        }
+        public float GetBaselineOffset(char c)
+        {
+            if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null)
+                return Ascender * 0.7f; // приближение
+
+            return glyph.Info.BearingY; // BearingY обычно уже относительно baseline
+        }
+        public float GetBearingY(char c)
+        {
+            if (TryGetRenderedGlyph(c, out var glyph) && glyph != null)
+                return glyph.Info.BearingY;
+
+            // Fallback
+            return Ascender * 0.7f;
+        }
         public void Dispose()
         {
-            foreach (var glyph in _glyphCache.Values)
-                if (glyph != null && glyph.TextureId > 0)
-                    GL.DeleteTexture(glyph.TextureId);
+            foreach (var g in _glyphCache.Values)
+                if (g != null && g.TextureId > 0)
+                    GL.DeleteTexture(g.TextureId);
             _face?.Dispose();
         }
     }

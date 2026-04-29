@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.UI.TextAbstract
 {

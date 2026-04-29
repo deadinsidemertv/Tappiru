@@ -153,12 +153,12 @@ namespace TappiruCS.State.Session
                 backButton = new Button(960, 540, 400, 100, "button", "back")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
                 retryButton = new Button(960, 700, 400, 100, "button", "retry") 
                 { 
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
 
                 retryButton.OnClick += RestartGame;
@@ -197,12 +197,12 @@ namespace TappiruCS.State.Session
                 backButton = new Button(960, 540, 400, 100, "button", "back")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
                 retryButton = new Button(960, 700, 400, 100, "button", "retry")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
 
                 retryButton.OnClick += RestartGame;
@@ -220,7 +220,7 @@ namespace TappiruCS.State.Session
         public void Render(Matrix4 projection)
         {
             _scene.Draw(projection);
-            _phraseRenderer.Draw(session, projection, 960, 440);
+            _phraseRenderer.Draw(session, projection, 960, 540);
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)

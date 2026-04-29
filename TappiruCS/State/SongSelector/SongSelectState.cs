@@ -14,7 +14,7 @@ using TappiruCS.State.SongSelector.RankingPanel;
 using TappiruCS.State.SongSelector.SongList;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.State.SongSelector
 {
