@@ -22,7 +22,6 @@ namespace TappiruCS.State.SongSelector.SongList
             : base(x, y, width, height, textureName, text)
         {
             Tag = "List";
-
             fade = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, width, height - 10)
             {
                 Color = new Color4(0.212f, 0, 0.106f, Opacity)

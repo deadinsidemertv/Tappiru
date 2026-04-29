@@ -5,10 +5,9 @@ using System.Text;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
-using TappiruCS.Render.Text;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.State.SongSelector
 {

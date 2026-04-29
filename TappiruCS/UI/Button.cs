@@ -2,10 +2,9 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.Tween;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.UI
 {
@@ -17,7 +16,7 @@ namespace TappiruCS.UI
         public string Text { get; set; }
         public Color4 TextColor { get; set; } = Color4.White;
         public Vector2 TextOffset { get; set; } = Vector2.Zero;
-        public float FontSize { get; set; } = 72f;
+        public float FontSize { get; set; } = 64f;
         public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
         public int ButtonImage { get; set; } = 0;

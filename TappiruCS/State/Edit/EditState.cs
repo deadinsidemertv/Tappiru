@@ -15,8 +15,7 @@ using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.Core.GameObject;
 using TappiruCS.UI.TextAbstract;
-using TappiruCS.Render.Text;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.State.Edit
 {

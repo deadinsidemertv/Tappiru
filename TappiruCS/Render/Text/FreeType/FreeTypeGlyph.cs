@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace TappiruCS.Render.Text
+namespace TappiruCS.Render.Text.FreeType
 {
     public class FreeTypeGlyph
     {

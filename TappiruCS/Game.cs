@@ -10,18 +10,19 @@ using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Text.BMFont;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using TappiruCS.Render.Text.FreeType;
 
 namespace TappiruCS
 {
     public class Game : GameWindow
     {
-        private FreeTypeFont? ftFont;
 
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
@@ -76,32 +77,8 @@ namespace TappiruCS
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
             Font defaultFont = new Font("Textures\\Font\\font_cyrillic.fnt");
             textRenderer = new TextRender(spriteBatch, defaultFont);
-            // === ТЕСТ FREETYPE (с отрисовкой глифов) ===
-            try
-            {
-                Console.WriteLine("=== ТЕСТ FREETYPE ===");
-
-                string fontPath = "Textures\\Font\\NotoSansJP-Regular.otf";   // твой путь
-
-                ftFont = new FreeTypeFont(fontPath, 64);
-
-                // Получаем готовые к отрисовке глифы
-                bool ok1 = ftFont.TryGetRenderedGlyph('あ', out var glyphA);
-                bool ok2 = ftFont.TryGetRenderedGlyph('Я', out var glyphYa);
-                bool ok3 = ftFont.TryGetRenderedGlyph('A', out var glyphA_eng);
-
-                Console.WriteLine($"あ загружен: {ok1}, TextureId = {glyphA?.TextureId}");
-                Console.WriteLine($"Я загружен: {ok2}, TextureId = {glyphYa?.TextureId}");
-                Console.WriteLine($"A  загружен: {ok3}, TextureId = {glyphA_eng?.TextureId}");
-
-                Console.WriteLine("=== FreeType тест завершён ===\n");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ОШИБКА FreeType: {ex.Message}");
-            }
-
-            ftFont = new FreeTypeFont("Textures\\Font\\NotoSansJP-Regular.otf", 64);
+           
+            FontManager.CurrentFont = new FreeTypeRender(spriteBatch,"Textures\\Font\\NotoSansJP-Regular.otf", 64);
 
 
 
@@ -113,7 +90,7 @@ namespace TappiruCS
 
             audio = new AudioManager();
 
-            RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);
+            RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio,FontManager.CurrentFont);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
@@ -228,17 +205,6 @@ namespace TappiruCS
             }
 
 
-            FreeTypeGlyph glyph;
-            if (ftFont.TryGetRenderedGlyph('あ', out glyph))
-            {
-                textRenderer.DrawFreeTypeGlyph(glyph, 200, 200,
-                    glyph.Info.Width , glyph.Info.Height ,
-                    Color4.Blue, projection);
-            }
-            else
-            {
-                Console.WriteLine("Глиф 'あ' не загрузился");
-            }
 
             SwapBuffers();
 

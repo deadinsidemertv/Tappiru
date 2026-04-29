@@ -2,7 +2,7 @@
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Logic;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.State.Session
 {

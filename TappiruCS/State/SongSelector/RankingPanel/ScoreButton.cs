@@ -5,11 +5,10 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.State.SongSelector.RankingPanel
 {
@@ -121,7 +120,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         }
 
         private TextObject BuildPlayerNameText() =>
-            new TextObject("",  - 30,  - 50, 36f)
+            new TextObject("",  - 30,  - 20, 24f)
             {
                 ScaleMultiply = 1f,
                 Align = TextAlign.Left,
@@ -131,7 +130,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
             };
 
         private TextObject BuildScoreComboText() =>
-            new TextObject("",  - 30, 0, 36f)
+            new TextObject("",  - 30, 30, 24f)
             {
                 ScaleMultiply = 1f,
                 Align = TextAlign.Left,
@@ -141,7 +140,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
             };
 
         private TextObject BuildAccuracyText() =>
-            new TextObject("",  + 324,  + 19, 32f)
+            new TextObject("",  + 324,  + 35, 24f)
             {
                 ScaleMultiply = 1f,
                 Align = TextAlign.Right,

@@ -2,14 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static TappiruCS.Render.Text.Font;
+using TappiruCS.Render.Text.FreeType;
+using static TappiruCS.Render.Text.BMFont.Font;
 
-namespace TappiruCS.Render.Text
+namespace TappiruCS.Render.Text.BMFont
 {
     public class TextRender
     {
         private readonly SpriteBatch _spriteBatch;
         private Font _currentFont;
+        private FreeTypeRender ftFont;
 
         // Статическая ссылка для обратной совместимости
         public static TextRender Instance { get; private set; }
@@ -290,22 +292,6 @@ namespace TappiruCS.Render.Text
             };
         }
 
-        // ========== FreeType поддержка - временный метод для теста ==========
-        public void DrawFreeTypeGlyph(FreeTypeGlyph glyph, float x, float y,
-    float scaleX, float scaleY, Color4 color, Matrix4 projection)
-        {
-            if (glyph == null || glyph.TextureId <= 0)
-                return;
-
-            _spriteBatch.Draw(
-                glyph.TextureId,
-                x, y,
-                glyph.Info.Width, glyph.Info.Height,
-                0, 0,
-                1, 1,  
-                color.R, color.G, color.B, color.A,
-                projection
-            );
-        }
+        
     }
 }

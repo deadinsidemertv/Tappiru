@@ -3,8 +3,8 @@ using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic.Logic;
 using TappiruCS.UI.TextAbstract;
-using TappiruCS.Render.Text;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
+using TappiruCS.Render.Text.BMFont;
 
 namespace TappiruCS.State.Session
 {

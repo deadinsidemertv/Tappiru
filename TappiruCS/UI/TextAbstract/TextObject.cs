@@ -1,17 +1,14 @@
-﻿// TextObject.cs — адаптированная версия
+﻿// TextObject.cs — исправленная версия
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
-using TappiruCS.Render.Text;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.UI.TextAbstract
 {
     public class TextObject : GameObject
     {
         public string Text { get; set; } = "";
-
-        // Размер шрифта в логических единицах (пикселях дизайна)
         public float FontSize { get; set; } = 144f;
 
         private Color4 _baseColor = Color4.White;
@@ -52,143 +49,155 @@ namespace TappiruCS.UI.TextAbstract
             Layer = 5;
             _baseColor = Color4.White;
             _displayColor = Color4.White;
-            
-            Console.WriteLine($"Text Scale:X:{Scale.X}, Y: {Scale.Y} ");
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
-            
-            if (!FixedColor)
-            {
-                _displayColor = IsHovered
-                    ? new Color4(1f, 0.9f, 0.4f, 1f)
-                    : _baseColor;
-            }
-            else
-            {
-                _displayColor = _baseColor;
-            }
+
+            _displayColor = (!FixedColor && IsHovered)
+                ? new Color4(1f, 0.9f, 0.4f, 1f)
+                : _baseColor;
 
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
-            {
                 OnClick?.Invoke(new Vector2(mouse.X / CanvasScale.X, mouse.Y / CanvasScale.Y));
-            }
         }
 
         public override bool IsPointInside(float worldX, float worldY)
         {
-            if (string.IsNullOrEmpty(Text) || TR == null)
-                return false;
+            if (string.IsNullOrEmpty(Text)) return false;
 
-            float baseScale = TR.GetScaleFromFontSize(FontSize);
-            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
-            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
-
-            // Экранные координаты базовой линии текста
-            float screenBaseX = WorldPosition.X * CanvasScale.X;
-            float screenBaseY = WorldPosition.Y * CanvasScale.Y;
-
-            // Экранные координаты мыши
-            float mouseScreenX = worldX * CanvasScale.X;
-            float mouseScreenY = worldY * CanvasScale.Y;
-
-            // Горизонтальное смещение из-за выравнивания (Align)
-            float textWidth = TR.CalculateTextWidth(Text, finalScaleX);
-            float startX = Align switch
+            // Выбираем активный рендерер
+            if (FT != null)
             {
-                TextAlign.Center => screenBaseX - textWidth / 2f,
-                TextAlign.Right => screenBaseX - textWidth,
-                _ => screenBaseX
-            };
+                float baseScale = FT.GetScaleFromFontSize(FontSize);
+                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
 
-            // Локальные координаты относительно левого верхнего угла текста
-            float localX = mouseScreenX - startX;
-            float localY = mouseScreenY - screenBaseY; // базовая линия в Y
+                float screenBaseX = WorldPosition.X * CanvasScale.X;
+                float screenBaseY = WorldPosition.Y * CanvasScale.Y;
 
-            // Вызов метода, который возвращает индекс символа под точкой
-            return TR.TryGetCharIndexAtPoint(
-                Text,
-                localX,
-                localY,
-                finalScaleX,
-                finalScaleY,
-                TextAlign.Left,
-                out _
-            );
-        }
-        private float CalculateRealTextHeight(float finalScaleY)
-        {
-            if (TR == null) return TR.CurrentFont.LineHeight * finalScaleY;
-
-            float minY = 0f;   // самый верх (будет отрицательным)
-            float maxY = 0f;   // самый низ
-
-            // Можно оптимизировать — пройти только по уникальным символам текста
-            var uniqueChars = Text.ToHashSet();
-
-            foreach (char c in uniqueChars)
-            {
-                if (TR.CurrentFont.TryGetGlyph(c, out var glyph))
+                float textWidth = FT.CalculateTextWidth(Text, finalScaleX);
+                float startX = Align switch
                 {
-                    float top = glyph.YOffset * finalScaleY;
-                    float bottom = top + glyph.Height * finalScaleY;
+                    TextAlign.Center => screenBaseX - textWidth / 2f,
+                    TextAlign.Right => screenBaseX - textWidth,
+                    _ => screenBaseX
+                };
 
-                    if (top < minY) minY = top;
-                    if (bottom > maxY) maxY = bottom;
-                }
+                float localX = worldX * CanvasScale.X - startX;
+                float localY = worldY * CanvasScale.Y - screenBaseY;
+
+                return FT.TryGetCharIndexAtPoint(
+                    Text, localX, localY,
+                    finalScaleX, finalScaleY,
+                    TextAlign.Left, out _);
             }
 
-            // Если ничего не нашлось — fallback
-            if (maxY == 0f)
-                maxY = TR.CurrentFont.LineHeight * finalScaleY;
+            if (TR != null)
+            {
+                float baseScale = TR.GetScaleFromFontSize(FontSize);
+                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
 
-            float realHeight = maxY - minY;
+                float screenBaseX = WorldPosition.X * CanvasScale.X;
+                float screenBaseY = WorldPosition.Y * CanvasScale.Y;
 
-            // Небольшой запас (на всякий случай)
-            return realHeight * 1.05f;
+                float textWidth = TR.CalculateTextWidth(Text, finalScaleX);
+                float startX = Align switch
+                {
+                    TextAlign.Center => screenBaseX - textWidth / 2f,
+                    TextAlign.Right => screenBaseX - textWidth,
+                    _ => screenBaseX
+                };
+
+                float localX = worldX * CanvasScale.X - startX;
+                float localY = worldY * CanvasScale.Y - screenBaseY;
+
+                return TR.TryGetCharIndexAtPoint(
+                    Text, localX, localY,
+                    finalScaleX, finalScaleY,
+                    TextAlign.Left, out _);
+            }
+
+            return false;
         }
+
         public override void Draw(Matrix4 projection)
         {
-            if (TR == null || string.IsNullOrEmpty(Text))
-                return;
-
-            float baseScale = TR.GetScaleFromFontSize(FontSize);
-            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
-            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+            if (string.IsNullOrEmpty(Text)) return;
 
             float finalX = WorldPosition.X * CanvasScale.X;
             float finalY = WorldPosition.Y * CanvasScale.Y;
+
+            // ── FreeType рендерер ──────────────────────────────────────────────────
+            if (FT != null)
+            {
+                float baseScale = FT.GetScaleFromFontSize(FontSize);
+                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+
+                if (HasOutline)
+                {
+                    FT.DrawStringOutline(
+                        Text, finalX, finalY,
+                        finalScaleX, finalScaleY,
+                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                        projection, Align,
+                        OutlineThickness, OutlineColor);
+                }
+                else if (HasShadow)
+                {
+                    FT.DrawStringShadow(
+                        Text, finalX, finalY,
+                        finalScaleX, finalScaleY,
+                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                        projection, Align,
+                        ShadowOffset, ShadowOpacity);
+                }
+                else
+                {
+                    FT.DrawString(
+                        Text, finalX, finalY,
+                        finalScaleX, finalScaleY,
+                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                        projection, Align);
+                }
+                return; // FT нарисован — выходим
+            }
+
+            // ── BMFont рендерер (fallback) ─────────────────────────────────────────
+            if (TR == null) return;
+
+            float bBaseScale = TR.GetScaleFromFontSize(FontSize);
+            float bFinalScaleX = bBaseScale * ScaleMultiply * CanvasScale.X;
+            float bFinalScaleY = bBaseScale * ScaleMultiply * CanvasScale.Y;
 
             if (HasOutline)
             {
                 TR.DrawStringOutline(
                     Text, finalX, finalY,
-                    finalScaleX, finalScaleY,
+                    bFinalScaleX, bFinalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
                     projection, Align,
-                    OutlineThickness, OutlineColor
-                );
+                    OutlineThickness, OutlineColor);
             }
             else if (HasShadow)
             {
                 TR.DrawStringShadow(
                     Text, finalX, finalY,
-                    finalScaleX, finalScaleY,
+                    bFinalScaleX, bFinalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
                     projection, Align,
-                    ShadowOffset, ShadowOpacity
-                );
+                    ShadowOffset, ShadowOpacity);
             }
             else
             {
                 TR.DrawString(
                     Text, finalX, finalY,
-                    finalScaleX, finalScaleY,
+                    bFinalScaleX, bFinalScaleY,
                     _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align
-                );
+                    projection, Align);
             }
         }
     }

@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TappiruCS.Render.Text.FreeType;
 
-namespace TappiruCS.Render.Text
+namespace TappiruCS.Render.Text.BMFont
 {
     public class Font
     {

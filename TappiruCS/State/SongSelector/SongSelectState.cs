@@ -6,7 +6,6 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.Server.MapLogic;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Menu;
@@ -15,7 +14,7 @@ using TappiruCS.State.SongSelector.RankingPanel;
 using TappiruCS.State.SongSelector.SongList;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.State.SongSelector
 {
@@ -133,9 +132,9 @@ namespace TappiruCS.State.SongSelector
 
         private void AddMapInfoTexts()
         {
-            _mapTitleText = new TextObject("", 10, 5, 64f) { Layer = 3, Align = TextAlign.Left };
-            _creatorText = new TextObject("", 10, 60, 48f) { Layer = 3, Align = TextAlign.Left };
-            _metaDataText = new TextObject("", 10, 110, 36f) { Layer = 3, Align = TextAlign.Left };
+            _mapTitleText = new TextObject("", 10, 48, 48f) { Layer = 3, Align = TextAlign.Left };
+            _creatorText = new TextObject("", 10, 90, 36f) { Layer = 3, Align = TextAlign.Left };
+            _metaDataText = new TextObject("", 10, 135, 24f) { Layer = 3, Align = TextAlign.Left };
 
             _scene.Add(_mapTitleText);
             _scene.Add(_creatorText);
@@ -305,8 +304,8 @@ namespace TappiruCS.State.SongSelector
             {
                 TextAlign = TextAlign.Right,
                 IsImaged = true,
-                FontSize = 48,
-                TextOffset = new Vector2(-430f, -70f),
+                FontSize = 36,
+                TextOffset = new Vector2(-440f, -40f),
                 ImageScale = new Vector2(0.16f, 0.75f),
                 ImageOffset = new Vector2(-570f, 0f),
                 Layer = _mapList.Layer,

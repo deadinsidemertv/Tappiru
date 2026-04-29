@@ -2,7 +2,8 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
+using TappiruCS.Render.Text.BMFont;
+using TappiruCS.Render.Text.FreeType;
 
 namespace TappiruCS.Core.GameObject
 {
@@ -47,6 +48,8 @@ namespace TappiruCS.Core.GameObject
         protected TextRender TR => Context?.TextRenderer;
         protected Game Game => Context?.Game;
         protected AudioManager Audio => Context?.Audio;
+
+        protected FreeTypeRender FT => Context?.FreeType;
 
         internal void SetRenderContext(RenderContext context)
         {

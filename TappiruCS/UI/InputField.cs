@@ -7,7 +7,7 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 
 namespace TappiruCS.UI
 {
@@ -59,21 +59,21 @@ namespace TappiruCS.UI
                 Active = false
             };
 
-            InputText = new TextObject("", x, y, 44f)
+            InputText = new TextObject("", -240, 15, 44f)
             {
                 ScaleMultiply = 1f,
                 Color = Color4.White,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0f),
+                Pivot = new Vector2(0f, 0.5f),
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 44f)
+            PlaceHolder = new TextObject(PlaceHolderText, -240, 15, 44f)
             {
                 ScaleMultiply = 1f,
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0f),
+                Pivot = new Vector2(0f, 0.5f),
             };
 
             AddChild(InputBackground);
@@ -224,13 +224,13 @@ namespace TappiruCS.UI
             }
 
             // Позиционирование
-            var (left, top, w, h) = GetDesignBounds();
-            float padding = 10f * ScaleMultiply;
+            //var (left, top, w, h) = GetDesignBounds();
+            //float padding = 10f * ScaleMultiply;
 
-            InputText.WorldPosition = new Vector2(left + padding, top + padding);
-            PlaceHolder.WorldPosition = new Vector2(left + padding, top + padding);
-            _selectionBackground.WorldPosition = new Vector2(left, top);
-            _selectionBackground.Scale = new Vector2(w, h);
+            //InputText.WorldPosition = new Vector2(left + padding, top + padding);
+            //PlaceHolder.WorldPosition = new Vector2(left + padding, top + padding);
+            //_selectionBackground.WorldPosition = new Vector2(left, top);
+           // _selectionBackground.Scale = new Vector2(w, h);
 
             UpdateDisplayedText();
         }

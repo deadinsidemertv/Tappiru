@@ -7,14 +7,13 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using static TappiruCS.Render.Text.BMFont.Font;
 using TappiruCS.State.Menu.Option;
 
 namespace TappiruCS.State.Menu
@@ -110,7 +109,7 @@ namespace TappiruCS.State.Menu
                 Layer = 4,
                 TextColor = Color4.White,
                 ScaleMultiply = 0.8f,
-                TextOffset = new Vector2(-45, -30)
+                TextOffset = new Vector2(-100, 30)
             };
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
@@ -161,7 +160,7 @@ namespace TappiruCS.State.Menu
                 Layer = 2,
                 TextAlign = TextAlign.Center,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(-70f, -50f),
+                TextOffset = new Vector2(-70f, 20f),
                 ScaleMultiply = 0.8f,
             };
             if (onClick != null) btn.OnClick += onClick;
