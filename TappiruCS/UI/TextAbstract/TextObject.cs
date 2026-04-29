@@ -65,59 +65,78 @@ namespace TappiruCS.UI.TextAbstract
 
         public override bool IsPointInside(float worldX, float worldY)
         {
-            if (string.IsNullOrEmpty(Text)) return false;
+            if (string.IsNullOrEmpty(Text) || FT == null)
+                return false;
 
-            // Выбираем активный рендерер
-            if (FT != null)
+            float baseScale = FT.GetScaleFromFontSize(FontSize);
+            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+
+            float objectScreenX = WorldPosition.X * CanvasScale.X;
+            float objectScreenY = WorldPosition.Y * CanvasScale.Y;
+
+            float clickScreenX = worldX * CanvasScale.X;
+            float clickScreenY = worldY * CanvasScale.Y;
+
+            // Выравнивание по X
+            float textWidth = FT.CalculateTextWidth(Text, finalScaleX);
+            float startX = Align switch
             {
-                float baseScale = FT.GetScaleFromFontSize(FontSize);
-                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
-                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+                TextAlign.Center => objectScreenX - textWidth * 0.5f,
+                TextAlign.Right => objectScreenX - textWidth,
+                _ => objectScreenX
+            };
 
-                float screenBaseX = WorldPosition.X * CanvasScale.X;
-                float screenBaseY = WorldPosition.Y * CanvasScale.Y;
+            float localX = clickScreenX - startX;
+            if (localX < 0 || localX > textWidth)
+                return false;
 
-                float textWidth = FT.CalculateTextWidth(Text, finalScaleX);
-                float startX = Align switch
-                {
-                    TextAlign.Center => screenBaseX - textWidth / 2f,
-                    TextAlign.Right => screenBaseX - textWidth,
-                    _ => screenBaseX
-                };
+            // Правильный baseline
+            float textHeight = FT.LineHeight * finalScaleY;
+            float baselineY = objectScreenY + (0.5f - Pivot.Y) * textHeight;
 
-                float localX = worldX * CanvasScale.X - startX;
-                float localY = worldY * CanvasScale.Y - screenBaseY;
+            float localY = clickScreenY - baselineY;
 
-                return FT.TryGetCharIndexAtPoint(
-                    Text, localX, localY,
-                    finalScaleX, finalScaleY,
-                    TextAlign.Left, out _);
-            }
+            // Теперь вручную проверяем каждую букву с учётом её высоты и bearing
+            float penX = 0f;
+            char prev = '\0';
 
-            if (TR != null)
+            for (int i = 0; i < Text.Length; i++)
             {
-                float baseScale = TR.GetScaleFromFontSize(FontSize);
-                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
-                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+                char c = Text[i];
 
-                float screenBaseX = WorldPosition.X * CanvasScale.X;
-                float screenBaseY = WorldPosition.Y * CanvasScale.Y;
-
-                float textWidth = TR.CalculateTextWidth(Text, finalScaleX);
-                float startX = Align switch
+                if (FT.TryGetRenderedGlyph(c, out var glyph) && glyph != null)
                 {
-                    TextAlign.Center => screenBaseX - textWidth / 2f,
-                    TextAlign.Right => screenBaseX - textWidth,
-                    _ => screenBaseX
-                };
+                    if (prev != '\0')
+                        penX += FT.GetKerning(prev, c) * finalScaleX;
 
-                float localX = worldX * CanvasScale.X - startX;
-                float localY = worldY * CanvasScale.Y - screenBaseY;
+                    float glyphX = penX + glyph.Info.BearingX * finalScaleX;
+                    float glyphWidth = glyph.Info.Width * finalScaleX;
 
-                return TR.TryGetCharIndexAtPoint(
-                    Text, localX, localY,
-                    finalScaleX, finalScaleY,
-                    TextAlign.Left, out _);
+                    // Проверяем по X
+                    if (localX >= glyphX && localX < glyphX + glyphWidth)
+                    {
+                        // Проверяем по Y с учётом bearing и высоты глифа
+                        float glyphTop = -glyph.Info.BearingY * finalScaleY;     // верх глифа относительно baseline
+                        float glyphBottom = glyphTop + glyph.Info.Height * finalScaleY;
+
+                        // Добавляем небольшую толерантность сверху и снизу
+                        const float tolerance = 8f;
+
+                        if (localY >= glyphTop - tolerance && localY <= glyphBottom + tolerance)
+                        {
+                            return true;
+                        }
+                    }
+
+                    penX += glyph.Info.XAdvance * finalScaleX;
+                }
+                else
+                {
+                    penX += FT.CalculateTextWidth(c.ToString(), finalScaleX); // fallback
+                }
+
+                prev = c;
             }
 
             return false;
