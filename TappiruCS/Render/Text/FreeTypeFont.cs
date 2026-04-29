@@ -78,14 +78,16 @@ namespace TappiruCS.Render.Text
                 int textureId = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, textureId);
 
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
                               width, height, 0,
                               PixelFormat.Rgba, PixelType.UnsignedByte, rgbaData);
+
+                Console.WriteLine($"Glyph texture: {width}x{height}, first pixel alpha={rgbaData[3]}");
 
                 var glyphInfo = new GlyphInfo
                 {

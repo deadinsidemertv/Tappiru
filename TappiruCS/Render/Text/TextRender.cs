@@ -297,21 +297,13 @@ namespace TappiruCS.Render.Text
             if (glyph == null || glyph.TextureId <= 0)
                 return;
 
-            // Рисуем БОЛЬШОЙ белый прямоугольник в фиксированной позиции, чтобы точно увидеть
-            float testX = 400f;
-            float testY = 400f;
-            float testSize = 200f;
-
-            Console.WriteLine($"[TEST DRAW] Drawing big white quad at ({testX}, {testY}) size {testSize}");
-
             _spriteBatch.Draw(
                 glyph.TextureId,
-                testX, testY,
-                testSize, testSize,
+                x, y,
+                glyph.Info.Width, glyph.Info.Height,
                 0, 0,
-                glyph.Info.Width,   // <- вместо 1
-                glyph.Info.Height,  // <- вместо 1
-                1f, 1f, 1f, 1f,
+                1, 1,  
+                color.R, color.G, color.B, color.A,
                 projection
             );
         }

@@ -83,7 +83,7 @@ namespace TappiruCS
 
                 string fontPath = "Textures\\Font\\NotoSansJP-Regular.otf";   // твой путь
 
-                var ftFont = new FreeTypeFont(fontPath, 64);
+                ftFont = new FreeTypeFont(fontPath, 64);
 
                 // Получаем готовые к отрисовке глифы
                 bool ok1 = ftFont.TryGetRenderedGlyph('あ', out var glyphA);
@@ -201,34 +201,9 @@ namespace TappiruCS
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             // === ТЕСТ ОТРИСОВКИ FREETYPE ГЛИФОВ (нажми F1) ===
-            if (KeyboardState.IsKeyDown(Keys.F1) && ftFont != null && textRenderer != null)
-            {
-                float baseX = 100f;
-                float baseY = 300f;        // чуть ниже, чтобы было видно
-                float scale = 3.0f;        // увеличим масштаб для видимости
 
-                float x = baseX;
 
-                Console.WriteLine($"[Debug] F1 pressed - Trying to draw glyphs at Y={baseY}");
-
-                if (ftFont.TryGetRenderedGlyph('あ', out var g1))
-                {
-                    Console.WriteLine($"[Debug] Drawing あ at ({x:F0}, {baseY:F0}) Size: {g1.Info.Width}x{g1.Info.Height}");
-                    textRenderer.DrawFreeTypeGlyph(g1, x, baseY, scale, scale, Color4.Red, projection);   // Красный для заметности
-                    x += g1.Info.XAdvance * scale * 1.2f;
-                }
-
-                if (ftFont.TryGetRenderedGlyph('Я', out var g2))
-                {
-                    textRenderer.DrawFreeTypeGlyph(g2, x, baseY, scale, scale, Color4.White, projection);
-                    x += g2.Info.XAdvance * scale * 1.2f;
-                }
-
-                if (ftFont.TryGetRenderedGlyph('A', out var g3))
-                {
-                    textRenderer.DrawFreeTypeGlyph(g3, x, baseY, scale, scale, Color4.Green, projection);
-                }
-            }
+            
 
 
 
@@ -250,6 +225,19 @@ namespace TappiruCS
 
                     CloseModalWindow();   
                     return;  
+            }
+
+
+            FreeTypeGlyph glyph;
+            if (ftFont.TryGetRenderedGlyph('あ', out glyph))
+            {
+                textRenderer.DrawFreeTypeGlyph(glyph, 200, 200,
+                    glyph.Info.Width , glyph.Info.Height ,
+                    Color4.Blue, projection);
+            }
+            else
+            {
+                Console.WriteLine("Глиф 'あ' не загрузился");
             }
 
             SwapBuffers();
