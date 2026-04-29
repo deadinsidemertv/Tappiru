@@ -184,40 +184,6 @@ namespace TappiruCS.UI.TextAbstract
                 }
                 return; // FT нарисован — выходим
             }
-
-            // ── BMFont рендерер (fallback) ─────────────────────────────────────────
-            if (TR == null) return;
-
-            float bBaseScale = TR.GetScaleFromFontSize(FontSize);
-            float bFinalScaleX = bBaseScale * ScaleMultiply * CanvasScale.X;
-            float bFinalScaleY = bBaseScale * ScaleMultiply * CanvasScale.Y;
-
-            if (HasOutline)
-            {
-                TR.DrawStringOutline(
-                    Text, finalX, finalY,
-                    bFinalScaleX, bFinalScaleY,
-                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align,
-                    OutlineThickness, OutlineColor);
-            }
-            else if (HasShadow)
-            {
-                TR.DrawStringShadow(
-                    Text, finalX, finalY,
-                    bFinalScaleX, bFinalScaleY,
-                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align,
-                    ShadowOffset, ShadowOpacity);
-            }
-            else
-            {
-                TR.DrawString(
-                    Text, finalX, finalY,
-                    bFinalScaleX, bFinalScaleY,
-                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                    projection, Align);
-            }
         }
     }
 }
