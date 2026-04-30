@@ -75,7 +75,7 @@ namespace TappiruCS
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
            
             FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
-            FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\MPLUSRounded1c-ExtraBold.ttf", 64));
+            FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\1738032194_FOT-RodinPro-B.otf", 64));
             FontManager.SetDefault("UI");
 
 
