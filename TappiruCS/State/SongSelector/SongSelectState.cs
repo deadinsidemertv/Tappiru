@@ -414,7 +414,7 @@ namespace TappiruCS.State.SongSelector
             int total = (int)_context.Audio.Duration;
             int minutes = total / 60;
             int seconds = total % 60;
-            return $"Длина: {minutes}:{seconds:D2}  Строк: {map.Events.Count}  Сложность: {map.StarRating:F2}";
+            return $"Длина: {minutes}:{seconds:D2}  Строк: {map.Events.Count}  Сложность: {map.StarRating:F2}★";
         }
 
         // ─────────────────────────────────────────────

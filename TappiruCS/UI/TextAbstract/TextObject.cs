@@ -10,6 +10,7 @@ namespace TappiruCS.UI.TextAbstract
     {
         public string Text { get; set; } = "";
         public float FontSize { get; set; } = 144f;
+        public string FontKey { get; set; } = "UI";
 
         private Color4 _baseColor = Color4.White;
         private Color4 _displayColor = Color4.White;
@@ -42,6 +43,7 @@ namespace TappiruCS.UI.TextAbstract
         {
             Text = text;
             LocalPosition = new Vector2(x, y);
+            FontKey = "UI";
             FontSize = fontSize;
             Scale = Vector2.One;
             Pivot = new Vector2(0.5f, 0.5f);
@@ -146,44 +148,45 @@ namespace TappiruCS.UI.TextAbstract
         {
             if (string.IsNullOrEmpty(Text)) return;
 
+            var font = FontManager.Get(FontKey);
+            if (font == null) return; // шрифт не загружен
+
             float finalX = WorldPosition.X * CanvasScale.X;
             float finalY = WorldPosition.Y * CanvasScale.Y;
 
             // ── FreeType рендерер ──────────────────────────────────────────────────
-            if (FT != null)
-            {
-                float baseScale = FT.GetScaleFromFontSize(FontSize);
-                float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
-                float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
+            float baseScale = font.GetScaleFromFontSize(FontSize);
+            float finalScaleX = baseScale * ScaleMultiply * CanvasScale.X;
+            float finalScaleY = baseScale * ScaleMultiply * CanvasScale.Y;
 
-                if (HasOutline)
-                {
-                    FT.DrawStringOutline(
-                        Text, finalX, finalY,
-                        finalScaleX, finalScaleY,
-                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                        projection, Align,
-                        OutlineThickness, OutlineColor);
-                }
-                else if (HasShadow)
-                {
-                    FT.DrawStringShadow(
-                        Text, finalX, finalY,
-                        finalScaleX, finalScaleY,
-                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                        projection, Align,
-                        ShadowOffset, ShadowOpacity);
-                }
-                else
-                {
-                    FT.DrawString(
-                        Text, finalX, finalY,
-                        finalScaleX, finalScaleY,
-                        _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
-                        projection, Align);
-                }
-                return; // FT нарисован — выходим
+            if (HasOutline)
+            {
+                font.DrawStringOutline(
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align,
+                    OutlineThickness, OutlineColor);
             }
+            else if (HasShadow)
+            {
+                font.DrawStringShadow(
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align,
+                    ShadowOffset, ShadowOpacity);
+            }
+            else
+            {
+                font.DrawString(
+                    Text, finalX, finalY,
+                    finalScaleX, finalScaleY,
+                    _displayColor.R, _displayColor.G, _displayColor.B, _displayColor.A,
+                    projection, Align);
+            }
+            return; // FT нарисован — выходим
+
         }
     }
 }

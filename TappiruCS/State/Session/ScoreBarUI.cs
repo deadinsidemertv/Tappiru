@@ -4,13 +4,11 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic.Logic;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
-using TappiruCS.Render.Text.BMFont;
 
 namespace TappiruCS.State.Session
 {
     public class ScoreBarUI
     {
-        private readonly TextRender _textRenderer;
 
         private readonly TextObject _scoreText;
         private readonly TextObject _accuracyText;
@@ -21,9 +19,8 @@ namespace TappiruCS.State.Session
         private float _displayedAccuracy;
 
         // Конструктор без session!
-        public ScoreBarUI(TextRender textRenderer)
+        public ScoreBarUI()
         {
-            _textRenderer = textRenderer;
 
             _scoreText = new TextObject("000000000", 1900, 40, 36f)
             {

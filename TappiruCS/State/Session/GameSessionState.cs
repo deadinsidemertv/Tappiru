@@ -56,7 +56,7 @@ namespace TappiruCS.State.Session
             _mapData = mapdata;
 
             _phraseRenderer = new PhraseDisplayRenderer(context, mapdata);
-            _scoreBarUI = new ScoreBarUI(context.TextRenderer);
+            _scoreBarUI = new ScoreBarUI();
         }
 
         public void OnEnter()
@@ -97,7 +97,6 @@ namespace TappiruCS.State.Session
             progressbar = new ProgressBar(20, 20, 700, 5);
             _scene.Add(progressbar);
 
-            _scoreBarUI = new ScoreBarUI(_context.TextRenderer);
             _scoreBarUI.AddToScene(_scene);
 
             _scene.Add(Fade);

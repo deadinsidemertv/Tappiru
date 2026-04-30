@@ -16,7 +16,7 @@ namespace TappiruCS.UI
         public Scene _scene;
 
         // Отступы вокруг текста (в логических единицах)
-        public Vector2 Padding { get; set; } = new Vector2(10, 5);
+        public Vector2 Padding { get; set; } = new Vector2(5, 5);
 
         // Смещение от курсора
         public Vector2 CursorOffset { get; set; } = new Vector2(15, 20);
@@ -62,17 +62,17 @@ namespace TappiruCS.UI
             Text.Text = text;
 
             // 1. Вычисляем финальный масштаб текста (как это делает TextObject.Draw)
-            float baseScale = TR.GetScaleFromFontSize(Text.FontSize);
+            float baseScale = FT.GetScaleFromFontSize(Text.FontSize);
             float finalScaleX = baseScale * Text.Scale.X * Text.ScaleMultiply;
             float finalScaleY = baseScale * Text.Scale.Y * Text.ScaleMultiply;
 
             // 2. Получаем размер текста в логических единицах
-            Vector2 textSize = TR.MeasureString(text, finalScaleX, finalScaleY);
+            Vector2 textSize = FT.MeasureString(text, finalScaleX, finalScaleY);
 
             // 3. Задаём размер фона (с отступами) в логических единицах
             spriteBG.Scale = new Vector2(
                 textSize.X + Padding.X * 2,
-                textSize.Y + Padding.Y * 2
+                textSize.Y + Padding.Y 
             );
 
             // 4. Позиционируем всё относительно курсора
@@ -85,7 +85,7 @@ namespace TappiruCS.UI
 
             Text.WorldPosition = new Vector2(
                 spriteBG.WorldPosition.X + Padding.X,
-                spriteBG.WorldPosition.Y + Padding.Y
+                spriteBG.WorldPosition.Y + Padding.Y*3f
             );
         }
 

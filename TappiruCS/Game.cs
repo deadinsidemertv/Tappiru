@@ -10,7 +10,6 @@ using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
-using TappiruCS.Render.Text.BMFont;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
@@ -33,7 +32,6 @@ namespace TappiruCS
         public static List<GameMod> _activeMods = new List<GameMod>();
 
         private SpriteBatch spriteBatch;
-        private TextRender textRenderer;
         private AudioManager audio;
 
         private Matrix4 projection;
@@ -75,11 +73,10 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            Font defaultFont = new Font("Textures\\Font\\font_cyrillic.fnt");
-            textRenderer = new TextRender(spriteBatch, defaultFont);
            
-            FontManager.CurrentFont = new FreeTypeRender(spriteBatch,"Textures\\Font\\NotoSansJP-Regular.otf", 64);
-
+            FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
+            FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\MPLUSRounded1c-ExtraBold.ttf", 64));
+            FontManager.SetDefault("UI");
 
 
 
@@ -90,7 +87,7 @@ namespace TappiruCS
 
             audio = new AudioManager();
 
-            RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio,FontManager.CurrentFont);
+            RenderContext = new RenderContext(this, spriteBatch, audio);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");

@@ -7,15 +7,39 @@ namespace TappiruCS.Render.Text
 {
     public static class FontManager
     {
-        public static FreeTypeRender CurrentFont { get; set; }
+        public static FreeTypeRender? _defaultFont;
 
-        // Дополнительные шрифты можно хранить здесь же (словарь)
-        // public static Dictionary<string, FreeTypeFont> Fonts { get; }
-
-        public static void DisposeCurrent()
+        public static void SetDefault(string key)
         {
-            CurrentFont?.Dispose();
-            CurrentFont = null;
+            if (_fonts.TryGetValue(key, out var font))
+                _defaultFont = font;
+            else
+                Console.WriteLine($"[FontManager] Ключ '{key}' не найден — дефолтный шрифт не установлен!");
+        }
+
+        private static readonly Dictionary<string, FreeTypeRender> _fonts = new();
+
+        public static void Add(string key, FreeTypeRender renderer)
+        => _fonts[key] = renderer;
+
+        public static FreeTypeRender? Get(string key)
+        {
+            if (_fonts.TryGetValue(key, out var font))
+                return font;
+
+            // fallback: если нет дефолтного, пытаемся взять любой первый загруженный
+            if (_defaultFont != null)
+                return _defaultFont;
+
+            // если совсем ничего нет – возвращаем null (но этого почти не случится, если дефолтный задан)
+            return null;
+        }
+
+        public static void DisposeAll()
+        {
+            foreach (var font in _fonts.Values)
+                font.Dispose();
+            _fonts.Clear();
         }
     }
 }

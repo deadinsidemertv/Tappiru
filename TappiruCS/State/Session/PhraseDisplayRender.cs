@@ -21,7 +21,8 @@ namespace TappiruCS.State.Session
         private const float BaseFontSize = 144f;
 
         // Удобное сокращение
-        private FreeTypeRender FT => _context.FreeType;
+        private const string FontKey = "Game";
+        private FreeTypeRender FT => FontManager.Get(FontKey);
 
         public PhraseDisplayRenderer(RenderContext context, MapData mapData)
         {

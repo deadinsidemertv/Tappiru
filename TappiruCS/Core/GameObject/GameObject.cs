@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
-using TappiruCS.Render.Text.BMFont;
+using TappiruCS.Render.Text;
 using TappiruCS.Render.Text.FreeType;
 
 namespace TappiruCS.Core.GameObject
@@ -45,11 +45,10 @@ namespace TappiruCS.Core.GameObject
 
         // Удобные сокращения
         protected SpriteBatch SB => Context?.SpriteBatch;
-        protected TextRender TR => Context?.TextRenderer;
         protected Game Game => Context?.Game;
         protected AudioManager Audio => Context?.Audio;
 
-        protected FreeTypeRender FT => Context?.FreeType;
+        protected FreeTypeRender FT => FontManager._defaultFont ?? FontManager.Get("UI")!;
 
         internal void SetRenderContext(RenderContext context)
         {

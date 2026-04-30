@@ -411,6 +411,19 @@ namespace TappiruCS.Render.Text.FreeType
             // Fallback
             return Ascender * 0.7f;
         }
+
+        public Vector2 MeasureString(string text, float scaleX, float scaleY)
+        {
+            if (string.IsNullOrEmpty(text))
+                return Vector2.Zero;
+
+            float width = CalculateTextWidth(text, scaleX);
+
+            // Высота = LineHeight (самый надёжный способ для FreeType)
+            float height = LineHeight * scaleY;
+
+            return new Vector2(width, height);
+        }
         public void Dispose()
         {
             foreach (var g in _glyphCache.Values)
