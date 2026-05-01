@@ -224,13 +224,10 @@ namespace TappiruCS.UI
             }
 
             // Позиционирование
-            //var (left, top, w, h) = GetDesignBounds();
-            //float padding = 10f * ScaleMultiply;
+            var (left, top, w, h) = GetDesignBounds();
 
-            //InputText.WorldPosition = new Vector2(left + padding, top + padding);
-            //PlaceHolder.WorldPosition = new Vector2(left + padding, top + padding);
-            //_selectionBackground.WorldPosition = new Vector2(left, top);
-           // _selectionBackground.Scale = new Vector2(w, h);
+            _selectionBackground.WorldPosition = new Vector2(left, top);
+            _selectionBackground.Scale = new Vector2(w, h);
 
             UpdateDisplayedText();
         }

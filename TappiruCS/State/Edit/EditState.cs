@@ -184,12 +184,13 @@ namespace TappiruCS.State.Edit
         private void AddNewPhrase()
         {
             if (_isInputDialogOpen) return;
+
             _context.Audio.Pause();
             _isMusicPlaying = false;
 
             float time = (float)_context.Audio.GetCurrentTime();
 
-            var dialog = new TextInputDialog(_context, _scene,
+            var dialog = new TextInputModule(_scene,
                 "Введите текст фразы",
                 text =>
                 {
@@ -202,7 +203,10 @@ namespace TappiruCS.State.Edit
                 () => _isInputDialogOpen = false);
 
             _isInputDialogOpen = true;
-            dialog.Show();
+
+            // Важно: всегда сначала закрываем текущее, потом открываем новое
+            _context.Game.CloseModalWindow();
+            _context.Game.OpenModalWindow(dialog);
         }
 
         private void AddPhraseToEditor(Phrase phrase)
@@ -286,8 +290,10 @@ namespace TappiruCS.State.Edit
         #region Project Management
         private void CreateProject()
         {
-            var panel = new CreateProjectPanel(_context, _scene, OnProjectCreated);
-            panel.Show();
+            var module = new CreateProjectModule(_scene, OnProjectCreated);
+
+            _context.Game.CloseModalWindow();   // на всякий случай
+            _context.Game.OpenModalWindow(module);
         }
 
         private void OnProjectCreated(string tappPath) => ActiveEditMode(tappPath);

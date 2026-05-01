@@ -10,8 +10,7 @@ public abstract class ModuleWindow
 
         _scene = scene;
         obj = new List<GameObject>();
-        
-        Show();
+       
     }
 
     public virtual void Show()

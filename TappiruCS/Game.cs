@@ -194,15 +194,6 @@ namespace TappiruCS
                     projection);
             }
 
-            if (KeyboardState.IsKeyPressed(Keys.Escape)&& moduleWND != null)
-            {
-
-                    CloseModalWindow();   
-                    return;  
-            }
-
-
-
             SwapBuffers();
 
 
@@ -220,7 +211,13 @@ namespace TappiruCS
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
-            
+
+            if (KeyboardState.IsKeyPressed(Keys.Escape) && moduleWND != null)
+            {
+
+                CloseModalWindow();
+                return;
+            }
 
             audio.PlaySoundEffect("hit",1.2f);
             currentState?.HandleKeyDown(e);
