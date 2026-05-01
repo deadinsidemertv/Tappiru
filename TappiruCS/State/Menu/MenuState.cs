@@ -88,36 +88,37 @@ namespace TappiruCS.State.Menu
         private void CreateUI()
         {
             // Login fields
-            _loginInput = new InputField(350, 535, 500, 70)
+            _loginInput = new InputField(240, 755, 425, 70)
             {
                 PlaceHolderText = "login",
                 Layer = 4,
-                
+                ScaleMultiply = 0.7f
 
             };
 
-            _passwordInput = new InputField(350, 615, 500, 70)
+            _passwordInput = new InputField(240, 805, 425, 70)
             {
                 PlaceHolderText = "password",
                 IsPassword = true,
                 Layer = 4,
-                
+                ScaleMultiply = 0.7f
+
             };
 
-            _loginButton = new Button(350, 695, 250, 70, "button", "Войти")
+            _loginButton = new Button(243, 855, 425, 75, "button", "Войти")
             {
                 Layer = 4,
                 TextColor = Color4.White,
-                ScaleMultiply = 0.8f,
-                TextOffset = new Vector2(-100, 30)
+                TextOffset = new Vector2(-100, 30),
+                ScaleMultiply = 0.7f
             };
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
             // Main menu buttons (всегда видны)
-            var playBtn = CreateMenuButton(540, "Play", StartGame);
-            var editBtn = CreateMenuButton(640, "Edit", GoEdit);
-            var optionsBtn = CreateMenuButton(740, "Options", ToggleSettings);
-            var exitBtn = CreateMenuButton(840, "exit", ExitGame);
+            var playBtn = CreateMenuButton(305, "Play", StartGame);
+            var editBtn = CreateMenuButton(405, "Edit", GoEdit);
+            var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings);
+            var exitBtn = CreateMenuButton(605, "exit", ExitGame);
 
             _scene.Add(playBtn);
             _scene.Add(editBtn);
@@ -127,43 +128,39 @@ namespace TappiruCS.State.Menu
 
         private void AddBackgroundAndDecorations()
         {
-            var bg = new Background(TextureManager.GetTexture("menubg")) { ParalaxEffect = true };
-            var logo = new SpriteObject(TextureManager.GetTexture("logo"), 960, 300, 606, 256)
-            {
-                ScaleMultiply = 1.1f
-            };
+            Random rnd = new Random();
+            string[] bgpatches = Directory.GetFiles("Textures\\Backgrounds");
 
-            
-            var blackTop = new SpriteObject(0, 960, 0, 1920, 200)
-            {
-                Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true,
-                Opacity = 0.6f
-            };
-            var blackBottom = new SpriteObject(0, 960, 1080, 1920, 200)
-            {
-                Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true,
-                Opacity = 0.6f
-            };
+            int randomBG = rnd.Next(0,bgpatches.Length);
+            string menubgpath = bgpatches[randomBG];
+
+            var bg = new Background(TextureLoader.Load(menubgpath)) { ParalaxEffect = true };
+            var overlay = new Background(TextureManager.GetTexture("overlaynew"));
+            var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
 
             _scene.Add(bg);
-            _scene.Add(logo);
-            _scene.Add(blackTop);
-            _scene.Add(blackBottom);
+            _scene.Add(overlay);
+            _scene.Add(Logo);
+
         }
 
         private Button CreateMenuButton(int y, string text, Action? onClick)
         {
-            var btn = new Button(960, y, 700, 120, "button", text)
+            var btn = new Button(300, y, 520, 120, "menuButton", text)
             {
                 Layer = 2,
                 TextAlign = TextAlign.Center,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(-70f, 20f),
+                TextOffset = new Vector2(-230f, 20f),
                 ScaleMultiply = 0.8f,
+                Tag = "menuButton",
+                FontSize = 64f,
+                FontKey = "Menu"
+                
             };
             if (onClick != null) btn.OnClick += onClick;
+
+            btn.InitializeHoverState();
             return btn;
         }
 

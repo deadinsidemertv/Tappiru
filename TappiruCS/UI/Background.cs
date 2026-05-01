@@ -26,7 +26,6 @@ namespace TappiruCS.UI
             _textureId = textureId;
         }
 
-        // Вызови этот метод вместо bg._textureId = ...
         public void TransitionTo(int newTextureId, float duration = 0.5f)
         {
             _nextTextureId = newTextureId;
@@ -52,73 +51,88 @@ namespace TappiruCS.UI
                 }
             }
 
-            const float bgScale = 1.2f;
-            const float strength = 0.25f;
-
             float screenW = Game.ClientSize.X;
             float screenH = Game.ClientSize.Y;
 
-            float bgW = screenW * bgScale;
-            float bgH = screenH * bgScale;
-            float extraW = bgW - screenW;
-            float extraH = bgH - screenH;
+            float drawX, drawY, drawW, drawH;
 
-            float baseX = -extraW * 0.5f;
-            float baseY = -extraH * 0.5f;
-
-            float offsetX = 0f;
-            float offsetY = 0f;
-
-            time += Game.UpdateTime;
-
-            if (ParalaxEffect)
+            // === НОВЫЙ РЕЖИМ: Простое растяжение на весь экран (для оверлеев) ===
+            if (!ParalaxEffect && !AutoBreathingParallax)
             {
-                float nx = (Scene.LogicMouse.X / screenW) * 2f - 1f;
-                float ny = (Scene.LogicMouse.Y / screenH) * 2f - 1f;
-                nx = Math.Clamp(nx, -1f, 1f);
-                ny = Math.Clamp(ny, -1f, 1f);
-
-                float desiredOffsetX = -nx * 25f * strength;
-                float desiredOffsetY = -ny * 25f * strength;
-
-                float safeMaxX = extraW * 0.5f * strength;
-                float safeMaxY = extraH * 0.5f * strength;
-
-                offsetX = Math.Clamp(desiredOffsetX, -safeMaxX, safeMaxX);
-                offsetY = Math.Clamp(desiredOffsetY, -safeMaxY, safeMaxY);
+                drawX = 0;
+                drawY = 0;
+                drawW = screenW;
+                drawH = screenH;
             }
-            else if (AutoBreathingParallax)
+            // === Режим с параллаксом / breathing ===
+            else
             {
-                float breathX = (float)Math.Sin(time * BreathingSpeed) * BreathingStrength;
-                float breathY = (float)Math.Sin(time * BreathingSpeed * 0.7f + 1.3f) * (BreathingStrength * 0.6f);
+                const float bgScale = 1.2f;
+                const float strength = 0.25f;
 
-                float safeMaxX = extraW * 0.5f * strength * 0.6f;
-                float safeMaxY = extraH * 0.5f * strength * 0.6f;
+                float bgW = screenW * bgScale;
+                float bgH = screenH * bgScale;
+                float extraW = bgW - screenW;
+                float extraH = bgH - screenH;
 
-                offsetX = Math.Clamp(breathX, -safeMaxX, safeMaxX);
-                offsetY = Math.Clamp(breathY, -safeMaxY, safeMaxY);
+                float baseX = -extraW * 0.5f;
+                float baseY = -extraH * 0.5f;
+
+                float offsetX = 0f;
+                float offsetY = 0f;
+
+                time += Game.UpdateTime;
+
+                if (ParalaxEffect)
+                {
+                    float nx = (Scene.LogicMouse.X / screenW) * 2f - 1f;
+                    float ny = (Scene.LogicMouse.Y / screenH) * 2f - 1f;
+                    nx = Math.Clamp(nx, -1f, 1f);
+                    ny = Math.Clamp(ny, -1f, 1f);
+
+                    float desiredOffsetX = -nx * 25f * strength;
+                    float desiredOffsetY = -ny * 25f * strength;
+
+                    float safeMaxX = extraW * 0.5f * strength;
+                    float safeMaxY = extraH * 0.5f * strength;
+
+                    offsetX = Math.Clamp(desiredOffsetX, -safeMaxX, safeMaxX);
+                    offsetY = Math.Clamp(desiredOffsetY, -safeMaxY, safeMaxY);
+                }
+                else if (AutoBreathingParallax)
+                {
+                    float breathX = (float)Math.Sin(time * BreathingSpeed) * BreathingStrength;
+                    float breathY = (float)Math.Sin(time * BreathingSpeed * 0.7f + 1.3f) * (BreathingStrength * 0.6f);
+
+                    float safeMaxX = extraW * 0.5f * strength * 0.6f;
+                    float safeMaxY = extraH * 0.5f * strength * 0.6f;
+
+                    offsetX = Math.Clamp(breathX, -safeMaxX, safeMaxX);
+                    offsetY = Math.Clamp(breathY, -safeMaxY, safeMaxY);
+                }
+
+                drawX = baseX + offsetX;
+                drawY = baseY + offsetY;
+                drawW = bgW;
+                drawH = bgH;
             }
 
-            float drawX = baseX + offsetX;
-            float drawY = baseY + offsetY;
-
-            // Если идёт фейд — рисуем два слоя
+            // === Отрисовка (с поддержкой фейда) ===
             if (_isFading && _nextTextureId != -1)
             {
-                // Смягчение через SmoothStep (плавнее чем линейный)
-                float t = _fadeProgress * _fadeProgress * (3f - 2f * _fadeProgress);
+                float t = _fadeProgress * _fadeProgress * (3f - 2f * _fadeProgress); // smoothstep
 
-                // Старый фон уходит
-                SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                // Старый фон
+                SB.Draw(_textureId, drawX, drawY, drawW, drawH, 0, 0, 1, 1,
                     1f, 1f, 1f, Opacity * (1f - t), projection);
 
-                // Новый фон приходит
-                SB.Draw(_nextTextureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                // Новый фон
+                SB.Draw(_nextTextureId, drawX, drawY, drawW, drawH, 0, 0, 1, 1,
                     1f, 1f, 1f, Opacity * t, projection);
             }
             else
             {
-                SB.Draw(_textureId, drawX, drawY, bgW, bgH, 0, 0, 1, 1,
+                SB.Draw(_textureId, drawX, drawY, drawW, drawH, 0, 0, 1, 1,
                     1f, 1f, 1f, Opacity, projection);
             }
         }

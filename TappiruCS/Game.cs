@@ -76,6 +76,7 @@ namespace TappiruCS
            
             FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
             FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\1738032194_FOT-RodinPro-B.otf", 64));
+            FontManager.Add("Menu", new FreeTypeRender(spriteBatch, "Textures\\Font\\LangithRegpersonal-GO0Ly.otf", 64));
             FontManager.SetDefault("UI");
 
 

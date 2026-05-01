@@ -17,6 +17,7 @@ namespace TappiruCS.UI
         public Color4 TextColor { get; set; } = Color4.White;
         public Vector2 TextOffset { get; set; } = Vector2.Zero;
         public float FontSize { get; set; } = 64f;
+        public string FontKey { get; set; } = "UI";
         public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
         public int ButtonImage { get; set; } = 0;
@@ -40,24 +41,24 @@ namespace TappiruCS.UI
 
         public Button(float x, float y, float width, float height, string textureName, string text)
         {
-            NormalColor = new Color4(1f, 1f, 1f, Opacity);
-            HoverColor = new Color4(0.5f, 0.5f, 1.05f, Opacity);
-            PressColor = new Color4(0.75f, 0.75f, 0.75f, Opacity);
             Text = text;
 
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
-
             Pivot = new Vector2(0.5f, 0.5f);
 
             _textureId = TextureManager.GetTexture(textureName);
 
-            TextColor = TextColor;
+            // Правильная инициализация цветов
+            NormalColor = new Color4(1f, 1f, 1f, 1f);
+            HoverColor = new Color4(1.1f, 1.1f, 1.2f, 1f);   // можно подправить под свой вкус
+            PressColor = new Color4(0.75f, 0.75f, 0.75f, 1f);
+
             _currentColor = NormalColor;
 
             _buttonBackground = new SpriteObject(_textureId, 0, 0, width, height)
             {
-
+                Color = _currentColor
             };
 
             _textObject = new TextObject(text, 0, 0, FontSize)
@@ -77,11 +78,14 @@ namespace TappiruCS.UI
             AddChild(_buttonBackground);
             AddChild(_textObject);
             AddChild(_imageObject);
+
+            InitializeHoverState();
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime,mouse);
+            
 
             bool isPressed = IsHovered && mouse.IsButtonDown(MouseButton.Left);
 
@@ -100,8 +104,10 @@ namespace TappiruCS.UI
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
             _textObject.ScaleMultiply = ScaleMultiply;
             _textObject.FontSize = FontSize;
+            _textObject.FontKey = FontKey;
             _textObject.Text = Text;
             _textObject.Color = TextColor;
+            _textObject.HasShadow = true;
             _textObject.Pivot = new Vector2(0.5f, 0.5f);
 
 
@@ -159,20 +165,39 @@ namespace TappiruCS.UI
             bool wasHovered = IsHovered;
             IsHovered = hover;
 
-
-            if (hover)
+            // === СПЕЦИАЛЬНОЕ ПОВЕДЕНИЕ ДЛЯ МЕНЮ-КНОПОК (menuButton / topButton) ===
+            if (Tag == "menuButton" || Tag == "topButton")
             {
-                if (string.IsNullOrEmpty(Tag))
-                    this.AnimScale(1.15f, 0.18f);
-
-                _currentColor = HoverColor;
+                if (hover)
+                {
+                    _buttonBackground.Active = true;
+                    _currentColor = HoverColor;
+                }
+                else
+                {
+                    _buttonBackground.Active = false;
+                    _currentColor = NormalColor with { A = 0f }; // полностью прозрачный
+                }
             }
+            // === ОБЫЧНОЕ ПОВЕДЕНИЕ ДЛЯ ВСЕХ ОСТАЛЬНЫХ КНОПОК ===
             else
             {
-                this.AnimScaleReset(0.22f);
-                _currentColor = NormalColor;
+                if (hover)
+                {
+
+
+                    _currentColor = HoverColor;
+                }
+                else
+                {
+                    _currentColor = NormalColor;
+                }
             }
 
+            // Применяем текущий цвет к фону
+            _buttonBackground.Color = _currentColor;
+
+            // Звук наведения
             if (hover && !wasHovered)
             {
                 if (AudioManager.Instance != null && !Tag.Contains("NoHoverSound"))
@@ -182,8 +207,24 @@ namespace TappiruCS.UI
             }
 
             HoverStateChanged?.Invoke(this, hover);
-
             base.SetHover(hover);
+        }
+
+        public void InitializeHoverState()
+        {
+            // Для меню-кнопок фон изначально должен быть скрыт
+            if (Tag == "menuButton" || Tag == "topButton")
+            {
+                _buttonBackground.Active = false;
+                _currentColor = NormalColor with { A = 0f };   // полностью прозрачный
+
+
+            }
+            else
+            {
+                _buttonBackground.Active = true;
+                _currentColor = NormalColor;
+            }
         }
     }
 }
