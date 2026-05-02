@@ -30,6 +30,8 @@ namespace TappiruCS.State.Menu
         private Button _loginButton;
         private TextObject _loginText;
 
+        private TextObject _text1, _text2, _text3, _text4;
+
         // Logged-in UI
         private TextObject _welcomeText;
         private TextObject _ratingText;
@@ -89,6 +91,18 @@ namespace TappiruCS.State.Menu
         }
         private void CreateUI()
         {
+            _text1 = new TextObject("1", 36, 308, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text2 = new TextObject("2", 37, 412, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text3 = new TextObject("3", 36, 512, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text4 = new TextObject("4", 36, 612, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+
+            // Добавляем их в сцену
+            _scene.Add(_text1);
+            _scene.Add(_text2);
+            _scene.Add(_text3);
+            _scene.Add(_text4);
+
+
             // Login fields
             _loginText = new TextObject("Login", 120, 720, 72)
             {
@@ -131,10 +145,10 @@ namespace TappiruCS.State.Menu
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
             // Main menu buttons (всегда видны)
-            var playBtn = CreateMenuButton(305, "Play", StartGame);
-            var editBtn = CreateMenuButton(405, "Edit", GoEdit);
-            var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings);
-            var exitBtn = CreateMenuButton(605, "exit", ExitGame);
+            var playBtn = CreateMenuButton(305, "Play", StartGame,_text1);
+            var editBtn = CreateMenuButton(405, "Edit", GoEdit, _text2);
+            var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings, _text3);
+            var exitBtn = CreateMenuButton(605, "exit", ExitGame, _text4);
 
             
 
@@ -156,6 +170,7 @@ namespace TappiruCS.State.Menu
             var overlay = new Background(TextureManager.GetTexture("overlaynew"));
             var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
             
+            
 
             _scene.Add(bg);
             _scene.Add(overlay);
@@ -164,7 +179,7 @@ namespace TappiruCS.State.Menu
 
         }
 
-        private Button CreateMenuButton(int y, string text, Action? onClick)
+        private Button CreateMenuButton(int y, string text, Action? onClick,TextObject hintText)
         {
             var btn = new Button(300, y, 520, 120, "menuButton", text)
             {
@@ -179,6 +194,11 @@ namespace TappiruCS.State.Menu
                 
             };
             if (onClick != null) btn.OnClick += onClick;
+
+            btn.HoverStateChanged += (_, hover) =>
+            {
+                hintText.Color = hover ? new Color4(205, 58, 104, 255) : Color4.DarkSlateGray;
+            };
 
             btn.InitializeHoverState();
             return btn;
