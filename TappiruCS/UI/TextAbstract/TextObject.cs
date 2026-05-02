@@ -12,10 +12,10 @@ namespace TappiruCS.UI.TextAbstract
         public float FontSize { get; set; } = 144f;
         public string FontKey { get; set; } = "UI";
 
-        private Color4 _baseColor = Color4.White;
-        private Color4 _displayColor = Color4.White;
+        private UIColor _baseColor = Color4.White;
+        private UIColor _displayColor = Color4.White;
 
-        public Color4 Color
+        public UIColor Color
         {
             get => _baseColor;
             set

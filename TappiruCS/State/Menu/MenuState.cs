@@ -16,6 +16,7 @@ using TappiruCS.State.Menu.Option;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.Tween;
 
 namespace TappiruCS.State.Menu
 {
@@ -97,7 +98,7 @@ namespace TappiruCS.State.Menu
             _loginText = new TextObject("LOGIN", 120, 720, 72)
             {
                 FontKey = "Menu",
-                Color = new Color4(230, 57, 186,255),
+                Color = "#ff5daf",
                 FontSize = 16,
             };
             _loginInput = new InputField(240, 750, 430, 60)
@@ -171,18 +172,19 @@ namespace TappiruCS.State.Menu
 
         private Button CreateMenuButton(int y, string text, Action? onClick,TextObject hintText)
         {
-            var btn = new Button(300, y, 520, 120, "menuButton", text)
+            var btn = new Button(300, y, 620, 120, "menuButton", text)
             {
                 Layer = 2,
                 TextOffset = new Vector2(-230f, 20f),
                 ScaleMultiply = 0.8f,
-                Tag = "menuButton",
+                Tag = "menuButtonn",
                 
             };
             btn.Label.Align = TextAlign.Left;
-            btn.Label.Color = Color4.White; 
+            btn.Label.Color = "#FFFFFF"; 
             btn.Label.FontKey = "Menu";
             btn.Label.FontSize = 64f;
+            btn._buttonBackground.Opacity = 0f;
             if (onClick != null) btn.OnClick += onClick;
 
             btn.HoverStateChanged += (_, hover) =>
@@ -190,7 +192,10 @@ namespace TappiruCS.State.Menu
                 hintText.Color = hover ? new Color4(205, 58, 104, 255) : Color4.DarkSlateGray;
             };
 
+            btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered,0.5f);
+
             btn.InitializeHoverState();
+            
             return btn;
         }
 
