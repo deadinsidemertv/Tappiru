@@ -109,7 +109,7 @@ namespace TappiruCS.UI
             _textObject.Color = TextColor;
             _textObject.HasShadow = true;
             _textObject.Pivot = new Vector2(0.5f, 0.5f);
-
+            
 
             _textObject.Align = TextAlign.Left;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
@@ -164,7 +164,7 @@ namespace TappiruCS.UI
 
             bool wasHovered = IsHovered;
             IsHovered = hover;
-
+            
             // === СПЕЦИАЛЬНОЕ ПОВЕДЕНИЕ ДЛЯ МЕНЮ-КНОПОК (menuButton / topButton) ===
             if (Tag == "menuButton" || Tag == "topButton")
             {

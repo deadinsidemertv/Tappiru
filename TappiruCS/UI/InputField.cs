@@ -1,12 +1,11 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.UI
 {
@@ -18,6 +17,12 @@ namespace TappiruCS.UI
         private readonly SpriteObject _selectionBackground;
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
+
+
+        private int texIcon1;
+        private int texIcon2;
+        public SpriteObject ico1;
+        public SpriteObject ico2;
 
         public string PlaceHolderText { get; set; } = "Введите текст...";
         public Color4 PlaceHolderColor { get; set; } = Color4.DarkGray;
@@ -42,8 +47,7 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            _bgTextureId = TextureManager.GetTexture("newbutton");
-
+            _bgTextureId = TextureManager.GetTexture("input-field");
             // Основной фон
             InputBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
             {
@@ -79,12 +83,38 @@ namespace TappiruCS.UI
                 Pivot = new Vector2(0f, 0.5f),
             };
 
+
             AddChild(InputBackground);
             AddChild(_selectionBackground);
             AddChild(PlaceHolder);
             AddChild(InputText);
-        }
 
+
+        }
+        public void SetupIcon()
+        {
+            if (Tag == "username")
+            {
+                texIcon1 = TextureManager.GetTexture("userico");
+                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Active = false };
+                AddChild(ico1);
+                AddChild(ico2);
+            }
+            else if (Tag == "password")
+            {
+                texIcon1 = TextureManager.GetTexture("locked");
+                texIcon2 = TextureManager.GetTexture("view");
+                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                AddChild(ico1);
+                AddChild(ico2);
+            }
+            else if (Tag == "email")
+                texIcon1 = TextureManager.GetTexture("emailico");
+            else
+                texIcon1 = TextureManager.GetTexture("default-icon"); 
+        }
         protected override void OnContextSet()
         {
             if (Game != null)
@@ -93,8 +123,6 @@ namespace TappiruCS.UI
                 Game.TextInput += HandleTextInput;
             }
         }
-
-        // ... (HandleTextInput и HandleKeyDown остаются без изменений) ...
 
         private void HandleTextInput(TextInputEventArgs e)
         {
@@ -211,6 +239,7 @@ namespace TappiruCS.UI
             PlaceHolder.Color = PlaceHolderColor;
             PlaceHolder.Text = PlaceHolderText;
 
+
             // Обработка фокуса
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;
@@ -225,9 +254,16 @@ namespace TappiruCS.UI
             // Позиционируем текст с отступом от левого края
             var bounds = GetDesignBounds();
             float textX = bounds.designLeft + TextLeftPadding;
+            float textXright = Scale.X - bounds.effWidth;
 
-            InputText.LocalPosition = new Vector2(textX - WorldPosition.X, 10);
-            PlaceHolder.LocalPosition = new Vector2(textX - WorldPosition.X, 10);
+            InputText.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
+            PlaceHolder.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
+
+            if (ico1 != null && ico2 != null)
+            {
+                ico1.LocalPosition = new Vector2(textX - 7 - WorldPosition.X, 0);
+                ico2.LocalPosition = new Vector2(textXright, 0);
+            }
 
             // Позиционируем фон выделения
             _selectionBackground.WorldPosition = new Vector2(bounds.designLeft, bounds.designTop);

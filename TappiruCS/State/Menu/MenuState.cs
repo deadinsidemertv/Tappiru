@@ -1,20 +1,21 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using Pango;
 using System;
 using System.Threading.Tasks;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
+using TappiruCS.State.Menu.Option;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using TappiruCS.Render.Text;
-using TappiruCS.State.Menu.Option;
 
 namespace TappiruCS.State.Menu
 {
@@ -27,6 +28,7 @@ namespace TappiruCS.State.Menu
         private InputField _loginInput;
         private InputField _passwordInput;
         private Button _loginButton;
+        private TextObject _loginText;
 
         // Logged-in UI
         private TextObject _welcomeText;
@@ -88,29 +90,43 @@ namespace TappiruCS.State.Menu
         private void CreateUI()
         {
             // Login fields
-            _loginInput = new InputField(240, 755, 425, 70)
+            _loginText = new TextObject("Login", 120, 720, 72)
             {
-                PlaceHolderText = "login",
-                Layer = 4,
-                ScaleMultiply = 0.7f
-
+                FontKey = "Menu",
+                Color = new Color4(230, 57, 186,255),
+                FontSize = 16,
             };
+            _loginInput = new InputField(240, 750, 430, 60)
+            {
+                PlaceHolderText = "username",
+                Layer = 4,
+                ScaleMultiply = 0.7f,
+                Tag = "username"
+                
+            };
+            _loginInput.SetupIcon();
 
-            _passwordInput = new InputField(240, 805, 425, 70)
+            _passwordInput = new InputField(240, 795, 430, 60)
             {
                 PlaceHolderText = "password",
                 IsPassword = true,
                 Layer = 4,
-                ScaleMultiply = 0.7f
+                ScaleMultiply = 0.7f,
+                Tag = "password"
 
             };
+            _passwordInput.SetupIcon();
 
-            _loginButton = new Button(243, 855, 425, 75, "button", "Войти")
+            _loginButton = new Button(240, 860, 425, 75, "buttonSignUp", "Sign In")
             {
                 Layer = 4,
                 TextColor = Color4.White,
-                TextOffset = new Vector2(-100, 30),
-                ScaleMultiply = 0.7f
+                TextOffset = new Vector2(-65, 10),
+                ScaleMultiply = 0.7f,
+                FontSize = 24f,
+                FontKey = "Menu",
+                Tag = "SignIn"
+
             };
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
@@ -119,6 +135,8 @@ namespace TappiruCS.State.Menu
             var editBtn = CreateMenuButton(405, "Edit", GoEdit);
             var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings);
             var exitBtn = CreateMenuButton(605, "exit", ExitGame);
+
+            
 
             _scene.Add(playBtn);
             _scene.Add(editBtn);
@@ -137,9 +155,11 @@ namespace TappiruCS.State.Menu
             var bg = new Background(TextureLoader.Load(menubgpath)) { ParalaxEffect = true };
             var overlay = new Background(TextureManager.GetTexture("overlaynew"));
             var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
+            
 
             _scene.Add(bg);
             _scene.Add(overlay);
+            
             _scene.Add(Logo);
 
         }
@@ -205,6 +225,7 @@ namespace TappiruCS.State.Menu
             _scene.Add(_loginInput);
             _scene.Add(_passwordInput);
             _scene.Add(_loginButton);
+            _scene.Add(_loginText);
             
         }
 
@@ -273,6 +294,7 @@ namespace TappiruCS.State.Menu
             if (_ratingText != null) _scene.Remove(_ratingText);
             if (_avatarSprite != null) _scene.Remove(_avatarSprite);
             if (_avatarBackground != null) _scene.Remove(_avatarBackground);
+            if (_loginText!=null) _scene.Remove(_loginText);
         }
 
         public void Update(double deltaTime)
