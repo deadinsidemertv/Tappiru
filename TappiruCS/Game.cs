@@ -126,6 +126,7 @@ namespace TappiruCS
             SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
             audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
             audio.Play();
+            audio.SetLooping(true);
 
         }
         protected override void OnUpdateFrame(FrameEventArgs args)

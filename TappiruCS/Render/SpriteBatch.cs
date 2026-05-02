@@ -150,5 +150,21 @@ namespace TappiruCS.Render
                      projection);
             }
         }
+
+        public void DrawGlowRect(float x, float y, float width, float height, Color4 color,
+                        float baseAlpha, Matrix4 projection, int steps = 5, float spread = 8f)
+        {
+            if (baseAlpha <= 0f) return;
+
+            for (int i = steps; i >= 1; i--)
+            {
+                float factor = i / (float)steps;
+                float offset = spread * factor;
+                float alpha = baseAlpha * (0.14f / i);
+
+                DrawRect(x - offset, y - offset, width + offset * 2, height + offset * 2,
+                         new Color4(color.R, color.G, color.B, alpha), projection);
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ using TappiruCS.Render;
 using TappiruCS.Render.Audio;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Text.FreeType;
+using TappiruCS.UI;
 
 namespace TappiruCS.Core.GameObject
 {
@@ -79,11 +80,9 @@ namespace TappiruCS.Core.GameObject
             foreach (var child in _children)
             {
                 if (!child.Active) continue;
-                child.CanvasScale = CanvasScale;
-                //child.Opacity = Opacity;
 
-               
-                child.WorldPosition = child.GetWorldPosition();
+                child.CanvasScale = CanvasScale;
+                child.WorldPosition = child.GetWorldPosition();   // принудительно
 
                 child.Update(deltaTime, mouse);
             }

@@ -160,13 +160,28 @@ namespace TappiruCS.State.Menu
             var bg = new Background(TextureLoader.Load(menubgpath)) { ParalaxEffect = true };
             var overlay = new Background(TextureManager.GetTexture("overlaynew"));
             var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
-            
+
+            var currentmusicBg = new SpriteObject(TextureLoader.Load(SongSelectState.SelectedMap.backGroundPath), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.25f};
+            var currentmusicBord = new SpriteObject(TextureManager.GetTexture("module-window-borderonly"), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.26f };
+            var currentmusicLabel = new TextObject(SongSelectState.SelectedMap.title, 650, 1000, 36) { Align = TextAlign.Left};
+            var currentmusicLabelArtitst = new TextObject(SongSelectState.SelectedMap.artist, 650, 1030, 28) { Align = TextAlign.Left };
+
+            var wave = new WaveformObject(1130, 1065);
+            wave.Width = 1000;
+            wave.Height = 200;
+            wave.CreateBars();
             
 
             _scene.Add(bg);
             _scene.Add(overlay);
-            
+
+            _scene.Add(wave);
+            _scene.Add(currentmusicBord);
+            _scene.Add(currentmusicBg);
+            _scene.Add(currentmusicLabel);
+            _scene.Add(currentmusicLabelArtitst);
             _scene.Add(Logo);
+            
 
         }
 

@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio.Dsp;
+using NAudio.Wave;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using System;
@@ -20,6 +21,13 @@ namespace TappiruCS.Render
         private float _masterVolume = 1.0f;
         private float _musicVolume = 0.95f;
         private float _effectsVolume = 1.0f;
+
+        private WasapiLoopbackCapture? _loopbackCapture;
+        private readonly Complex[] _fftBuffer = new Complex[2048];   // ← Complex, а не float!
+        private readonly float[] _spectrum = new float[256];
+        private bool _isCapturing = false;
+
+        public float[] Spectrum => _spectrum;
 
         // ====================== СТАТИЧЕСКИЕ СВОЙСТВА ДЛЯ СОВМЕСТИМОСТИ ======================
         public static float MasterVolume
@@ -86,6 +94,7 @@ namespace TappiruCS.Render
             _musicBuffer = AL.GenBuffer();
 
             MasterVolume = OptionFile.MasterVolume;
+            StartSpectrumCapture();
         }
 
         // ====================== МУЗЫКА С FADE ======================
@@ -320,6 +329,73 @@ namespace TappiruCS.Render
             return preview;
         }
 
+        public void StartSpectrumCapture()
+        {
+            if (_isCapturing) return;
+
+            try
+            {
+                _loopbackCapture = new WasapiLoopbackCapture();
+                _loopbackCapture.DataAvailable += OnDataAvailable;
+                _loopbackCapture.StartRecording();
+                _isCapturing = true;
+                Console.WriteLine("[Audio] Spectrum capture STARTED successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Audio] FAILED to start spectrum capture:");
+                Console.WriteLine(ex.Message);
+                if (ex.InnerException != null)
+                    Console.WriteLine("Inner: " + ex.InnerException.Message);
+            }
+        }
+
+        public void StopSpectrumCapture()
+        {
+            if (_loopbackCapture != null)
+            {
+                _loopbackCapture.StopRecording();
+                _loopbackCapture.Dispose();
+                _loopbackCapture = null;
+            }
+            _isCapturing = false;
+        }
+
+        private void OnDataAvailable(object? sender, WaveInEventArgs e)
+        {
+            if (e.BytesRecorded == 0) return;
+
+            int bufferSize = _fftBuffer.Length;
+
+            for (int i = 0; i < bufferSize && (i * 4 + 3) < e.BytesRecorded; i++)
+            {
+                float sample = BitConverter.ToSingle(e.Buffer, i * 4);
+                _fftBuffer[i].X = sample * 8f;
+                _fftBuffer[i].Y = 0;
+            }
+
+            FastFourierTransform.FFT(true, (int)Math.Log(bufferSize, 2), _fftBuffer);
+
+            int half = _spectrum.Length / 2;
+
+            for (int i = 0; i < _spectrum.Length; i++)
+            {
+                // Простая парабола: центр = максимум
+                float centerWeight = 1.0f - Math.Abs(i - half) / (float)half;
+
+                int freqIndex = (int)(centerWeight * centerWeight * (bufferSize / 4)); // сильно в центр
+
+                float sum = 0f;
+                for (int j = 0; j < 5 && freqIndex + j < bufferSize / 2; j++)
+                {
+                    var bin = _fftBuffer[freqIndex + j];
+                    sum += (float)Math.Sqrt(bin.X * bin.X + bin.Y * bin.Y);
+                }
+
+                _spectrum[i] = Math.Clamp(sum / 8f, 0f, 1.0f);
+            }
+        }
+
         public void Dispose()
         {
             _fadeCts?.Cancel();
@@ -336,6 +412,7 @@ namespace TappiruCS.Render
 
             ALC.DestroyContext(_context);
             ALC.CloseDevice(_device);
+            StopSpectrumCapture();
         }
     }
 }

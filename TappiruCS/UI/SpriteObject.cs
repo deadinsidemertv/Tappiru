@@ -1,5 +1,6 @@
 ﻿// UI/SpriteObject.cs
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 
 namespace TappiruCS.UI
@@ -26,11 +27,17 @@ namespace TappiruCS.UI
             AllowHover = false;
         }
 
+        public override void Update(double deltaTime, MouseState mouse)
+        {
+            base.Update(deltaTime, mouse);
+        }
 
         public override void Draw(Matrix4 projection)
         {
             if (!Active || Context == null || SB == null)
                 return;
+
+            
 
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
 
@@ -72,6 +79,8 @@ namespace TappiruCS.UI
                     Color.R, Color.G, Color.B, Opacity,
                     projection);
             }
+
+            base.Draw(projection);
         }
     }
 }
