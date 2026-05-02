@@ -88,6 +88,8 @@ namespace TappiruCS
 
             audio = new AudioManager();
 
+            GetRandomSong();
+
             RenderContext = new RenderContext(this, spriteBatch, audio);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
@@ -114,6 +116,16 @@ namespace TappiruCS
             {
                 _mainThreadActions.Enqueue(action);
             }
+        }
+        public void GetRandomSong()
+        {
+            string[] folders = Directory.GetDirectories("Songs/");
+            Random rnd = new Random();
+            int randomsong = rnd.Next(0, folders.Length);
+            SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
+            audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
+            audio.Play();
+
         }
         protected override void OnUpdateFrame(FrameEventArgs args)
         {

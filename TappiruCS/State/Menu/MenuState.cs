@@ -71,24 +71,14 @@ namespace TappiruCS.State.Menu
                     ShowLoginUI();
                 }
             }
-            GetRandomSong();
-
+          
         }
 
         private void ToggleSettings()
         {
             _context.Game.OpenModalWindow(new OptionModule(_scene));
         }
-        public void GetRandomSong()
-        {
-            string[] folders = Directory.GetDirectories("Songs/");
-            Random rnd = new Random();
-            int randomsong = rnd.Next(0, folders.Length);
-            SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
-            _context.Audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
-            _context.Audio.Play();
-
-        }
+       
         private void CreateUI()
         {
             _text1 = new TextObject("1", 36, 308, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
@@ -189,7 +179,7 @@ namespace TappiruCS.State.Menu
                 Tag = "menuButton",
                 
             };
-            btn.Label.Align = TextAlign.Center;
+            btn.Label.Align = TextAlign.Left;
             btn.Label.Color = Color4.White; 
             btn.Label.FontKey = "Menu";
             btn.Label.FontSize = 64f;
