@@ -108,13 +108,13 @@ namespace TappiruCS.State.Edit
             var btn = new Button(  x, 30, 700, 120, "button", text)
             {
                 Layer = 1,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f,0.5f),
                 ScaleMultiply = 0.4f,
-                TextAlign = TextAlign.Center,
                 Tag = "topButton"
             };
+            btn.Label.Align = TextAlign.Center;
+            btn.Label.Color = Color4.White;
             btn.OnClick += onClick;
             return btn;
         }
@@ -382,16 +382,16 @@ namespace TappiruCS.State.Edit
             };
             _addPhraseButton.OnClick += AddNewPhrase;
 
-            _saveProjectButton = new Button( 1780, 30, 500, 100, "button", "Save Project")
+            _saveProjectButton = new Button(1780, 30, 500, 100, "button", "Save Project")
             {
                 Layer = 1,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
-                TextAlign = TextAlign.Center,
                 Tag = "topButton"
             };
+            _saveProjectButton.Label.Align = TextAlign.Center;
+            _saveProjectButton.Label.Color = Color4.White;
             _saveProjectButton.OnClick += SaveProject;
 
             _scene.Add(_playPauseButton);

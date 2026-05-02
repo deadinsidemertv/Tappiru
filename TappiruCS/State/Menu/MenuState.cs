@@ -134,14 +134,14 @@ namespace TappiruCS.State.Menu
             _loginButton = new Button(240, 860, 425, 75, "buttonSignUp", "Sign In")
             {
                 Layer = 4,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-65, 10),
                 ScaleMultiply = 0.7f,
-                FontSize = 24f,
-                FontKey = "Menu",
                 Tag = "SignIn"
 
             };
+            _loginButton.Label.Color = Color4.White;
+            _loginButton.Label.FontSize = 24f;
+            _loginButton.Label.FontKey = "Menu";
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
             // Main menu buttons (всегда видны)
@@ -184,15 +184,15 @@ namespace TappiruCS.State.Menu
             var btn = new Button(300, y, 520, 120, "menuButton", text)
             {
                 Layer = 2,
-                TextAlign = TextAlign.Center,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-230f, 20f),
                 ScaleMultiply = 0.8f,
                 Tag = "menuButton",
-                FontSize = 64f,
-                FontKey = "Menu"
                 
             };
+            btn.Label.Align = TextAlign.Center;
+            btn.Label.Color = Color4.White; 
+            btn.Label.FontKey = "Menu";
+            btn.Label.FontSize = 64f;
             if (onClick != null) btn.OnClick += onClick;
 
             btn.HoverStateChanged += (_, hover) =>

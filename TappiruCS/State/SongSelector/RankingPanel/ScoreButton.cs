@@ -39,7 +39,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
             NormalColor = Color4.Black;
             HoverColor = new Color4(0.2f, 0.2f, 0.2f, 1f);
             Tag = "scorebutton";
-            Text = "";
+            Label.Text = "";
             Opacity = DefaultOpacity;
             AllowHover = true;
             Layer = 10;

@@ -169,20 +169,20 @@ namespace TappiruCS.State.SongSelector
             var playButton = new Button(1766, 938, 500, 500, "playButton", "Play")
             {
                 Layer = 2,
-                TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 ScaleMultiply = 0.8f,
                 Tag = "play",
             };
+            playButton.Label.Color = new Color4(0f, 0f, 0f, 0f);
 
             var backButton = new Button(160, 1011.8f, 449, 192, "back", "")
             {
                 Layer = 2,
-                TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 ScaleMultiply = 0.72f,
                 Tag = "back",
             };
+            backButton.Label.Color = new Color4(0f, 0f, 0f, 0f);
 
             var modsButton = new Button(480, 1015, 77, 90, "selection-mode", "")
             {
@@ -302,24 +302,23 @@ namespace TappiruCS.State.SongSelector
         {
             var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, map)
             {
-                TextAlign = TextAlign.Right,
                 IsImaged = true,
-                FontSize = 36,
                 TextOffset = new Vector2(-440f, -40f),
                 ImageScale = new Vector2(0.16f, 0.75f),
                 ImageOffset = new Vector2(-570f, 0f),
                 Layer = _mapList.Layer,
                 Tag = "List",
             };
-
+            button.Label.Align = TextAlign.Right;
+            button.Label.FontSize = 36f;
             button.SetIndex(index);
 
             if (map.IsOnServer)
             {
-                button.Text += " !Сервер!";
-                button.TextColor = new Color4(0.3f, 1f, 0.3f, 1f);
+                button.Label.Text += " !Сервер!";
+                button.Label.Color = new Color4(0.3f, 1f, 0.3f, 1f);
             }
-
+            
             if (image != null)
             {
                 button.ButtonImage = TextureLoader.CreateTextureFromRawDataAsync(

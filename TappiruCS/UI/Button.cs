@@ -13,12 +13,7 @@ namespace TappiruCS.UI
 
         private readonly int _textureId;
 
-        public string Text { get; set; }
-        public Color4 TextColor { get; set; } = Color4.White;
         public Vector2 TextOffset { get; set; } = Vector2.Zero;
-        public float FontSize { get; set; } = 64f;
-        public string FontKey { get; set; } = "UI";
-        public TextAlign TextAlign { get; set; } = TextAlign.Center;
 
         public int ButtonImage { get; set; } = 0;
         public Vector2 ImagePadding { get; set; } = new Vector2(0f, 0f);
@@ -33,7 +28,7 @@ namespace TappiruCS.UI
         public Color4 _currentColor;
 
         public readonly SpriteObject _buttonBackground;
-        private readonly TextObject _textObject;
+        public readonly TextObject Label;
         private readonly SpriteObject _imageObject;
 
         public event Action OnClick;
@@ -41,7 +36,7 @@ namespace TappiruCS.UI
 
         public Button(float x, float y, float width, float height, string textureName, string text)
         {
-            Text = text;
+            
 
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
@@ -61,22 +56,18 @@ namespace TappiruCS.UI
                 Color = _currentColor
             };
 
-            _textObject = new TextObject(text, 0, 0, FontSize)
+            Label = new TextObject(text, 0, 0, 64)
             {
                 Align = TextAlign.Center,
                 Pivot = new Vector2(0.5f, 0.5f),
-                Color = TextColor,
+                Color = Color4.White,
                 AllowHover = false
             };
+            Label.Text = text;
 
-            _imageObject = new SpriteObject(0, 0, 0, 1f, 1f)
-            {
-                Pivot = new Vector2(0.5f, 0.5f),
-                Active = false
-            };
 
             AddChild(_buttonBackground);
-            AddChild(_textObject);
+            AddChild(Label);
             AddChild(_imageObject);
 
             InitializeHoverState();
@@ -102,45 +93,23 @@ namespace TappiruCS.UI
                 OnClick?.Invoke();
 
             // === ОБНОВЛЕНИЕ ДЕТЕЙ ===
-            _textObject.ScaleMultiply = ScaleMultiply;
-            _textObject.FontSize = FontSize;
-            _textObject.FontKey = FontKey;
-            _textObject.Text = Text;
-            _textObject.Color = TextColor;
-            _textObject.HasShadow = true;
-            _textObject.Pivot = new Vector2(0.5f, 0.5f);
+            Label.ScaleMultiply = ScaleMultiply;
+            Label.HasShadow = true;
+            Label.Pivot = new Vector2(0.5f, 0.5f);
             
 
-            _textObject.Align = TextAlign.Left;
+            Label.Align = TextAlign.Left;
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
             // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
             if (TextOffset != Vector2.Zero)
             {
                 float s = ScaleMultiply;
-                _textObject.WorldPosition += new Vector2(TextOffset.X * s, TextOffset.Y * s);
+                Label.WorldPosition += new Vector2(TextOffset.X * s, TextOffset.Y * s);
             }
 
             float offsetScale = ScaleMultiply;
 
-            if (IsImaged)
-            {
-                _imageObject.Active = true;
-                _imageObject._textureId = ButtonImage;
-
-                Vector2 offset = ImageOffset.LengthSquared > 0.0001f ? ImageOffset : ImagePadding;
-                float scaledOffsetX = offset.X * offsetScale;
-                float scaledOffsetY = offset.Y * offsetScale;
-
-                _imageObject.WorldPosition = new Vector2(WorldPosition.X + scaledOffsetX, WorldPosition.Y + scaledOffsetY);
-                _imageObject.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
-                _imageObject.ScaleMultiply = 1f;
-                //_imageObject.Opacity = Opacity;
-            }
-            else
-            {
-                _imageObject.Active = false;
-            }
         }
 
         public override void Draw(Matrix4 projection)
