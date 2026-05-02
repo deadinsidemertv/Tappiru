@@ -8,6 +8,7 @@ using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Audio;
 
 namespace TappiruCS.State.Edit
 {

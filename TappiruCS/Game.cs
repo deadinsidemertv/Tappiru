@@ -17,6 +17,7 @@ using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.Render.Text.FreeType;
+using TappiruCS.Render.Audio;
 
 namespace TappiruCS
 {
@@ -260,15 +261,18 @@ namespace TappiruCS
                 gameSessionState.HandleKeyUp(e);
             }
         }
-        public void ChangeState(IGameState newState)
+        public async void ChangeState(IGameState newState)
         {
             if (_pendingState != null || _isTransitioning) return;
 
+            
             _pendingState = newState;
             _isFadingOut = true;
             _isTransitioning = true;
+            await audio.FadeOutAsync(0.7f);
 
-           
+            await audio.FadeInAsync(0.7f);
+
         }
         protected override void OnClosing(CancelEventArgs e)
         {

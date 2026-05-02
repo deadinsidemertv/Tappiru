@@ -8,6 +8,7 @@ using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Audio;
 
 namespace TappiruCS.State.Menu.Option
 {
@@ -149,7 +150,7 @@ namespace TappiruCS.State.Menu.Option
             volumeSliderMaster.SetValue(OptionFile.MasterVolume);
 
             volumeSliderMaster.OnValueChanged += val => OptionFile.MasterVolume = val;
-            volumeSliderMaster.OnValueChanged += val => AudioManager.MainVolume = val;
+            volumeSliderMaster.OnValueChanged += val => AudioManager.MasterVolume = val;
 
 
             container.RecalculateSize();

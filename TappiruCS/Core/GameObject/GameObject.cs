@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
+using TappiruCS.Render.Audio;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Text.FreeType;
 
