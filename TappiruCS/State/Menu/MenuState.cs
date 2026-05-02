@@ -94,7 +94,7 @@ namespace TappiruCS.State.Menu
 
 
             // Login fields
-            _loginText = new TextObject("Login", 120, 720, 72)
+            _loginText = new TextObject("LOGIN", 120, 720, 72)
             {
                 FontKey = "Menu",
                 Color = new Color4(230, 57, 186,255),
@@ -124,7 +124,7 @@ namespace TappiruCS.State.Menu
             _loginButton = new Button(240, 860, 425, 75, "buttonSignUp", "Sign In")
             {
                 Layer = 4,
-                TextOffset = new Vector2(-65, 10),
+                TextOffset = new Vector2(-18, 10),
                 ScaleMultiply = 0.7f,
                 Tag = "SignIn"
 
