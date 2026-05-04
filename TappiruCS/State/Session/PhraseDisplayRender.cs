@@ -42,7 +42,7 @@ namespace TappiruCS.State.Session
             if (!isPhraseActive) return;
 
             string text = new string(session.CurrentPhaseChars);
-            float maxPixelWidth = _context.Game.ClientSize.X * 0.85f;
+            float maxPixelWidth = _context.Game.ClientSize.X * 0.95f;
 
             float bestScale = CalculateBestTextScale(text, maxPixelWidth);
             float screenX = centerX * Scene.CanvasScale.X;

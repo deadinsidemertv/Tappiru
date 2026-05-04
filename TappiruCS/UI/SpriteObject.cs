@@ -8,7 +8,7 @@ namespace TappiruCS.UI
     public class SpriteObject : GameObject
     {
         public int _textureId;
-        public Color4 Color { get; set; } = Color4.White;
+        public UIColor Color { get; set; } = Color4.White;
 
         // === Glow свойства ===
         public bool EnableGlow { get; set; } = false;

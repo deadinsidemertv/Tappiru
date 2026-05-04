@@ -9,15 +9,15 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
+using TappiruCS.Render.Audio;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Text.FreeType;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
-using TappiruCS.Render.Text.FreeType;
-using TappiruCS.Render.Audio;
 
 namespace TappiruCS
 {
@@ -78,6 +78,7 @@ namespace TappiruCS
             FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
             FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\1738032194_FOT-RodinPro-B.otf", 64));
             FontManager.Add("Menu", new FreeTypeRender(spriteBatch, "Textures\\Font\\LangithRegpersonal-GO0Ly.otf", 64));
+            FontManager.Add("GameOverlay", new FreeTypeRender(spriteBatch, "Textures\\Font\\neuropolxfree.ttf", 64));
             FontManager.SetDefault("UI");
 
 

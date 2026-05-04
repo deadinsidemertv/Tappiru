@@ -67,7 +67,7 @@ namespace TappiruCS.State.Session
 
             session = new GameSession(_mapData);
 
-            int scoreBarTex = TextureManager.GetTexture("scorebg");
+            int scoreBarTex = TextureManager.GetTexture("gameoverlay");
 
             // === ПРИОРИТЕТ ВИДЕО ===
             if (!string.IsNullOrEmpty(_mapData.videoPath) && File.Exists(_mapData.videoPath))
@@ -94,7 +94,7 @@ namespace TappiruCS.State.Session
             Fade = new Background(0) { Opacity = 0.7f };
             scorebarBG = new SpriteObject(scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
 
-            progressbar = new ProgressBar(20, 20, 700, 5);
+            progressbar = new ProgressBar(80, 53, 400, 5) { Layer = 10};
             _scene.Add(progressbar);
 
             _scoreBarUI.AddToScene(_scene);

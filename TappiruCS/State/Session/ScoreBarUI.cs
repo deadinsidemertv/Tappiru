@@ -22,24 +22,34 @@ namespace TappiruCS.State.Session
         public ScoreBarUI()
         {
 
-            _scoreText = new TextObject("000000000", 1900, 40, 36f)
+            _scoreText = new TextObject("0000000", 1890, 140, 144f)
             {
                 Color = Color4.White,
-                Align = TextAlign.Right
+                Align = TextAlign.Right,
+                FontKey = "GameOverlay",
+                ScaleMultiply = 0.23f,
+                HasShadow = true,
             };
 
-            _accuracyText = new TextObject("100.00%", 1850, 70, 24f)
+            _accuracyText = new TextObject("100.00%", 1785, 235, 28f)
             {
                 Color = Color4.White,
-                Align = TextAlign.Center
+                Align = TextAlign.Center,
+                FontKey = "GameOverlay",
+                HasShadow = true
             };
 
-            _comboText = new TextObject("0", 35, 1070, 36f)
+            _comboText = new TextObject("0", 1795, 330, 28f)
             {
-                Align = TextAlign.Left
+                Align = TextAlign.Left,
+                FontKey = "GameOverlay",
+                HasShadow = true
             };
 
-            _comboXText = new TextObject("x", 55, 1040, 24f);
+            _comboXText = new TextObject("x", 55, 1040, 48f) 
+            {
+                HasShadow = true
+            };
         }
 
         // Метод обновления — принимает session каждый кадр
@@ -52,12 +62,12 @@ namespace TappiruCS.State.Session
             _displayedScore = MathHelper.Lerp(_displayedScore, session.TotalScore, lerpSpeed * (float)deltaTime);
             _displayedAccuracy = MathHelper.Lerp(_displayedAccuracy, session.Accuracy, lerpSpeed * (float)deltaTime);
 
-            _scoreText.Text = ((int)Math.Round(_displayedScore)).ToString("D9");
+            _scoreText.Text = ((int)Math.Round(_displayedScore)).ToString("D7");
             _accuracyText.Text = (Math.Round(_displayedAccuracy * 100f) / 100f).ToString("F2") + "%";
             _comboText.Text = session.Combo.ToString();
 
             // Обновляем позицию "x"
-            _comboXText.WorldPosition = new Vector2(_comboText.WorldPosition.X - 15, _comboText.WorldPosition.Y );
+            _comboXText.WorldPosition = new Vector2(_comboText.WorldPosition.X - 10, _comboText.WorldPosition.Y-2 );
         }
 
         public void AddToScene(Scene scene)
