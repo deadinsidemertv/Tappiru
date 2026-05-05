@@ -31,14 +31,14 @@ namespace TappiruCS.State.Menu.Option
                 { SettingsSection.Video, "setting-button-screen" },
             };
 
-            _bg = new SpriteObject(0, 300, 540, 600, 1080)
+            _bg = new SpriteObject(0, 1610, 540, 600, 1080)
             {
                 AllowHover = false,
                 Layer = 5,
                 Opacity = 0.85f,
             };
             obj.Add(_bg);
-            _bgBlack = new SpriteObject(0, 35, 540, 70, 1080)
+            _bgBlack = new SpriteObject(0, 1885, 540, 70, 1080)
             {
                 AllowHover = false,
                 Layer = 5,
@@ -48,7 +48,7 @@ namespace TappiruCS.State.Menu.Option
 
             var sections = Enum.GetValues(typeof(SettingsSection));
             int idx = 0;
-            _SectionButtonList = new ScrollContainer(25, 80, 100, 600,30) { Layer = 6};
+            _SectionButtonList = new ScrollContainer(1875, 80, 100, 600,30) { Layer = 6};
             obj.Add(_SectionButtonList);
             foreach (SettingsSection sec in sections)
             {
@@ -66,7 +66,7 @@ namespace TappiruCS.State.Menu.Option
             }
 
 
-            _scrollContainer = new ScrollContainer(300, 200, 500, 1080,20)
+            _scrollContainer = new ScrollContainer(1540, 200, 500, 1080,20)
             {
                 Layer = 6
             };
