@@ -102,8 +102,8 @@ cd Tappiru
 
 Maps live in `Songs/<SongName>/` and contain:
 - `audio.mp3` — the track
-- `map.tmap` — note timing, lanes, sliders (custom text format)
-- `meta.json` — title, artist, BPM, difficulty
+- `map.png/jpg` — map background 
+- `meta.tapp` — title, artist, BPM, difficulty,note timing
 
 The in-game editor lets you place notes visually and export directly to this format.
 
