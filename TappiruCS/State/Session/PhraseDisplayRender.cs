@@ -2,7 +2,8 @@
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Logic;
-using static TappiruCS.Render.Text.Font;
+using TappiruCS.Render.Text.FreeType;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.State.Session
 {
@@ -11,15 +12,17 @@ namespace TappiruCS.State.Session
         private readonly RenderContext _context;
         private readonly MapData _mapData;
 
-        // Константы слайдеров
-        private static readonly Color4 SliderBarBackground = new Color4(0.18f, 0.18f, 0.18f, 1.0f);
-        private static readonly Color4 SliderBarReady = new Color4(1.0f, 0.55f, 0.1f, 1.0f);
-        private static readonly Color4 SliderBarHolding = new Color4(0.15f, 0.8f, 1.0f, 1.0f);
-        private static readonly Color4 SliderBarSuccess = new Color4(0.1f, 1.0f, 0.35f, 1.0f);
-        private static readonly Color4 SliderBarOutline = new Color4(1f, 1f, 1f, 0.5f);
+        private static readonly Color4 SliderBarBackground = new(0.18f, 0.18f, 0.18f, 1.0f);
+        private static readonly Color4 SliderBarReady = new(1.0f, 0.55f, 0.1f, 1.0f);
+        private static readonly Color4 SliderBarHolding = new(0.15f, 0.8f, 1.0f, 1.0f);
+        private static readonly Color4 SliderBarSuccess = new(0.1f, 1.0f, 0.35f, 1.0f);
+        private static readonly Color4 SliderBarOutline = new(1f, 1f, 1f, 0.5f);
 
-        // Базовый размер шрифта, от которого считаются все масштабы
         private const float BaseFontSize = 144f;
+
+        // Удобное сокращение
+        private const string FontKey = "Game";
+        private FreeTypeRender FT => FontManager.Get(FontKey);
 
         public PhraseDisplayRenderer(RenderContext context, MapData mapData)
         {
@@ -36,24 +39,30 @@ namespace TappiruCS.State.Session
 
             bool isPhraseActive = currentAudioTime >= session.CurrentPhaseStartTime &&
                                   currentAudioTime <= session.CurrentPhaseEndTime;
-
             if (!isPhraseActive) return;
 
             string text = new string(session.CurrentPhaseChars);
-            float maxPixelWidth = _context.Game.ClientSize.X * 0.85f;
+            float maxPixelWidth = _context.Game.ClientSize.X * 0.95f;
 
             float bestScale = CalculateBestTextScale(text, maxPixelWidth);
             float screenX = centerX * Scene.CanvasScale.X;
             float screenY = y * Scene.CanvasScale.Y;
+
+            // Убираем хардкод с Ascender * 0.5f — это и сдвигало текст вверх!
+            float baselineY = screenY;   // ← теперь просто screenY, без дополнительных смещений
+
+
             float finalScaleX = bestScale * Scene.CanvasScale.X;
             float finalScaleY = bestScale * Scene.CanvasScale.Y;
 
             float alpha = CalculateFadeAlpha(session, currentAudioTime);
-
             Color4[] colors = ComputeCharColors(session, text, currentAudioTime);
             ApplyAlphaToColors(colors, alpha);
 
-            var charBounds = _context.TextRenderer.GetCharBounds(text, centerX, y, Scene.CanvasScale, bestScale, 1.0f, TextAlign.Center);
+            var charBounds = FT.GetCharBounds(
+                text, centerX, y,
+                Scene.CanvasScale, bestScale, 1.0f, TextAlign.Center);
+
             if (charBounds == null || charBounds.Length == 0) return;
 
             // 1. Рамки слайдеров
@@ -61,15 +70,17 @@ namespace TappiruCS.State.Session
 
             // 2. Свечение текущей буквы
             if (!session.PhaseComplete)
-                DrawCurrentCharGlow(session.CurrentCharIndex, text, charBounds, finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
+                DrawCurrentCharGlow(session.CurrentCharIndex, text, charBounds,
+                    finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
 
             // 3. Свечение завершённой фразы
             if (session.PhaseComplete)
-                DrawCompletedPhraseGlow(text, screenX, screenY, finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
+                DrawCompletedPhraseGlow(text, screenX, baselineY,
+                    finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
 
             // 4. Основной текст
-            _context.TextRenderer.DrawStringWithCharColors(
-                text, screenX, screenY,
+            FT.DrawStringWithCharColors(
+                text, screenX, baselineY,
                 BaseFontSize, finalScaleX, finalScaleY,
                 colors, projection, TextAlign.Center);
 
@@ -78,31 +89,27 @@ namespace TappiruCS.State.Session
                 DrawSliderHoldBar(session, projection);
         }
 
-        // ==================== Вспомогательные методы ====================
+        // ── Вспомогательные ───────────────────────────────────────────────────────
 
         private float CalculateBestTextScale(string text, float maxPixelWidth)
         {
-            for (float testScale = 1.8f; testScale >= 0.5f; testScale -= 0.02f)
+            for (float s = 1.8f; s >= 0.5f; s -= 0.02f)
             {
-                float estimatedWidth = _context.TextRenderer.CalculateTextWidth(text, testScale * Scene.CanvasScale.X);
-                if (estimatedWidth <= maxPixelWidth)
-                    return testScale;
+                if (FT.CalculateTextWidth(text, s * Scene.CanvasScale.X) <= maxPixelWidth)
+                    return s;
             }
             return 0.5f;
         }
 
-        private float CalculateFadeAlpha(GameSession session, double currentAudioTime)
+        private static float CalculateFadeAlpha(GameSession session, double currentAudioTime)
         {
             double timeLeft = session.CurrentPhaseEndTime - currentAudioTime;
-            if (timeLeft < 0.18)
-                return Math.Max(0.0f, (float)(timeLeft / 0.18));
-            return 1.0f;
+            return timeLeft < 0.18 ? Math.Max(0f, (float)(timeLeft / 0.18)) : 1f;
         }
 
         private Color4[] ComputeCharColors(GameSession session, string text, double currentTime)
         {
-            Color4[] colors = new Color4[text.Length];
-
+            var colors = new Color4[text.Length];
             for (int i = 0; i < text.Length; i++)
             {
                 bool isSlider = session.CurrentSliders?.ContainsKey(i) ?? false;
@@ -111,51 +118,35 @@ namespace TappiruCS.State.Session
                 bool isSuccessfullyCompleted = session.SuccessfullyCompletedSliders.Contains(i);
 
                 if (session.PhaseComplete || isSuccessfullyCompleted)
-                {
                     colors[i] = new Color4(_mapData.completeR, _mapData.completeG, _mapData.completeB, 1f);
-                }
                 else if (isSuccessfullyHeld)
-                {
                     colors[i] = new Color4(0.1f, 1.0f, 0.3f, 1f);
-                }
                 else if (isHoldingThis)
-                {
                     colors[i] = new Color4(0.2f, 0.85f, 1.0f, 1f);
-                }
                 else if (i < session.CurrentCharIndex)
-                {
                     colors[i] = new Color4(_mapData.tappedR, _mapData.tappedG, _mapData.tappedB, 1f);
-                }
-                else if (isSlider)
+                else if (isSlider && session.CurrentSliders!.TryGetValue(i, out var slider))
                 {
-                    if (session.CurrentSliders.TryGetValue(i, out var slider))
-                    {
-                        bool isTimeForSlider = currentTime >= slider.startTime - 0.5 && currentTime <= slider.endTime + 0.3;
-                        colors[i] = isTimeForSlider
-                            ? new Color4(1.0f, 0.4f, 0.0f, 1f)
-                            : new Color4(1.0f, 1.0f, 1.0f, 1f);
-                    }
+                    bool active = currentTime >= slider.startTime - 0.5 && currentTime <= slider.endTime + 0.3;
+                    colors[i] = active ? new Color4(1f, 0.4f, 0f, 1f) : Color4.White;
                 }
                 else if (i == session.CurrentCharIndex)
-                {
                     colors[i] = new Color4(_mapData.needR, _mapData.needG, _mapData.needB, 1f);
-                }
                 else
-                {
-                    colors[i] = new Color4(1f, 1f, 1f, 1f);
-                }
+                    colors[i] = Color4.White;
             }
-
             return colors;
         }
 
-        private void ApplyAlphaToColors(Color4[] colors, float alpha)
+        private static void ApplyAlphaToColors(Color4[] colors, float alpha)
         {
             for (int i = 0; i < colors.Length; i++)
                 colors[i].A *= alpha;
         }
 
-        private void DrawSliderFrames(string text, (float x, float y, float width, float height)[] charBounds,
+        private void DrawSliderFrames(
+            string text,
+            (float x, float y, float width, float height)[] charBounds,
             GameSession session, double currentTime, Matrix4 projection)
         {
             if (session.CurrentSliders == null) return;
@@ -165,247 +156,208 @@ namespace TappiruCS.State.Session
                 if (!session.CurrentSliders.ContainsKey(i)) continue;
                 if (session.SuccessfullyHeldSliders.Contains(i) || session.PhaseComplete) continue;
 
-                var bounds = charBounds[i];
-                if (bounds.width <= 0 || bounds.height <= 0) continue;
+                var (bx, by, bw, bh) = charBounds[i];
+                if (bw <= 0 || bh <= 0) continue;
 
-                const float padding = 8f;
-                float rectX = bounds.x - padding;
-                float rectY = bounds.y - padding;
-                float rectW = bounds.width + padding * 2;
-                float rectH = bounds.height + padding * 2;
+                const float pad = 8f;
+                float rx = bx - pad, ry = by - pad;
+                float rw = bw + pad * 2, rh = bh + pad * 2;
 
-                bool isActiveSliderTime = false;
-                if (session.CurrentSliders.TryGetValue(i, out var slider))
-                {
-                    isActiveSliderTime = currentTime >= slider.startTime - 0.5 && currentTime <= slider.endTime + 0.3;
-                }
+                bool active = session.CurrentSliders.TryGetValue(i, out var slider) &&
+                              currentTime >= slider.startTime - 0.5 && currentTime <= slider.endTime + 0.3;
 
-                Color4 borderColor = isActiveSliderTime
-                    ? new Color4(1.0f, 0.55f, 0.1f, 1f)
+                Color4 border = active
+                    ? new Color4(1f, 0.55f, 0.1f, 1f)
                     : new Color4(1f, 1f, 1f, 0.8f);
 
-                const float thickness = 3f;
-
-                DrawGlow(rectX, rectY, rectW, rectH, borderColor, 0.3f, projection, currentTime);
-
-                _context.SpriteBatch.DrawRect(rectX, rectY, rectW, thickness, borderColor, projection);
-                _context.SpriteBatch.DrawRect(rectX, rectY + rectH - thickness, rectW, thickness, borderColor, projection);
-                _context.SpriteBatch.DrawRect(rectX, rectY, thickness, rectH, borderColor, projection);
-                _context.SpriteBatch.DrawRect(rectX + rectW - thickness, rectY, thickness, rectH, borderColor, projection);
+                const float t = 3f;
+                DrawGlow(rx, ry, rw, rh, border, 0.3f, projection, currentTime);
+                _context.SpriteBatch.DrawRect(rx, ry, rw, t, border, projection);
+                _context.SpriteBatch.DrawRect(rx, ry + rh - t, rw, t, border, projection);
+                _context.SpriteBatch.DrawRect(rx, ry, t, rh, border, projection);
+                _context.SpriteBatch.DrawRect(rx + rw - t, ry, t, rh, border, projection);
             }
         }
 
-        private void DrawCurrentCharGlow(int currentCharIdx, string text, (float x, float y, float width, float height)[] charBounds,
-            float finalScaleX, float finalScaleY, Matrix4 projection, double currentTime, float alpha)
+        private void DrawCurrentCharGlow(
+     int idx, string text,
+     (float x, float y, float width, float height)[] charBounds,
+     float scaleX, float scaleY,
+     Matrix4 projection, double currentTime, float alpha)
         {
-            if (currentCharIdx < 0 || currentCharIdx >= text.Length || currentCharIdx >= charBounds.Length)
-                return;
+            if (idx < 0 || idx >= text.Length || idx >= charBounds.Length) return;
 
-            var bounds = charBounds[currentCharIdx];
-            if (bounds.width <= 0 || bounds.height <= 0) return;
+            var (bx, by, bw, bh) = charBounds[idx];
+            if (bw <= 0 || bh <= 0) return;
 
-            char currentChar = text[currentCharIdx];
-            if (!_context.TextRenderer.TryGetGlyph(currentChar, out var glyph)) return;
-
-            float baseX = bounds.x - glyph.XOffset * finalScaleX;
-            float baseY = bounds.y - glyph.YOffset * finalScaleY;
+            char c = text[idx];
+            if (!FT.TryGetGlyph(c, out GlyphInfo glyph)) return;
 
             Color4 glowColor = GetCurrentCharGlowColor();
             glowColor.A *= alpha;
 
-            DrawTextGlow(currentChar.ToString(), baseX, baseY, finalScaleX, finalScaleY, glowColor, projection, currentTime, alpha);
-        }
+            // === КРИТИЧНО ВАЖНО: используем ту же систему координат, что и основной текст ===
+            // charBounds уже содержит правильную позицию верхнего левого угла растра глифа
+            float glowX = bx;
+            float glowY = by;
 
+            DrawTextGlow(c.ToString(), glowX, glowY, scaleX, scaleY, glowColor, projection, currentTime, alpha);
+        }
         private Color4 GetCurrentCharGlowColor()
         {
-            float r = _mapData.needR;
-            float g = _mapData.needG;
-            float b = _mapData.needB;
-
-            if (r < 0.1f && g < 0.1f && b < 0.1f)
-                return Color4.White;
-
+            float r = _mapData.needR, g = _mapData.needG, b = _mapData.needB;
+            if (r < 0.1f && g < 0.1f && b < 0.1f) return Color4.White;
             return new Color4(
                 MathHelper.Clamp(r * 1.5f, 0f, 3f),
                 MathHelper.Clamp(g * 1.5f, 0f, 3f),
-                MathHelper.Clamp(b * 1.5f, 0f, 3f),
-                1f
-            );
+                MathHelper.Clamp(b * 1.5f, 0f, 3f), 1f);
         }
 
-        private void DrawCompletedPhraseGlow(string text, float screenX, float screenY,
-            float finalScaleX, float finalScaleY,
+        private void DrawCompletedPhraseGlow(
+            string text, float screenX, float screenY,
+            float scaleX, float scaleY,
             Matrix4 projection, double currentTime, float alpha)
         {
             if (string.IsNullOrEmpty(text)) return;
 
             Color4 baseGlow = GetGlowColor(_mapData.completeR, _mapData.completeG, _mapData.completeB);
             baseGlow.A *= alpha;
-
             float pulse = 0.8f + 0.2f * (float)Math.Sin(currentTime * 6.0);
 
-            const float outerOffsetPx = 12f;
-            const float innerOffsetPx = 6f;
-
-            // Внешнее свечение
-            for (int i = 0; i < 16; i++)
+            void Ring(int steps, float radius, float a)
             {
-                float angle = i * MathHelper.TwoPi / 16f;
-                float dx = (float)Math.Cos(angle) * outerOffsetPx;
-                float dy = (float)Math.Sin(angle) * outerOffsetPx;
-
-                Color4 col = new Color4(baseGlow.R * 0.7f, baseGlow.G * 0.7f, baseGlow.B * 0.7f, 0.08f * pulse * alpha);
-                _context.TextRenderer.DrawStringWithCharColors(
-                    text, screenX + dx, screenY + dy,
-                    BaseFontSize, finalScaleX, finalScaleY,
-                    Enumerable.Repeat(col, text.Length).ToArray(),
-                    projection, TextAlign.Center);
+                for (int i = 0; i < steps; i++)
+                {
+                    float angle = i * MathHelper.TwoPi / steps;
+                    float dx = (float)Math.Cos(angle) * radius;
+                    float dy = (float)Math.Sin(angle) * radius;
+                    var col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, a * pulse * alpha);
+                    FT.DrawStringWithCharColors(
+                        text, screenX + dx, screenY + dy,
+                        BaseFontSize, scaleX, scaleY,
+                        System.Linq.Enumerable.Repeat(col, text.Length).ToArray(),
+                        projection, TextAlign.Center);
+                }
             }
 
-            // Внутреннее свечение
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = i * MathHelper.TwoPi / 12f;
-                float dx = (float)Math.Cos(angle) * innerOffsetPx;
-                float dy = (float)Math.Sin(angle) * innerOffsetPx;
-
-                Color4 col = new Color4(baseGlow.R, baseGlow.G, baseGlow.B, 0.25f * pulse * alpha);
-                _context.TextRenderer.DrawStringWithCharColors(
-                    text, screenX + dx, screenY + dy,
-                    BaseFontSize, finalScaleX, finalScaleY,
-                    Enumerable.Repeat(col, text.Length).ToArray(),
-                    projection, TextAlign.Center);
-            }
+            Ring(16, 12f, 0.08f * baseGlow.R); // внешнее (чуть темнее)
+            Ring(12, 6f, 0.25f);               // внутреннее
         }
 
         private void DrawSliderHoldBar(GameSession session, Matrix4 projection)
         {
-            int sliderIndex = session.CurrentSliderCharIndex;
-            if (session.CurrentSliders == null || !session.CurrentSliders.TryGetValue(sliderIndex, out var activeSlider))
-                return;
+            int sliderIdx = session.CurrentSliderCharIndex;
+            if (session.CurrentSliders == null ||
+                !session.CurrentSliders.TryGetValue(sliderIdx, out var slider)) return;
 
-            double currentAudioTime = _context.Audio?.GetCurrentTime() ?? 0.0;
+            double t = _context.Audio?.GetCurrentTime() ?? 0.0;
+            float barW = _context.Game.ClientSize.X * 0.8f;
+            float barH = 24f;
+            float barX = (_context.Game.ClientSize.X - barW) / 2f;
+            float barY = _context.Game.ClientSize.Y - barH - 30f;
 
-            float barWidth = _context.Game.ClientSize.X * 0.8f;
-            float barHeight = 24f;
-            float barX = (_context.Game.ClientSize.X - barWidth) / 2f;
-            float barY = _context.Game.ClientSize.Y - barHeight - 30f;
+            float duration = Math.Max((float)(slider.endTime - slider.startTime), 0.01f);
+            float progress = t >= slider.startTime
+                ? MathHelper.Clamp((float)((t - slider.startTime) / duration), 0f, 1f)
+                : 0f;
 
-            float duration = Math.Max(activeSlider.endTime - activeSlider.startTime, 0.01f);
-            float progress = 0f;
-            if (currentAudioTime >= activeSlider.startTime)
-                progress = (float)((currentAudioTime - activeSlider.startTime) / duration);
-            progress = MathHelper.Clamp(progress, 0f, 1f);
+            bool isSuccess = session.SuccessfullyHeldSliders.Contains(sliderIdx);
+            Color4 fill = isSuccess ? SliderBarSuccess
+                            : t >= slider.startTime - 0.3 ? SliderBarHolding : SliderBarReady;
 
-            bool isSuccess = session.SuccessfullyHeldSliders.Contains(sliderIndex);
+            _context.SpriteBatch.DrawRect(barX, barY, barW, barH, SliderBarBackground, projection);
+            if (progress > 0f)
+                _context.SpriteBatch.DrawRect(barX, barY, barW * progress, barH, fill, projection);
 
-            Color4 fillColor = isSuccess
-                ? SliderBarSuccess
-                : (currentAudioTime >= activeSlider.startTime - 0.3f ? SliderBarHolding : SliderBarReady);
-
-            _context.SpriteBatch.DrawRect(barX, barY, barWidth, barHeight, SliderBarBackground, projection);
-
-            float fillWidth = barWidth * progress;
-            if (fillWidth > 0f)
-                _context.SpriteBatch.DrawRect(barX, barY, fillWidth, barHeight, fillColor, projection);
-
-            _context.SpriteBatch.DrawRect(barX, barY, barWidth, 1f, SliderBarOutline, projection);
-            _context.SpriteBatch.DrawRect(barX, barY + barHeight - 1f, barWidth, 1f, SliderBarOutline, projection);
-            _context.SpriteBatch.DrawRect(barX, barY, 1f, barHeight, SliderBarOutline, projection);
-            _context.SpriteBatch.DrawRect(barX + barWidth - 1f, barY, 1f, barHeight, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY, barW, 1f, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY + barH - 1f, barW, 1f, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX, barY, 1f, barH, SliderBarOutline, projection);
+            _context.SpriteBatch.DrawRect(barX + barW - 1f, barY, 1f, barH, SliderBarOutline, projection);
         }
 
-        private void DrawGlow(float x, float y, float w, float h, Color4 color, float strength, Matrix4 projection, double currentTime)
+        private void DrawGlow(float x, float y, float w, float h,
+            Color4 color, float strength, Matrix4 projection, double currentTime)
         {
             float pulse = 0.6f + 0.4f * (float)Math.Sin(currentTime * 5.0);
             for (int i = 1; i <= 5; i++)
             {
-                float offset = i * 1.8f;
-                float alpha = strength * (0.18f / i) * pulse;
-                Color4 glowCol = new Color4(color.R, color.G, color.B, alpha);
-                _context.SpriteBatch.DrawRect(x - offset, y - offset, w + offset * 2, h + offset * 2, glowCol, projection);
+                float off = i * 1.8f;
+                float a = strength * (0.18f / i) * pulse;
+                _context.SpriteBatch.DrawRect(x - off, y - off, w + off * 2, h + off * 2,
+                    new Color4(color.R, color.G, color.B, a), projection);
             }
-            Color4 nearCol = new Color4(color.R, color.G, color.B, strength * 0.4f * pulse);
-            _context.SpriteBatch.DrawRect(x - 1, y - 1, w + 2, h + 2, nearCol, projection);
+            _context.SpriteBatch.DrawRect(x - 1, y - 1, w + 2, h + 2,
+                new Color4(color.R, color.G, color.B, strength * 0.4f * pulse), projection);
         }
 
-        private Color4 GetGlowColor(float r, float g, float b)
+        private static Color4 GetGlowColor(float r, float g, float b)
         {
-            if (r < 0.12f && g < 0.12f && b < 0.12f)
-                return Color4.White;
-
+            if (r < 0.12f && g < 0.12f && b < 0.12f) return Color4.White;
             return new Color4(
                 MathHelper.Clamp(r * 1.6f, 0f, 3f),
                 MathHelper.Clamp(g * 1.6f, 0f, 3f),
-                MathHelper.Clamp(b * 1.6f, 0f, 3f),
-                1f
-            );
+                MathHelper.Clamp(b * 1.6f, 0f, 3f), 1f);
         }
 
-        private void DrawTextGlow(string text, float baseX, float baseY, float scaleX, float scaleY,
-                          Color4 baseGlowColor, Matrix4 projection, double currentTime, float alpha = 1.0f)
+        private void DrawTextGlow(
+    string text,           // ожидается один символ
+    float baseX,           // уже правильная X из charBounds (верхний левый угол растра)
+    float baseY,           // уже правильная Y из charBounds (верхний левый угол растра)
+    float scaleX,
+    float scaleY,
+    Color4 baseGlowColor,
+    Matrix4 projection,
+    double currentTime,
+    float alpha = 1f)
         {
+            if (string.IsNullOrEmpty(text)) return;
+            char c = text[0];
+
+            if (!FT.TryGetRenderedGlyph(c, out var glyph) || glyph == null)
+                return;
+
             float pulse = 0.7f + 0.3f * (float)Math.Sin(currentTime * 10.0);
 
-            float outerAlpha = 0.12f * pulse * alpha;
-            float midAlpha = 0.35f * pulse * alpha;
-            float innerAlpha = 0.70f * pulse * alpha;
+            Color4 Tint(float rMul, float gMul, float bMul, float aMul) => new(
+                MathHelper.Clamp(baseGlowColor.R * rMul, 0f, 1f),
+                MathHelper.Clamp(baseGlowColor.G * gMul, 0f, 1f),
+                MathHelper.Clamp(baseGlowColor.B * bMul, 0f, 1f),
+                aMul * pulse * alpha);
 
-            Color4 outerColor = new Color4(
-                MathHelper.Clamp(baseGlowColor.R * 0.6f, 0f, 1f),
-                MathHelper.Clamp(baseGlowColor.G * 0.8f, 0f, 1f),
-                MathHelper.Clamp(baseGlowColor.B * 1.2f, 0f, 1f),
-                outerAlpha);
-
-            Color4 midColor = new Color4(baseGlowColor.R, baseGlowColor.G, baseGlowColor.B, midAlpha);
-            Color4 innerColor = new Color4(
-                MathHelper.Clamp(baseGlowColor.R * 1.4f, 0f, 1f),
-                MathHelper.Clamp(baseGlowColor.G * 1.2f, 0f, 1f),
-                MathHelper.Clamp(baseGlowColor.B * 0.9f, 0f, 1f),
-                innerAlpha);
-
-            const float outerRadius = 7.5f;
-            const float midRadius = 4.2f;
-            const float innerRadius = 2.2f;
-
-            // Внешний слой
-            for (int dir = 0; dir < 24; dir++)
+            void Ring(int steps, float radius, Color4 color)
             {
-                float angle = dir * MathHelper.TwoPi / 24f;
-                float dx = (float)Math.Cos(angle) * outerRadius;
-                float dy = (float)Math.Sin(angle) * outerRadius;
+                for (int i = 0; i < steps; i++)
+                {
+                    float angle = i * MathHelper.TwoPi / steps;
+                    float dx = (float)Math.Cos(angle) * radius;
+                    float dy = (float)Math.Sin(angle) * radius;
 
-                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
-                    scaleX, scaleY,
-                    outerColor.R, outerColor.G, outerColor.B, outerColor.A,
-                    projection);
+                    // Рисуем глиф **точно в тех же координатах**, что и основной текст
+                    FT.DrawSingleGlyph(
+                        c,
+                        baseX + dx,
+                        baseY + dy,
+                        scaleX,
+                        scaleY,
+                        color.R, color.G, color.B, color.A,
+                        projection);
+                }
             }
 
-            // Средний слой
-            for (int dir = 0; dir < 18; dir++)
-            {
-                float angle = dir * MathHelper.TwoPi / 18f;
-                float dx = (float)Math.Cos(angle) * midRadius;
-                float dy = (float)Math.Sin(angle) * midRadius;
-
-                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
-                    scaleX, scaleY,
-                    midColor.R, midColor.G, midColor.B, midColor.A,
-                    projection);
-            }
-
-            // Внутренний слой
-            for (int dir = 0; dir < 12; dir++)
-            {
-                float angle = dir * MathHelper.TwoPi / 12f;
-                float dx = (float)Math.Cos(angle) * innerRadius;
-                float dy = (float)Math.Sin(angle) * innerRadius;
-
-                _context.TextRenderer.DrawString(text, baseX + dx, baseY + dy,
-                    scaleX, scaleY,
-                    innerColor.R, innerColor.G, innerColor.B, innerColor.A,
-                    projection);
-            }
+            // Внешнее свечение
+            Ring(24, 8.5f, Tint(0.55f, 0.75f, 1.1f, 0.10f));
+            // Среднее
+            Ring(18, 5.0f, Tint(0.9f, 1.0f, 1.0f, 0.28f));
+            // Внутреннее (самое яркое)
+            Ring(14, 2.8f, Tint(1.3f, 1.15f, 0.95f, 0.65f));
         }
+
+        private float CalculateCenteredBaseline(float desiredCenterY, float baseScale)
+{
+    float scaleY = baseScale * Scene.CanvasScale.Y;
+    // Центрируем по середине между Ascender и Descender (примерно)
+    // Но самый простой и надёжный способ — использовать половину LineHeight
+    return desiredCenterY * Scene.CanvasScale.Y + FT.LineHeight * scaleY * 0.5f;
+}
     }
 }

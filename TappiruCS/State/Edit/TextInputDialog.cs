@@ -6,10 +6,8 @@ using TappiruCS.UI;
 
 namespace TappiruCS.State.Edit
 {
-    internal class TextInputDialog
+    internal class TextInputModule : ModuleWindow
     {
-        private readonly RenderContext _context;
-        private readonly Scene _scene;
         private readonly string _title;
         private readonly Action<string> _onOk;
         private readonly Action _onClose;
@@ -18,18 +16,18 @@ namespace TappiruCS.State.Edit
         private InputField _input = null!;
         private Button _okButton = null!;
 
-        public TextInputDialog(RenderContext context, Scene scene,
-                               string title, Action<string> onOk, Action onClose)
+        public TextInputModule(Scene scene, string title, Action<string> onOk, Action onClose)
+            : base(scene)
         {
-            _context = context;
-            _scene = scene;
             _title = title;
             _onOk = onOk;
             _onClose = onClose;
         }
 
-        public void Show()
+        public override void Show()
         {
+            obj.Clear();
+
             _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 1100, 400);
 
             _input = new InputField(960, 520, 900, 80)
@@ -49,16 +47,16 @@ namespace TappiruCS.State.Edit
                 Close();
             };
 
-            _scene.Add(_panel);
-            _scene.Add(_input);
-            _scene.Add(_okButton);
+            obj.Add(_panel);
+            obj.Add(_input);
+            obj.Add(_okButton);
+
+            base.Show();
         }
 
-        private void Close()
+        public override void Close()
         {
-            _scene.Remove(_panel);
-            _scene.Remove(_input);
-            _scene.Remove(_okButton);
+            base.Close();
             _onClose?.Invoke();
         }
     }

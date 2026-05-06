@@ -7,7 +7,7 @@ using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using TappiruCS.Render.Text;
 using TappiruCS.State.SongSelector;
 
 namespace TappiruCS.State
@@ -90,17 +90,17 @@ namespace TappiruCS.State
 
         private void CreateAllTexts()
         {
-            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), -500, -450, 96f)
+            _scoreText = new TextObject(_playerScore._score.ToString("00000000000"), -500, -360, 96f)
             {
                 Align = TextAlign.Center
             };
             
-            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2") + "%", -550, 120, 64f)
+            _accuraciText = new TextObject(_playerScore._accuraci.ToString("F2") + "%", -550, 180, 64f)
             {
                 Align = TextAlign.Left
             };
 
-            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), -880, 120, 64f)
+            _maxCombo = new TextObject(_playerScore._maxCobmo.ToString(), -880, 180, 64f)
             {
                 Align = TextAlign.Right
             };
@@ -110,32 +110,32 @@ namespace TappiruCS.State
                 Align = TextAlign.Left
             };
 
-            _completePhase = new TextObject(_playerScore._completePhase.ToString(), -745, -295, 64f)
+            _completePhase = new TextObject(_playerScore._completePhase.ToString(), -745, -230, 64f)
             {
                 Align = TextAlign.Left
             };
 
-            _completeChar = new TextObject(_playerScore._completeChar.ToString(), -745, -160, 64f)
+            _completeChar = new TextObject(_playerScore._completeChar.ToString(), -745, -90, 64f)
             {
                 Align = TextAlign.Left
             };
 
-            _failChar = new TextObject(_playerScore._failChar.ToString(), -745, -25, 64f)
+            _failChar = new TextObject(_playerScore._failChar.ToString(), -745, 45, 64f)
             {
                 Align = TextAlign.Left
             };
 
-            _title = new TextObject(_mapData.title + $" - [{_mapData.artist}]", 0, 0, 72f)
+            _title = new TextObject(_mapData.title + $" - [{_mapData.artist}]", 0, 30, 72f)
             {
                 Align = TextAlign.Left
             };
 
-            _creator = new TextObject("Автор: " + _mapData.creator, 5, 60, 48f)
+            _creator = new TextObject("Автор: " + _mapData.creator, 5, 90, 48f)
             {
                 Align = TextAlign.Left
             };
 
-            _dateText = new TextObject($"Played at {_playerScore.PlayerName} {_playerScore.PlayedAt}", 5, 105, 36f)
+            _dateText = new TextObject($"Played at {_playerScore.PlayerName} {_playerScore.PlayedAt}", 5, 135, 36f)
             {
                 Align = TextAlign.Left
             };

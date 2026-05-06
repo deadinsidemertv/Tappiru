@@ -1,36 +1,40 @@
-﻿// InputField.cs — с красивым визуальным выделением при Ctrl+A
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
+using TappiruCS.Render.Text;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
     public class InputField : GameObject
     {
-
         private readonly int _bgTextureId;
 
         private readonly SpriteObject InputBackground;
+        private readonly SpriteObject _selectionBackground;
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
 
-        // Новое: фон для выделения
-        private readonly SpriteObject _selectionBackground;
+
+        private int texIcon1;
+        private int texIcon2;
+        public SpriteObject ico1;
+        public SpriteObject ico2;
 
         public string PlaceHolderText { get; set; } = "Введите текст...";
         public Color4 PlaceHolderColor { get; set; } = Color4.DarkGray;
-        private string _input = "";
 
+        private string _input = "";
         public bool IsPassword = false;
         public bool IsFocused { get; private set; } = false;
 
         private bool _isAllSelected = false;
+
+        // Отступ текста от левого края фона
+        public float TextLeftPadding { get; set; } = 28f;
 
         public string Text
         {
@@ -43,49 +47,76 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            _bgTextureId = TextureManager.GetTexture("btn");
-
+            _bgTextureId = TextureManager.GetTexture("input-field");
+            // Основной фон
             InputBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
             {
                 ScaleMultiply = 1f,
                 Color = new Color4(0.2f, 0.2f, 0.25f, 1f)
             };
 
+            // Фон выделения при Ctrl+A
             _selectionBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
             {
                 ScaleMultiply = 1f,
                 Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
-                Pivot = new Vector2(0.0f, 0.0f),
+                Pivot = new Vector2(0f, 0f),
                 Active = false
             };
 
-            InputText = new TextObject("", x, y, 44f)
+            // Текст ввода — прижат к левому краю
+            InputText = new TextObject("", 0, 20, 24f)
             {
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 1f,
                 Color = Color4.White,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0f),
+                Pivot = new Vector2(0f, 0.5f),     // важно: Pivot.X = 0
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 44f)
+            // Placeholder
+            PlaceHolder = new TextObject(PlaceHolderText, 0, 20, 24f)
             {
-                ScaleMultiply = 0.3f,
+                ScaleMultiply = 1f,
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0f),
+                Pivot = new Vector2(0f, 0.5f),
             };
+
 
             AddChild(InputBackground);
             AddChild(_selectionBackground);
             AddChild(PlaceHolder);
             AddChild(InputText);
 
-        }
 
+        }
+        public void SetupIcon()
+        {
+            if (Tag == "username")
+            {
+                texIcon1 = TextureManager.GetTexture("userico");
+                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Active = false };
+                AddChild(ico1);
+                AddChild(ico2);
+            }
+            else if (Tag == "password")
+            {
+                texIcon1 = TextureManager.GetTexture("locked");
+                texIcon2 = TextureManager.GetTexture("view");
+                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Color = Color4.DarkGray };
+                AddChild(ico1);
+                AddChild(ico2);
+            }
+            else if (Tag == "email")
+                texIcon1 = TextureManager.GetTexture("emailico");
+            else
+                texIcon1 = TextureManager.GetTexture("default-icon"); 
+        }
         protected override void OnContextSet()
         {
-            Console.WriteLine($"[InputField] OnContextSet called for InputField at position {WorldPosition}");
             if (Game != null)
             {
                 Game.KeyDown += HandleKeyDown;
@@ -114,14 +145,14 @@ namespace TappiruCS.UI
         {
             if (!IsFocused) return;
 
-            bool ctrlPressed = e.Modifiers.HasFlag(KeyModifiers.Control) || 
+            bool ctrlPressed = e.Modifiers.HasFlag(KeyModifiers.Control) ||
                                e.Modifiers.HasFlag(KeyModifiers.Super);
 
             if (ctrlPressed)
             {
                 switch (e.Key)
                 {
-                    case Keys.V: // Ctrl + V
+                    case Keys.V:
                         string clipboard = Clipboard.GetText();
                         if (!string.IsNullOrEmpty(clipboard))
                         {
@@ -132,12 +163,11 @@ namespace TappiruCS.UI
                         }
                         return;
 
-                    case Keys.C: // Ctrl + C
-                        if (!string.IsNullOrEmpty(_input))
-                            Clipboard.SetText(_input);
+                    case Keys.C:
+                        if (!string.IsNullOrEmpty(_input)) Clipboard.SetText(_input);
                         return;
 
-                    case Keys.A: // Ctrl + A — выделить всё + показать визуальное выделение
+                    case Keys.A:
                         if (!string.IsNullOrEmpty(_input))
                         {
                             _isAllSelected = true;
@@ -145,7 +175,7 @@ namespace TappiruCS.UI
                         }
                         return;
 
-                    case Keys.X: // Ctrl + X
+                    case Keys.X:
                         if (!string.IsNullOrEmpty(_input))
                         {
                             Clipboard.SetText(_input);
@@ -166,9 +196,7 @@ namespace TappiruCS.UI
                         _isAllSelected = false;
                     }
                     else if (_input.Length > 0)
-                    {
                         _input = _input[..^1];
-                    }
                     UpdateDisplayedText();
                     break;
 
@@ -188,21 +216,19 @@ namespace TappiruCS.UI
         {
             string displayed = IsPassword ? new string('*', _input.Length) : _input;
 
-            // Включаем/выключаем фон выделения
             _selectionBackground.Active = _isAllSelected && IsFocused && !string.IsNullOrEmpty(_input);
 
             if (IsFocused)
             {
                 bool showCursor = DateTime.Now.Millisecond % 800 < 400;
                 InputText.Text = displayed + (showCursor ? "|" : "");
-                InputText.Color = _isAllSelected ? new Color4(1f, 1f, 1f, 1f) : Color4.White;
             }
             else
             {
                 InputText.Text = displayed;
-                InputText.Color = Color4.White;
             }
 
+            InputText.Color = _isAllSelected && IsFocused ? new Color4(1f, 1f, 1f, 1f) : Color4.White;
             PlaceHolder.Active = string.IsNullOrEmpty(_input);
         }
 
@@ -213,6 +239,8 @@ namespace TappiruCS.UI
             PlaceHolder.Color = PlaceHolderColor;
             PlaceHolder.Text = PlaceHolderText;
 
+
+            // Обработка фокуса
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;
             bool hovered = IsPointInside(designMouseX, designMouseY);
@@ -220,17 +248,26 @@ namespace TappiruCS.UI
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
                 IsFocused = hovered;
-                if (hovered) _isAllSelected = false; // снимаем выделение при клике
+                if (hovered) _isAllSelected = false;
             }
 
-            // Позиционирование
-            var (left, top, w, h) = GetDesignBounds();
-            float padding = 10f * ScaleMultiply;
+            // Позиционируем текст с отступом от левого края
+            var bounds = GetDesignBounds();
+            float textX = bounds.designLeft + TextLeftPadding;
+            float textXright = Scale.X - bounds.effWidth;
 
-            InputText.WorldPosition = new Vector2(left + padding, top + padding);
-            PlaceHolder.WorldPosition = new Vector2(left + padding, top + padding);
-            _selectionBackground.WorldPosition = new Vector2(left, top);
-            _selectionBackground.Scale = new Vector2(w, h);
+            InputText.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
+            PlaceHolder.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
+
+            if (ico1 != null && ico2 != null)
+            {
+                ico1.LocalPosition = new Vector2(textX - 7 - WorldPosition.X, 0);
+                ico2.LocalPosition = new Vector2(textXright, 0);
+            }
+
+            // Позиционируем фон выделения
+            _selectionBackground.WorldPosition = new Vector2(bounds.designLeft, bounds.designTop);
+            _selectionBackground.Scale = new Vector2(Scale.X, Scale.Y);
 
             UpdateDisplayedText();
         }
@@ -241,11 +278,6 @@ namespace TappiruCS.UI
         {
             IsFocused = false;
             _isAllSelected = false;
-        }
-
-        public override void Draw(Matrix4 projection)
-        {
-            base.Draw(projection);
         }
 
         public void Dispose()

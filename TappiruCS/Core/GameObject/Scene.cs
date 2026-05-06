@@ -132,7 +132,7 @@ namespace TappiruCS.Core.GameObject
                     MouseNotification.Active = false;
                 }
             }
-
+            
 
         }
 

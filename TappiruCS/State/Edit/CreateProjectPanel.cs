@@ -6,10 +6,8 @@ using TappiruCS.UI;
 
 namespace TappiruCS.State.Edit
 {
-    internal class CreateProjectPanel
+    internal class CreateProjectModule : ModuleWindow
     {
-        private readonly RenderContext _context;
-        private readonly Scene _scene;
         private readonly Action<string> _onProjectCreated;
 
         private SpriteObject _panel = null!;
@@ -21,15 +19,17 @@ namespace TappiruCS.State.Edit
         private string? _mp3Path;
         private string? _bgPath;
 
-        public CreateProjectPanel(RenderContext context,Scene scene, Action<string> onProjectCreated)
+        public CreateProjectModule(Scene scene, Action<string> onProjectCreated)
+            : base(scene)
         {
-            _context = context;
-            _scene = scene;
             _onProjectCreated = onProjectCreated;
         }
 
-        public void Show()
+        public override void Show()
         {
+            // Очищаем на всякий случай
+            obj.Clear();
+
             _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 620, 820);
 
             _titleInput = new InputField(960, 320, 520, 70)
@@ -48,20 +48,21 @@ namespace TappiruCS.State.Edit
             {
                 ScaleMultiply = 0.65f,
                 Layer = 2
-                
             };
             _confirmButton.OnClick += ConfirmCreation;
 
-            _scene.Add(_panel);
-            _scene.Add(_titleInput);
-            _scene.Add(_mp3Button);
-            _scene.Add(_bgButton);
-            _scene.Add(_confirmButton);
+            // Добавляем все объекты в список модуля
+            obj.Add(_panel);
+            obj.Add(_titleInput);
+            obj.Add(_mp3Button);
+            obj.Add(_bgButton);
+            obj.Add(_confirmButton);
+
+            base.Show(); // добавит все объекты в сцену
         }
 
         private void LoadFile(string filter, Action<string> onSuccess)
         {
-            // Можно улучшить фильтры, но для простоты оставляем
             if (SharpFileDialog.NativeFileDialog.OpenDialog(null, "", out string? path) && path != null)
                 onSuccess(path);
         }
@@ -79,20 +80,9 @@ namespace TappiruCS.State.Edit
 
             if (!string.IsNullOrEmpty(tappPath))
             {
-                RemoveAll();
+                Close();                          // Закрываем модальное окно
                 _onProjectCreated?.Invoke(tappPath);
             }
         }
-
-        private void RemoveAll()
-        {
-            _scene.Remove(_panel);
-            _scene.Remove(_titleInput);
-            _scene.Remove(_mp3Button);
-            _scene.Remove(_bgButton);
-            _scene.Remove(_confirmButton);
-        }
-
-
     }
 }

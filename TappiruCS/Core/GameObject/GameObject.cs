@@ -2,20 +2,23 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Render;
+using TappiruCS.Render.Audio;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Text.FreeType;
+using TappiruCS.UI;
 
 namespace TappiruCS.Core.GameObject
 {
     public abstract class GameObject : IGameObject
     {
         //["Debug"]//
-        public bool Debug=true;
+        public bool Debug=false;
 
         public Vector2 WorldPosition { get; set; } = Vector2.Zero;
         public Vector2 LocalPosition {  get; set; } = Vector2.Zero;
 
         public string Description { get; set; } = string.Empty;
-        public Vector2 Scale { get; set; } = Vector2.One; //pixels
+        public Vector2 Scale { get; set; } = Vector2.One; //pixels  
         public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
@@ -44,9 +47,10 @@ namespace TappiruCS.Core.GameObject
 
         // Удобные сокращения
         protected SpriteBatch SB => Context?.SpriteBatch;
-        protected TextRender TR => Context?.TextRenderer;
         protected Game Game => Context?.Game;
         protected AudioManager Audio => Context?.Audio;
+
+        protected FreeTypeRender FT => FontManager._defaultFont ?? FontManager.Get("UI")!;
 
         internal void SetRenderContext(RenderContext context)
         {
@@ -76,11 +80,9 @@ namespace TappiruCS.Core.GameObject
             foreach (var child in _children)
             {
                 if (!child.Active) continue;
+
                 child.CanvasScale = CanvasScale;
-                //child.Opacity = Opacity;
-
-
-                child.WorldPosition = child.GetWorldPosition();
+                child.WorldPosition = child.GetWorldPosition();   // принудительно
 
                 child.Update(deltaTime, mouse);
             }
@@ -144,7 +146,7 @@ namespace TappiruCS.Core.GameObject
                    worldY >= top && worldY <= bottom;
         }
 
-        public (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
+        public virtual (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
         {
             float effWidth = Scale.X * EffectiveScaleMultiply;
             float effHeight = Scale.Y * EffectiveScaleMultiply;
@@ -177,10 +179,18 @@ namespace TappiruCS.Core.GameObject
             bool shouldBeHovered = (this == targetHover);
 
             if (IsHovered != shouldBeHovered)
+            {
                 SetHover(shouldBeHovered);
+                if (shouldBeHovered && !string.IsNullOrEmpty(Description))
+                {
+                    Console.WriteLine($"[HOVER] {GetType().Name} ({Description}) теперь под мышью");
+                }
+            }
+                
 
             foreach (var child in _children)
                 child.SetHoverRecursive(targetHover);
+
         }
 
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
@@ -193,6 +203,7 @@ namespace TappiruCS.Core.GameObject
             {
                 topLayer = Layer;
                 top = this;
+                Console.WriteLine($"Candidate: {GetType().Name}, Layer={Layer}, Desc={(string.IsNullOrEmpty(Description) ? "<empty>" : Description)}");
             }
 
             foreach (var child in _children)

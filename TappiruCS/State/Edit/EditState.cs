@@ -16,7 +16,6 @@ using TappiruCS.UI;
 using TappiruCS.Core.GameObject;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
-using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.State.Edit
 {
@@ -109,13 +108,13 @@ namespace TappiruCS.State.Edit
             var btn = new Button(  x, 30, 700, 120, "button", text)
             {
                 Layer = 1,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f,0.5f),
                 ScaleMultiply = 0.4f,
-                TextAlign = TextAlign.Center,
                 Tag = "topButton"
             };
+            btn.Label.Align = TextAlign.Center;
+            btn.Label.Color = Color4.White;
             btn.OnClick += onClick;
             return btn;
         }
@@ -185,12 +184,13 @@ namespace TappiruCS.State.Edit
         private void AddNewPhrase()
         {
             if (_isInputDialogOpen) return;
+
             _context.Audio.Pause();
             _isMusicPlaying = false;
 
             float time = (float)_context.Audio.GetCurrentTime();
 
-            var dialog = new TextInputDialog(_context, _scene,
+            var dialog = new TextInputModule(_scene,
                 "Введите текст фразы",
                 text =>
                 {
@@ -203,7 +203,10 @@ namespace TappiruCS.State.Edit
                 () => _isInputDialogOpen = false);
 
             _isInputDialogOpen = true;
-            dialog.Show();
+
+            // Важно: всегда сначала закрываем текущее, потом открываем новое
+            _context.Game.CloseModalWindow();
+            _context.Game.OpenModalWindow(dialog);
         }
 
         private void AddPhraseToEditor(Phrase phrase)
@@ -287,8 +290,10 @@ namespace TappiruCS.State.Edit
         #region Project Management
         private void CreateProject()
         {
-            var panel = new CreateProjectPanel(_context, _scene, OnProjectCreated);
-            panel.Show();
+            var module = new CreateProjectModule(_scene, OnProjectCreated);
+
+            _context.Game.CloseModalWindow();   // на всякий случай
+            _context.Game.OpenModalWindow(module);
         }
 
         private void OnProjectCreated(string tappPath) => ActiveEditMode(tappPath);
@@ -377,16 +382,16 @@ namespace TappiruCS.State.Edit
             };
             _addPhraseButton.OnClick += AddNewPhrase;
 
-            _saveProjectButton = new Button( 1780, 30, 500, 100, "button", "Save Project")
+            _saveProjectButton = new Button(1780, 30, 500, 100, "button", "Save Project")
             {
                 Layer = 1,
-                TextColor = Color4.White,
                 TextOffset = new Vector2(-180f, -60f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
-                TextAlign = TextAlign.Center,
                 Tag = "topButton"
             };
+            _saveProjectButton.Label.Align = TextAlign.Center;
+            _saveProjectButton.Label.Color = Color4.White;
             _saveProjectButton.OnClick += SaveProject;
 
             _scene.Add(_playPauseButton);

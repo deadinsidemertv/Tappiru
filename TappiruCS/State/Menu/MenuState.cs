@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using Pango;
 using System;
 using System.Threading.Tasks;
 using TappiruCS.Core;
@@ -11,11 +12,11 @@ using TappiruCS.Render.Text;
 using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
+using TappiruCS.State.Menu.Option;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
-using TappiruCS.State.Menu.Option;
+using TappiruCS.Tween;
 
 namespace TappiruCS.State.Menu
 {
@@ -28,6 +29,9 @@ namespace TappiruCS.State.Menu
         private InputField _loginInput;
         private InputField _passwordInput;
         private Button _loginButton;
+        private TextObject _loginText;
+
+        private TextObject _text1, _text2, _text3, _text4;
 
         // Logged-in UI
         private TextObject _welcomeText;
@@ -68,57 +72,76 @@ namespace TappiruCS.State.Menu
                     ShowLoginUI();
                 }
             }
-            GetRandomSong();
-
+          
         }
 
         private void ToggleSettings()
         {
             _context.Game.OpenModalWindow(new OptionModule(_scene));
         }
-        public void GetRandomSong()
-        {
-            string[] folders = Directory.GetDirectories("Songs/");
-            Random rnd = new Random();
-            int randomsong = rnd.Next(0, folders.Length);
-            SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
-            _context.Audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
-            _context.Audio.Play();
-
-        }
+       
         private void CreateUI()
         {
+            _text1 = new TextObject("1", 36, 308, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text2 = new TextObject("2", 37, 412, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text3 = new TextObject("3", 36, 512, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+            _text4 = new TextObject("4", 36, 612, 32) { Color = Color4.DarkSlateGray, FontKey = "Game"};
+
+            // Добавляем их в сцену
+            _scene.Add(_text1);
+            _scene.Add(_text2);
+            _scene.Add(_text3);
+            _scene.Add(_text4);
+
+
             // Login fields
-            _loginInput = new InputField(350, 535, 500, 70)
+            _loginText = new TextObject("LOGIN", 120, 720, 72)
             {
-                PlaceHolderText = "login",
-                Layer = 4,
-                
-
+                FontKey = "Menu",
+                Color = "#ff5daf",
+                FontSize = 16,
             };
+            _loginInput = new InputField(240, 750, 430, 60)
+            {
+                PlaceHolderText = "username",
+                Layer = 4,
+                ScaleMultiply = 0.7f,
+                Tag = "username"
+                
+            };
+            _loginInput.SetupIcon();
 
-            _passwordInput = new InputField(350, 615, 500, 70)
+            _passwordInput = new InputField(240, 795, 430, 60)
             {
                 PlaceHolderText = "password",
                 IsPassword = true,
                 Layer = 4,
-                
-            };
+                ScaleMultiply = 0.7f,
+                Tag = "password"
 
-            _loginButton = new Button(350, 695, 250, 70, "button", "Войти")
+            };
+            _passwordInput.SetupIcon();
+
+            _loginButton = new Button(240, 860, 425, 75, "buttonSignUp", "Sign In")
             {
                 Layer = 4,
-                TextColor = Color4.White,
-                ScaleMultiply = 0.8f,
-                TextOffset = new Vector2(-45, -30)
+                TextOffset = new Vector2(-18, 10),
+                ScaleMultiply = 0.7f,
+                Tag = "SignIn"
+
             };
+            _loginButton.Label.Color = Color4.White;
+            _loginButton.Label.FontSize = 24f;
+            _loginButton.Label.FontKey = "Menu";
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
             // Main menu buttons (всегда видны)
-            var playBtn = CreateMenuButton(540, "Play", StartGame);
-            var editBtn = CreateMenuButton(640, "Edit", GoEdit);
-            var optionsBtn = CreateMenuButton(740, "Options", ToggleSettings);
-            var exitBtn = CreateMenuButton(840, "exit", ExitGame);
+            var playBtn = CreateMenuButton(305, "Play", StartGame,_text1);
+            var editBtn = CreateMenuButton(405, "Edit", GoEdit, _text2);
+            var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings, _text3);
+            var exitBtn = CreateMenuButton(605, "exit", ExitGame, _text4);
+
+            
 
             _scene.Add(playBtn);
             _scene.Add(editBtn);
@@ -128,43 +151,66 @@ namespace TappiruCS.State.Menu
 
         private void AddBackgroundAndDecorations()
         {
-            var bg = new Background(TextureManager.GetTexture("menubg")) { ParalaxEffect = true };
-            var logo = new SpriteObject(TextureManager.GetTexture("logo"), 960, 300, 606, 256)
-            {
-                ScaleMultiply = 1.1f
-            };
+            Random rnd = new Random();
+            string[] bgpatches = Directory.GetFiles("Textures\\Backgrounds");
 
+            int randomBG = rnd.Next(0,bgpatches.Length);
+            string menubgpath = bgpatches[randomBG];
+
+            var bg = new Background(TextureLoader.Load(menubgpath)) { ParalaxEffect = true };
+            var overlay = new Background(TextureManager.GetTexture("overlaynew"));
+            var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
+
+            var currentmusicBg = new SpriteObject(TextureLoader.Load(SongSelectState.SelectedMap.backGroundPath), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.25f};
+            var currentmusicBord = new SpriteObject(TextureManager.GetTexture("module-window-borderonly"), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.26f };
+            var currentmusicLabel = new TextObject(SongSelectState.SelectedMap.title, 650, 1000, 36) { Align = TextAlign.Left};
+            var currentmusicLabelArtitst = new TextObject(SongSelectState.SelectedMap.artist, 650, 1030, 28) { Align = TextAlign.Left };
+
+            var wave = new WaveformObject(1130, 1065);
+            wave.Width = 1000;
+            wave.Height = 200;
+            wave.CreateBars();
             
-            var blackTop = new SpriteObject(0, 960, 0, 1920, 200)
-            {
-                Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true,
-                Opacity = 0.6f
-            };
-            var blackBottom = new SpriteObject(0, 960, 1080, 1920, 200)
-            {
-                Color = new Color4(0f, 0f, 0f, 0.5f),
-                AutoScale = true,
-                Opacity = 0.6f
-            };
 
             _scene.Add(bg);
-            _scene.Add(logo);
-            _scene.Add(blackTop);
-            _scene.Add(blackBottom);
+            _scene.Add(overlay);
+
+            _scene.Add(wave);
+            _scene.Add(currentmusicBord);
+            _scene.Add(currentmusicBg);
+            _scene.Add(currentmusicLabel);
+            _scene.Add(currentmusicLabelArtitst);
+            _scene.Add(Logo);
+            
+
         }
 
-        private Button CreateMenuButton(int y, string text, Action? onClick)
+        private Button CreateMenuButton(int y, string text, Action? onClick,TextObject hintText)
         {
-            var btn = new Button(960, y, 700, 120, "button", text)
+            var btn = new Button(300, y, 620, 120, "menuButton", text)
             {
                 Layer = 2,
-                TextAlign = TextAlign.Center,
-                TextColor = Color4.White,
-                TextOffset = new Vector2(-70f, -50f),
+                TextOffset = new Vector2(-230f, 20f),
                 ScaleMultiply = 0.8f,
+                Tag = "menuButtonn",
+                
             };
+            btn.Label.Align = TextAlign.Left;
+            btn.Label.Color = "#FFFFFF"; 
+            btn.Label.FontKey = "Menu";
+            btn.Label.FontSize = 64f;
+            btn._buttonBackground.Opacity = 0f;
             if (onClick != null) btn.OnClick += onClick;
+
+            btn.HoverStateChanged += (_, hover) =>
+            {
+                hintText.Color = hover ? new Color4(205, 58, 104, 255) : Color4.DarkSlateGray;
+            };
+
+            btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered,0.5f);
+
+            btn.InitializeHoverState();
+            
             return btn;
         }
 
@@ -209,6 +255,7 @@ namespace TappiruCS.State.Menu
             _scene.Add(_loginInput);
             _scene.Add(_passwordInput);
             _scene.Add(_loginButton);
+            _scene.Add(_loginText);
             
         }
 
@@ -277,6 +324,7 @@ namespace TappiruCS.State.Menu
             if (_ratingText != null) _scene.Remove(_ratingText);
             if (_avatarSprite != null) _scene.Remove(_avatarSprite);
             if (_avatarBackground != null) _scene.Remove(_avatarBackground);
+            if (_loginText!=null) _scene.Remove(_loginText);
         }
 
         public void Update(double deltaTime)

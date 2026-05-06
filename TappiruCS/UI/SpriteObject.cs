@@ -1,5 +1,6 @@
 ﻿// UI/SpriteObject.cs
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 
 namespace TappiruCS.UI
@@ -7,7 +8,7 @@ namespace TappiruCS.UI
     public class SpriteObject : GameObject
     {
         public int _textureId;
-        public Color4 Color { get; set; } = Color4.White;
+        public UIColor Color { get; set; } = Color4.White;
 
         // === Glow свойства ===
         public bool EnableGlow { get; set; } = false;
@@ -15,17 +16,28 @@ namespace TappiruCS.UI
         public float GlowSpread { get; set; } = 12f;         // радиус размытия
         public int GlowSteps { get; set; } = 6;             // количество слоёв
 
+        public float HoverBrightness = 1.5f;
+        
+
         public SpriteObject(int textureId, float x, float y, float scaleX, float scaleY)
         {
             _textureId = textureId;
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(scaleX, scaleY);
+            AllowHover = false;
+        }
+
+        public override void Update(double deltaTime, MouseState mouse)
+        {
+            base.Update(deltaTime, mouse);
         }
 
         public override void Draw(Matrix4 projection)
         {
             if (!Active || Context == null || SB == null)
                 return;
+
+            
 
             var (dLeft, dTop, effW, effH) = GetDesignBounds();
 
@@ -67,6 +79,8 @@ namespace TappiruCS.UI
                     Color.R, Color.G, Color.B, Opacity,
                     projection);
             }
+
+            base.Draw(projection);
         }
     }
 }

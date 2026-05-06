@@ -9,7 +9,9 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.GameLogic.Mod;
 using TappiruCS.Render;
+using TappiruCS.Render.Audio;
 using TappiruCS.Render.Text;
+using TappiruCS.Render.Text.FreeType;
 using TappiruCS.Server;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu;
@@ -21,6 +23,7 @@ namespace TappiruCS
 {
     public class Game : GameWindow
     {
+
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
         public static float WindowWidth;
@@ -30,7 +33,6 @@ namespace TappiruCS
         public static List<GameMod> _activeMods = new List<GameMod>();
 
         private SpriteBatch spriteBatch;
-        private TextRender textRenderer;
         private AudioManager audio;
 
         private Matrix4 projection;
@@ -72,12 +74,25 @@ namespace TappiruCS
             TextureLoader.SetupGraphics();
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
-            Font defaultFont = new Font("Textures\\Font\\font_cyrillic.fnt");
-            textRenderer = new TextRender(spriteBatch, defaultFont);
-            //textRenderer = new TextRender(spriteBatch, "Textures\\Font\\main.fnt");
+           
+            FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
+            FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\1738032194_FOT-RodinPro-B.otf", 64));
+            FontManager.Add("Menu", new FreeTypeRender(spriteBatch, "Textures\\Font\\LangithRegpersonal-GO0Ly.otf", 64));
+            FontManager.Add("GameOverlay", new FreeTypeRender(spriteBatch, "Textures\\Font\\neuropolxfree.ttf", 64));
+            FontManager.SetDefault("UI");
+
+
+
+
+
+
+
+
             audio = new AudioManager();
 
-            RenderContext = new RenderContext(this, spriteBatch, textRenderer, audio);
+            GetRandomSong();
+
+            RenderContext = new RenderContext(this, spriteBatch, audio);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
             audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
             audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
@@ -103,6 +118,17 @@ namespace TappiruCS
             {
                 _mainThreadActions.Enqueue(action);
             }
+        }
+        public void GetRandomSong()
+        {
+            string[] folders = Directory.GetDirectories("Songs/");
+            Random rnd = new Random();
+            int randomsong = rnd.Next(0, folders.Length);
+            SongSelectState.SelectedMap = LoadMap.MapLoad(folders[randomsong]);
+            audio.LoadMusic(SongSelectState.SelectedMap.audioPath);
+            audio.Play();
+            audio.SetLooping(true);
+
         }
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
@@ -162,6 +188,15 @@ namespace TappiruCS
         {
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            // === ТЕСТ ОТРИСОВКИ FREETYPE ГЛИФОВ (нажми F1) ===
+
+
+            
+
+
+
             currentState.Render(projection);
             // === BLACK FADE (рисуется поверх всего) ===
             if (_fadeAlpha > 0.001f)
@@ -173,13 +208,6 @@ namespace TappiruCS
                     0, 0, 1, 1,
                     0f, 0f, 0f, _fadeAlpha,
                     projection);
-            }
-
-            if (KeyboardState.IsKeyPressed(Keys.Escape)&& moduleWND != null)
-            {
-
-                    CloseModalWindow();   
-                    return;  
             }
 
             SwapBuffers();
@@ -199,7 +227,13 @@ namespace TappiruCS
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
-            
+
+            if (KeyboardState.IsKeyPressed(Keys.Escape) && moduleWND != null)
+            {
+
+                CloseModalWindow();
+                return;
+            }
 
             audio.PlaySoundEffect("hit",1.2f);
             currentState?.HandleKeyDown(e);
@@ -229,15 +263,18 @@ namespace TappiruCS
                 gameSessionState.HandleKeyUp(e);
             }
         }
-        public void ChangeState(IGameState newState)
+        public async void ChangeState(IGameState newState)
         {
             if (_pendingState != null || _isTransitioning) return;
 
+            
             _pendingState = newState;
             _isFadingOut = true;
             _isTransitioning = true;
+            await audio.FadeOutAsync(0.7f);
 
-           
+            await audio.FadeInAsync(0.7f);
+
         }
         protected override void OnClosing(CancelEventArgs e)
         {

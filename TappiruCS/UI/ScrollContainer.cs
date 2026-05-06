@@ -11,7 +11,6 @@ namespace TappiruCS.UI
     {
         private readonly float _width;
         private readonly float _height;
-        private readonly float _itemHeight;
         private readonly float _itemSpacing;
         private readonly float _scrollSpeed = 120f;
         private readonly float _smoothness = 14f;
@@ -26,10 +25,10 @@ namespace TappiruCS.UI
         private float _lastMouseY = 0f;
 
         private readonly List<GameObject> _items = new();
-        private readonly SpriteObject _debugArea;   // синяя область (только для визуализации)
-        private readonly SpriteObject _hoverArea;    // розовая область (для хит-теста)
 
-        // Настройки области ховера (локальные координаты относительно контейнера)
+        private readonly SpriteObject _debugArea;
+        private readonly SpriteObject _hoverArea;
+
         public float HoverAreaX { get; set; }
         public float HoverAreaY { get; set; }
         public float HoverAreaWidth { get; set; }
@@ -38,46 +37,47 @@ namespace TappiruCS.UI
         public float Width => _width;
         public float Height => _height;
 
-        public ScrollContainer(float x, float y, float width, float height, float itemHeight, float itemSpacing = 5f)
+        public ScrollContainer(float x, float y, float width, float height, float itemSpacing = 80f)
         {
             LocalPosition = new Vector2(x, y);
             _width = width;
             _height = height;
-            _itemHeight = itemHeight;
             _itemSpacing = itemSpacing;
 
-            // Синяя область (дебаг) – всегда отображается во весь контейнер
             _debugArea = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, _width, _height)
             {
                 Color = new Color4(0.2f, 0.5f, 0.8f, 0.3f),
-                Opacity = 0.3f,
+                Opacity = 0f,
                 AllowHover = false,
                 Layer = Layer - 1,
                 Parent = this
             };
             AddChild(_debugArea);
 
-            // Розовая область (ховер) – по умолчанию тоже весь контейнер, но можно изменить
             _hoverArea = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, _width, _height)
             {
-                Color = new Color4(1f, 0.4f, 0.7f, 0.3f), // розовый
-                Opacity = 0.3f,
+                Color = new Color4(1f, 0.4f, 0.7f, 0.3f),
+                Opacity = 0f,
                 AllowHover = false,
                 Layer = Layer - 1,
                 Parent = this
             };
             AddChild(_hoverArea);
 
-            // Инициализируем зону ховера значениями по умолчанию
             HoverAreaX = 0;
             HoverAreaY = 300;
             HoverAreaWidth = _width;
-            HoverAreaHeight = _height+500;
+            HoverAreaHeight = _height + 500;
+
+            if (Debug)
+            {
+                _hoverArea.Opacity = 0.3f;
+                _debugArea.Opacity = 0.3f;
+            }
 
             UpdateHoverAreaVisual();
         }
 
-        // Обновление визуального представления розовой области (вызывается при изменении настроек)
         private void UpdateHoverAreaVisual()
         {
             _hoverArea.LocalPosition = new Vector2(HoverAreaX, HoverAreaY);
@@ -97,6 +97,10 @@ namespace TappiruCS.UI
         {
             _items.Add(item);
             AddChild(item);
+
+            if (item is Container container)
+                container.RecalculateSize();
+
             RecalcMaxScroll();
             ApplyPositions();
         }
@@ -113,8 +117,7 @@ namespace TappiruCS.UI
 
         public void ClearItems()
         {
-            foreach (var item in _items)
-                RemoveChild(item);
+            foreach (var item in _items) RemoveChild(item);
             _items.Clear();
             _targetOffsetY = 0f;
             _currentOffsetY = 0f;
@@ -122,19 +125,22 @@ namespace TappiruCS.UI
             ApplyPositions();
         }
 
-        public void ScrollToIndex(int index)
-        {
-            if (index < 0 || index >= _items.Count) return;
-            float elementCenter = index * (_itemHeight + _itemSpacing) + _itemHeight / 2f;
-            float viewCenter = _height / 2f;
-            float target = elementCenter - viewCenter;
-            _targetOffsetY = Math.Clamp(target, 0f, _maxScroll);
-        }
-
         public void Scroll(float deltaY)
         {
             _targetOffsetY -= deltaY * _scrollSpeed;
             _targetOffsetY = Math.Clamp(_targetOffsetY, 0f, _maxScroll);
+        }
+
+        public void ScrollToIndex(int index)
+        {
+            if (index < 0 || index >= _items.Count) return;
+
+            float targetY = 0f;
+            for (int i = 0; i < index; i++)
+                targetY += GetItemHeight(_items[i]) + _itemSpacing;
+
+            float itemCenter = targetY + GetItemHeight(_items[index]) / 2f;
+            _targetOffsetY = Math.Clamp(itemCenter - _height / 2f, 0f, _maxScroll);
         }
 
         public void ResetScroll()
@@ -148,6 +154,7 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime, mouse);
             float dt = (float)deltaTime;
+            RecalcMaxScroll();
             _currentOffsetY = MathHelper.Lerp(_currentOffsetY, _targetOffsetY, _smoothness * dt);
             ApplyPositions();
             HandleInput(mouse);
@@ -158,7 +165,6 @@ namespace TappiruCS.UI
             float vx = mouse.X / CanvasScale.X;
             float vy = mouse.Y / CanvasScale.Y;
 
-            // Проверяем попадание только в розовую область (ховер)
             bool over = _hoverArea.IsPointInside(vx, vy);
 
             float scrollDelta = mouse.ScrollDelta.Y;
@@ -186,21 +192,68 @@ namespace TappiruCS.UI
             }
         }
 
+        // ==================== ИСПРАВЛЕННАЯ ЛОГИКА ====================
         private void ApplyPositions()
         {
-            for (int i = 0; i < _items.Count; i++)
+            float currentY = -_currentOffsetY;   // начинаем от верхней видимой границы
+
+            
+
+            foreach (var item in _items)
             {
-                float y = i * (_itemHeight + _itemSpacing) - _currentOffsetY;
-                _items[i].LocalPosition = new Vector2(_horizontalPadding, y);
+                float itemHeight = GetItemHeight(item);
+
+                // Все GameObject позиционируются по ЦЕНТРУ
+                float centerY = currentY + (itemHeight / 2f);
+
+                item.LocalPosition = new Vector2(_horizontalPadding, centerY);
+
+               
+
+                // Переходим к следующему элементу
+                currentY += itemHeight + _itemSpacing;
             }
+
+
+        }
+
+        private float GetItemHeight(GameObject item)
+        {
+            if (item is Container container)
+            {
+                container.RecalculateSize();
+                float h = container.MaxHeight;
+
+                if (h < 50f)
+                {
+                   
+                    h = 250f;
+                }
+                return h;
+            }
+
+            // Для обычных SpriteObject и других GameObject
+            return item.Scale.Y;
         }
 
         public void RecalcMaxScroll()
         {
-            _contentHeight = _items.Count * (_itemHeight + _itemSpacing);
+            _contentHeight = 0f;
+
+            foreach (var item in _items)
+            {
+                _contentHeight += GetItemHeight(item) + _itemSpacing;
+            }
+
+            if (_items.Count > 0)
+                _contentHeight -= _itemSpacing;
+
             _maxScroll = Math.Max(0f, _contentHeight - _height / 2);
+
             _targetOffsetY = Math.Clamp(_targetOffsetY, 0f, _maxScroll);
             _currentOffsetY = Math.Clamp(_currentOffsetY, 0f, _maxScroll);
+
+           
         }
     }
 }

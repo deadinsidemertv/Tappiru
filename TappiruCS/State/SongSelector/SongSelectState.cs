@@ -2,11 +2,16 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.Server.MapLogic;
 using TappiruCS.Server.Player;
 using TappiruCS.State.Menu;
@@ -15,7 +20,7 @@ using TappiruCS.State.SongSelector.RankingPanel;
 using TappiruCS.State.SongSelector.SongList;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
+using TappiruCS.Render.Text;
 
 namespace TappiruCS.State.SongSelector
 {
@@ -30,7 +35,7 @@ namespace TappiruCS.State.SongSelector
         // ── Сцена ──
         private readonly Scene _scene = new Scene();
 
-        // ── UI-элементы, обновляемые во время игры ──
+        // ── UI-элементы ──
         private Background _background;
         private ScrollList _mapList;
         private TextObject _mapTitleText;
@@ -40,9 +45,8 @@ namespace TappiruCS.State.SongSelector
         // ── Лидерборд ──
         private RankingPanel.RankingPanel _rankingPanel;
 
-        // ── Управление фоновой загрузкой ──
+        // ── Управление текущей песней ──
         private CancellationTokenSource _songSelectCts = new CancellationTokenSource();
-
         private string _currentSongPath = "";
         private int _bgPreviewTexture;
 
@@ -51,9 +55,9 @@ namespace TappiruCS.State.SongSelector
             _context = context;
         }
 
-        // ─────────────────────────────────────────────
-        //  IGameState
-        // ─────────────────────────────────────────────
+        // ===================================================================
+        // IGameState
+        // ===================================================================
 
         public void OnEnter()
         {
@@ -63,14 +67,10 @@ namespace TappiruCS.State.SongSelector
             _mapList = BuildMapList();
             _scene.Add(_mapList);
 
-            IScoreProvider provider = PlayerProfile.Instance.IsLoggedIn ? new OnlineScoreProvider() : new OfflineScoreProvider();
-            
-            _rankingPanel = new RankingPanel.RankingPanel(0f, 140f, provider);
+            InitializeRankingPanel();
 
-            _rankingPanel.OnScoreClicked += OpenScoreBoard;
-            _scene.Add(_rankingPanel);
+            HandleSongOnEnter();        // ← Ключевой метод
 
-            _ = SelectSongAsync(SelectedMap.Path);
             _ = LoadMapListAsync();
         }
 
@@ -98,9 +98,171 @@ namespace TappiruCS.State.SongSelector
 
         public void HandleKeyDown(KeyboardKeyEventArgs e) { }
 
-        // ─────────────────────────────────────────────
-        //  Построение статического UI
-        // ─────────────────────────────────────────────
+        // ===================================================================
+        // Логика выбора песни при входе
+        // ===================================================================
+
+        private void HandleSongOnEnter()
+        {
+            Console.WriteLine($"[SongSelect] HandleSongOnEnter | CurrentPath: '{_currentSongPath}' | SelectedMap.Path: '{SelectedMap?.Path}'");
+
+            if (SelectedMap == null)
+            {
+                Console.WriteLine("[SongSelect] SelectedMap is null");
+                return;
+            }
+
+            // Если currentSongPath пустой, но есть SelectedMap — считаем, что это та же песня
+            bool isSameSong = string.IsNullOrEmpty(_currentSongPath) ||
+                              _currentSongPath == SelectedMap.Path;
+
+            if (isSameSong && _context.Audio.IsPlaying)
+            {
+                Console.WriteLine("[SongSelect] Уже играет нужная песня → обновляем только UI");
+                _currentSongPath = SelectedMap.Path;        // ← важно!
+                ApplySelectedSongUIOnly(SelectedMap);
+            }
+            else
+            {
+                Console.WriteLine("[SongSelect] Загружаем песню заново");
+                _ = SelectSongAsync(SelectedMap.Path);
+            }
+        }
+
+        private void ApplySelectedSongUIOnly(MapData map)
+        {
+            if (map == null) return;
+
+            _currentSongPath = map.Path;
+            SelectedMap = map;
+
+            _context.Game.InvokeOnMainThread(() =>
+            {
+                UpdateMapInfoTexts(map);
+                UpdateBackground(map);
+                _rankingPanel.Refresh(map.MapHash);
+            });
+        }
+
+        // ===================================================================
+        // Выбор и загрузка песни
+        // ===================================================================
+
+        public async Task SelectSongAsync(string folderPath)
+        {
+            if (string.IsNullOrEmpty(folderPath)) return;
+
+            Console.WriteLine($"[SelectSong] Запрос на загрузку: {folderPath} | Current: {_currentSongPath}");
+
+            if (_currentSongPath == folderPath && _context.Audio.IsPlaying)
+            {
+                Console.WriteLine("[SelectSong] Песня уже играет — пропускаем загрузку");
+                ApplySelectedSongUIOnly(SelectedMap);
+                return;
+            }
+
+            _songSelectCts.Cancel();
+            _songSelectCts = new CancellationTokenSource();
+            var token = _songSelectCts.Token;
+
+            MapData loadedMap = null;
+            ImageResult bgImage = null;
+            string audioPath = null;
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    token.ThrowIfCancellationRequested();
+                    loadedMap = LoadMap.MapLoad(folderPath);
+                    audioPath = loadedMap.audioPath;
+
+                    token.ThrowIfCancellationRequested();
+                    bgImage = TryLoadImage(loadedMap.backGroundPath);
+
+                    _context.Audio.LoadMusic(audioPath);
+                }, token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            if (token.IsCancellationRequested || loadedMap == null) return;
+
+            _context.Game.InvokeOnMainThread(() =>
+            {
+                if (token.IsCancellationRequested) return;
+                ApplySelectedSong(loadedMap, bgImage, folderPath);
+            });
+        }
+
+        private void ApplySelectedSong(MapData map, ImageResult bgImage, string folderPath)
+        {
+            SelectedMap = map;
+            _currentSongPath = folderPath;
+
+            _context.Audio.Play();
+
+            UpdateMapInfoTexts(map);
+            UpdateBackgroundFromImage(bgImage);
+            _rankingPanel.Refresh(map.MapHash);
+        }
+
+        // ===================================================================
+        // UI Helpers
+        // ===================================================================
+
+        private void UpdateMapInfoTexts(MapData map)
+        {
+            _mapTitleText.Text = $"{map.title} - [{map.artist}]";
+            _creatorText.Text = $"Автор: {map.creator}";
+            _metaDataText.Text = FormatMetaData(map);
+        }
+
+        private void UpdateBackground(MapData map)
+        {
+            if (string.IsNullOrEmpty(map.backGroundPath)) return;
+            var bgImage = TryLoadImage(map.backGroundPath);
+            UpdateBackgroundFromImage(bgImage);
+        }
+
+        private void UpdateBackgroundFromImage(ImageResult bgImage)
+        {
+            if (bgImage == null) return;
+
+            _bgPreviewTexture = TextureLoader.CreateTextureFromRawDataAsync(
+                bgImage.Data, bgImage.Width, bgImage.Height, generateMipmaps: false);
+
+            _background.TransitionTo(_bgPreviewTexture, 0.4f);
+        }
+
+        private string FormatMetaData(MapData map)
+        {
+            int total = (int)_context.Audio.Duration;
+            int minutes = total / 60;
+            int seconds = total % 60;
+            return $"Длина: {minutes}:{seconds:D2} Строк: {map.Events.Count} Сложность: {map.StarRating:F2}★";
+        }
+
+        // ===================================================================
+        // Вспомогательные методы
+        // ===================================================================
+
+        private static ImageResult TryLoadImage(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+            try
+            {
+                using var stream = File.OpenRead(path);
+                return ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            }
+            catch { return null; }
+        }
+
+        // ===================================================================
+        // Построение UI
+        // ===================================================================
 
         private void BuildStaticUI()
         {
@@ -109,15 +271,12 @@ namespace TappiruCS.State.SongSelector
             AddMapInfoTexts();
             AddDecorationSprites();
             AddButtons();
-
-            
         }
 
         private void AddBackgrounds()
         {
-            _background = new Background(_bgPreviewTexture) { Layer = 0, AllowHover = false, ParalaxEffect = true };
+            _background = new Background(0) { Layer = 0, AllowHover = false, ParalaxEffect = true };
             var dimOverlay = new Background(0) { AllowHover = false, Opacity = 0.5f };
-
             _scene.Add(_background);
             _scene.Add(dimOverlay);
         }
@@ -126,17 +285,15 @@ namespace TappiruCS.State.SongSelector
         {
             var userName = new TextObject(PlayerProfile.Instance.UserName, 1050, 965, 24f) { Layer = 3 };
             var userAvatar = new SpriteObject(PlayerProfile.Instance.AvatarTextureId, 940, 1025, 85, 85) { Layer = 1 };
-
             _scene.Add(userName);
             _scene.Add(userAvatar);
         }
 
         private void AddMapInfoTexts()
         {
-            _mapTitleText = new TextObject("", 10, 5, 64f) { Layer = 3, Align = TextAlign.Left };
-            _creatorText = new TextObject("", 10, 60, 48f) { Layer = 3, Align = TextAlign.Left };
-            _metaDataText = new TextObject("", 10, 110, 36f) { Layer = 3, Align = TextAlign.Left };
-
+            _mapTitleText = new TextObject("", 10, 48, 48f) { Layer = 3, Align = TextAlign.Left };
+            _creatorText = new TextObject("", 10, 90, 36f) { Layer = 3, Align = TextAlign.Left };
+            _metaDataText = new TextObject("", 10, 135, 24f) { Layer = 3, Align = TextAlign.Left };
             _scene.Add(_mapTitleText);
             _scene.Add(_creatorText);
             _scene.Add(_metaDataText);
@@ -170,20 +327,20 @@ namespace TappiruCS.State.SongSelector
             var playButton = new Button(1766, 938, 500, 500, "playButton", "Play")
             {
                 Layer = 2,
-                TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 ScaleMultiply = 0.8f,
                 Tag = "play",
             };
+            playButton.Label.Color = new Color4(0f, 0f, 0f, 0f);
 
             var backButton = new Button(160, 1011.8f, 449, 192, "back", "")
             {
                 Layer = 2,
-                TextColor = new Color4(0f, 0f, 0f, 0f),
                 HoverColor = new Color4(1.2f, 1.2f, 1.2f, 1f),
                 ScaleMultiply = 0.72f,
                 Tag = "back",
             };
+            backButton.Label.Color = new Color4(0f, 0f, 0f, 0f);
 
             var modsButton = new Button(480, 1015, 77, 90, "selection-mode", "")
             {
@@ -208,9 +365,20 @@ namespace TappiruCS.State.SongSelector
                 Opacity = 0.8f,
             };
 
-        // ─────────────────────────────────────────────
-        //  Загрузка списка карт
-        // ─────────────────────────────────────────────
+        private void InitializeRankingPanel()
+        {
+            IScoreProvider provider = PlayerProfile.Instance.IsLoggedIn
+                ? new OnlineScoreProvider()
+                : new OfflineScoreProvider();
+
+            _rankingPanel = new RankingPanel.RankingPanel(0f, 140f, provider);
+            _rankingPanel.OnScoreClicked += OpenScoreBoard;
+            _scene.Add(_rankingPanel);
+        }
+
+        // ===================================================================
+        // Загрузка списка карт
+        // ===================================================================
 
         private async Task LoadMapListAsync()
         {
@@ -219,7 +387,6 @@ namespace TappiruCS.State.SongSelector
             var serverHashes = await serverHashesTask;
 
             var mapItems = await Task.Run(() => ScanAndSortMaps(folders, serverHashes));
-
             await PopulateMapListAsync(mapItems);
 
             Console.WriteLine($"[SongSelect] Список загружен: {mapItems.Count} карт");
@@ -229,7 +396,6 @@ namespace TappiruCS.State.SongSelector
         {
             if (PlayerProfile.Instance.IsLoggedIn)
                 return LoadMapHashes.GetServerMapHashesAsync();
-
             return Task.FromResult(new HashSet<string>());
         }
 
@@ -243,7 +409,6 @@ namespace TappiruCS.State.SongSelector
                 try
                 {
                     var map = LoadMap.MapLoad(folder);
-
                     if (PlayerProfile.Instance.IsLoggedIn)
                         map.IsOnServer = serverHashes.Contains(map.MapHash);
 
@@ -260,8 +425,8 @@ namespace TappiruCS.State.SongSelector
             }
 
             return items
-                .OrderBy(x => x.Item4)        // по звёздам
-                .ThenBy(x => x.Item1.title)    // затем по названию
+                .OrderBy(x => x.Item4)
+                .ThenBy(x => x.Item1.title)
                 .ToList();
         }
 
@@ -271,7 +436,6 @@ namespace TappiruCS.State.SongSelector
             for (int i = 0; i < mapItems.Count; i++)
             {
                 var item = mapItems[i];
-
                 var imageResult = await Task.Run(() => TryLoadImage(item.bgImagePath));
 
                 int capturedIndex = i;
@@ -284,143 +448,43 @@ namespace TappiruCS.State.SongSelector
                     _mapList.AddButton(button);
                 });
 
-                await Task.Delay(1); // даём кадру отрисоваться
+                await Task.Delay(1);
             }
-        }
-
-        private static ImageResult TryLoadImage(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return null;
-            try
-            {
-                using var stream = File.OpenRead(path);
-                return ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            }
-            catch { return null; }
         }
 
         private ListElementButton BuildMapButton(MapData map, string displayName, int index, ImageResult image)
         {
             var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, map)
             {
-                TextAlign = TextAlign.Right,
-                IsImaged = true,
-                FontSize = 48,
-                TextOffset = new Vector2(-430f, -70f),
+                TextOffset = new Vector2(-440f, -40f),
                 ImageScale = new Vector2(0.16f, 0.75f),
                 ImageOffset = new Vector2(-570f, 0f),
                 Layer = _mapList.Layer,
                 Tag = "List",
             };
 
+            button.Label.Align = TextAlign.Left;
+            button.Label.FontSize = 36f;
             button.SetIndex(index);
 
             if (map.IsOnServer)
             {
-                button.Text += " !Сервер!";
-                button.TextColor = new Color4(0.3f, 1f, 0.3f, 1f);
+                button.Label.Text += " !Сервер!";
+                button.Label.Color = new Color4(0.3f, 1f, 0.3f, 1f);
             }
 
             if (image != null)
             {
-                button.ButtonImage = TextureLoader.CreateTextureFromRawDataAsync(
+                button.ThumbnailTexture = TextureLoader.CreateTextureFromRawDataAsync(
                     image.Data, image.Width, image.Height, generateMipmaps: false);
             }
 
             return button;
         }
 
-        // ─────────────────────────────────────────────
-        //  Выбор песни
-        // ─────────────────────────────────────────────
-
-        public async Task SelectSongAsync(string folderPath)
-        {
-            // Отменяем предыдущий незавершённый запрос
-            _songSelectCts.Cancel();
-            _songSelectCts = new CancellationTokenSource();
-            var token = _songSelectCts.Token;
-
-            Console.WriteLine($"[SelectSong] Начало: {folderPath}");
-
-            MapData loadedMap = null;
-            ImageResult bgImage = null;
-            string audioPath = null;
-
-            try
-            {
-                await Task.Run(() =>
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    loadedMap = LoadMap.MapLoad(folderPath);
-                    audioPath = loadedMap.audioPath;
-
-                    token.ThrowIfCancellationRequested();
-
-                    bgImage = TryLoadImage(loadedMap.backGroundPath);
-                    _context.Audio.LoadMusic(audioPath);
-
-                }, token);
-            }
-            catch (OperationCanceledException)
-            {
-                Console.WriteLine($"[SelectSong] Отменено: {folderPath}");
-                return;
-            }
-
-            if (token.IsCancellationRequested) return;
-
-            _context.Game.InvokeOnMainThread(() =>
-            {
-                if (token.IsCancellationRequested) return;
-
-                ApplySelectedSong(loadedMap, bgImage, folderPath);
-            });
-        }
-
-        private void ApplySelectedSong(MapData map, ImageResult bgImage, string folderPath)
-        {
-            if (map == null)
-            {
-                Console.WriteLine("[SelectSong] Не удалось загрузить карту");
-                return;
-            }
-
-            SelectedMap = map;
-            _currentSongPath = folderPath;
-
-            _context.Audio.Play();
-
-            // Обновляем фон
-            if (bgImage != null)
-            {
-                _bgPreviewTexture = TextureLoader.CreateTextureFromRawDataAsync(
-                    bgImage.Data, bgImage.Width, bgImage.Height, generateMipmaps: false);
-                _background.TransitionTo(_bgPreviewTexture, 0.4f);
-            }
-
-            // Обновляем тексты
-            _mapTitleText.Text = $"{map.title} - [{map.artist}]";
-            _creatorText.Text = $"Автор: {map.creator}";
-            _metaDataText.Text = FormatMetaData(map);
-
-            
-            _rankingPanel.Refresh(SelectedMap.MapHash);
-            
-        }
-
-        private string FormatMetaData(MapData map)
-        {
-            int total = (int)_context.Audio.Duration;
-            int minutes = total / 60;
-            int seconds = total % 60;
-            return $"Длина: {minutes}:{seconds:D2}  Строк: {map.Events.Count}  Сложность: {map.StarRating:F2}";
-        }
-
-        // ─────────────────────────────────────────────
-        //  Действия
-        // ─────────────────────────────────────────────
+        // ===================================================================
+        // Действия
+        // ===================================================================
 
         private void PlaySong(string songPath)
         {

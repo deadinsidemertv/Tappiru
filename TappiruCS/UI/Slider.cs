@@ -2,9 +2,7 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.Render.Text;
 using TappiruCS.UI.TextAbstract;
-using static TappiruCS.Render.Text.Font;
 
 namespace TappiruCS.UI
 {
@@ -47,6 +45,8 @@ namespace TappiruCS.UI
                 };
                 AddChild(debugBg);
             }
+            
+            Scale = new Vector2(width, 30);
 
             LocalPosition = new Vector2(x, y);
             minValue = min;
@@ -58,6 +58,7 @@ namespace TappiruCS.UI
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
+                Description = "line"
             };
 
             point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), 0, 0, 50, 50)
@@ -76,10 +77,13 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime, mouse);
+
             point.Description = $"{Math.Round(Value * 100)}%";
+            Description = $"{Math.Round(Value * 100)}%";
             UpdateDragging(mouse);
             UpdatePointPositionFromValue();
+
+            base.Update(deltaTime, mouse);
         }
 
         private void UpdateDragging(MouseState mouse)

@@ -56,7 +56,7 @@ namespace TappiruCS.State.Session
             _mapData = mapdata;
 
             _phraseRenderer = new PhraseDisplayRenderer(context, mapdata);
-            _scoreBarUI = new ScoreBarUI(context.TextRenderer);
+            _scoreBarUI = new ScoreBarUI();
         }
 
         public void OnEnter()
@@ -67,7 +67,7 @@ namespace TappiruCS.State.Session
 
             session = new GameSession(_mapData);
 
-            int scoreBarTex = TextureManager.GetTexture("scorebg");
+            int scoreBarTex = TextureManager.GetTexture("gameoverlay");
 
             // === ПРИОРИТЕТ ВИДЕО ===
             if (!string.IsNullOrEmpty(_mapData.videoPath) && File.Exists(_mapData.videoPath))
@@ -94,10 +94,9 @@ namespace TappiruCS.State.Session
             Fade = new Background(0) { Opacity = 0.7f };
             scorebarBG = new SpriteObject(scoreBarTex, 960, 540, 1920, 1080) { AllowHover = false };
 
-            progressbar = new ProgressBar(20, 20, 700, 5);
+            progressbar = new ProgressBar(80, 53, 400, 5) { Layer = 10};
             _scene.Add(progressbar);
 
-            _scoreBarUI = new ScoreBarUI(_context.TextRenderer);
             _scoreBarUI.AddToScene(_scene);
 
             _scene.Add(Fade);
@@ -153,12 +152,12 @@ namespace TappiruCS.State.Session
                 backButton = new Button(960, 540, 400, 100, "button", "back")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
                 retryButton = new Button(960, 700, 400, 100, "button", "retry") 
                 { 
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
 
                 retryButton.OnClick += RestartGame;
@@ -197,12 +196,12 @@ namespace TappiruCS.State.Session
                 backButton = new Button(960, 540, 400, 100, "button", "back")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
                 retryButton = new Button(960, 700, 400, 100, "button", "retry")
                 {
                     Layer = 10,
-                    TextOffset = new Vector2(-55f, -40f)
+                    TextOffset = new Vector2(-55f, 15f)
                 };
 
                 retryButton.OnClick += RestartGame;
@@ -220,7 +219,7 @@ namespace TappiruCS.State.Session
         public void Render(Matrix4 projection)
         {
             _scene.Draw(projection);
-            _phraseRenderer.Draw(session, projection, 960, 440);
+            _phraseRenderer.Draw(session, projection, 960, 540);
         }
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)

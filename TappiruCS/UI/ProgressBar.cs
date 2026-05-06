@@ -51,7 +51,7 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            AddChild(_background);
+
             AddChild(_fillLine);
 
             _originalFillWidth = scaleX - 2f;
@@ -85,17 +85,17 @@ namespace TappiruCS.UI
             if (progress > 0.65f)
             {
                 // Зелёный → светло-зелёный
-                _fillLine.Color = new Color4(0.25f, 1f, 0.25f, 1f);
+                _fillLine.Color = "#ff548a";
             }
             else if (progress > 0.35f)
             {
                 // Жёлто-оранжевый
-                _fillLine.Color = new Color4(1f, 0.85f, 0.15f, 1f);
+                _fillLine.Color = "#a32395";
             }
             else
             {
                 // Красный (опасная зона)
-                _fillLine.Color = new Color4(1f, 0.25f, 0.2f, 1f);
+                _fillLine.Color = "#e4143b";
             }
         }
 

@@ -1,0 +1,418 @@
+﻿using NAudio.Dsp;
+using NAudio.Wave;
+using OpenTK.Audio.OpenAL;
+using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TappiruCS.Render
+{
+    public class AudioManager : IDisposable
+    {
+        private readonly ALDevice _device;
+        private readonly ALContext _context;
+
+        public static AudioManager Instance { get; private set; }
+
+        // ====================== ГРОМКОСТИ (Instance) ======================
+        private float _masterVolume = 1.0f;
+        private float _musicVolume = 0.95f;
+        private float _effectsVolume = 1.0f;
+
+        private WasapiLoopbackCapture? _loopbackCapture;
+        private readonly Complex[] _fftBuffer = new Complex[2048];   // ← Complex, а не float!
+        private readonly float[] _spectrum = new float[256];
+        private bool _isCapturing = false;
+
+        public float[] Spectrum => _spectrum;
+
+        // ====================== СТАТИЧЕСКИЕ СВОЙСТВА ДЛЯ СОВМЕСТИМОСТИ ======================
+        public static float MasterVolume
+        {
+            get => Instance?._masterVolume ?? 1f;
+            set
+            {
+                if (Instance != null) Instance._masterVolume = Math.Clamp(value, 0f, 1f);
+                Instance?.ApplyVolumes();
+            }
+        }
+
+        public static float MusicVolume
+        {
+            get => Instance?._musicVolume ?? 1f;
+            set
+            {
+                if (Instance != null) Instance._musicVolume = Math.Clamp(value, 0f, 1f);
+                Instance?.ApplyVolumes();
+            }
+        }
+
+        public static float EffectsVolume
+        {
+            get => Instance?._effectsVolume ?? 1f;
+            set
+            {
+                if (Instance != null) Instance._effectsVolume = Math.Clamp(value, 0f, 1f);
+                Instance?.ApplyVolumes();
+            }
+        }
+
+        // Instance свойства (для внутреннего использования)
+        public float MasterVolumeInternal
+        {
+            get => _masterVolume;
+            private set => _masterVolume = Math.Clamp(value, 0f, 1f);
+        }
+
+        // ====================== МУЗЫКА ======================
+        private int _musicSource;
+        private int _musicBuffer;
+        private string _currentMusicPath = "";
+
+        public float Duration { get; private set; }
+        public bool IsPlaying { get; private set; }
+        public float[] WaveformPreview { get; private set; } = Array.Empty<float>();
+
+        private CancellationTokenSource _fadeCts;
+
+        // ====================== ЭФФЕКТЫ ======================
+        private readonly Dictionary<string, int> _effectBuffers = new();
+        private readonly List<int> _activeEffectSources = new();
+
+        public AudioManager()
+        {
+            Instance = this;
+
+            _device = ALC.OpenDevice(null);
+            _context = ALC.CreateContext(_device, (int[])null);
+            ALC.MakeContextCurrent(_context);
+
+            _musicSource = AL.GenSource();
+            _musicBuffer = AL.GenBuffer();
+
+            MasterVolume = OptionFile.MasterVolume;
+            StartSpectrumCapture();
+        }
+
+        // ====================== МУЗЫКА С FADE ======================
+
+        public async Task LoadMusicAsync(string filePath, float fadeOut = 0.7f, float fadeIn = 1.0f, bool force = false)
+        {
+            if (!force && _currentMusicPath == filePath && IsPlaying)
+            {
+                await FadeToAsync(MusicVolume, fadeIn);
+                return;
+            }
+
+            await FadeOutAsync(fadeOut);
+            Stop();
+
+            _currentMusicPath = filePath;
+            LoadMusicInternal(filePath);
+
+            AL.SourcePlay(_musicSource);
+            IsPlaying = true;
+
+            await FadeInAsync(fadeIn);
+        }
+
+        private void LoadMusicInternal(string filePath)
+        {
+            AL.Source(_musicSource, ALSourcei.Buffer, 0);
+            if (_musicBuffer != 0) AL.DeleteBuffer(_musicBuffer);
+            _musicBuffer = AL.GenBuffer();
+
+            using var reader = new Mp3FileReader(filePath);
+            var waveFormat = reader.WaveFormat;
+            byte[] data = new byte[reader.Length];
+            reader.Read(data, 0, data.Length);
+
+            var format = GetALFormat(waveFormat);
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            try
+            {
+                AL.BufferData(_musicBuffer, format, handle.AddrOfPinnedObject(), data.Length, waveFormat.SampleRate);
+            }
+            finally { handle.Free(); }
+
+            Duration = (float)reader.TotalTime.TotalSeconds;
+            WaveformPreview = ComputeWaveformPreview(data, waveFormat);
+
+            AL.Source(_musicSource, ALSourcei.Buffer, _musicBuffer);
+            AL.Source(_musicSource, ALSourcef.SecOffset, 0f);
+            ApplyVolumes();
+        }
+
+        // ====================== FADE ======================
+
+        public async Task FadeOutAsync(float duration = 0.8f) => await FadeToAsync(0f, duration);
+        public async Task FadeInAsync(float duration = 1.0f) => await FadeToAsync(MusicVolume, duration);
+
+        public async Task FadeToAsync(float target, float duration)
+        {
+            _fadeCts?.Cancel();
+            _fadeCts = new CancellationTokenSource();
+
+            float start = AL.GetSource(_musicSource, ALSourcef.Gain) / Math.Max(_masterVolume, 0.001f);
+            float time = 0f;
+
+            while (time < duration)
+            {
+                if (_fadeCts.Token.IsCancellationRequested) break;
+
+                time += 0.016f;
+                float val = MathHelper.Lerp(start, target, time / duration);
+                AL.Source(_musicSource, ALSourcef.Gain, val * _masterVolume);
+                await Task.Delay(16);
+            }
+
+            AL.Source(_musicSource, ALSourcef.Gain, target * _masterVolume);
+        }
+
+        // ====================== СОВМЕСТИМОСТЬ ======================
+
+        public void LoadMusic(string filePath)
+        {
+            LoadMusicAsync(filePath, 0f, 0f, force: true).Wait();
+        }
+
+        public void Play() { AL.SourcePlay(_musicSource); IsPlaying = true; }
+        public void Pause() { AL.SourcePause(_musicSource); IsPlaying = false; }
+        public void Resume() { AL.SourcePlay(_musicSource); IsPlaying = true; }
+        public void Stop() { AL.SourceStop(_musicSource); IsPlaying = false; }
+
+        public void SetCurrentTime(float seconds) => AL.Source(_musicSource, ALSourcef.SecOffset, seconds);
+
+        public float GetCurrentTime()
+        {
+            AL.GetSource(_musicSource, ALSourcef.SecOffset, out float sec);
+            return sec;
+        }
+
+        public void SetLooping(bool loop) => AL.Source(_musicSource, ALSourceb.Looping, loop);
+
+        // ====================== VOLUME ======================
+
+        private void ApplyVolumes()
+        {
+            if (_musicSource != 0)
+                AL.Source(_musicSource, ALSourcef.Gain, _musicVolume * _masterVolume);
+
+            foreach (var src in _activeEffectSources)
+                if (src != 0)
+                    AL.Source(src, ALSourcef.Gain, _effectsVolume * _masterVolume);
+        }
+
+        // ====================== ЭФФЕКТЫ ======================
+
+        public void LoadSoundEffect(string name, string filePath)
+        {
+            if (_effectBuffers.ContainsKey(name))
+                AL.DeleteBuffer(_effectBuffers[name]);
+
+            int buffer = AL.GenBuffer();
+            using (var reader = new Mp3FileReader(filePath))
+            {
+                var waveFormat = reader.WaveFormat;
+                byte[] data = new byte[reader.Length];
+                reader.Read(data, 0, data.Length);
+                var format = GetALFormat(waveFormat);
+                GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+                try
+                {
+                    AL.BufferData(buffer, format, handle.AddrOfPinnedObject(), data.Length, waveFormat.SampleRate);
+                }
+                finally { handle.Free(); }
+            }
+            _effectBuffers[name] = buffer;
+        }
+
+        public void PlaySoundEffect(string name, float volume = 0.8f, float pitch = 1.0f)
+        {
+            if (!_effectBuffers.TryGetValue(name, out int buffer))
+            {
+                Console.WriteLine($"Sound effect '{name}' not found!");
+                return;
+            }
+
+            int source = AL.GenSource();
+            AL.Source(source, ALSourcei.Buffer, buffer);
+            AL.Source(source, ALSourcef.Gain, _effectsVolume * _masterVolume * volume);
+            AL.Source(source, ALSourcef.Pitch, pitch);
+            AL.SourcePlay(source);
+
+            _activeEffectSources.Add(source);
+            CleanFinishedEffects();
+        }
+
+        private void CleanFinishedEffects()
+        {
+            for (int i = _activeEffectSources.Count - 1; i >= 0; i--)
+            {
+                int src = _activeEffectSources[i];
+                AL.GetSource(src, ALGetSourcei.SourceState, out int state);
+                if (state == (int)ALSourceState.Stopped)
+                {
+                    AL.DeleteSource(src);
+                    _activeEffectSources.RemoveAt(i);
+                }
+            }
+        }
+
+        // ====================== ВСПОМОГАТЕЛЬНЫЕ ======================
+
+        private ALFormat GetALFormat(WaveFormat format)
+        {
+            if (format.BitsPerSample == 16)
+                return format.Channels == 1 ? ALFormat.Mono16 : ALFormat.Stereo16;
+
+            if (format.BitsPerSample == 8)
+                return format.Channels == 1 ? ALFormat.Mono8 : ALFormat.Stereo8;
+
+            throw new NotSupportedException($"Unsupported audio format: {format.BitsPerSample} bit, {format.Channels} channels");
+        }
+
+        private float[] ComputeWaveformPreview(byte[] pcmData, WaveFormat waveFormat)
+        {
+            int bytesPerSample = waveFormat.BitsPerSample / 8;
+            int channels = waveFormat.Channels;
+            long totalBytes = pcmData.Length;
+
+            if (totalBytes == 0) return Array.Empty<float>();
+
+            long totalSamples = totalBytes / (bytesPerSample * channels);
+            if (totalSamples == 0) return Array.Empty<float>();
+
+            const int previewBins = 16384;
+            float[] preview = new float[previewBins];
+            long samplesPerBin = totalSamples / previewBins;
+            if (samplesPerBin < 1) samplesPerBin = 1;
+
+            for (int bin = 0; bin < previewBins; bin++)
+            {
+                long startSample = (long)bin * samplesPerBin;
+                long endSample = Math.Min(startSample + samplesPerBin, totalSamples);
+                float maxAmp = 0f;
+
+                for (long s = startSample; s < endSample; s++)
+                {
+                    long byteOffset = s * (long)bytesPerSample * channels;
+                    float sampleAmp = 0f;
+
+                    if (bytesPerSample == 2 && byteOffset + 1 < totalBytes)
+                    {
+                        short left = BitConverter.ToInt16(pcmData, (int)byteOffset);
+                        sampleAmp = Math.Abs(left / 32768f);
+
+                        if (channels >= 2 && byteOffset + 3 < totalBytes)
+                        {
+                            short right = BitConverter.ToInt16(pcmData, (int)byteOffset + 2);
+                            float rAmp = Math.Abs(right / 32768f);
+                            if (rAmp > sampleAmp) sampleAmp = rAmp;
+                        }
+                    }
+                    else if (bytesPerSample == 1 && byteOffset < totalBytes)
+                    {
+                        byte sampleByte = pcmData[byteOffset];
+                        float sample = (sampleByte - 128) / 128f;
+                        sampleAmp = Math.Abs(sample);
+                    }
+
+                    if (sampleAmp > maxAmp) maxAmp = sampleAmp;
+                }
+                preview[bin] = maxAmp;
+            }
+
+            return preview;
+        }
+
+        public void StartSpectrumCapture()
+        {
+            if (_isCapturing) return;
+
+            try
+            {
+                _loopbackCapture = new WasapiLoopbackCapture();
+                _loopbackCapture.DataAvailable += OnDataAvailable;
+                _loopbackCapture.StartRecording();
+                _isCapturing = true;
+                Console.WriteLine("[Audio] Spectrum capture STARTED successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Audio] FAILED to start spectrum capture:");
+                Console.WriteLine(ex.Message);
+                if (ex.InnerException != null)
+                    Console.WriteLine("Inner: " + ex.InnerException.Message);
+            }
+        }
+
+        public void StopSpectrumCapture()
+        {
+            if (_loopbackCapture != null)
+            {
+                _loopbackCapture.StopRecording();
+                _loopbackCapture.Dispose();
+                _loopbackCapture = null;
+            }
+            _isCapturing = false;
+        }
+
+        private void OnDataAvailable(object? sender, WaveInEventArgs e)
+        {
+            if (e.BytesRecorded == 0) return;
+
+            int bufferSize = _fftBuffer.Length;
+
+            for (int i = 0; i < bufferSize && (i * 4 + 3) < e.BytesRecorded; i++)
+            {
+                float sample = BitConverter.ToSingle(e.Buffer, i * 4);
+                _fftBuffer[i].X = sample * 8f;
+                _fftBuffer[i].Y = 0;
+            }
+
+            FastFourierTransform.FFT(true, (int)Math.Log(bufferSize, 2), _fftBuffer);
+
+            int half = _spectrum.Length / 2;
+
+            for (int i = 0; i < _spectrum.Length; i++)
+            {
+                // Простая парабола: центр = максимум
+                float centerWeight = 1.0f - Math.Abs(i - half) / (float)half;
+
+                int freqIndex = (int)(centerWeight * centerWeight * (bufferSize / 4)); // сильно в центр
+
+                float sum = 0f;
+                for (int j = 0; j < 5 && freqIndex + j < bufferSize / 2; j++)
+                {
+                    var bin = _fftBuffer[freqIndex + j];
+                    sum += (float)Math.Sqrt(bin.X * bin.X + bin.Y * bin.Y);
+                }
+
+                _spectrum[i] = Math.Clamp(sum / 8f, 0f, 1.0f);
+            }
+        }
+
+        public void Dispose()
+        {
+            _fadeCts?.Cancel();
+            Stop();
+
+            AL.DeleteSource(_musicSource);
+            AL.DeleteBuffer(_musicBuffer);
+
+            foreach (var buffer in _effectBuffers.Values)
+                AL.DeleteBuffer(buffer);
+
+            foreach (var source in _activeEffectSources)
+                AL.DeleteSource(source);
+
+            ALC.DestroyContext(_context);
+            ALC.CloseDevice(_device);
+            StopSpectrumCapture();
+        }
+    }
+}
