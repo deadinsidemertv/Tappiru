@@ -282,18 +282,62 @@ namespace TappiruCS.State.Edit
             if (_activePhrase == null || string.IsNullOrEmpty(_activePhrase.Text)) return;
 
             string text = _activePhrase.Text;
-            const float spacing = 42f;
-            float startX = 960 - text.Length * spacing / 2f;
+            const float baseFontSize = 96f;
+            const float desiredTracking = 12f; // дополнительное расстояние между символами (можно регулировать)
+
+            var font = FontManager.Get("default") ?? FontManager._defaultFont; // подбери нужный ключ
+            if (font == null)
+            {
+                Console.WriteLine("[RebuildCharTexts] Font not found!");
+                return;
+            }
+
+            // Получаем scale, чтобы визуальный размер совпадал с baseFontSize
+            float scale = font.GetScaleFromFontSize(baseFontSize);
+
+            // Вычисляем ширину каждого символа + kerning
+            List<float> charAdvances = new List<float>(text.Length);
+            float totalWidth = 0f;
+            char prev = '\0';
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+
+                if (font.TryGetRenderedGlyph(c, out var glyph) && glyph != null)
+                {
+                    float kerning = prev != '\0' ? font.GetKerning(prev, c) : 0f;
+                    float advance = kerning + glyph.Info.XAdvance;
+
+                    charAdvances.Add(advance * scale + desiredTracking);
+                    totalWidth += advance * scale;
+                }
+                else
+                {
+                    // fallback для неизвестных символов
+                    charAdvances.Add(baseFontSize * 0.7f + desiredTracking);
+                    totalWidth += baseFontSize * 0.7f;
+                }
+
+                prev = c;
+            }
+
+            // Центрируем всю строку
+            float startX = 960f - (totalWidth + desiredTracking) / 2f; // +desiredTracking для компенсации последнего
+
+            float currentX = startX;
 
             for (int i = 0; i < text.Length; i++)
             {
                 bool hasSlider = _activePhrase.Sliders.Any(s => s.charIndex == i);
 
-                var charObj = new TextObject(text[i].ToString(), startX + i * spacing, 480, 96)
+                var charObj = new TextObject(text[i].ToString(), currentX, 480, baseFontSize)
                 {
                     AllowHover = true,
                     FixedColor = hasSlider,
-                    Color = hasSlider ? Color4.Red : Color4.White
+                    Color = hasSlider ? Color4.Red : Color4.White,
+                    Align = TextAlign.Left,           // важно!
+                    ScaleMultiply = 1f,
                 };
 
                 int idx = i;
@@ -301,6 +345,8 @@ namespace TappiruCS.State.Edit
 
                 _scene.Add(charObj);
                 _charTexts.Add(charObj);
+
+                currentX += charAdvances[i];
             }
         }
 

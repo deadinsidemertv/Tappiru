@@ -522,7 +522,7 @@ namespace TappiruCS.State.Edit
             var bounds = Background.GetDesignBounds();
             float leftWorld = bounds.designLeft;
             float widthWorld = bounds.effWidth;
-            float bottomYWorld = Background.WorldPosition.Y + 38f;
+            float bottomYWorld = Background.WorldPosition.Y ;
             float baseLocalY = bottomYWorld - WorldPosition.Y;
 
             for (float t = (float)Math.Ceiling(_visibleStart / step) * step; t <= _visibleEnd + 0.01f; t += step)
@@ -544,7 +544,7 @@ namespace TappiruCS.State.Edit
                 if (major)
                 {
                     string labelText = TimeSpan.FromSeconds(t).ToString(t >= 60 ? @"m\:ss" : @"s\.ff");
-                    var label = new TextObject(labelText, localX, baseLocalY + 18f, 24f)
+                    var label = new TextObject(labelText, localX, baseLocalY + 18f, 72f)
                     {
                         Color = Color4.White,
                         Align = TextAlign.Center,
