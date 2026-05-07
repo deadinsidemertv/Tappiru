@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render.Text;
+using TappiruCS.State.Edit.Core;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 

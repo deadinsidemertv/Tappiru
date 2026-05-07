@@ -11,8 +11,12 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
+using TappiruCS.State.Edit.Core;
+using TappiruCS.State.Edit.Panels;
+using TappiruCS.State.Edit.SaveLoad;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.State.Edit.TimelineSystem;
 
 namespace TappiruCS.State.Edit
 {

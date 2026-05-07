@@ -211,14 +211,8 @@ namespace TappiruCS.State.Session
 
             Color4 glowColor = GetCurrentCharGlowColor();
             glowColor.A *= alpha;
-
-            // Пробуем разные варианты корректировки, начиная с самого простого (как было раньше)
             float glowX = bx;
-            float glowY = by;                    // ← было так в рабочей версии
-
-            // Если всё равно чуть выше — раскомментируй одну из строк ниже:
-            // float glowY = by + glyph.BearingY * scaleY * 0.2f;     // небольшая поправка вниз
-            // float glowY = by + bh * 0.1f;                         // по высоте bounding box
+            float glowY = by;                    
 
             DrawTextGlow(c.ToString(), glowX, glowY, scaleX, scaleY, glowColor,
                          projection, currentTime, alpha);
