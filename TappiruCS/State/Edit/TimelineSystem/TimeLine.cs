@@ -16,7 +16,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
     public class Timeline : GameObject
     {
         public event Action<float> OnTimeClicked;
-
+        public event Action<ITimelineSelectable?>? OnObjectSelected;
         public SpriteObject Background { get; private set; }
         public SpriteObject Playhead { get; private set; }
         private SpriteObject _playheadLine;
@@ -51,6 +51,8 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private Phrase? _draggedSliderPhrase = null;
         private int _draggedSliderIndex = -1;
         private Vector2 _lastMousePos;
+
+        public ITimelineSelectable? SelectedObject { get; set; }
 
         public Timeline(float x, float y, float width, float height)
         {
@@ -148,6 +150,25 @@ namespace TappiruCS.State.Edit.TimelineSystem
             float virtualX = mouse.X / CanvasScale.X;
             float virtualY = mouse.Y / CanvasScale.Y;
 
+            // === НОВОЕ: Обработка одиночного клика для выбора объекта ===
+            if (mouse.IsButtonPressed(MouseButton.Left))
+            {
+                // Сначала пытаемся выбрать слайдер (они находятся выше фраз)
+                if (TrySelectSlider(virtualX, virtualY, out SliderTiming? selectedSlider))
+                {
+                    OnObjectSelected?.Invoke(selectedSlider);
+                    return; // не запускаем pan или playhead
+                }
+
+                // Затем пытаемся выбрать фразу
+                if (TrySelectPhrase(virtualX, virtualY, out Phrase? selectedPhrase))
+                {
+                    OnObjectSelected?.Invoke(selectedPhrase);
+                    return; // не запускаем pan или playhead
+                }
+            }
+
+            // === Старый код drag-логики (остаётся почти без изменений) ===
             if (mouse.IsButtonDown(MouseButton.Left))
             {
                 if (!_draggingPlayhead && !_panning && !_draggingLeftHandle && !_draggingRightHandle &&
@@ -190,6 +211,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 _draggedSliderIndex = -1;
             }
 
+            // Обычный клик по пустому месту таймлайна (playhead)
             if (mouse.IsButtonPressed(MouseButton.Left) && IsOverTimeline(virtualX, virtualY) &&
                 !_draggingPlayhead && !_panning && !_draggingLeftHandle && !_draggingRightHandle &&
                 !_draggingSliderLeftHandle && !_draggingSliderRightHandle)
@@ -203,10 +225,18 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private bool TryStartHandleDrag(float virtualX, float virtualY, out bool isLeft)
         {
             isLeft = false;
+
+            // Можно начинать drag только если фраза выбрана
+            if (SelectedObject is not Phrase selectedPhrase)
+                return false;
+
             const float hit = 13f;
             float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
+
             for (int i = 0; i < _leftHandles.Count; i++)
             {
+                if (_phrases[i] != selectedPhrase) continue; // ← только выбранная фраза
+
                 float hx = _leftHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
                 {
@@ -216,8 +246,11 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     return true;
                 }
             }
+
             for (int i = 0; i < _rightHandles.Count; i++)
             {
+                if (_phrases[i] != selectedPhrase) continue; // ← только выбранная фраза
+
                 float hx = _rightHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
                 {
@@ -253,25 +286,44 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private bool TryStartSliderHandleDrag(float virtualX, float virtualY, out bool isLeft)
         {
             isLeft = false;
+
+            // Можно начинать drag только если выбран именно этот слайдер
+            if (SelectedObject is not SliderTiming selectedSlider)
+                return false;
+
             const float hit = 13f;
+
             for (int i = 0; i < _sliderLeftHandles.Count; i++)
             {
-                float hx = _sliderLeftHandles[i].WorldPosition.X;
-                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - _sliderLeftHandles[i].WorldPosition.Y) < 25f)
+                if (i >= _sliderReferences.Count) break;
+
+                var (phrase, index) = _sliderReferences[i];
+                if (phrase.Sliders?[index] != selectedSlider) continue; // ← только выбранный слайдер
+
+                var h = _sliderLeftHandles[i];
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
+                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
                 {
-                    _draggedSliderPhrase = _sliderReferences[i].phrase;
-                    _draggedSliderIndex = _sliderReferences[i].sliderIndex;
+                    _draggedSliderPhrase = phrase;
+                    _draggedSliderIndex = index;
                     isLeft = true;
                     return true;
                 }
             }
+
             for (int i = 0; i < _sliderRightHandles.Count; i++)
             {
-                float hx = _sliderRightHandles[i].WorldPosition.X;
-                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - _sliderRightHandles[i].WorldPosition.Y) < 25f)
+                if (i >= _sliderReferences.Count) break;
+
+                var (phrase, index) = _sliderReferences[i];
+                if (phrase.Sliders?[index] != selectedSlider) continue;
+
+                var h = _sliderRightHandles[i];
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
+                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
                 {
-                    _draggedSliderPhrase = _sliderReferences[i].phrase;
-                    _draggedSliderIndex = _sliderReferences[i].sliderIndex;
+                    _draggedSliderPhrase = phrase;
+                    _draggedSliderIndex = index;
                     isLeft = false;
                     return true;
                 }
@@ -412,6 +464,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             {
                 var phrase = _phrases[i];
                 var (centerXWorld, barWidthWorld) = GetTimeBarBounds(phrase.StartTime, phrase.EndTime);
+
                 if (barWidthWorld < 12f)
                 {
                     _phraseBars[i].Scale = Vector2.Zero;
@@ -419,6 +472,13 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     _rightHandles[i].Scale = Vector2.Zero;
                     continue;
                 }
+
+                // Подсветка выбранной фразы
+                bool isSelected = SelectedObject == phrase;
+
+                _phraseBars[i].Color = isSelected
+                    ? new Color4(0.95f, 0.75f, 0.25f, 0.9f)
+                    : new Color4(0.55f, 0.25f, 0.85f, 0.5f);
 
                 float localX = centerXWorld - WorldPosition.X;
                 _phraseBars[i].LocalPosition = new Vector2(localX, phraseCenterLocalY);
@@ -462,6 +522,13 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     var (centerXWorld, widthWorld) = GetTimeBarBounds(slider.startTime, slider.endTime);
                     float visualWidth = Math.Max(widthWorld, 6f);
                     float localX = centerXWorld - WorldPosition.X;
+
+                    // ==================== ПОДСВЕТКА СЛАЙДЕРА ====================
+                    bool isSliderSelected = SelectedObject == slider;
+
+                    _sliderBars[sliderIdx].Color = isSliderSelected
+                        ? new Color4(1f, 0.9f, 0.35f, 1f)
+                        : new Color4(0.95f, 0.65f, 0.25f, 0.95f);
 
                     _sliderBars[sliderIdx].LocalPosition = new Vector2(localX, sliderYLocal);
                     _sliderBars[sliderIdx].Scale = new Vector2(visualWidth, phraseHeight * 0.62f);
@@ -567,6 +634,61 @@ namespace TappiruCS.State.Edit.TimelineSystem
             }
             for (int i = 0; i < pool.Count; i++)
                 pool[i].Active = i < targetSize;
+        }
+
+
+        private bool TrySelectPhrase(float virtualX, float virtualY, out Phrase? phrase)
+        {
+            phrase = null;
+
+            float phraseCenterY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
+            float phraseHalfHeight = Background.Scale.Y * 0.22f;
+
+            for (int i = 0; i < _phrases.Count; i++)
+            {
+                var ph = _phrases[i];
+                var (centerX, width) = GetTimeBarBounds(ph.StartTime, ph.EndTime);
+
+                if (width < 20f) continue; // слишком узкая — не выбираем
+
+                float halfWidth = width * 0.5f - 12f; // ← уменьшаем область выбора, чтобы не цепляло ручки
+
+                if (Math.Abs(virtualX - centerX) < halfWidth &&
+                    Math.Abs(virtualY - phraseCenterY) < phraseHalfHeight)
+                {
+                    phrase = ph;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool TrySelectSlider(float virtualX, float virtualY, out SliderTiming? slider)
+        {
+            slider = null;
+            int activeCount = _sliderReferences.Count;
+
+            for (int i = 0; i < activeCount && i < _sliderBars.Count; i++)
+            {
+                var bar = _sliderBars[i];
+                if (bar.Scale.X < 8f) continue;
+
+                float centerX = bar.WorldPosition.X;
+                // Уменьшаем область выбора, чтобы не цепляло ручки слайдера
+                float halfWidth = bar.Scale.X * 0.5f - 10f;
+
+                if (Math.Abs(virtualX - centerX) < halfWidth &&
+                    Math.Abs(virtualY - bar.WorldPosition.Y) < 26f)
+                {
+                    var (phrase, index) = _sliderReferences[i];
+                    if (phrase.Sliders != null && index >= 0 && index < phrase.Sliders.Count)
+                    {
+                        slider = phrase.Sliders[index];
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         #endregion
     }

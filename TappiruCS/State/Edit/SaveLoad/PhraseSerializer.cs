@@ -4,58 +4,58 @@ using System.Linq;
 using TappiruCS.GameLogic;
 using TappiruCS.State.Edit.Core;
 
-namespace TappiruCS.State.Edit.SaveLoad
+namespace TappiruCS.State.Edit.SaveLoad    // ← рекомендую этот namespace
 {
     /// <summary>
     /// Преобразует список Phrase в список TimingEvent для сохранения в JsonMap и обратно.
-    /// Вынесено из EditState, чтобы не смешивать I/O-логику с UI-логикой.
     /// </summary>
     internal static class PhraseSerializer
     {
-            public static List<TimingEvent> ToEvents(IEnumerable<Phrase> phrases) =>
-                phrases.Select(p => new TimingEvent
-                {
-                    startTime = p.StartTime,
-                    endTime = p.EndTime,
-                    text = p.Text,
-                    transription = p.Transcription ?? "",                    // ← добавлено
-                    sliders = p.Sliders?
-                        .Select(s => new SliderTiming
-                        {
-                            charIndex = s.charIndex,
-                            startTime = s.startTime,
-                            endTime = s.endTime
-                        }).ToList() ?? new List<SliderTiming>()
-                }).ToList();
-
-            public static List<Phrase> FromEvents(IEnumerable<TimingEvent>? events)
+        public static List<TimingEvent> ToEvents(IEnumerable<Phrase> phrases) =>
+            phrases.Select(p => new TimingEvent
             {
-                if (events == null) return new List<Phrase>();
+                startTime = p.StartTime,
+                endTime = p.EndTime,
+                text = p.Text,
+                transription = p.Transcription ?? "",
 
-                return events.Select(e =>
-                {
-                    float start = (float)e.startTime;
-                    float end = (float)(e.endTime > 0 ? e.endTime : e.startTime + 4.0);
-
-                    var phrase = new Phrase(
-                        start,
-                        end,
-                        e.text ?? "",
-                        e.transription ?? ""   // ← добавлено
-                    );
-
-                    if (e.sliders != null)
+                sliders = p.Sliders?
+                    .Select(s => new TappiruCS.GameLogic.SliderTiming   // ← GameLogic версия!
                     {
-                        phrase.Sliders = e.sliders.Select(s => new SliderTiming
-                        {
-                            charIndex = s.charIndex,
-                            startTime = s.startTime,
-                            endTime = s.endTime
-                        }).ToList();
-                    }
+                        charIndex = s.charIndex,
+                        startTime = s.startTime,
+                        endTime = s.endTime
+                    }).ToList() ?? new List<TappiruCS.GameLogic.SliderTiming>()
+            }).ToList();
 
-                    return phrase;
-                }).ToList();
-            }
+        public static List<Phrase> FromEvents(IEnumerable<TimingEvent>? events)
+        {
+            if (events == null) return new List<Phrase>();
+
+            return events.Select(e =>
+            {
+                float start = (float)e.startTime;
+                float end = (float)(e.endTime > 0 ? e.endTime : e.startTime + 4.0);
+
+                var phrase = new Phrase(
+                    start,
+                    end,
+                    e.text ?? "",
+                    e.transription ?? ""
+                );
+
+                if (e.sliders != null)
+                {
+                    phrase.Sliders = e.sliders.Select(s => new TappiruCS.State.Edit.Core.SliderTiming
+                    {
+                        charIndex = s.charIndex,
+                        startTime = s.startTime,
+                        endTime = s.endTime
+                    }).ToList();
+                }
+
+                return phrase;
+            }).ToList();
         }
     }
+}

@@ -14,25 +14,26 @@ using TappiruCS.Render.Text;
 using TappiruCS.State.Edit.Core;
 using TappiruCS.State.Edit.Panels;
 using TappiruCS.State.Edit.SaveLoad;
+using TappiruCS.State.Edit.TimelineSystem;
+using TappiruCS.State.Edit.UI.Panels;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
-using TappiruCS.State.Edit.TimelineSystem;
+using TappiruCS.State.Edit.Panels;
 
 namespace TappiruCS.State.Edit
 {
-    /// <summary>
-    /// Точка входа в редактор. Владеет сценой и делегирует ответственности:
-    ///   • ProjectIO          — открытие / сохранение файлов
-    ///   • PhraseSerializer   — конвертация Phrase ↔ TimingEvent
-    ///   • ColorPreviewPanel  — RGB-слайдеры и демо-текст
-    ///   • Timeline           — визуал таймлайна и drag
-    /// </summary>
     internal class EditState : IGameState
     {
         public EditState(RenderContext context)
         {
             _context = context;
         }
+
+        private ITimelineSelectable? _selectedObject;
+
+        public ITimelineSelectable? SelectedObject => _selectedObject;
+        public event Action? OnSelectionChanged;
+
 
         private readonly RenderContext _context;
         private readonly Scene _scene = new();
@@ -100,7 +101,7 @@ namespace TappiruCS.State.Edit
         // ── Начальный экран (Create / Load) ─────────────────────────────────────
         private void BuildStartScreen()
         {
-            var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay"));
+            var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay2"));
             _background = new SpriteObject(TextureManager.GetTexture("defaultBG"), 960, 450, 1152, 648) { ScaleMultiply = 1.1f};
             _background.Color = new Color4(0.2f, 0.2f, 0.2f, 1f);
 
@@ -163,7 +164,7 @@ namespace TappiruCS.State.Edit
             _phrases.Clear();
             _phrases.AddRange(PhraseSerializer.FromEvents(map?.events));
 
-            _colorPanel.Build(_scene);
+            //_colorPanel.Build(_scene);
             if (map != null) _colorPanel.LoadFrom(map);
 
             _timeline.SetDuration((float)_context.Audio.Duration);
@@ -172,6 +173,27 @@ namespace TappiruCS.State.Edit
 
             _inEditMode = true;
             Console.WriteLine($"[EditState] Загружено фраз: {_phrases.Count}");
+        }
+
+        public void SelectObject(ITimelineSelectable? obj)
+        {
+            _selectedObject = obj;
+            _timeline.SelectedObject = obj;
+            OnSelectionChanged?.Invoke();
+
+            if (obj is Phrase phrase)
+            {
+                _phraseDisplay.Sync(phrase);
+                _context.Audio.SetCurrentTime(phrase.StartTime);   // ← авто-перемотка
+            }
+            else if (obj is TappiruCS.State.Edit.Core.SliderTiming slider)
+            {
+                var ownerPhrase = _phrases.FirstOrDefault(p => p.Sliders?.Contains(slider) == true);
+                _phraseDisplay.Sync(ownerPhrase);
+                if (ownerPhrase != null)
+                    _context.Audio.SetCurrentTime(ownerPhrase.StartTime); // или ownerPhrase.StartTime
+            }
+            _timeline.RefreshAllVisuals();
         }
 
         private void LoadAssets()
@@ -207,10 +229,18 @@ namespace TappiruCS.State.Edit
 
         private void BuildEditorUI()
         {
-            _timeline = new Timeline(952, 708, 1220, 80);
+            
+
+            _timeline = new Timeline(952, 820, 1220, 80);
             _timeline.SetDuration((float)_context.Audio.Duration);
             _timeline.OnTimeClicked += time => _context.Audio.SetCurrentTime(time);
+            _timeline.OnObjectSelected += obj => SelectObject(obj);
             _scene.Add(_timeline);
+
+            var _propertiesPanel = new PhrasePropertiesPanel(_scene);
+            _propertiesPanel.Build();
+
+            OnSelectionChanged += () => _propertiesPanel?.Sync(SelectedObject);
 
             _phraseDisplay = new PhraseTextDisplay(_scene);
             _phraseDisplay.OnSliderRequested += AddSliderForChar;
@@ -323,7 +353,7 @@ namespace TappiruCS.State.Edit
             float endT = Math.Min(now + 2.0f, phrase.EndTime);
             if (endT - now < 0.2f) endT = now + 0.2f;
 
-            phrase.Sliders.Add(new SliderTiming
+            phrase.Sliders.Add(new TappiruCS.State.Edit.Core.SliderTiming
             {
                 charIndex = charIndex,
                 startTime = now,
