@@ -41,27 +41,32 @@ namespace TappiruCS.State.Edit.Panels
         {
             obj.Clear();
 
+            // Фоновая панель (можно заменить на более красивую текстуру, если есть)
             _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 620, 900);
 
+            // Поле названия карты (опционально)
             _titleInput = new InputField(960, 280, 520, 70)
             {
-                PlaceHolderText = "Название карты...",
+                PlaceHolderText = "Название карты (опционально)...",
                 PlaceHolderColor = Color4.LightGray
             };
 
+            // Поле исполнителя (опционально)
             _artistInput = new InputField(960, 370, 520, 70)
             {
-                PlaceHolderText = "Исполнитель...",
+                PlaceHolderText = "Исполнитель (опционально)...",
                 PlaceHolderColor = Color4.LightGray
             };
 
+            // Кнопки выбора MP3 и фона (обязательные поля)
             _mp3Button = new Button(800, 500, 140, 140, "mp3", "MP3") { Layer = 2 };
             _bgButton = new Button(1120, 500, 140, 140, "png", "BG") { Layer = 2 };
 
             _mp3Button.OnClick += () => PickFile("*.mp3", path => _mp3Path = path);
             _bgButton.OnClick += () => PickFile("*.png;*.jpg", path => _bgPath = path);
 
-            _confirmButton = new Button(960, 740, 500, 110, "button", "Создать карту")
+            // Кнопка подтверждения с красивой текстурой "blue_panel"
+            _confirmButton = new Button(960, 740, 500, 110, "blue_panel", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
                 Layer = 2
@@ -81,6 +86,7 @@ namespace TappiruCS.State.Edit.Panels
         // ── Логика ───────────────────────────────────────────────────────────────
         private static void PickFile(string filter, Action<string> onSuccess)
         {
+            // SharpFileDialog - ваш диалог выбора файлов
             if (SharpFileDialog.NativeFileDialog.OpenDialog(null, "", out string? path)
                 && path != null)
             {
@@ -90,12 +96,14 @@ namespace TappiruCS.State.Edit.Panels
 
         private void TryConfirm()
         {
-            if (!IsFormComplete())
+            // Проверяем, что MP3 и фон выбраны (обязательные поля)
+            if (string.IsNullOrEmpty(_mp3Path) || string.IsNullOrEmpty(_bgPath))
             {
-                Console.WriteLine("[CreateProject] Заполните все поля: название, исполнитель, MP3 и фон.");
+                Console.WriteLine("[CreateProject] Не выбраны MP3 или фоновое изображение.");
                 return;
             }
 
+            // Название и исполнитель могут быть пустыми – позже зададутся в настройках
             string? tappzPath = new ProjectCreator().Create(
                 _titleInput.Text.Trim(),
                 _artistInput.Text.Trim(),
@@ -109,10 +117,7 @@ namespace TappiruCS.State.Edit.Panels
             }
         }
 
-        private bool IsFormComplete() =>
-            !string.IsNullOrWhiteSpace(_titleInput.Text) &&
-            !string.IsNullOrWhiteSpace(_artistInput.Text) &&
-            _mp3Path != null &&
-            _bgPath != null;
+        // Старая проверка больше не нужна, замена на более мягкую (только MP3 и BG обязательны)
+        // private bool IsFormComplete() => ...
     }
 }

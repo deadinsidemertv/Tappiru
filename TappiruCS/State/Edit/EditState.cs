@@ -184,10 +184,10 @@ namespace TappiruCS.State.Edit
 
             OnSelectionChanged += () => _propertiesPanel?.Sync(SelectedObject);
 
-            _playPauseButton = new Button(960, 1000, 100, 100, "pause", "") { Layer = 1 };
+            _playPauseButton = new Button(960, 900, 50, 50, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
 
-            _addPhraseButton = new Button(1200, 1000, 420, 100, "button", "ADD PHRASE")
+            _addPhraseButton = new Button(1200, 1000, 420, 100, "blue_panel", "add")
             {
                 Layer = 1,
                 TextOffset = new Vector2(-120, -30),

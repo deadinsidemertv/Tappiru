@@ -445,12 +445,12 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 Pivot = new Vector2(0.5f, 0.5f),
                 Layer = 6,
             });
-            EnsurePoolSize(_leftHandles, phraseCount, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+            EnsurePoolSize(_leftHandles, phraseCount, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 15, 15)
             {
                 Color = new Color4(1f, 1f, 1f, 0.95f),
                 Pivot = new Vector2(0.5f, 0.5f),
             });
-            EnsurePoolSize(_rightHandles, phraseCount, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+            EnsurePoolSize(_rightHandles, phraseCount, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 15, 15)
             {
                 Color = new Color4(1f, 1f, 1f, 0.95f),
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -689,6 +689,12 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 }
             }
             return false;
+        }
+
+
+        public override void Draw(Matrix4 projection)
+        {
+            base.Draw(projection);
         }
         #endregion
     }
