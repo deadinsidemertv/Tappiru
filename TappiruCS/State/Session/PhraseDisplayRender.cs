@@ -41,50 +41,66 @@ namespace TappiruCS.State.Session
                                   currentAudioTime <= session.CurrentPhaseEndTime;
             if (!isPhraseActive) return;
 
-            string text = new string(session.CurrentPhaseChars);
+            string originalText = session.CurrentPhaseDisplayText ?? string.Empty;
+            string transcription = new string(session.CurrentPhaseChars);
+
             float maxPixelWidth = _context.Game.ClientSize.X * 0.95f;
 
-            float bestScale = CalculateBestTextScale(text, maxPixelWidth);
+            // ─── Оригинальный текст (основной, крупный) ─────────────────────────────
+            float originalScale = CalculateBestTextScale(originalText, maxPixelWidth);
             float screenX = centerX * Scene.CanvasScale.X;
             float screenY = y * Scene.CanvasScale.Y;
 
-            // Убираем хардкод с Ascender * 0.5f — это и сдвигало текст вверх!
-            float baselineY = screenY;   // ← теперь просто screenY, без дополнительных смещений
+            float originalScaleX = originalScale * Scene.CanvasScale.X;
+            float originalScaleY = originalScale * Scene.CanvasScale.Y;
 
+            float alphaOverall = CalculateFadeAlpha(session, currentAudioTime);
 
-            float finalScaleX = bestScale * Scene.CanvasScale.X;
-            float finalScaleY = bestScale * Scene.CanvasScale.Y;
+            FT.DrawString(originalText, screenX, screenY, originalScaleX, originalScaleY,
+                          1f, 1f, 1f, 1f, projection, TextAlign.Center);
 
-            float alpha = CalculateFadeAlpha(session, currentAudioTime);
-            Color4[] colors = ComputeCharColors(session, text, currentAudioTime);
-            ApplyAlphaToColors(colors, alpha);
+            // ─── Транскрипция ───────────────────────────────────────────────────────
+            float transcriptionOffsetY = 80f;
+            float transcriptionLogicalY = y + transcriptionOffsetY;           // ← логическая Y!
+            float transcriptionY = transcriptionLogicalY * Scene.CanvasScale.Y;
 
-            var charBounds = FT.GetCharBounds(
-                text, centerX, y,
-                Scene.CanvasScale, bestScale, 1.0f, TextAlign.Center);
+            float transcriptionScale = originalScale * 0.6f;
+            float transcriptionScaleX = transcriptionScale * Scene.CanvasScale.X;
+            float transcriptionScaleY = transcriptionScale * Scene.CanvasScale.Y;
 
-            if (charBounds == null || charBounds.Length == 0) return;
+            // КРИТИЧНО: считаем bounds от ЛОГИЧЕСКИХ координат, как было в старой версии
+            var charBoundsTrans = FT.GetCharBounds(
+                transcription,
+                centerX,
+                transcriptionLogicalY,        // ← логическая Y
+                Scene.CanvasScale,
+                transcriptionScale,
+                1.0f,
+                TextAlign.Center);
 
-            // 1. Рамки слайдеров
-            DrawSliderFrames(text, charBounds, session, currentAudioTime, projection);
+            if (charBoundsTrans == null || charBoundsTrans.Length == 0) return;
 
-            // 2. Свечение текущей буквы
+            // Цвета и эффекты
+            Color4[] colors = ComputeCharColors(session, transcription, currentAudioTime);
+            ApplyAlphaToColors(colors, alphaOverall);
+
+            DrawSliderFrames(transcription, charBoundsTrans, session, currentAudioTime, projection);
+
             if (!session.PhaseComplete)
-                DrawCurrentCharGlow(session.CurrentCharIndex, text, charBounds,
-                    finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
+                DrawCurrentCharGlow(session.CurrentCharIndex, transcription, charBoundsTrans,
+                                    transcriptionScaleX, transcriptionScaleY, projection,
+                                    currentAudioTime, alphaOverall);
 
-            // 3. Свечение завершённой фразы
             if (session.PhaseComplete)
-                DrawCompletedPhraseGlow(text, screenX, baselineY,
-                    finalScaleX, finalScaleY, projection, currentAudioTime, alpha);
+                DrawCompletedPhraseGlow(transcription, screenX, transcriptionY,
+                                        transcriptionScaleX, transcriptionScaleY,
+                                        projection, currentAudioTime, alphaOverall);
 
-            // 4. Основной текст
-            FT.DrawStringWithCharColors(
-                text, screenX, baselineY,
-                BaseFontSize, finalScaleX, finalScaleY,
-                colors, projection, TextAlign.Center);
+            // Отрисовка транскрипции
+            FT.DrawStringWithCharColors(transcription, screenX, transcriptionY,
+                                        BaseFontSize, transcriptionScaleX, transcriptionScaleY,
+                                        colors, projection, TextAlign.Center);
 
-            // 5. Прогресс-бар холда
             if (session.IsHoldingSlider)
                 DrawSliderHoldBar(session, projection);
         }
@@ -196,12 +212,16 @@ namespace TappiruCS.State.Session
             Color4 glowColor = GetCurrentCharGlowColor();
             glowColor.A *= alpha;
 
-            // === КРИТИЧНО ВАЖНО: используем ту же систему координат, что и основной текст ===
-            // charBounds уже содержит правильную позицию верхнего левого угла растра глифа
+            // Пробуем разные варианты корректировки, начиная с самого простого (как было раньше)
             float glowX = bx;
-            float glowY = by;
+            float glowY = by;                    // ← было так в рабочей версии
 
-            DrawTextGlow(c.ToString(), glowX, glowY, scaleX, scaleY, glowColor, projection, currentTime, alpha);
+            // Если всё равно чуть выше — раскомментируй одну из строк ниже:
+            // float glowY = by + glyph.BearingY * scaleY * 0.2f;     // небольшая поправка вниз
+            // float glowY = by + bh * 0.1f;                         // по высоте bounding box
+
+            DrawTextGlow(c.ToString(), glowX, glowY, scaleX, scaleY, glowColor,
+                         projection, currentTime, alpha);
         }
         private Color4 GetCurrentCharGlowColor()
         {

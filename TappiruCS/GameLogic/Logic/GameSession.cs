@@ -26,8 +26,14 @@ namespace TappiruCS.GameLogic.Logic
         // Публичные свойства — полностью совместимы со старым кодом
         public double CurrentPhaseStartTime => _phaseManager.CurrentPhaseStartTime;
         public double CurrentPhaseEndTime => _phaseManager.CurrentPhaseEndTime;
+
+
         public string CurrentPhaseText => _phaseManager.CurrentPhaseText;
         public char[] CurrentPhaseChars => _phaseManager.CurrentPhaseChars;
+
+        public string CurrentPhaseDisplayText => _phaseManager.CurrentPhaseDisplayText;
+        public char[] CurrentPhaseDisplayChars => _phaseManager.CurrentPhaseDisplayChar;
+
         public int CurrentCharIndex => _phaseManager.CurrentCharIndex;
         public bool PhaseComplete => _phaseManager.PhaseComplete;
 

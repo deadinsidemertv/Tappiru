@@ -14,6 +14,9 @@ namespace TappiruCS.GameLogic.Logic
 
         public string CurrentPhaseText { get; private set; } = string.Empty;
         public char[] CurrentPhaseChars { get; private set; } = Array.Empty<char>();
+
+        public string CurrentPhaseDisplayText { get; private set; } = string.Empty;
+        public char[] CurrentPhaseDisplayChar { get; private set; } = Array.Empty<char>();
         public double CurrentPhaseStartTime { get; private set; }
         public double CurrentPhaseEndTime { get; private set; }
 
@@ -125,6 +128,10 @@ namespace TappiruCS.GameLogic.Logic
             // Активируем фазу
             CurrentPhaseText = ev.transription;
             CurrentPhaseChars = ev.transription.ToCharArray();
+
+            CurrentPhaseDisplayText = ev.text;
+            CurrentPhaseDisplayChar = ev.text.ToCharArray();
+
             CurrentPhaseStartTime = ev.startTime;
             CurrentPhaseEndTime = ev.endTime;
             CurrentCharIndex = 0;
