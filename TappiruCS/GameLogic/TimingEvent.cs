@@ -6,6 +6,7 @@ namespace TappiruCS.GameLogic
         public float startTime { get; set; }
         public float endTime { get; set; }
         public string text { get; set; } = string.Empty;
+        public string transription { get; set; }= string.Empty;
 
         public List<SliderTiming> sliders { get; set; } = new List<SliderTiming>();
     }

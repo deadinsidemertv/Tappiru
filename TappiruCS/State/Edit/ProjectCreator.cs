@@ -1,112 +1,91 @@
-﻿using System;
+﻿// ProjectCreator.cs — создание нового .tappz файла
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using TappiruCS.GameLogic;   // предполагается, что JsonMap и TimingEvent находятся здесь
+using TappiruCS.GameLogic;
 
 namespace TappiruCS.State.Edit
 {
     /// <summary>
-    /// Отвечает за создание новой папки проекта и файла .tapp
+    /// Создаёт новый архив проекта (.tappz): упаковывает JSON-карту, MP3 и фон.
+    /// Не содержит UI-логики — чистая файловая операция.
     /// </summary>
     internal class ProjectCreator
     {
-        /// <summary>
-        /// Создаёт новый проект и возвращает полный путь к файлу data.tapp
-        /// </summary>
-        /// <param name="title">Название карты (используется как имя папки)</param>
-        /// <param name="mp3Path">Путь к выбранному MP3 файлу</param>
-        /// <param name="bgPath">Путь к выбранному фоновому изображению</param>
-        /// <returns>Полный путь к созданному .tapp файлу или null при ошибке</returns>
-        public string? Create(string title, string mp3Path, string bgPath)
+        /// <returns>Полный путь к созданному .tappz или <c>null</c> при ошибке.</returns>
+        public string? Create(string title, string artist, string mp3Path, string bgPath)
         {
-            if (string.IsNullOrWhiteSpace(title))
-                return null;
+            if (string.IsNullOrWhiteSpace(title)) return null;
 
             try
             {
-                string baseDir = Path.Combine(Directory.GetCurrentDirectory(), "Edit");
-                Directory.CreateDirectory(baseDir);
+                string safeTitle = SanitizeName(title);
+                string outputDir = Path.Combine(Directory.GetCurrentDirectory(), "Edit");
+                Directory.CreateDirectory(outputDir);
 
-                string safeName = SanitizeFileName(title);
-                string tappzPath = Path.Combine(baseDir, safeName + ".tappz");
+                string archivePath = Path.Combine(outputDir, safeTitle + ".tappz");
+                string mapEntryName = safeTitle + ".tapp";
 
-                // Имя JSON-файла внутри архива — делаем понятным
-                string mapFileName = safeName + ".tapp";
+                var map = BuildDefaultMap(title, artist);
+                string json = JsonSerializer.Serialize(map, new JsonSerializerOptions { WriteIndented = true });
 
-                var jsonMap = CreateDefaultJsonMap(title);
-                string json = JsonSerializer.Serialize(jsonMap, new JsonSerializerOptions { WriteIndented = true });
+                using var archive = ZipFile.Open(archivePath, ZipArchiveMode.Create);
 
-                // Создаём чистый ZIP без лишней папки
-                using (var archive = ZipFile.Open(tappzPath, ZipArchiveMode.Create))
-                {
-                    // JSON данные
-                    var mapEntry = archive.CreateEntry(mapFileName);
-                    using (var stream = mapEntry.Open())
-                    using (var writer = new StreamWriter(stream, Encoding.UTF8))
-                        writer.Write(json);
+                WriteText(archive, mapEntryName, json);
+                CopyFile(archive, mp3Path, Path.GetFileName(mp3Path));
+                CopyFile(archive, bgPath, "bg" + Path.GetExtension(bgPath).ToLowerInvariant());
 
-                    // MP3
-                    string mp3Name = Path.GetFileName(mp3Path);
-                    using (var fs = File.OpenRead(mp3Path))
-                    using (var es = archive.CreateEntry(mp3Name).Open())
-                        fs.CopyTo(es);
-
-                    // Background
-                    string bgExt = Path.GetExtension(bgPath).ToLowerInvariant();
-                    string bgName = "bg" + bgExt;
-                    using (var fs = File.OpenRead(bgPath))
-                    using (var es = archive.CreateEntry(bgName).Open())
-                        fs.CopyTo(es);
-                }
-
-                Console.WriteLine($"Проект успешно создан: {safeName}.tappz");
-                return tappzPath;
+                Console.WriteLine($"[ProjectCreator] Создан: {safeTitle}.tappz");
+                return archivePath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка создания: {ex.Message}");
+                Console.WriteLine($"[ProjectCreator] Ошибка: {ex.Message}");
                 return null;
             }
         }
 
-        private JsonMap CreateDefaultJsonMap(string title)
+        // ── Вспомогательные ─────────────────────────────────────────────────────
+        private static JsonMap BuildDefaultMap(string title, string artist) => new JsonMap
         {
-            return new JsonMap
-            {
-                title = title,
-                artist = "",
-                creator = "",
-                previewTime = 0,
-                endTime = 1,
+            title = title,
+            artist = artist,
+            creator = "",
+            previewTime = 0,
+            endTime = 1,
+            events = new(),
 
-                events = new List<TimingEvent>(),
+            tappedR = 0.4f,
+            tappedG = 0.3f,
+            tappedB = 0.6f,
+            needR = 0.7f,
+            needG = 0.3f,
+            needB = 0.8f,
+            completeR = 0.2f,
+            completeG = 0.1f,
+            completeB = 0.4f
+        };
 
-                // Цвета по умолчанию (можно потом менять через слайдеры)
-                tappedR = 0.4f,
-                tappedG = 0.3f,
-                tappedB = 0.6f,
-
-                needR = 0.7f,
-                needG = 0.3f,
-                needB = 0.8f,
-
-                completeR = 0.2f,
-                completeG = 0.1f,
-                completeB = 0.4f
-            };
+        private static void WriteText(ZipArchive archive, string entryName, string text)
+        {
+            using var stream = archive.CreateEntry(entryName).Open();
+            using var writer = new StreamWriter(stream, Encoding.UTF8);
+            writer.Write(text);
         }
 
-        /// <summary>
-        /// Очищает имя файла от недопустимых символов
-        /// </summary>
-        private string SanitizeFileName(string name)
+        private static void CopyFile(ZipArchive archive, string sourcePath, string entryName)
         {
-            foreach (char invalidChar in Path.GetInvalidFileNameChars())
-            {
-                name = name.Replace(invalidChar, '_');
-            }
+            using var src = File.OpenRead(sourcePath);
+            using var dest = archive.CreateEntry(entryName).Open();
+            src.CopyTo(dest);
+        }
+
+        private static string SanitizeName(string name)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
             return name.Trim();
         }
     }
