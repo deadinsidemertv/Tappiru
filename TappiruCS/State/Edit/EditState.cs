@@ -5,6 +5,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
@@ -52,7 +53,7 @@ namespace TappiruCS.State.Edit
         private readonly List<Phrase> _phrases = new();
 
         // ── Посимвольный текст фразы ─────────────────────────────────────────────
-        private readonly List<TextObject> _charTexts = new();
+        private PhraseTextDisplay _phraseDisplay = null!;     // ← новый
         private Phrase? _activePhrase;
 
         // ── IGameState ───────────────────────────────────────────────────────────
@@ -67,7 +68,7 @@ namespace TappiruCS.State.Edit
         {
             _scene.Clear();
             _phrases.Clear();
-            ClearCharTexts();
+            _phraseDisplay?.Dispose();
             _inEditMode = false;
             _projectIO.Cleanup();
         }
@@ -83,7 +84,7 @@ namespace TappiruCS.State.Edit
                 _colorPanel.Tick();
             }
         }
-
+        
         public void Render(Matrix4 projection) => _scene.Draw(projection);
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
@@ -182,12 +183,33 @@ namespace TappiruCS.State.Edit
             }
         }
 
+        private void SyncActivePhraseText()
+        {
+            if (_phrases.Count == 0)
+            {
+                _phraseDisplay.Sync(null);
+                _activePhrase = null;
+                return;
+            }
+
+            float now = (float)_context.Audio.GetCurrentTime();
+            Phrase? active = _phrases.LastOrDefault(p => p.ContainsTime(now));
+
+            if (active == _activePhrase) return;
+
+            _activePhrase = active;
+            _phraseDisplay.Sync(active);
+        }
+
         private void BuildEditorUI()
         {
             _timeline = new Timeline(952, 708, 1220, 80);
             _timeline.SetDuration((float)_context.Audio.Duration);
             _timeline.OnTimeClicked += time => _context.Audio.SetCurrentTime(time);
             _scene.Add(_timeline);
+
+            _phraseDisplay = new PhraseTextDisplay(_scene);
+            _phraseDisplay.OnSliderRequested += AddSliderForChar;
 
             _playPauseButton = new Button(960, 1000, 100, 100, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
@@ -246,12 +268,14 @@ namespace TappiruCS.State.Edit
 
             var dialog = new TextInputModule(
                 _scene,
-                "Введите текст фразы",
-                text =>
+                "Добавить новую фразу",
+                (mainText, transText) =>      // ← два параметра
                 {
-                    if (!string.IsNullOrWhiteSpace(text))
+                    if (!string.IsNullOrWhiteSpace(mainText))
                     {
-                        _phrases.Add(new Phrase(time, time + 4f, text));
+                        string cleanedTranscription = CleanTranscription(transText);
+                        var phrase = new Phrase(time, time + 4f, mainText, cleanedTranscription);
+                        _phrases.Add(phrase);
                         _timeline?.SetPhrases(_phrases);
                     }
                 },
@@ -263,101 +287,34 @@ namespace TappiruCS.State.Edit
         }
 
         // ── Посимвольный текст активной фразы ───────────────────────────────────
-        private void SyncActivePhraseText()
+        private string CleanTranscription(string input)
         {
-            if (_phrases.Count == 0) { ClearCharTexts(); _activePhrase = null; return; }
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
 
-            float now = (float)_context.Audio.GetCurrentTime();
-            Phrase? active = _phrases.LastOrDefault(p => p.ContainsTime(now));
+            // Приводим к нижнему регистру
+            string lower = input.ToLowerInvariant();
 
-            if (active == _activePhrase) return;
-
-            _activePhrase = active;
-            RebuildCharTexts();
+            // Оставляем только буквы, цифры, пробелы, дефис и апостроф
+            // \p{L} - любая буква, \p{N} - любая цифра, \s - пробел
+            return Regex.Replace(lower, @"[^\p{L}\p{N}\s\-']", "");
         }
-
-        private void RebuildCharTexts()
+        private void CleanAllTranscriptions()
         {
-            ClearCharTexts();
-            if (_activePhrase == null || string.IsNullOrEmpty(_activePhrase.Text)) return;
-
-            string text = _activePhrase.Text;
-            const float baseFontSize = 96f;
-            const float desiredTracking = 12f; // дополнительное расстояние между символами (можно регулировать)
-
-            var font = FontManager.Get("default") ?? FontManager._defaultFont; // подбери нужный ключ
-            if (font == null)
+            foreach (var phrase in _phrases)
             {
-                Console.WriteLine("[RebuildCharTexts] Font not found!");
-                return;
-            }
-
-            // Получаем scale, чтобы визуальный размер совпадал с baseFontSize
-            float scale = font.GetScaleFromFontSize(baseFontSize);
-
-            // Вычисляем ширину каждого символа + kerning
-            List<float> charAdvances = new List<float>(text.Length);
-            float totalWidth = 0f;
-            char prev = '\0';
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-
-                if (font.TryGetRenderedGlyph(c, out var glyph) && glyph != null)
+                if (!string.IsNullOrEmpty(phrase.Transcription))
                 {
-                    float kerning = prev != '\0' ? font.GetKerning(prev, c) : 0f;
-                    float advance = kerning + glyph.Info.XAdvance;
-
-                    charAdvances.Add(advance * scale + desiredTracking);
-                    totalWidth += advance * scale;
+                    phrase.Transcription = CleanTranscription(phrase.Transcription);
                 }
-                else
-                {
-                    // fallback для неизвестных символов
-                    charAdvances.Add(baseFontSize * 0.7f + desiredTracking);
-                    totalWidth += baseFontSize * 0.7f;
-                }
-
-                prev = c;
-            }
-
-            // Центрируем всю строку
-            float startX = 960f - (totalWidth + desiredTracking) / 2f; // +desiredTracking для компенсации последнего
-
-            float currentX = startX;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                bool hasSlider = _activePhrase.Sliders.Any(s => s.charIndex == i);
-
-                var charObj = new TextObject(text[i].ToString(), currentX, 480, baseFontSize)
-                {
-                    AllowHover = true,
-                    FixedColor = hasSlider,
-                    Color = hasSlider ? Color4.Red : Color4.White,
-                    Align = TextAlign.Left,           // важно!
-                    ScaleMultiply = 1f,
-                };
-
-                int idx = i;
-                charObj.OnClick = _ => AddSliderForChar(_activePhrase!, idx);
-
-                _scene.Add(charObj);
-                _charTexts.Add(charObj);
-
-                currentX += charAdvances[i];
             }
         }
-
-        private void ClearCharTexts()
-        {
-            foreach (var t in _charTexts) _scene.Remove(t);
-            _charTexts.Clear();
-        }
-
         private void AddSliderForChar(Phrase phrase, int charIndex)
         {
+            // Защита: не добавляем второй слайдер на одну и ту же букву
+            if (phrase.Sliders.Any(s => s.charIndex == charIndex))
+                return;
+
             float now = (float)_context.Audio.GetCurrentTime();
             float endT = Math.Min(now + 2.0f, phrase.EndTime);
             if (endT - now < 0.2f) endT = now + 0.2f;
@@ -370,14 +327,19 @@ namespace TappiruCS.State.Edit
             });
 
             _timeline?.SetPhrases(_phrases);
-            RebuildCharTexts();
+
+            // ←←← КРИТИЧНО: сразу перестраиваем отображение
+            _phraseDisplay.Sync(phrase);
         }
 
         // ── Сохранение ───────────────────────────────────────────────────────────
         private void SaveProject()
         {
+            // Применяем очистку ко всем транскрипциям перед сохранением
+            CleanAllTranscriptions();
+
             var map = new JsonMap();
-            PhraseSerializer.ToEvents(_phrases).ForEach(e => map.events ??= new());
+            // Исправляем некорректную строку (было бесполезное ForEach)
             map.events = PhraseSerializer.ToEvents(_phrases);
             _colorPanel.SaveTo(map);
 

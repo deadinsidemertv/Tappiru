@@ -123,8 +123,8 @@ namespace TappiruCS.GameLogic.Logic
             if (currentTime < ev.startTime || currentTime >= _nextPhaseStartTime) return;
 
             // Активируем фазу
-            CurrentPhaseText = ev.text;
-            CurrentPhaseChars = ev.text.ToCharArray();
+            CurrentPhaseText = ev.transription;
+            CurrentPhaseChars = ev.transription.ToCharArray();
             CurrentPhaseStartTime = ev.startTime;
             CurrentPhaseEndTime = ev.endTime;
             CurrentCharIndex = 0;
