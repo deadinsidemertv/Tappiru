@@ -1,5 +1,4 @@
-﻿// PhraseTextDisplay.cs
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +21,11 @@ namespace TappiruCS.State.Edit
 
         public event Action<Phrase, int>? OnSliderRequested;
 
+        private const float CenterX = 960f;
+        private const float UpperY = 360f;
+        private const float LowerY = 475f;
+        private const float MaxLowerWidth = 1100f;   // максимальная ширина области для нижнего текста
+
         public PhraseTextDisplay(Scene scene)
         {
             _scene = scene;
@@ -29,7 +33,6 @@ namespace TappiruCS.State.Edit
 
         public void Sync(Phrase? currentPhrase)
         {
- 
             ActivePhrase = currentPhrase;
             Rebuild();
         }
@@ -37,7 +40,6 @@ namespace TappiruCS.State.Edit
         private void Rebuild()
         {
             Clear();
-
             if (ActivePhrase == null) return;
 
             RebuildUpperText();
@@ -48,9 +50,9 @@ namespace TappiruCS.State.Edit
         {
             if (string.IsNullOrEmpty(ActivePhrase!.Text)) return;
 
-            _upperText = new TextObject(ActivePhrase.Text, 960, 360, 68f)
+            _upperText = new TextObject(ActivePhrase.Text, CenterX, UpperY, 68f)
             {
-                Color = new Color4(0.85f, 0.88f, 0.95f, 0.9f),
+                Color = new Color4(0.85f, 0.88f, 0.95f, 0.95f),
                 Align = TextAlign.Center,
                 ScaleMultiply = 1f,
                 Layer = 5,
@@ -70,57 +72,70 @@ namespace TappiruCS.State.Edit
             if (string.IsNullOrEmpty(displayText)) return;
 
             const float baseFontSize = 64f;
-            const float desiredTracking = 14f;
+            const float baseLetterSpacing = 18f;     // увеличил
 
             var font = FontManager.Get("default") ?? FontManager._defaultFont;
             if (font == null) return;
 
             float scale = font.GetScaleFromFontSize(baseFontSize);
 
+            // === Расчёт естественной ширины ===
+            float totalNaturalWidth = 0f;
             List<float> charAdvances = new(displayText.Length);
-            float totalWidth = 0f;
             char prev = '\0';
 
             for (int i = 0; i < displayText.Length; i++)
             {
                 char c = displayText[i];
+                float advance = 0f;
+
                 if (font.TryGetRenderedGlyph(c, out var glyph) && glyph != null)
                 {
                     float kerning = prev != '\0' ? font.GetKerning(prev, c) : 0f;
-                    float advance = kerning + glyph.Info.XAdvance;
-
-                    charAdvances.Add(advance * scale + desiredTracking);
-                    totalWidth += advance * scale;
+                    advance = (kerning + glyph.Info.XAdvance) * scale;
                 }
                 else
                 {
-                    charAdvances.Add(baseFontSize * 0.75f + desiredTracking);
-                    totalWidth += baseFontSize * 0.75f;
+                    advance = baseFontSize * 0.65f;
                 }
+
+                charAdvances.Add(advance);
+                totalNaturalWidth += advance;
                 prev = c;
             }
 
-            float startX = 760f - (totalWidth + desiredTracking) / 2f;
+            // === Динамическое масштабирование, если текст слишком длинный ===
+            float totalSpacingWidth = baseLetterSpacing * (displayText.Length - 1);
+            float totalWidth = totalNaturalWidth + totalSpacingWidth;
+
+            float finalScale = 1f;
+            if (totalWidth > MaxLowerWidth)
+            {
+                finalScale = MaxLowerWidth / totalWidth;
+            }
+
+            float finalFontSize = baseFontSize * finalScale;
+            float finalLetterSpacing = baseLetterSpacing * finalScale;
+
+            // Пересчитываем позиции с учётом масштаба
+            float startX = CenterX - (totalNaturalWidth * finalScale + finalLetterSpacing * (displayText.Length - 1)) / 2f;
             float currentX = startX;
 
             for (int i = 0; i < displayText.Length; i++)
             {
-                // === ИСПРАВЛЕНИЕ 2: проверяем, есть ли уже слайдер для этой буквы ===
                 bool hasSlider = ActivePhrase.Sliders.Any(s => s.charIndex == i);
 
-                var charObj = new TextObject(displayText[i].ToString(), currentX, 475, baseFontSize)
+                var charObj = new TextObject(displayText[i].ToString(), currentX, LowerY, finalFontSize)
                 {
-                    AllowHover = !hasSlider,                    // ← нельзя навести, если уже есть слайдер
+                    AllowHover = !hasSlider,
                     FixedColor = hasSlider,
-                    Color = hasSlider
-                            ? new Color4(1f, 0.35f, 0.35f, 1f)
-                            : Color4.White,
+                    Color = hasSlider ? new Color4(1f, 0.35f, 0.35f, 1f) : Color4.White,
                     Align = TextAlign.Left,
                     ScaleMultiply = 1f,
-                    Layer = 5
+                    Layer = 5,
+                    FontKey = "UI"
                 };
 
-                // === ИСПРАВЛЕНИЕ 1: клик только если нет слайдера ===
                 if (!hasSlider)
                 {
                     int idx = i;
@@ -130,7 +145,7 @@ namespace TappiruCS.State.Edit
                 _scene.Add(charObj);
                 _lowerChars.Add(charObj);
 
-                currentX += charAdvances[i];
+                currentX += charAdvances[i] * finalScale + finalLetterSpacing;
             }
         }
 

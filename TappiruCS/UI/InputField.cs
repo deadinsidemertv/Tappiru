@@ -60,7 +60,7 @@ namespace TappiruCS.UI
             // Фон
             InputBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
             {
-                Color = new Color4(0.2f, 0.2f, 0.25f, 1f)
+                Color = "#0b0c16"
             };
 
             // Выделение при Ctrl+A

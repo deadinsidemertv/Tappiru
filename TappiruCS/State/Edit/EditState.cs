@@ -196,13 +196,15 @@ namespace TappiruCS.State.Edit
             };
             _addPhraseButton.OnClick += BeginAddPhrase;
 
-            _saveButton = new Button(1780, 30, 500, 100, "button", "Save Project")
+            _saveButton = new Button(1855, 50, 300, 210, "blue_panel", "Save")
             {
                 Layer = 1,
-                TextOffset = new Vector2(-180f, -60f),
+                TextOffset = new Vector2(0, 0f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
+            _saveButton.Label.FontSize = 48f;
+            _saveButton.Label.FontKey = "Game";
             _saveButton.Label.Align = TextAlign.Center;
             _saveButton.Label.Color = Color4.White;
             _saveButton.OnClick += SaveProject;
@@ -210,13 +212,13 @@ namespace TappiruCS.State.Edit
             _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
             {
                 Layer = 1,
-                TextOffset = new Vector2(0f, 0f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
             _exitToMenuButton.Label.Align = TextAlign.Center;
             _exitToMenuButton.Label.Color = Color4.White;
             _exitToMenuButton.Label.FontSize = 36f;
+            _exitToMenuButton.Label.FontKey = "Game";
             _exitToMenuButton.OnClick += ShowExitConfirmation;
             _scene.Add(_exitToMenuButton);
 
