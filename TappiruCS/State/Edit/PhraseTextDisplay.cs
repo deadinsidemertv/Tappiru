@@ -53,7 +53,7 @@ namespace TappiruCS.State.Edit
                 Color = new Color4(0.85f, 0.88f, 0.95f, 0.9f),
                 Align = TextAlign.Center,
                 ScaleMultiply = 1f,
-                Layer = 8,
+                Layer = 5,
                 AllowHover = false,
                 FixedColor = true
             };
@@ -117,7 +117,7 @@ namespace TappiruCS.State.Edit
                             : Color4.White,
                     Align = TextAlign.Left,
                     ScaleMultiply = 1f,
-                    Layer = 9
+                    Layer = 5
                 };
 
                 // === ИСПРАВЛЕНИЕ 1: клик только если нет слайдера ===

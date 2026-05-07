@@ -87,5 +87,13 @@ namespace TappiruCS.Core.GameObject
             RecalculateSize();
 
         }
+
+        public void Clear()
+        {
+            foreach(var child in Children)
+            {
+                RemoveChild(child);
+            }
+        }
     }
 }
