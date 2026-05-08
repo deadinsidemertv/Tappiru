@@ -29,14 +29,17 @@ namespace TappiruCS.State.Edit.UI.Panels
         private ITimelineSelectable? _currentSelectable;
         private Phrase? _currentPhrase;
 
+        private readonly List<Phrase> _globalPhrases;
+
         // Костыль: храним ссылку на текущую кнопку удаления, чтобы удалять её из сцены при перестройке
         private Button? _currentDeleteButton;
 
-        public PhrasePropertiesPanel(Scene scene, PhraseTextDisplay phraseDisplay, Timeline timeline)
+        public PhrasePropertiesPanel(Scene scene, PhraseTextDisplay phraseDisplay, Timeline timeline, List<Phrase> globalPhrases)
         {
             _scene = scene;
             _phraseDisplay = phraseDisplay;
             _timeline = timeline;
+            _globalPhrases = globalPhrases;
         }
 
         public void Build()
@@ -287,7 +290,10 @@ namespace TappiruCS.State.Edit.UI.Panels
             if (_currentSelectable == null) return;
 
             if (_currentSelectable is Phrase phrase)
+            {
                 _timeline._phrases.Remove(phrase);
+                _globalPhrases.Remove(phrase);          // ← добавить
+            }
             else if (_currentSelectable is SliderTiming slider)
             {
                 foreach (var p in _timeline._phrases)
@@ -298,12 +304,16 @@ namespace TappiruCS.State.Edit.UI.Panels
                         break;
                     }
                 }
+                // Для слайдера тоже нужно удалить из глобального списка? 
+                // Слайдер — часть фразы, поэтому не нужно отдельно удалять из _globalPhrases.
             }
 
             _timeline.SelectedObject = null;
             _timeline._draggedPhrase = null;
             _timeline._draggedIndex = -1;
             _timeline.RefreshAllVisuals();
+
+            _phraseDisplay.Sync(null);   // ← очистить отображение текста
 
             _currentSelectable = null;
             _currentPhrase = null;

@@ -190,7 +190,7 @@ namespace TappiruCS.State.Edit
             _phraseDisplay = new PhraseTextDisplay(_scene);
             _phraseDisplay.OnSliderRequested += AddSliderForChar;
 
-            _propertiesPanel = new PhrasePropertiesPanel(_scene, _phraseDisplay, _timeline);
+            _propertiesPanel = new PhrasePropertiesPanel(_scene, _phraseDisplay, _timeline,_phrases);
             _propertiesPanel.Build();
 
             OnSelectionChanged += () => _propertiesPanel?.Sync(SelectedObject);
