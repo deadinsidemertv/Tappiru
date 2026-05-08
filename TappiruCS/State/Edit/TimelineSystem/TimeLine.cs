@@ -33,6 +33,10 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private readonly List<TextObject> _timeLabels = new();
 
         public List<Phrase> _phrases = new();
+
+        public Phrase? _draggedPhrase = null;
+        public int _draggedIndex = -1;
+
         public float TotalDuration { get; private set; } = 300f;
 
         private float _visibleStart = 0f;
@@ -46,10 +50,9 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private bool _draggingSliderLeftHandle = false;
         private bool _draggingSliderRightHandle = false;
 
-        private Phrase? _draggedPhrase = null;
-        private int _draggedIndex = -1;
-        private Phrase? _draggedSliderPhrase = null;
-        private int _draggedSliderIndex = -1;
+
+        public Phrase? _draggedSliderPhrase = null;
+        public int _draggedSliderIndex = -1;
         private Vector2 _lastMousePos;
 
         public ITimelineSelectable? SelectedObject { get; set; }
@@ -233,9 +236,12 @@ namespace TappiruCS.State.Edit.TimelineSystem
             const float hit = 13f;
             float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
 
-            for (int i = 0; i < _leftHandles.Count; i++)
+            // Безопасное количество: минимальное из левых хендлов и фраз
+            int minCount = Math.Min(_leftHandles.Count, _phrases.Count);
+
+            for (int i = 0; i < minCount; i++)
             {
-                if (_phrases[i] != selectedPhrase) continue; // ← только выбранная фраза
+                if (_phrases[i] != selectedPhrase) continue;
 
                 float hx = _leftHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
@@ -247,9 +253,9 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 }
             }
 
-            for (int i = 0; i < _rightHandles.Count; i++)
+            for (int i = 0; i < minCount; i++)
             {
-                if (_phrases[i] != selectedPhrase) continue; // ← только выбранная фраза
+                if (_phrases[i] != selectedPhrase) continue;
 
                 float hx = _rightHandles[i].WorldPosition.X;
                 if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
@@ -260,12 +266,14 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     return true;
                 }
             }
+
             return false;
         }
 
         private void ProcessHandleDrag(float virtualX, (float designLeft, float designTop, float effWidth, float effHeight) bounds)
         {
             if ((!_draggingLeftHandle && !_draggingRightHandle) || _draggedPhrase == null) return;
+            if (_draggedIndex < 0 || _draggedIndex >= _phrases.Count) return;
             float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
             float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
 
