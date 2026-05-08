@@ -71,6 +71,7 @@ namespace TappiruCS.State.Edit.Panels
                 _onConfirm?.Invoke();
                 Close();
             };
+            btnYes.Label.FontSize = 28f;
 
             // Кнопка "Нет"
             var btnNo = new Button(160, 80, 280, 90, "button", "ОТМЕНА")
@@ -79,6 +80,7 @@ namespace TappiruCS.State.Edit.Panels
                 ScaleMultiply = 0.55f
             };
             btnNo.OnClick += Close;
+            btnNo.Label.FontSize = 28f;
 
             _windowContainer.AddChild(background);
             _windowContainer.AddChild(titleText);

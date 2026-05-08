@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "Chiisana Boukensha",
   "artist": "Amamiya Sora Takahashi Rie Kayano Ai",
   "creator": "neroqwe",
@@ -18,145 +18,169 @@
       "startTime": 12.976786,
       "endTime": 18.250748,
       "text": "Koronde surimuita toko",
-      "sliders": []
+      "sliders": [],
+      "transription": "koronde surimuita toko"
     },
     {
       "startTime": 18.329117,
       "endTime": 24.96819,
       "text": "Chi ga nijinde shimiru keredo",
-      "sliders": []
+      "sliders": [],
+      "transription": "chi ga nijinde shimiru keredo"
     },
     {
       "startTime": 25.243393,
       "endTime": 30.400476,
       "text": "Hecchara sa sugu naoru kara",
-      "sliders": []
+      "sliders": [],
+      "transription": "hecchara sa sugu naoru kara"
     },
     {
       "startTime": 30.50978,
       "endTime": 37.109295,
       "text": "Ashita ni wa kasabuta dekiru",
-      "sliders": []
+      "sliders": [],
+      "transription": "ashita ni wa kasabuta dekiru"
     },
     {
       "startTime": 37.346924,
       "endTime": 42.593323,
       "text": "Kyou mo mata baka ni sareta yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "kyou mo mata baka ni sareta yo"
     },
     {
       "startTime": 42.676655,
       "endTime": 49.327587,
       "text": "Hazukashii shi kuyashii keredo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hazukashii shi kuyashii keredo"
     },
     {
       "startTime": 49.519077,
       "endTime": 54.735546,
       "text": "Hecchara sa oboe te oke yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hecchara sa oboe te oke yo"
     },
     {
       "startTime": 54.831604,
       "endTime": 60.86863,
       "text": "Ima ni waraikaeshi te yaru",
-      "sliders": []
+      "sliders": [],
+      "transription": "ima ni waraikaeshi te yaru"
     },
     {
       "startTime": 60.909996,
       "endTime": 66.836044,
       "text": "Misaki kara fune o daseba",
-      "sliders": []
+      "sliders": [],
+      "transription": "misaki kara fune o daseba"
     },
     {
       "startTime": 66.923256,
       "endTime": 72.83918,
       "text": "Kaze o uke ho ga fukuramu",
-      "sliders": []
+      "sliders": [],
+      "transription": "kaze o uke ho ga fukuramu"
     },
     {
       "startTime": 73.00636,
       "endTime": 78.90749,
       "text": "Boku wa ima tsuchi o hanare",
-      "sliders": []
+      "sliders": [],
+      "transription": "boku wa ima tsuchi o hanare"
     },
     {
       "startTime": 79.07752,
       "endTime": 85.15941,
       "text": "Nanatsu no umi o mata ni kakeru",
-      "sliders": []
+      "sliders": [],
+      "transription": "nanatsu no umi o mata ni kakeru"
     },
     {
       "startTime": 110.27479,
       "endTime": 115.38265,
       "text": "Kenka shite nagurareta toko",
-      "sliders": []
+      "sliders": [],
+      "transription": "kenka shite nagurareta toko"
     },
     {
       "startTime": 115.53489,
       "endTime": 122.23223,
       "text": "Murasakiiro aza ni natta",
-      "sliders": []
+      "sliders": [],
+      "transription": "murasakiiro aza ni natta"
     },
     {
       "startTime": 122.428375,
       "endTime": 127.33452,
       "text": "Hecchara sa kyou tokoro wa",
-      "sliders": []
+      "sliders": [],
+      "transription": "hecchara sa kyou tokoro wa"
     },
     {
       "startTime": 127.671425,
       "endTime": 133.60988,
       "text": "Maketa koto ni shitoiteyaru",
-      "sliders": []
+      "sliders": [],
+      "transription": "maketa koto ni shitoiteyaru"
     },
     {
       "startTime": 133.80704,
       "endTime": 139.76562,
       "text": "Oka ni tachi te o hirogete",
-      "sliders": []
+      "sliders": [],
+      "transription": "oka ni tachi te o hirogete"
     },
     {
       "startTime": 139.90211,
       "endTime": 145.75381,
       "text": "Kaze o machi habataku nosa",
-      "sliders": []
+      "sliders": [],
+      "transription": "kaze o machi habataku nosa"
     },
     {
       "startTime": 145.97444,
       "endTime": 151.90071,
       "text": "Boku wa ima tsuchi o hanare",
-      "sliders": []
+      "sliders": [],
+      "transription": "boku wa ima tsuchi o hanare"
     },
     {
       "startTime": 152.05443,
       "endTime": 157.81578,
       "text": "Oozora wataru ichiwa no tori",
-      "sliders": []
+      "sliders": [],
+      "transription": "oozora wataru ichiwa no tori"
     },
     {
       "startTime": 158.0152,
       "endTime": 163.9701,
       "text": "Minami kara kaze ga fuite",
-      "sliders": []
+      "sliders": [],
+      "transription": "minami kara kaze ga fuite"
     },
     {
       "startTime": 164.1382,
       "endTime": 170.05437,
       "text": "kyuu ni ame ni furihajimeta",
-      "sliders": []
+      "sliders": [],
+      "transription": "kyuu ni ame ni furihajimeta"
     },
     {
       "startTime": 170.27379,
       "endTime": 176.13147,
       "text": "haru wa sugu tonari ni iru",
-      "sliders": []
+      "sliders": [],
+      "transription": "haru wa sugu tonari ni iru"
     },
     {
       "startTime": 176.25792,
       "endTime": 182.71123,
       "text": "sentakumono torikomanakucha",
-      "sliders": []
+      "sliders": [],
+      "transription": "sentakumono torikomanakucha"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

@@ -1,0 +1,135 @@
+{
+  "title": "花の塔アニメ「リコリス・リコイル」エンディング・テーマ",
+  "artist": "さユり",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 89,
+  "tappedR": 0.4,
+  "tappedG": 0.3,
+  "tappedB": 0.6,
+  "needR": 0.7,
+  "needG": 0.3,
+  "needB": 0.8,
+  "completeR": 0.2,
+  "completeG": 0.1,
+  "completeB": 0.4,
+  "events": [
+    {
+      "startTime": 13.637832,
+      "endTime": 16.462313,
+      "text": "\u541B\u304C\u6301\u3063\u3066\u304D\u305F\u6F2B\u753B",
+      "transription": "kimi ga mottekita manga",
+      "sliders": []
+    },
+    {
+      "startTime": 16.505955,
+      "endTime": 19.798016,
+      "text": "\u304F\u308C\u305F\u77E5\u3089\u306A\u3044\u540D\u524D\u306E\u304A\u82B1",
+      "transription": "kureta shiranai namae no ohana",
+      "sliders": []
+    },
+    {
+      "startTime": 19.835424,
+      "endTime": 22.179733,
+      "text": "\u4ECA\u65E5\u306F\u307E\u3060\u6765\u306A\u3044\u304B\u306A\uFF1F",
+      "transription": "kyou wa mada konai ka na",
+      "sliders": []
+    },
+    {
+      "startTime": 22.191593,
+      "endTime": 25.7446,
+      "text": "\u521D\u3081\u3066\u306E\u611F\u60C5\u77E5\u3063\u3066\u3057\u307E\u3063\u305F",
+      "transription": "hajimete no kanjou shitteshimatta",
+      "sliders": []
+    },
+    {
+      "startTime": 25.788683,
+      "endTime": 28.165154,
+      "text": "\u7A93\u306B\u98FE\u3063\u305F\u7D75\u753B\u3092",
+      "transription": "mado ni kazatta kaiga wo",
+      "sliders": []
+    },
+    {
+      "startTime": 28.17209,
+      "endTime": 31.542645,
+      "text": "\u306A\u305E\u3063\u3066\u3072\u3068\u308A\u3067\u5B87\u5B99\u3092\u65C5\u3057\u3066",
+      "transription": "nazotte hitori de uchuu wo tabi shite",
+      "sliders": []
+    },
+    {
+      "startTime": 31.592644,
+      "endTime": 36.845947,
+      "text": "\u305D\u308C\u3060\u3051\u3067\u3044\u3044\u306F\u305A\u3060\u3063\u305F\u306E\u306B",
+      "transription": "sore dake de ii hazu datta no ni",
+      "sliders": []
+    },
+    {
+      "startTime": 37.746185,
+      "endTime": 43.280666,
+      "text": "\u541B\u306E\u624B\u3092\u63E1\u3063\u3066\u3057\u307E\u3063\u305F\u3089",
+      "transription": "kimi no te wo nigitteshimattara",
+      "sliders": []
+    },
+    {
+      "startTime": 43.44654,
+      "endTime": 49.35556,
+      "text": "\u5B64\u72EC\u3092\u77E5\u3089\u306A\u3044\u3053\u306E\u8857\u306B\u306F",
+      "transription": "kodoku wo shiranai kono machi ni wa",
+      "sliders": []
+    },
+    {
+      "startTime": 49.44367,
+      "endTime": 53.845177,
+      "text": "\u3082\u3046\u4E8C\u5EA6\u3068\u5E30\u3063\u3066\u304F\u308B\u3053\u3068",
+      "transription": "mou nidoto kaettekuru koto",
+      "sliders": []
+    },
+    {
+      "startTime": 53.856335,
+      "endTime": 60.172596,
+      "text": "\u306F\u3067\u304D\u306A\u3044\u306E\u3067\u3057\u3087\u3046",
+      "transription": "wa dekinai no deshou",
+      "sliders": []
+    },
+    {
+      "startTime": 60.416496,
+      "endTime": 65.91675,
+      "text": "\u541B\u304C\u624B\u3092\u5DEE\u3057\u4F38\u3079\u305F",
+      "transription": "kimi ga te wo sashinobeta",
+      "sliders": []
+    },
+    {
+      "startTime": 65.941216,
+      "endTime": 71.541176,
+      "text": "\u5149\u3067\u5F71\u304C\u751F\u307E\u308C\u308B",
+      "transription": "hikari de kage ga umareru",
+      "sliders": []
+    },
+    {
+      "startTime": 71.589096,
+      "endTime": 74.49363,
+      "text": "\u6B4C\u3063\u3066\u805E\u304B\u305B\u3066",
+      "transription": "utatte kikasete",
+      "sliders": []
+    },
+    {
+      "startTime": 74.50861,
+      "endTime": 77.21943,
+      "text": "\u3053\u306E\u8A71\u306E\u7D9A\u304D",
+      "transription": "kono hanashi no tsuzuki",
+      "sliders": []
+    },
+    {
+      "startTime": 77.258095,
+      "endTime": 86.71276,
+      "text": "\u9023\u308C\u3066\u884C\u3063\u3066\u898B\u305F\u3053\u3068\u306A\u3044\u661F\u307E\u3067",
+      "transription": "tsureteitte mita koto nai hoshi made",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

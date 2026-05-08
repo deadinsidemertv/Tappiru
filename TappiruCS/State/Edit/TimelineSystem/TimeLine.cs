@@ -517,6 +517,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             foreach (var phrase in _phrases)
             {
                 if (phrase.Sliders == null) continue;
+                int localSliderIdx = 0;
                 foreach (var slider in phrase.Sliders)
                 {
                     var (centerXWorld, widthWorld) = GetTimeBarBounds(slider.startTime, slider.endTime);
@@ -539,8 +540,9 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     _sliderRightHandles[sliderIdx].LocalPosition = new Vector2(localX + visualWidth * 0.5f, sliderYLocal);
                     _sliderRightHandles[sliderIdx].Scale = new Vector2(8, phraseHeight * 1.1f);
 
-                    _sliderReferences.Add((phrase, sliderIdx));
+                    _sliderReferences.Add((phrase, localSliderIdx));
                     sliderIdx++;
+                    localSliderIdx++;
                 }
             }
 

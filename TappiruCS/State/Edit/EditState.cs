@@ -48,6 +48,12 @@ namespace TappiruCS.State.Edit
         public ITimelineSelectable? SelectedObject { get; private set; }
         public event Action? OnSelectionChanged;
 
+        public string title = string.Empty;
+        public string artist = string.Empty;
+        public double previewTime;
+        public double endTime;
+
+
         public EditState(RenderContext context)
         {
             _context = context;
@@ -151,6 +157,11 @@ namespace TappiruCS.State.Edit
 
             JsonMap? map = _projectIO.Open(tappzPath);
             if (map == null) return;
+
+            title = map.title;
+            artist = map.artist;
+            previewTime = map.previewTime;
+            endTime = map.endTime;
 
             LoadAssets();
             BuildEditorUI();
@@ -404,6 +415,10 @@ namespace TappiruCS.State.Edit
 
             var map = new JsonMap();
             map.events = PhraseSerializer.ToEvents(_phrases);
+            map.title = title;
+            map.artist = artist;
+            map.previewTime = previewTime;
+            map.endTime = endTime;
             _colorPanel.SaveTo(map);
 
             try { _projectIO.Save(map); }

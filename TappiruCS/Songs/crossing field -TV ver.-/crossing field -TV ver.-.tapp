@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "crossing field -TV ver.-",
   "artist": "LiSA",
   "creator": "neroqwe",
@@ -18,7 +18,8 @@
       "startTime": 11.416561,
       "endTime": 15.974518,
       "text": "Mitomete ita okubyou na kako",
-      "sliders": []
+      "sliders": [],
+      "transription": "mitomete ita okubyou na kako"
     },
     {
       "startTime": 16.071545,
@@ -30,19 +31,22 @@
           "startTime": 17.523712,
           "endTime": 19.269058
         }
-      ]
+      ],
+      "transription": "wakaranai"
     },
     {
       "startTime": 20.129065,
       "endTime": 22.069386,
       "text": "mama ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "mama ni"
     },
     {
       "startTime": 22.111998,
       "endTime": 24.042942,
       "text": "kowagatte ita",
-      "sliders": []
+      "sliders": [],
+      "transription": "kowagatte ita"
     },
     {
       "startTime": 24.252518,
@@ -54,13 +58,15 @@
           "startTime": 28.065992,
           "endTime": 30.065992
         }
-      ]
+      ],
+      "transription": "ushiro no jibun ga genjitsu wo ima ni"
     },
     {
       "startTime": 30.704786,
       "endTime": 32.806133,
       "text": "utsusu",
-      "sliders": []
+      "sliders": [],
+      "transription": "utsusu"
     },
     {
       "startTime": 32.836765,
@@ -72,25 +78,29 @@
           "startTime": 32.87026,
           "endTime": 33.534763
         }
-      ]
+      ],
+      "transription": "ikutsu mono"
     },
     {
       "startTime": 35.09731,
       "endTime": 36.739357,
       "text": "sora wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "sora wo"
     },
     {
       "startTime": 36.815033,
       "endTime": 38.159306,
       "text": "kaita",
-      "sliders": []
+      "sliders": [],
+      "transription": "kaita"
     },
     {
       "startTime": 38.22832,
       "endTime": 40.1769,
       "text": "koko wa kitto",
-      "sliders": []
+      "sliders": [],
+      "transription": "koko wa kitto"
     },
     {
       "startTime": 40.188496,
@@ -102,7 +112,8 @@
           "startTime": 44.826515,
           "endTime": 45.48377
         }
-      ]
+      ],
+      "transription": "hakanai kokoro midashite"
     },
     {
       "startTime": 45.58821,
@@ -114,7 +125,8 @@
           "startTime": 46.534912,
           "endTime": 47.097263
         }
-      ]
+      ],
+      "transription": "yume de takaku"
     },
     {
       "startTime": 48.323086,
@@ -126,49 +138,57 @@
           "startTime": 49.009678,
           "endTime": 49.744675
         }
-      ]
+      ],
+      "transription": "tonda"
     },
     {
       "startTime": 49.969093,
       "endTime": 51.151928,
       "text": "karada wa",
-      "sliders": []
+      "sliders": [],
+      "transription": "karada wa"
     },
     {
       "startTime": 51.16326,
       "endTime": 54.106647,
       "text": "Donna fuan matotte mo",
-      "sliders": []
+      "sliders": [],
+      "transription": "donna fuan matotte mo"
     },
     {
       "startTime": 54.166756,
       "endTime": 56.23597,
       "text": "furiharatte iku",
-      "sliders": []
+      "sliders": [],
+      "transription": "furiharatte iku"
     },
     {
       "startTime": 56.266056,
       "endTime": 60.536488,
       "text": "Nemuru chiisana omoi ",
-      "sliders": []
+      "sliders": [],
+      "transription": "nemuru chiisana omoi "
     },
     {
       "startTime": 60.576214,
       "endTime": 62.833557,
       "text": "hirogari dashite",
-      "sliders": []
+      "sliders": [],
+      "transription": "hirogari dashite"
     },
     {
       "startTime": 62.85578,
       "endTime": 64.26734,
       "text": "Kizuku yowai",
-      "sliders": []
+      "sliders": [],
+      "transription": "kizuku yowai"
     },
     {
       "startTime": 64.317345,
       "endTime": 66.9201,
       "text": "watashi kimi ga ireba",
-      "sliders": []
+      "sliders": [],
+      "transription": "watashi kimi ga ireba"
     },
     {
       "startTime": 66.93635,
@@ -185,37 +205,43 @@
           "startTime": 70.36197,
           "endTime": 71.81968
         }
-      ]
+      ],
+      "transription": "kurai sekai tsuyoku ireta"
     },
     {
       "startTime": 72.23736,
       "endTime": 75.68898,
       "text": "Nagai yume miru kokoro wa sou",
-      "sliders": []
+      "sliders": [],
+      "transription": "nagai yume miru kokoro wa sou"
     },
     {
       "startTime": 75.73898,
       "endTime": 75.93898,
       "text": "ei",
-      "sliders": []
+      "sliders": [],
+      "transription": "ei"
     },
     {
       "startTime": 76.18029,
       "endTime": 76.73672,
       "text": "en",
-      "sliders": []
+      "sliders": [],
+      "transription": "en"
     },
     {
       "startTime": 76.75561,
       "endTime": 77.439354,
       "text": "de",
-      "sliders": []
+      "sliders": [],
+      "transription": "de"
     },
     {
       "startTime": 78.71592,
       "endTime": 81.47439,
       "text": "I wanna always be with you",
-      "sliders": []
+      "sliders": [],
+      "transription": "i wanna always be with you"
     },
     {
       "startTime": 81.52439,
@@ -227,7 +253,8 @@
           "startTime": 83.849335,
           "endTime": 85.849335
         }
-      ]
+      ],
+      "transription": "i ll give you everething i have"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

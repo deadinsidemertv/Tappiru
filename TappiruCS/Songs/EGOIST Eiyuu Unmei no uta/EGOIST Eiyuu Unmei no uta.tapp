@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "英雄 運命の詩 (Eiyu Unmei No Uta)",
   "artist": "EGOIST",
   "creator": "neroqwe",
@@ -18,19 +18,22 @@
       "startTime": 1.3208861,
       "endTime": 4.373988,
       "text": "sore wa oroka naru na",
-      "sliders": []
+      "sliders": [],
+      "transription": "sore wa oroka naru na"
     },
     {
       "startTime": 4.4239883,
       "endTime": 7.0598946,
       "text": "daga toki wa motomu",
-      "sliders": []
+      "sliders": [],
+      "transription": "daga toki wa motomu"
     },
     {
       "startTime": 7.15233,
       "endTime": 9.797045,
       "text": "fukutsu no eiyuu",
-      "sliders": []
+      "sliders": [],
+      "transription": "fukutsu no eiyuu"
     },
     {
       "startTime": 9.824005,
@@ -52,7 +55,8 @@
           "startTime": 13.020923,
           "endTime": 13.929876
         }
-      ]
+      ],
+      "transription": "sono monogatari wo"
     },
     {
       "startTime": 14.220254,
@@ -64,25 +68,29 @@
           "startTime": 14.220254,
           "endTime": 16.926466
         }
-      ]
+      ],
+      "transription": "a"
     },
     {
       "startTime": 35.92488,
       "endTime": 38.443226,
       "text": "chiisaku kanadeta",
-      "sliders": []
+      "sliders": [],
+      "transription": "chiisaku kanadeta"
     },
     {
       "startTime": 38.532333,
       "endTime": 41.188736,
       "text": "ai wa hazama wo samayou",
-      "sliders": []
+      "sliders": [],
+      "transription": "ai wa hazama wo samayou"
     },
     {
       "startTime": 41.222214,
       "endTime": 42.579807,
       "text": "todokanai",
-      "sliders": []
+      "sliders": [],
+      "transription": "todokanai"
     },
     {
       "startTime": 42.596535,
@@ -94,25 +102,29 @@
           "startTime": 45.532272,
           "endTime": 46.07952
         }
-      ]
+      ],
+      "transription": "unmei ga azawarau"
     },
     {
       "startTime": 46.78895,
       "endTime": 49.382847,
       "text": "hedateru sekai wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hedateru sekai wo"
     },
     {
       "startTime": 49.432846,
       "endTime": 52.077114,
       "text": "umete anata ni aitai",
-      "sliders": []
+      "sliders": [],
+      "transription": "umete anata ni aitai"
     },
     {
       "startTime": 52.08664,
       "endTime": 54.883102,
       "text": "mi wokogasu sono ai ga",
-      "sliders": []
+      "sliders": [],
+      "transription": "mi wokogasu sono ai ga"
     },
     {
       "startTime": 54.92794,
@@ -124,19 +136,22 @@
           "startTime": 56.320637,
           "endTime": 56.90077
         }
-      ]
+      ],
+      "transription": "wakatsu made"
     },
     {
       "startTime": 57.607597,
       "endTime": 60.132412,
       "text": "hito wa sekenda seigi wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hito wa sekenda seigi wo"
     },
     {
       "startTime": 60.17097,
       "endTime": 62.919178,
       "text": "sono hata wo takeku kakage",
-      "sliders": []
+      "sliders": [],
+      "transription": "sono hata wo takeku kakage"
     },
     {
       "startTime": 63.029682,
@@ -148,73 +163,85 @@
           "startTime": 65.85455,
           "endTime": 67.40663
         }
-      ]
+      ],
+      "transription": "kako no ue ni ni tate"
     },
     {
       "startTime": 67.76292,
       "endTime": 70.75824,
       "text": "yami wo harai susume",
-      "sliders": []
+      "sliders": [],
+      "transription": "yami wo harai susume"
     },
     {
       "startTime": 70.81881,
       "endTime": 73.541824,
       "text": "kono mi ushinau tomo",
-      "sliders": []
+      "sliders": [],
+      "transription": "kono mi ushinau tomo"
     },
     {
       "startTime": 73.59365,
       "endTime": 76.15526,
       "text": "osore yo hirefuse",
-      "sliders": []
+      "sliders": [],
+      "transription": "osore yo hirefuse"
     },
     {
       "startTime": 76.20797,
       "endTime": 79.08685,
       "text": "watashi ga hasha to naru",
-      "sliders": []
+      "sliders": [],
+      "transription": "watashi ga hasha to naru"
     },
     {
       "startTime": 79.11062,
       "endTime": 81.592995,
       "text": "sei araba susume",
-      "sliders": []
+      "sliders": [],
+      "transription": "sei araba susume"
     },
     {
       "startTime": 81.654915,
       "endTime": 84.36462,
       "text": "ganzen no shouri wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "ganzen no shouri wo"
     },
     {
       "startTime": 84.38088,
       "endTime": 86.88905,
       "text": "akatsuki tabidate",
-      "sliders": []
+      "sliders": [],
+      "transription": "akatsuki tabidate"
     },
     {
       "startTime": 87.051445,
       "endTime": 90.60547,
       "text": "yowake wa mou sugu",
-      "sliders": []
+      "sliders": [],
+      "transription": "yowake wa mou sugu"
     },
     {
       "startTime": 111.92119,
       "endTime": 114.39793,
       "text": "hagukami ataeru",
-      "sliders": []
+      "sliders": [],
+      "transription": "hagukami ataeru"
     },
     {
       "startTime": 114.457825,
       "endTime": 116.95711,
       "text": "ai no hana saki shitta",
-      "sliders": []
+      "sliders": [],
+      "transription": "ai no hana saki shitta"
     },
     {
       "startTime": 117.136086,
       "endTime": 119.854744,
       "text": "nokosareta toki wa mou",
-      "sliders": []
+      "sliders": [],
+      "transription": "nokosareta toki wa mou"
     },
     {
       "startTime": 119.912926,
@@ -226,25 +253,29 @@
           "startTime": 121.57888,
           "endTime": 122.33315
         }
-      ]
+      ],
+      "transription": "wazuka to"
     },
     {
       "startTime": 122.740616,
       "endTime": 125.291336,
       "text": "kanashii sekai ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "kanashii sekai ni"
     },
     {
       "startTime": 125.35035,
       "endTime": 128.004,
       "text": "negai wo hitotsu inoru",
-      "sliders": []
+      "sliders": [],
+      "transription": "negai wo hitotsu inoru"
     },
     {
       "startTime": 128.02837,
       "endTime": 129.28357,
       "text": "aishiteru",
-      "sliders": []
+      "sliders": [],
+      "transription": "aishiteru"
     },
     {
       "startTime": 129.32765,
@@ -256,19 +287,22 @@
           "startTime": 131.96622,
           "endTime": 132.80246
         }
-      ]
+      ],
+      "transription": "sayonara no serenade"
     },
     {
       "startTime": 133.4719,
       "endTime": 136.06998,
       "text": "hito wa eranda kyousou wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hito wa eranda kyousou wo"
     },
     {
       "startTime": 136.08931,
       "endTime": 138.90857,
       "text": "sono hata wo takaku kakage",
-      "sliders": []
+      "sliders": [],
+      "transription": "sono hata wo takaku kakage"
     },
     {
       "startTime": 138.94153,
@@ -285,79 +319,92 @@
           "startTime": 141.89046,
           "endTime": 143.47025
         }
-      ]
+      ],
+      "transription": "tasha noue ni tate"
     },
     {
       "startTime": 143.76091,
       "endTime": 146.59714,
       "text": "yami wo harai susume",
-      "sliders": []
+      "sliders": [],
+      "transription": "yami wo harai susume"
     },
     {
       "startTime": 146.70335,
       "endTime": 149.42496,
       "text": "ooku wo ushinau tomo",
-      "sliders": []
+      "sliders": [],
+      "transription": "ooku wo ushinau tomo"
     },
     {
       "startTime": 149.43993,
       "endTime": 151.962,
       "text": "jiyuu wo kono te ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "jiyuu wo kono te ni"
     },
     {
       "startTime": 152.01361,
       "endTime": 155.09906,
       "text": "jidai no hasha to naru",
-      "sliders": []
+      "sliders": [],
+      "transription": "jidai no hasha to naru"
     },
     {
       "startTime": 155.13084,
       "endTime": 157.57236,
       "text": "tetsui wo kudase",
-      "sliders": []
+      "sliders": [],
+      "transription": "tetsui wo kudase"
     },
     {
       "startTime": 157.59926,
       "endTime": 160.32478,
       "text": "samatageru mono yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "samatageru mono yo"
     },
     {
       "startTime": 160.39604,
       "endTime": 162.95723,
       "text": "kono sora moyashite",
-      "sliders": []
+      "sliders": [],
+      "transription": "kono sora moyashite"
     },
     {
       "startTime": 163.0041,
       "endTime": 166.29594,
       "text": "nidoto okashi wa shinai",
-      "sliders": []
+      "sliders": [],
+      "transription": "nidoto okashi wa shinai"
     },
     {
       "startTime": 171.30515,
       "endTime": 173.81757,
       "text": "narihibiku fue",
-      "sliders": []
+      "sliders": [],
+      "transription": "narihibiku fue"
     },
     {
       "startTime": 173.82663,
       "endTime": 176.90604,
       "text": "wasure nano hana yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "wasure nano hana yo"
     },
     {
       "startTime": 177.00748,
       "endTime": 178.44318,
       "text": "konna ni mo",
-      "sliders": []
+      "sliders": [],
+      "transription": "konna ni mo"
     },
     {
       "startTime": 178.47514,
       "endTime": 182.2531,
       "text": "utsukushiku saki hokoru",
-      "sliders": []
+      "sliders": [],
+      "transription": "utsukushiku saki hokoru"
     },
     {
       "startTime": 182.36217,
@@ -379,19 +426,22 @@
           "startTime": 185.3414,
           "endTime": 185.97302
         }
-      ]
+      ],
+      "transription": "to give up who you are"
     },
     {
       "startTime": 187.59526,
       "endTime": 191.10492,
       "text": "and live without your faith",
-      "sliders": []
+      "sliders": [],
+      "transription": "and live without your faith"
     },
     {
       "startTime": 191.14983,
       "endTime": 194.26318,
       "text": "is more regrettable than dying",
-      "sliders": []
+      "sliders": [],
+      "transription": "is more regrettable than dying"
     },
     {
       "startTime": 194.2779,
@@ -403,67 +453,78 @@
           "startTime": 196.54399,
           "endTime": 200.4406
         }
-      ]
+      ],
+      "transription": "than dying so young"
     },
     {
       "startTime": 203.37866,
       "endTime": 203.57866,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 204.6964,
       "endTime": 204.8964,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 206.05443,
       "endTime": 206.25443,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 207.41393,
       "endTime": 207.61392,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 208.79459,
       "endTime": 208.99458,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 210.07323,
       "endTime": 210.27322,
       "text": "ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha"
     },
     {
       "startTime": 210.78381,
       "endTime": 211.43526,
       "text": "ha ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha ha"
     },
     {
       "startTime": 211.46208,
       "endTime": 212.17702,
       "text": "ha ha",
-      "sliders": []
+      "sliders": [],
+      "transription": "ha ha"
     },
     {
       "startTime": 212.21582,
       "endTime": 214.64171,
       "text": "hito wa kataru darou shinnen wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "hito wa kataru darou shinnen wo"
     },
     {
       "startTime": 214.68875,
       "endTime": 217.61612,
       "text": "sono hata wo takeku kakage",
-      "sliders": []
+      "sliders": [],
+      "transription": "sono hata wo takeku kakage"
     },
     {
       "startTime": 217.63832,
@@ -480,103 +541,120 @@
           "startTime": 220.55328,
           "endTime": 221.66884
         }
-      ]
+      ],
+      "transription": "mizukara furuitate"
     },
     {
       "startTime": 222.32825,
       "endTime": 225.16188,
       "text": "yami wo harai susume",
-      "sliders": []
+      "sliders": [],
+      "transription": "yami wo harai susume"
     },
     {
       "startTime": 225.33513,
       "endTime": 227.99458,
       "text": "unmei tsukiru tomo",
-      "sliders": []
+      "sliders": [],
+      "transription": "unmei tsukiru tomo"
     },
     {
       "startTime": 228.11487,
       "endTime": 230.6483,
       "text": "dare yori kedakaku",
-      "sliders": []
+      "sliders": [],
+      "transription": "dare yori kedakaku"
     },
     {
       "startTime": 230.67606,
       "endTime": 233.58011,
       "text": "kono na wa kegasanai",
-      "sliders": []
+      "sliders": [],
+      "transription": "kono na wa kegasanai"
     },
     {
       "startTime": 233.62753,
       "endTime": 236.21648,
       "text": "sei araba susume",
-      "sliders": []
+      "sliders": [],
+      "transription": "sei araba susume"
     },
     {
       "startTime": 236.25774,
       "endTime": 238.81905,
       "text": "ganzen no shouri wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "ganzen no shouri wo"
     },
     {
       "startTime": 238.93741,
       "endTime": 241.5082,
       "text": "akatsuki tabidate",
-      "sliders": []
+      "sliders": [],
+      "transription": "akatsuki tabidate"
     },
     {
       "startTime": 241.57678,
       "endTime": 244.39946,
       "text": "yowake wa mou sugu",
-      "sliders": []
+      "sliders": [],
+      "transription": "yowake wa mou sugu"
     },
     {
       "startTime": 244.46971,
       "endTime": 247.10706,
       "text": "eiyuu ni uta wo",
-      "sliders": []
+      "sliders": [],
+      "transription": "eiyuu ni uta wo"
     },
     {
       "startTime": 247.17896,
       "endTime": 249.72173,
       "text": "ooku wo ushinau tomo",
-      "sliders": []
+      "sliders": [],
+      "transription": "ooku wo ushinau tomo"
     },
     {
       "startTime": 249.75648,
       "endTime": 252.4403,
       "text": "jiyuu wo kono te ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "jiyuu wo kono te ni"
     },
     {
       "startTime": 252.49976,
       "endTime": 255.39534,
       "text": "jidai no hasha to naru",
-      "sliders": []
+      "sliders": [],
+      "transription": "jidai no hasha to naru"
     },
     {
       "startTime": 255.41837,
       "endTime": 257.92334,
       "text": "zanka kare ochita",
-      "sliders": []
+      "sliders": [],
+      "transription": "zanka kare ochita"
     },
     {
       "startTime": 257.96964,
       "endTime": 260.55756,
       "text": "monogatari to nari",
-      "sliders": []
+      "sliders": [],
+      "transription": "monogatari to nari"
     },
     {
       "startTime": 260.6182,
       "endTime": 263.24332,
       "text": "akatsuki tabidatsu",
-      "sliders": []
+      "sliders": [],
+      "transription": "akatsuki tabidatsu"
     },
     {
       "startTime": 263.28644,
       "endTime": 266.4748,
       "text": "anata to tomo ni naru",
-      "sliders": []
+      "sliders": [],
+      "transription": "anata to tomo ni naru"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

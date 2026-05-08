@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "PEACEKEEPER",
   "artist": "STEREO DIVE FOUNDATION",
   "creator": "neroqwe",
@@ -18,31 +18,36 @@
       "startTime": 0.4398751,
       "endTime": 2.513989,
       "text": "Give me a reason to forgive",
-      "sliders": []
+      "sliders": [],
+      "transription": "give me a reason to forgive"
     },
     {
       "startTime": 2.522377,
       "endTime": 4.4332485,
       "text": "If I am strong enough",
-      "sliders": []
+      "sliders": [],
+      "transription": "if i am strong enough"
     },
     {
       "startTime": 4.4466906,
       "endTime": 5.587148,
       "text": "its black and white",
-      "sliders": []
+      "sliders": [],
+      "transription": "its black and white"
     },
     {
       "startTime": 5.6134243,
       "endTime": 7.9478226,
       "text": "this message is for you",
-      "sliders": []
+      "sliders": [],
+      "transription": "this message is for you"
     },
     {
       "startTime": 18.808676,
       "endTime": 21.078455,
       "text": "feeling like im giving up on you in every way",
-      "sliders": []
+      "sliders": [],
+      "transription": "feeling like im giving up on you in every way"
     },
     {
       "startTime": 21.193949,
@@ -54,25 +59,29 @@
           "startTime": 22.700788,
           "endTime": 23.196716
         }
-      ]
+      ],
+      "transription": "otherwise im gonna lose myself"
     },
     {
       "startTime": 23.673334,
       "endTime": 26.046837,
       "text": "want it back im trying to be someone i used to be",
-      "sliders": []
+      "sliders": [],
+      "transription": "want it back im trying to be someone i used to be"
     },
     {
       "startTime": 26.070219,
       "endTime": 28.40347,
       "text": "dont you want me to be like you",
-      "sliders": []
+      "sliders": [],
+      "transription": "dont you want me to be like you"
     },
     {
       "startTime": 28.432972,
       "endTime": 30.74387,
       "text": "kimi ni tsutaetai kotoba wa",
-      "sliders": []
+      "sliders": [],
+      "transription": "kimi ni tsutaetai kotoba wa"
     },
     {
       "startTime": 30.754084,
@@ -84,7 +93,8 @@
           "startTime": 32.812477,
           "endTime": 33.109993
         }
-      ]
+      ],
+      "transription": "ibitsu ni katachi wo kaete yuku"
     },
     {
       "startTime": 33.72596,
@@ -96,31 +106,36 @@
           "startTime": 35.749866,
           "endTime": 36.61157
         }
-      ]
+      ],
+      "transription": "sou janai wakatte yo"
     },
     {
       "startTime": 36.875797,
       "endTime": 41.790108,
       "text": "no matter how you feel i need your story now",
-      "sliders": []
+      "sliders": [],
+      "transription": "no matter how you feel i need your story now"
     },
     {
       "startTime": 41.976845,
       "endTime": 46.59524,
       "text": "giving you honesty i need you by my side",
-      "sliders": []
+      "sliders": [],
+      "transription": "giving you honesty i need you by my side"
     },
     {
       "startTime": 46.653484,
       "endTime": 49.4884,
       "text": "Shinyou toka shinraida to ka",
-      "sliders": []
+      "sliders": [],
+      "transription": "shinyou toka shinraida to ka"
     },
     {
       "startTime": 49.57041,
       "endTime": 52.70118,
       "text": "Tsumiageteiku beki taimingu de",
-      "sliders": []
+      "sliders": [],
+      "transription": "tsumiageteiku beki taimingu de"
     },
     {
       "startTime": 52.757767,
@@ -132,19 +147,22 @@
           "startTime": 55.695545,
           "endTime": 56.455036
         }
-      ]
+      ],
+      "transription": "yorisotteirarenakatta"
     },
     {
       "startTime": 56.95367,
       "endTime": 59.16048,
       "text": "Karamiau kotae kasanatte",
-      "sliders": []
+      "sliders": [],
+      "transription": "karamiau kotae kasanatte"
     },
     {
       "startTime": 59.19247,
       "endTime": 61.592506,
       "text": "Surechigatta omoi hodoite",
-      "sliders": []
+      "sliders": [],
+      "transription": "surechigatta omoi hodoite"
     },
     {
       "startTime": 61.60303,
@@ -156,19 +174,22 @@
           "startTime": 65.49411,
           "endTime": 66.178406
         }
-      ]
+      ],
+      "transription": "akirameru no ni wa mada hayai yo"
     },
     {
       "startTime": 66.51984,
       "endTime": 68.838615,
       "text": "Modokashisa kakae takara tte",
-      "sliders": []
+      "sliders": [],
+      "transription": "modokashisa kakae takara tte"
     },
     {
       "startTime": 68.84721,
       "endTime": 71.138176,
       "text": "Kakechigatta mama ja dame datte",
-      "sliders": []
+      "sliders": [],
+      "transription": "kakechigatta mama ja dame datte"
     },
     {
       "startTime": 71.14495,
@@ -185,7 +206,8 @@
           "startTime": 72.66421,
           "endTime": 72.8796
         }
-      ]
+      ],
+      "transription": "wakatteru wakatte yo mou ichido sa"
     },
     {
       "startTime": 75.4939,
@@ -197,13 +219,15 @@
           "startTime": 76.345146,
           "endTime": 78.27302
         }
-      ]
+      ],
+      "transription": "whoa o"
     },
     {
       "startTime": 78.456474,
       "endTime": 81.01383,
       "text": "wish upon a heart did you get my message",
-      "sliders": []
+      "sliders": [],
+      "transription": "wish upon a heart did you get my message"
     },
     {
       "startTime": 81.04697,
@@ -215,13 +239,15 @@
           "startTime": 81.17722,
           "endTime": 83.10876
         }
-      ]
+      ],
+      "transription": "o"
     },
     {
       "startTime": 83.27547,
       "endTime": 85.95503,
       "text": "wish upon a heart did you get my message",
-      "sliders": []
+      "sliders": [],
+      "transription": "wish upon a heart did you get my message"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

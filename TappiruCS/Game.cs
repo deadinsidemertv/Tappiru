@@ -63,7 +63,10 @@ namespace TappiruCS
         protected override void OnLoad()
         {
             base.OnLoad();
-            UpdateProjection();
+            string mapsRoot = "Songs"; 
+
+            //MapMigrator.MigrateAllMaps(mapsRoot);
+            //UpdateProjection();
 
 
             WindowWidth = ClientSize.X;
