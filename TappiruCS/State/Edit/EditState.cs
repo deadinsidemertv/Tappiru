@@ -35,6 +35,10 @@ namespace TappiruCS.State.Edit
         private Button _saveButton = null!;
         private Button _exitToMenuButton = null!;
 
+        private Button _switchtomapping = null!;
+        private Button _switchtoobject = null!;
+
+
         private readonly List<Phrase> _phrases = new();
         private readonly ProjectIO _projectIO = new();
         private readonly ColorPreviewPanel _colorPanel = new();
@@ -42,6 +46,11 @@ namespace TappiruCS.State.Edit
         private bool _inEditMode;
         private bool _isPlaying = true;
         private bool _isInputDialogOpen = false;
+
+        public enum EditMode { None, Object, Mapping };
+        public EditMode currentEditMode = EditMode.None;
+
+        MappingPanel mapping;
 
         private Phrase? _activePhrase;
 
@@ -94,6 +103,8 @@ namespace TappiruCS.State.Edit
 
         private void BuildStartScreen()
         {
+            currentEditMode = EditMode.None;
+
             var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay2"));
             _background = new SpriteObject(TextureManager.GetTexture("defaultBG"), 960, 450, 1152, 648) { ScaleMultiply = 1.1f,AllowHover =false };
             _background.Color = new Color4(0.2f, 0.2f, 0.2f, 1f);
@@ -153,6 +164,7 @@ namespace TappiruCS.State.Edit
 
         private void OnProjectOpened(string tappzPath)
         {
+            currentEditMode = EditMode.Object;
             CleanupEditorUI();
 
             JsonMap? map = _projectIO.Open(tappzPath);
@@ -220,12 +232,43 @@ namespace TappiruCS.State.Edit
             _saveButton.Label.Color = Color4.White;
             _saveButton.OnClick += SaveProject;
 
+            _switchtomapping = new Button(170, 150, 850, 210, "blue_panel", "Mapping Mode")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+            _switchtomapping.Label.FontSize = 48f;
+            _switchtomapping.Label.FontKey = "Game";
+            _switchtomapping.Label.Align = TextAlign.Center;
+            _switchtomapping.Label.Color = Color4.White;
+            _switchtomapping.OnClick += () => SwitchEditMode(EditMode.Mapping);
+            _scene.Add(_switchtomapping);
+
+            _switchtoobject = new Button(170, 235, 850, 210, "blue_panel", "Object Mode")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+            _switchtoobject.Label.FontSize = 48f;
+            _switchtoobject.Label.FontKey = "Game";
+            _switchtoobject.Label.Align = TextAlign.Center;
+            _switchtoobject.Label.Color = Color4.White;
+            _switchtoobject.OnClick += () => SwitchEditMode(EditMode.Object);
+            _scene.Add(_switchtoobject);
+            
+
             _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
             {
                 Layer = 1,
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
+
+
             _exitToMenuButton.Label.Align = TextAlign.Center;
             _exitToMenuButton.Label.Color = Color4.White;
             _exitToMenuButton.Label.FontSize = 36f;
@@ -236,6 +279,7 @@ namespace TappiruCS.State.Edit
             _scene.Add(_playPauseButton);
             _scene.Add(_addPhraseButton);
             _scene.Add(_saveButton);
+            
             
         }
 
@@ -267,6 +311,8 @@ namespace TappiruCS.State.Edit
             {
                 _phraseDisplay.Sync(phrase);
                 _context.Audio.SetCurrentTime(phrase.StartTime);
+                if (currentEditMode == EditMode.Mapping)
+                    mapping.Show(obj);
             }
             else if (obj is TappiruCS.State.Edit.Core.SliderTiming slider)
             {
@@ -423,6 +469,21 @@ namespace TappiruCS.State.Edit
 
             try { _projectIO.Save(map); }
             catch (Exception ex) { Console.WriteLine($"[EditState] Ошибка сохранения: {ex.Message}"); }
+        }
+
+        public void SwitchEditMode(EditMode mode)
+        {
+            currentEditMode = mode;
+            Console.WriteLine(currentEditMode);
+            if (mode == EditMode.Mapping)
+            {
+                mapping = new MappingPanel(_scene);
+            }
+            else
+            {
+                if(mapping!=null)
+                    mapping.Hide();
+            }
         }
     }
 }

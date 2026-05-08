@@ -9,6 +9,8 @@ namespace TappiruCS.GameLogic
         public string transription { get; set; }= string.Empty;
 
         public List<SliderTiming> sliders { get; set; } = new List<SliderTiming>();
+
+        public int[] mapping { get; set; } = new int[0];
     }
 
     public class SliderTiming
@@ -19,4 +21,6 @@ namespace TappiruCS.GameLogic
         public float endTime { get; set; }
 
     }
+
+    
 }

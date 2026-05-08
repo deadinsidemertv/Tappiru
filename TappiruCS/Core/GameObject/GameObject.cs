@@ -181,10 +181,6 @@ namespace TappiruCS.Core.GameObject
             if (IsHovered != shouldBeHovered)
             {
                 SetHover(shouldBeHovered);
-                if (shouldBeHovered && !string.IsNullOrEmpty(Description))
-                {
-                    Console.WriteLine($"[HOVER] {GetType().Name} ({Description}) теперь под мышью");
-                }
             }
                 
 
@@ -203,7 +199,7 @@ namespace TappiruCS.Core.GameObject
             {
                 topLayer = Layer;
                 top = this;
-                Console.WriteLine($"Candidate: {GetType().Name}, Layer={Layer}, Desc={(string.IsNullOrEmpty(Description) ? "<empty>" : Description)}");
+                
             }
 
             foreach (var child in _children)

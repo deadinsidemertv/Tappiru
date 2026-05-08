@@ -14,6 +14,8 @@ namespace TappiruCS.State.Edit.Core
 
         public List<TappiruCS.State.Edit.Core.SliderTiming> Sliders { get; set; } = new();
 
+        public int[] mapping { get; set; } = new int[0];
+
         // Визуальные объекты
         public SpriteObject? VisualBar { get; set; }
         public List<SpriteObject> SliderVisuals { get; set; } = new();

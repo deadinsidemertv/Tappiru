@@ -245,6 +245,7 @@ namespace TappiruCS.UI
             }
 
             PlaceHolder.Active = string.IsNullOrEmpty(_input) && !IsFocused;
+            PlaceHolder.Text = PlaceHolderText;
         }
 
         public override void Update(double deltaTime, MouseState mouse)
