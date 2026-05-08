@@ -32,7 +32,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private readonly List<SpriteObject> _tickLines = new();
         private readonly List<TextObject> _timeLabels = new();
 
-        private readonly List<Phrase> _phrases = new();
+        public List<Phrase> _phrases = new();
         public float TotalDuration { get; private set; } = 300f;
 
         private float _visibleStart = 0f;

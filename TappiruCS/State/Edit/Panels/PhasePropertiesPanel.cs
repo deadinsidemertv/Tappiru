@@ -47,6 +47,7 @@ namespace TappiruCS.State.Edit.UI.Panels
             label.Color = "#919bb8";
             label.Align = TextAlign.Left;
 
+
             var spriteBackground = new SpriteObject(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
 
             PhraseProperties.AddChild(spriteBackground);
@@ -96,6 +97,15 @@ namespace TappiruCS.State.Edit.UI.Panels
                 _inputEndTime.Text = phrase.EndTime.ToString("F2");
                 _inputEndTime.OnTextChanged += OnEndTimeChanged;
 
+                var delete = new Button(0, 150, 200, 70, "blue_panel", "удалить");
+                delete.Label.Color = Color4.Red;
+                delete.Label.FontSize = 36f;
+                delete.Label.FontKey = "Game";
+                delete.Label.Align = TextAlign.Center;
+                delete.Layer = 5;
+                delete.OnClick += DeleteObject;
+                _scene.Add(delete);
+
                 // Добавляем всё на панель
                 PhraseProperties.AddChild(DisplayText);
                 PhraseProperties.AddChild(_inputDisplay);
@@ -108,6 +118,8 @@ namespace TappiruCS.State.Edit.UI.Panels
 
                 PhraseProperties.AddChild(EndLabel);
                 PhraseProperties.AddChild(_inputEndTime);
+
+                PhraseProperties.AddChild(delete);
             }
             else if (selected is TappiruCS.State.Edit.Core.SliderTiming)
             {
@@ -184,6 +196,14 @@ namespace TappiruCS.State.Edit.UI.Panels
             {
                 _phraseDisplay.Sync(_currentPhrase);
                 _timeline.RefreshAllVisuals();
+            }
+        }
+
+        private void DeleteObject()
+        {
+            if (_currentPhrase != null)
+            {
+                _timeline._phrases.Remove(_currentPhrase);
             }
         }
     }
