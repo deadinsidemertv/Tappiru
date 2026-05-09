@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TappiruCS.Core.GameObject;
+using TappiruCS.Render.Text;
 using TappiruCS.State.Edit.Core;
 using TappiruCS.State.Edit.TimelineSystem;
 using TappiruCS.UI;
@@ -198,9 +199,11 @@ namespace TappiruCS.State.Edit.Panels
             {'ポ', 2}, // po
         };
 
-        public MappingPanel(Scene scene)
+        private readonly EditState _editState;
+        public MappingPanel(Scene scene, EditState editState)
         {
             _scene = scene;
+            _editState = editState;
         }
 
         public void Show(ITimelineSelectable selected)
@@ -232,8 +235,12 @@ namespace TappiruCS.State.Edit.Panels
 
         private void AddMappingRow(char ch, int index)
         {
+            if (_currentPhrase == null) return;
+
+            _currentPhrase.ResizeMappingTo(_currentPhrase.Text.Length);
+
             Container mappingCell = new Container(0, 0);
-            TextObject charLabel = new TextObject(ch.ToString(), 0, 0, 36f);
+            TextObject charLabel = new TextObject(ch.ToString(), 0, 0, 36f) { Align = TextAlign.Left };
 
             bool isJapanese = IsJapaneseCharacter(ch);
 
@@ -241,31 +248,44 @@ namespace TappiruCS.State.Edit.Panels
             {
                 InputField lengthInput = new InputField(150, 0, 100, 35);
                 lengthInput.PlaceHolderText = "len";
+                lengthInput.Text = _currentPhrase.Mapping[index].ToString();
 
-                lengthInput.Text = _currentPhrase!.Mapping[index].ToString();
+                // Захватываем индекс + отдельный обработчик
+                int capturedIndex = index;
 
                 lengthInput.OnTextChanged += (newText) =>
-                {
-                    if (int.TryParse(newText, out int newValue) && newValue >= 0)
-                        _currentPhrase.Mapping[index] = newValue;
-                    else if (string.IsNullOrWhiteSpace(newText))
-                        _currentPhrase.Mapping[index] = 0;
-                };
+                    OnMappingLengthChanged(capturedIndex, newText);
 
                 mappingCell.AddChild(lengthInput);
             }
             else
             {
-                _currentPhrase!.Mapping[index] = 0;
-                TextObject zeroLabel = new TextObject("0", 150, 0, 28f);
-                zeroLabel.Color = new Color4(0.5f, 0.5f, 0.5f, 1f);
+                _currentPhrase.Mapping[index] = 0;
+                TextObject zeroLabel = new TextObject("0", 150, 0, 28f)
+                {
+                    Color = new Color4(0.5f, 0.5f, 0.5f, 1f)
+                };
                 mappingCell.AddChild(zeroLabel);
             }
 
             mappingCell.AddChild(charLabel);
-
             _scrollContainer!.AddItem(mappingCell);
             _scrollContainer.RecalcMaxScroll();
+        }
+
+        // Новый отдельный метод — только для маппинга!
+        private void OnMappingLengthChanged(int index, string newText)
+        {
+            if (_currentPhrase == null) return;
+            if (index < 0 || index >= _currentPhrase.Mapping.Count) return;
+
+            if (int.TryParse(newText, out int newValue) && newValue >= 0)
+                _currentPhrase.Mapping[index] = newValue;
+            else if (string.IsNullOrWhiteSpace(newText))
+                _currentPhrase.Mapping[index] = 0;
+
+            // ←←← СРАЗУ СОХРАНЯЕМ ПРОЕКТ
+            _editState?.SaveProject();
         }
 
         private bool IsJapaneseCharacter(char c)
@@ -282,8 +302,9 @@ namespace TappiruCS.State.Edit.Panels
                 _scene.Remove(_scrollContainer);
                 _scrollContainer = null;
             }
+
             _currentPhrase = null;
-            _inputToIndex.Clear();
+            _inputToIndex.Clear(); // если используешь
         }
     }
 

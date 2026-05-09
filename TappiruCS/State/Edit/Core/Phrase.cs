@@ -26,13 +26,17 @@ namespace TappiruCS.State.Edit.Core
             EndTime = endTime;
             Text = text;
             Transcription = transcription;
-            Mapping = new List<int>(new int[text.Length]);
+
+            Mapping = new List<int>();
+            ResizeMappingTo(text.Length);
         }
 
         public bool ContainsTime(float time) => time >= StartTime && time <= EndTime;
 
         public void ResizeMappingTo(int targetLength)
         {
+            if (targetLength < 0) targetLength = 0;
+
             if (Mapping.Count == targetLength) return;
 
             if (Mapping.Count < targetLength)
@@ -47,27 +51,27 @@ namespace TappiruCS.State.Edit.Core
         }
         public void ApplyDefaultMapping(Dictionary<char, int> defaultKanaLengths)
         {
-            if (Mapping == null || Mapping.Count != Text.Length)
-                ResizeMappingTo(Text.Length);
+            ResizeMappingTo(Text.Length); // гарантируем правильную длину
 
             for (int i = 0; i < Text.Length; i++)
             {
                 char ch = Text[i];
 
-                if (IsJapaneseKana(ch)) // только кана, не кандзи
+                // ←←← ИСПРАВЛЕНИЕ: применяем дефолт ТОЛЬКО если значение ещё не задано (0)
+                if (Mapping[i] == 0)
                 {
-                    if (Mapping[i] == 0) // если ещё не задано
+                    if (IsJapaneseKana(ch))
                     {
                         Mapping[i] = defaultKanaLengths.TryGetValue(ch, out int val) ? val : 1;
                     }
-                }
-                else
-                {
-                    Mapping[i] = 0; // пунктуация и кандзи = 0
+                    else
+                    {
+                        Mapping[i] = 0;
+                    }
                 }
             }
         }
-        private bool IsJapaneseKana(char c)
+        public bool IsJapaneseKana(char c)
         {
             return (c >= 0x3040 && c <= 0x309F) || // Hiragana
                    (c >= 0x30A0 && c <= 0x30FF);   // Katakana

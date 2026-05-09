@@ -8,7 +8,9 @@ namespace TappiruCS.GameLogic.Logic
     public class GameSession
     {
         public static Dictionary<char, Keys> CharToKeyMap { get; private set; }
+        public int[] CurrentPhaseMapping => _phaseManager.CurrentPhaseMapping;
 
+        public int GetDisplayProgressIndex(int transIndex) => _phaseManager.GetDisplayProgressIndex(transIndex);
         public static void InitCharToKeyMap(Dictionary<Keys, char[]> keyToCharsMap)
         {
             CharToKeyMap = new Dictionary<char, Keys>();

@@ -22,7 +22,7 @@ using TappiruCS.State.Menu;
 namespace TappiruCS.State.Edit
 {
     public enum EditMode { None, Object, Mapping };
-    internal class EditState : IGameState
+    public class EditState : IGameState
     {
         private readonly RenderContext _context;
         private readonly Scene _scene = new();
@@ -67,7 +67,7 @@ namespace TappiruCS.State.Edit
         public EditState(RenderContext context)
         {
             _context = context;
-            mapping = new MappingPanel(_scene);
+            mapping = new MappingPanel(_scene,this);
         }
 
         public void OnEnter()
@@ -204,7 +204,7 @@ namespace TappiruCS.State.Edit
             _phraseDisplay = new PhraseTextDisplay(_scene);
             _phraseDisplay.OnSliderRequested += AddSliderForChar;
 
-            _propertiesPanel = new PhrasePropertiesPanel(_scene, _phraseDisplay, _timeline,_phrases);
+            _propertiesPanel = new PhrasePropertiesPanel(_scene, _phraseDisplay, _timeline,_phrases,this);
             _propertiesPanel.Build();
 
             OnSelectionChanged += () => _propertiesPanel?.Sync(SelectedObject);
@@ -466,7 +466,7 @@ namespace TappiruCS.State.Edit
             
         }
 
-        private void SaveProject()
+        public void SaveProject()
         {
             CleanAllTranscriptions();
 
@@ -478,8 +478,15 @@ namespace TappiruCS.State.Edit
             map.endTime = endTime;
             _colorPanel.SaveTo(map);
 
-            try { _projectIO.Save(map); }
-            catch (Exception ex) { Console.WriteLine($"[EditState] Ошибка сохранения: {ex.Message}"); }
+            try
+            {
+                _projectIO.Save(map);
+                Console.WriteLine($"[AutoSave] Проект сохранён ({_phrases.Count} фраз)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AutoSave] Ошибка: {ex.Message}");
+            }
         }
 
         public void SwitchEditMode(EditMode mode)
@@ -489,8 +496,10 @@ namespace TappiruCS.State.Edit
 
             if (mode == EditMode.Mapping)
             {
-                // === АВТОМАТИЧЕСКОЕ ЗАПОЛНЕНИЕ ДЛЯ ВСЕХ ФРАЗ ===
                 ApplyDefaultMappingToAllPhrases();
+
+                if (SelectedObject is Phrase p)
+                    p.ResizeMappingTo(p.Text.Length);
 
                 if (SelectedObject != null)
                     mapping?.Show(SelectedObject);
@@ -505,14 +514,41 @@ namespace TappiruCS.State.Edit
 
         private void ApplyDefaultMappingToAllPhrases()
         {
-            var defaults = MappingPanel.DefaultKanaLengths; // если словарь private — сделай public static
+            var defaults = MappingPanel.DefaultKanaLengths;
 
             foreach (var phrase in _phrases)
             {
-                phrase.ApplyDefaultMapping(defaults);
+                phrase.ResizeMappingTo(phrase.Text.Length); // гарантируем правильную длину
+
+                // Применяем дефолт ТОЛЬКО к тем позициям, где значение всё ещё 0
+                for (int i = 0; i < phrase.Text.Length; i++)
+                {
+                    if (phrase.Mapping[i] == 0)
+                    {
+                        char ch = phrase.Text[i];
+                        if (phrase.IsJapaneseKana(ch)) // если сделаешь метод публичным, или скопируй
+                        {
+                            phrase.Mapping[i] = defaults.TryGetValue(ch, out int val) ? val : 1;
+                        }
+                        else
+                        {
+                            phrase.Mapping[i] = 0;
+                        }
+                    }
+                    // Если значение уже != 0 — оставляем как есть (пользовательские правки)
+                }
             }
 
-            Console.WriteLine($"[EditState] Применены дефолтные mapping значения для {_phrases.Count} фраз");
+            Console.WriteLine($"[EditState] ApplyDefaultMappingToAllPhrases: применены дефолты только где было 0");
+        }
+
+        public void RefreshMappingPanel(Phrase? phrase)
+        {
+            if (currentEditMode != EditMode.Mapping || mapping == null || phrase == null)
+                return;
+
+            mapping.Hide();
+            mapping.Show(phrase);
         }
     }
 }

@@ -31,15 +31,18 @@ namespace TappiruCS.State.Edit.UI.Panels
 
         private readonly List<Phrase> _globalPhrases;
 
+        private readonly EditState _editState;
+
         // Костыль: храним ссылку на текущую кнопку удаления, чтобы удалять её из сцены при перестройке
         private Button? _currentDeleteButton;
 
-        public PhrasePropertiesPanel(Scene scene, PhraseTextDisplay phraseDisplay, Timeline timeline, List<Phrase> globalPhrases)
+        public PhrasePropertiesPanel(Scene scene, PhraseTextDisplay phraseDisplay, Timeline timeline, List<Phrase> globalPhrases,EditState editState)
         {
             _scene = scene;
             _phraseDisplay = phraseDisplay;
             _timeline = timeline;
             _globalPhrases = globalPhrases;
+            _editState = editState;
         }
 
         public void Build()
@@ -215,11 +218,23 @@ namespace TappiruCS.State.Edit.UI.Panels
         // ===== обработчики для фразы =====
         private void OnDisplayTextChanged(string newText)
         {
-            if (_currentPhrase != null)
+            if (_currentPhrase == null) return;
+
+            _currentPhrase.Text = newText;
+
+            // Обновляем Mapping под новую длину текста
+            _currentPhrase.ResizeMappingTo(newText.Length);
+
+            // Обновляем визуальное отображение текста
+            _phraseDisplay.Sync(_currentPhrase);
+
+            // Если сейчас Mapping Mode — перестраиваем панель маппинга
+            if (_editState.currentEditMode == EditMode.Mapping)
             {
-                _currentPhrase.Text = newText;
-                _phraseDisplay.Sync(_currentPhrase);
+                _editState?.RefreshMappingPanel(_currentPhrase);
             }
+
+            _timeline?.RefreshAllVisuals();
         }
 
         private void OnTranscriptionChanged(string newText)
