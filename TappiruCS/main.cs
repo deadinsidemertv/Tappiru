@@ -14,6 +14,7 @@ namespace TappiruCS
             Console.OutputEncoding = UTF8Encoding.UTF8;
             GameWindowSettings gwSetting = GameWindowSettings.Default;
             NativeWindowSettings nwSetting = NativeWindowSettings.Default;
+            nwSetting.StencilBits = 8;
             Game gamewindow = new Game(gwSetting, nwSetting);
 
             gamewindow.Run();

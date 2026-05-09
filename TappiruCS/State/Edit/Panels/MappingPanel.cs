@@ -39,7 +39,9 @@ namespace TappiruCS.State.Edit.Panels
             _currentPhrase = phrase;
 
             // Создаём новый скролл-контейнер
-            _scrollContainer = new ScrollContainer(50, 300, 400, 600,20) { Layer = 10 };
+            _scrollContainer = new ScrollContainer(50, 300, 400, 900,20) { Layer = 10};
+            //_scrollContainer._clippingMask.EnableDebug(0.5f);
+            _scrollContainer._clippingMask.MaskSprite.Scale = new OpenTK.Mathematics.Vector2(400,600);
             int length = _currentPhrase.Text.Length;
             for (int i = 0; i < length; i++)
             {

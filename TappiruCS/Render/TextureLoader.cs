@@ -82,6 +82,8 @@ namespace TappiruCS.Render
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.StencilTest);
+            GL.StencilMask(0x00);
         }
 
         public static void InitializeAsyncTextureUpload()

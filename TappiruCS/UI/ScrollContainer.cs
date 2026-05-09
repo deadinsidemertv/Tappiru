@@ -29,6 +29,10 @@ namespace TappiruCS.UI
         private readonly SpriteObject _debugArea;
         private readonly SpriteObject _hoverArea;
 
+        public ClippingMask _clippingMask;
+
+        public bool Clipping { get; set; } = true;
+
         public float HoverAreaX { get; set; }
         public float HoverAreaY { get; set; }
         public float HoverAreaWidth { get; set; }
@@ -74,6 +78,13 @@ namespace TappiruCS.UI
                 _hoverArea.Opacity = 0.3f;
                 _debugArea.Opacity = 0.3f;
             }
+
+            if (Clipping)
+            {
+                _clippingMask = new ClippingMask(85, 300, width, height);
+                AddChild(_clippingMask);
+            }
+
 
             UpdateHoverAreaVisual();
         }

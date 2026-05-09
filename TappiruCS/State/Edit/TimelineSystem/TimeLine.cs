@@ -128,8 +128,15 @@ namespace TappiruCS.State.Edit.TimelineSystem
             _lastScrollValue = mouse.Scroll.Y;
             if (Math.Abs(scrollDelta) < 0.1f) return;
 
+            // ← НОВОЕ: проверяем, находится ли мышь над таймлайном
+            float virtualX = mouse.X / CanvasScale.X;
+            float virtualY = mouse.Y / CanvasScale.Y;
+
+            if (!IsOverTimeline(virtualX, virtualY))
+                return;
+
             var bounds = Background.GetDesignBounds();
-            float virtualMouseX = mouse.X / Scene.CanvasScale.X;
+            float virtualMouseX = virtualX; // уже в виртуальных координатах
             float normMouse = Math.Clamp((virtualMouseX - bounds.designLeft) / bounds.effWidth, 0f, 1f);
             float timeUnderCursor = _visibleStart + normMouse * (_visibleEnd - _visibleStart);
 
