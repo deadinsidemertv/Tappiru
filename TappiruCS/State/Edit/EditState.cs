@@ -21,6 +21,7 @@ using TappiruCS.State.Menu;
 
 namespace TappiruCS.State.Edit
 {
+    public enum EditMode { None, Object, Mapping };
     internal class EditState : IGameState
     {
         private readonly RenderContext _context;
@@ -47,10 +48,10 @@ namespace TappiruCS.State.Edit
         private bool _isPlaying = true;
         private bool _isInputDialogOpen = false;
 
-        public enum EditMode { None, Object, Mapping };
+        
         public EditMode currentEditMode = EditMode.None;
 
-        MappingPanel mapping;
+        private MappingPanel? mapping;
 
         private Phrase? _activePhrase;
 
@@ -66,6 +67,7 @@ namespace TappiruCS.State.Edit
         public EditState(RenderContext context)
         {
             _context = context;
+            mapping = new MappingPanel(_scene);
         }
 
         public void OnEnter()
@@ -331,6 +333,8 @@ namespace TappiruCS.State.Edit
 
             if (_inEditMode && _timeline != null)
             {
+                _timeline.CurrentEditMode = currentEditMode;
+
                 _timeline.SetCurrentTime((float)_context.Audio.GetCurrentTime());
                 SyncActivePhraseText();
                 _colorPanel.Tick();
@@ -393,31 +397,34 @@ namespace TappiruCS.State.Edit
 
         private void BeginAddPhrase()
         {
-            if (_isInputDialogOpen) return;
+            if (currentEditMode == EditMode.Object) 
+            {
+                if (_isInputDialogOpen) return;
 
-            _context.Audio.Pause();
-            _isPlaying = false;
+                _context.Audio.Pause();
+                _isPlaying = false;
 
-            float time = (float)_context.Audio.GetCurrentTime();
+                float time = (float)_context.Audio.GetCurrentTime();
 
-            var dialog = new TextInputModule(
-                _scene,
-                "Добавить новую фразу",
-                (mainText, transText) =>
-                {
-                    if (!string.IsNullOrWhiteSpace(mainText))
+                var dialog = new TextInputModule(
+                    _scene,
+                    "Добавить новую фразу",
+                    (mainText, transText) =>
                     {
-                        string cleaned = CleanTranscription(transText);
-                        var phrase = new Phrase(time, time + 4f, mainText, cleaned);
-                        _phrases.Add(phrase);
-                        _timeline?.SetPhrases(_phrases);
-                    }
-                },
-                () => _isInputDialogOpen = false);
+                        if (!string.IsNullOrWhiteSpace(mainText))
+                        {
+                            string cleaned = CleanTranscription(transText);
+                            var phrase = new Phrase(time, time + 4f, mainText, cleaned);
+                            _phrases.Add(phrase);
+                            _timeline?.SetPhrases(_phrases);
+                        }
+                    },
+                    () => _isInputDialogOpen = false);
 
-            _isInputDialogOpen = true;
-            _context.Game.CloseModalWindow();
-            _context.Game.OpenModalWindow(dialog);
+                _isInputDialogOpen = true;
+                _context.Game.CloseModalWindow();
+                _context.Game.OpenModalWindow(dialog);
+            } 
         }
 
         private string CleanTranscription(string input)
@@ -438,21 +445,25 @@ namespace TappiruCS.State.Edit
 
         private void AddSliderForChar(Phrase phrase, int charIndex)
         {
-            if (phrase.Sliders.Any(s => s.charIndex == charIndex)) return;
-
-            float now = (float)_context.Audio.GetCurrentTime();
-            float endT = Math.Min(now + 2.0f, phrase.EndTime);
-            if (endT - now < 0.2f) endT = now + 0.2f;
-
-            phrase.Sliders.Add(new TappiruCS.State.Edit.Core.SliderTiming
+            if (currentEditMode == EditMode.Object)
             {
-                charIndex = charIndex,
-                startTime = now,
-                endTime = endT
-            });
+                if (phrase.Sliders.Any(s => s.charIndex == charIndex)) return;
 
-            _timeline?.SetPhrases(_phrases);
-            _phraseDisplay.Sync(phrase);
+                float now = (float)_context.Audio.GetCurrentTime();
+                float endT = Math.Min(now + 2.0f, phrase.EndTime);
+                if (endT - now < 0.2f) endT = now + 0.2f;
+
+                phrase.Sliders.Add(new TappiruCS.State.Edit.Core.SliderTiming
+                {
+                    charIndex = charIndex,
+                    startTime = now,
+                    endTime = endT
+                });
+
+                _timeline?.SetPhrases(_phrases);
+                _phraseDisplay.Sync(phrase);
+            }
+            
         }
 
         private void SaveProject()
@@ -475,15 +486,33 @@ namespace TappiruCS.State.Edit
         {
             currentEditMode = mode;
             Console.WriteLine(currentEditMode);
+
             if (mode == EditMode.Mapping)
             {
-                mapping = new MappingPanel(_scene);
+                // === АВТОМАТИЧЕСКОЕ ЗАПОЛНЕНИЕ ДЛЯ ВСЕХ ФРАЗ ===
+                ApplyDefaultMappingToAllPhrases();
+
+                if (SelectedObject != null)
+                    mapping?.Show(SelectedObject);
+                else if (_phrases.Count > 0)
+                    mapping?.Show(_phrases[0]);
             }
             else
             {
-                if(mapping!=null)
-                    mapping.Hide();
+                mapping?.Hide();
             }
+        }
+
+        private void ApplyDefaultMappingToAllPhrases()
+        {
+            var defaults = MappingPanel.DefaultKanaLengths; // если словарь private — сделай public static
+
+            foreach (var phrase in _phrases)
+            {
+                phrase.ApplyDefaultMapping(defaults);
+            }
+
+            Console.WriteLine($"[EditState] Применены дефолтные mapping значения для {_phrases.Count} фраз");
         }
     }
 }

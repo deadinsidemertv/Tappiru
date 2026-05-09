@@ -10,7 +10,7 @@ namespace TappiruCS.GameLogic
 
         public List<SliderTiming> sliders { get; set; } = new List<SliderTiming>();
 
-        public int[] mapping { get; set; } = new int[0];
+        public List<int> mapping { get; set; } = new List<int>();
     }
 
     public class SliderTiming

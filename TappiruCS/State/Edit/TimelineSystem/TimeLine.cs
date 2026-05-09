@@ -1,5 +1,4 @@
-﻿// Timeline.cs — ИСПРАВЛЕННАЯ ВЕРСИЯ (добавлены AddChild)
-using System;
+﻿using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -15,8 +14,11 @@ namespace TappiruCS.State.Edit.TimelineSystem
 {
     public class Timeline : GameObject
     {
+        public EditMode CurrentEditMode { get; set; } = EditMode.Object;
+
         public event Action<float> OnTimeClicked;
         public event Action<ITimelineSelectable?>? OnObjectSelected;
+
         public SpriteObject Background { get; private set; }
         public SpriteObject Playhead { get; private set; }
         private SpriteObject _playheadLine;
@@ -37,11 +39,8 @@ namespace TappiruCS.State.Edit.TimelineSystem
         public Phrase? _draggedPhrase = null;
         public int _draggedIndex = -1;
 
-        public float TotalDuration { get; private set; } = 300f;
-
-        private float _visibleStart = 0f;
-        private float _visibleEnd = 300f;
-        private float _lastScrollValue = 0f;
+        public Phrase? _draggedSliderPhrase = null;
+        public int _draggedSliderIndex = -1;
 
         private bool _draggingPlayhead = false;
         private bool _panning = false;
@@ -50,10 +49,12 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private bool _draggingSliderLeftHandle = false;
         private bool _draggingSliderRightHandle = false;
 
-
-        public Phrase? _draggedSliderPhrase = null;
-        public int _draggedSliderIndex = -1;
         private Vector2 _lastMousePos;
+
+        public float TotalDuration { get; private set; } = 300f;
+        private float _visibleStart = 0f;
+        private float _visibleEnd = 300f;
+        private float _lastScrollValue = 0f;
 
         public ITimelineSelectable? SelectedObject { get; set; }
 
@@ -67,7 +68,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 Color = new Color4(0.13f, 0.13f, 0.19f, 0.5f),
                 Layer = 6,
             };
-            AddChild(Background);   // ← добавил
+            AddChild(Background);
 
             Playhead = new SpriteObject(TextureManager.GetTexture("marker"), 0, -35f, 28, 28)
             {
@@ -75,7 +76,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 Pivot = new Vector2(0.5f, 1f),
                 Layer = 7,
             };
-            AddChild(Playhead);     // ← добавил
+            AddChild(Playhead);
 
             _playheadLine = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 4, height)
             {
@@ -83,10 +84,11 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 Pivot = new Vector2(0.5f, 0.5f),
                 Layer = 7,
             };
-            AddChild(_playheadLine); // ← добавил
+            AddChild(_playheadLine);
         }
 
         #region Public API
+
         public void SetPhrases(List<Phrase> phrases)
         {
             _phrases.Clear();
@@ -106,15 +108,17 @@ namespace TappiruCS.State.Edit.TimelineSystem
         {
             if (_visibleEnd <= _visibleStart) return;
             float norm = Math.Clamp((time - _visibleStart) / (_visibleEnd - _visibleStart), 0f, 1f);
-            var bounds = Background.GetDesignBounds(); // (designLeft, designTop, effWidth, effHeight)
+            var bounds = Background.GetDesignBounds();
             float worldX = bounds.designLeft + norm * bounds.effWidth;
             float localX = worldX - WorldPosition.X;
             Playhead.LocalPosition = new Vector2(localX, Playhead.LocalPosition.Y);
             _playheadLine.LocalPosition = new Vector2(localX, _playheadLine.LocalPosition.Y);
         }
+
         #endregion
 
         #region Update & Input
+
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
@@ -122,22 +126,349 @@ namespace TappiruCS.State.Edit.TimelineSystem
             HandleMouseInteraction(mouse);
         }
 
+        private void HandleMouseInteraction(MouseState mouse)
+        {
+            float virtualX = mouse.X / CanvasScale.X;
+            float virtualY = mouse.Y / CanvasScale.Y;
+
+            // Обработка нажатия (выбор + двойной клик)
+            if (mouse.IsButtonPressed(MouseButton.Left))
+            {
+                // Выбор слайдера и фразы работает в обоих режимах
+                if (TrySelectSlider(virtualX, virtualY, out SliderTiming? selectedSlider))
+                {
+                    OnObjectSelected?.Invoke(selectedSlider);
+                    return;
+                }
+
+                if (TrySelectPhrase(virtualX, virtualY, out Phrase? selectedPhrase))
+                {
+                    OnObjectSelected?.Invoke(selectedPhrase);
+                    return;
+                }
+
+                // Двойной клик — перемотка
+                if (Game.IsDoubleClick(mouse))
+                {
+                    SetTimeAtPosition(virtualX);
+                    return;
+                }
+            }
+
+            // Drag логика
+            if (mouse.IsButtonDown(MouseButton.Left))
+            {
+                if (!_draggingPlayhead && !_panning && !_draggingLeftHandle && !_draggingRightHandle &&
+                    !_draggingSliderLeftHandle && !_draggingSliderRightHandle)
+                {
+                    if (IsOverPlayhead(virtualX, virtualY))
+                    {
+                        _draggingPlayhead = true;
+                    }
+                    else if (CurrentEditMode == EditMode.Object)
+                    {
+                        if (TryStartSliderHandleDrag(virtualX, virtualY, out bool isLeftSlider))
+                        {
+                            if (isLeftSlider) _draggingSliderLeftHandle = true;
+                            else _draggingSliderRightHandle = true;
+                        }
+                        else if (TryStartHandleDrag(virtualX, virtualY, out bool isLeft))
+                        {
+                            if (isLeft) _draggingLeftHandle = true;
+                            else _draggingRightHandle = true;
+                        }
+                        else if (IsOverTimeline(virtualX, virtualY))
+                        {
+                            _panning = true;
+                        }
+                    }
+                    else // Mapping Mode
+                    {
+                        if (IsOverTimeline(virtualX, virtualY))
+                        {
+                            _panning = true;
+                        }
+                    }
+
+                    _lastMousePos = new Vector2(mouse.X, mouse.Y);
+                }
+
+                ProcessPlayheadDrag(virtualX, virtualY);
+                ProcessPan(virtualX, virtualY);
+                ProcessHandleDrag(virtualX, Background.GetDesignBounds());
+                ProcessSliderHandleDrag(virtualX, virtualY);
+            }
+            else
+            {
+                _draggingPlayhead = _panning = _draggingLeftHandle = _draggingRightHandle =
+                _draggingSliderLeftHandle = _draggingSliderRightHandle = false;
+
+                _draggedPhrase = null;
+                _draggedIndex = -1;
+                _draggedSliderPhrase = null;
+                _draggedSliderIndex = -1;
+            }
+        }
+
+        private bool IsOverPlayhead(float virtualX, float virtualY)
+        {
+            float px = WorldPosition.X + Playhead.LocalPosition.X;
+            float py = WorldPosition.Y + Playhead.LocalPosition.Y;
+            return Math.Abs(virtualX - px) < 35f && Math.Abs(virtualY - py) < 45f;
+        }
+
+        private void SetTimeAtPosition(float virtualX)
+        {
+            var bounds = Background.GetDesignBounds();
+            float norm = Math.Clamp((virtualX - bounds.designLeft) / bounds.effWidth, 0f, 1f);
+            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
+            OnTimeClicked?.Invoke(newTime);
+        }
+
+        #endregion
+
+        #region Drag Processors
+
+        private void ProcessPlayheadDrag(float virtualX, float virtualY)
+        {
+            if (!_draggingPlayhead || !IsOverTimeline(virtualX, virtualY)) return;
+
+            var bounds = Background.GetDesignBounds();
+            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
+            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
+
+            OnTimeClicked?.Invoke(newTime);
+
+            float worldX = bounds.designLeft + norm * bounds.effWidth;
+            float localX = worldX - WorldPosition.X;
+
+            Playhead.LocalPosition = new Vector2(localX, Playhead.LocalPosition.Y);
+            _playheadLine.LocalPosition = new Vector2(localX, _playheadLine.LocalPosition.Y);
+        }
+
+        private void ProcessPan(float virtualX, float virtualY)
+        {
+            if (!_panning || !IsOverTimeline(virtualX, virtualY)) return;
+
+            var bounds = Background.GetDesignBounds();
+            float deltaPixels = virtualX - _lastMousePos.X / CanvasScale.X;
+            float deltaTime = deltaPixels / bounds.effWidth * (_visibleEnd - _visibleStart);
+
+            _visibleStart -= deltaTime;
+            _visibleEnd -= deltaTime;
+
+            if (_visibleStart < 0) { _visibleEnd += -_visibleStart; _visibleStart = 0; }
+            if (_visibleEnd > TotalDuration) { _visibleStart -= _visibleEnd - TotalDuration; _visibleEnd = TotalDuration; }
+
+            RefreshAllVisuals();
+            _lastMousePos = new Vector2(virtualX * CanvasScale.X, _lastMousePos.Y);
+        }
+
+        private void ProcessHandleDrag(float virtualX, (float designLeft, float designTop, float effWidth, float effHeight) bounds)
+        {
+            if ((!_draggingLeftHandle && !_draggingRightHandle) || _draggedPhrase == null) return;
+            if (_draggedIndex < 0 || _draggedIndex >= _phrases.Count) return;
+
+            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
+            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
+
+            if (_draggingLeftHandle)
+            {
+                float minStart = _draggedIndex > 0 ? _phrases[_draggedIndex - 1].EndTime + 0.05f : 0f;
+                _draggedPhrase.StartTime = Math.Clamp(newTime, minStart, _draggedPhrase.EndTime - 0.2f);
+            }
+            else
+            {
+                float maxEnd = _draggedIndex < _phrases.Count - 1 ? _phrases[_draggedIndex + 1].StartTime - 0.05f : TotalDuration;
+                _draggedPhrase.EndTime = Math.Clamp(newTime, _draggedPhrase.StartTime + 0.2f, maxEnd);
+            }
+
+            RefreshAllVisuals();
+        }
+
+        private void ProcessSliderHandleDrag(float virtualX, float virtualY)
+        {
+            if ((!_draggingSliderLeftHandle && !_draggingSliderRightHandle) || _draggedSliderPhrase == null || _draggedSliderIndex < 0)
+                return;
+            if (!IsOverTimeline(virtualX, virtualY)) return;
+
+            var bounds = Background.GetDesignBounds();
+            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
+            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
+
+            var sliders = _draggedSliderPhrase.Sliders;
+            if (sliders == null || _draggedSliderIndex >= sliders.Count) return;
+
+            var slider = sliders[_draggedSliderIndex];
+            float phraseStart = _draggedSliderPhrase.StartTime;
+            float phraseEnd = _draggedSliderPhrase.EndTime;
+
+            if (_draggingSliderLeftHandle)
+                slider.startTime = Math.Clamp(newTime, phraseStart, slider.endTime - 0.1f);
+            else
+                slider.endTime = Math.Clamp(newTime, slider.startTime + 0.1f, phraseEnd);
+
+            RefreshAllVisuals();
+        }
+
+        #endregion
+
+        #region Selection
+
+        private bool TrySelectPhrase(float virtualX, float virtualY, out Phrase? phrase)
+        {
+            phrase = null;
+            float phraseCenterY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
+            float phraseHalfHeight = Background.Scale.Y * 0.22f;
+
+            for (int i = 0; i < _phrases.Count; i++)
+            {
+                var ph = _phrases[i];
+                var (centerX, width) = GetTimeBarBounds(ph.StartTime, ph.EndTime);
+                if (width < 20f) continue;
+
+                float halfWidth = width * 0.5f - 12f;
+                if (Math.Abs(virtualX - centerX) < halfWidth &&
+                    Math.Abs(virtualY - phraseCenterY) < phraseHalfHeight)
+                {
+                    phrase = ph;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool TrySelectSlider(float virtualX, float virtualY, out SliderTiming? slider)
+        {
+            slider = null;
+            int activeCount = _sliderReferences.Count;
+
+            for (int i = 0; i < activeCount && i < _sliderBars.Count; i++)
+            {
+                var bar = _sliderBars[i];
+                if (bar.Scale.X < 8f) continue;
+
+                float centerX = bar.WorldPosition.X;
+                float halfWidth = bar.Scale.X * 0.5f - 10f;
+
+                if (Math.Abs(virtualX - centerX) < halfWidth &&
+                    Math.Abs(virtualY - bar.WorldPosition.Y) < 26f)
+                {
+                    var (phrase, index) = _sliderReferences[i];
+                    if (phrase.Sliders != null && index >= 0 && index < phrase.Sliders.Count)
+                    {
+                        slider = phrase.Sliders[index];
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool TryStartHandleDrag(float virtualX, float virtualY, out bool isLeft)
+        {
+            isLeft = false;
+            if (SelectedObject is not Phrase selectedPhrase) return false;
+
+            const float hit = 13f;
+            float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
+            int minCount = Math.Min(_leftHandles.Count, _phrases.Count);
+
+            for (int i = 0; i < minCount; i++)
+            {
+                if (_phrases[i] != selectedPhrase) continue;
+                float hx = _leftHandles[i].WorldPosition.X;
+                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
+                {
+                    _draggedPhrase = _phrases[i];
+                    _draggedIndex = i;
+                    isLeft = true;
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < minCount; i++)
+            {
+                if (_phrases[i] != selectedPhrase) continue;
+                float hx = _rightHandles[i].WorldPosition.X;
+                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
+                {
+                    _draggedPhrase = _phrases[i];
+                    _draggedIndex = i;
+                    isLeft = false;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool TryStartSliderHandleDrag(float virtualX, float virtualY, out bool isLeft)
+        {
+            isLeft = false;
+            if (SelectedObject is not SliderTiming selectedSlider) return false;
+
+            const float hit = 13f;
+
+            for (int i = 0; i < _sliderLeftHandles.Count; i++)
+            {
+                if (i >= _sliderReferences.Count) break;
+                var (phrase, index) = _sliderReferences[i];
+                if (phrase.Sliders?[index] != selectedSlider) continue;
+
+                var h = _sliderLeftHandles[i];
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
+                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
+                {
+                    _draggedSliderPhrase = phrase;
+                    _draggedSliderIndex = index;
+                    isLeft = true;
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < _sliderRightHandles.Count; i++)
+            {
+                if (i >= _sliderReferences.Count) break;
+                var (phrase, index) = _sliderReferences[i];
+                if (phrase.Sliders?[index] != selectedSlider) continue;
+
+                var h = _sliderRightHandles[i];
+                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
+                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
+                {
+                    _draggedSliderPhrase = phrase;
+                    _draggedSliderIndex = index;
+                    isLeft = false;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsOverTimeline(float virtualX, float virtualY)
+        {
+            var bounds = Background.GetDesignBounds();
+            return virtualX >= bounds.designLeft && virtualX <= bounds.designLeft + bounds.effWidth &&
+                   virtualY >= bounds.designTop && virtualY <= bounds.designTop + bounds.effHeight;
+        }
+
+        #endregion
+
+        #region Zoom
+
         private void HandleSimpleZoom(MouseState mouse)
         {
             float scrollDelta = mouse.Scroll.Y - _lastScrollValue;
             _lastScrollValue = mouse.Scroll.Y;
             if (Math.Abs(scrollDelta) < 0.1f) return;
 
-            // ← НОВОЕ: проверяем, находится ли мышь над таймлайном
             float virtualX = mouse.X / CanvasScale.X;
             float virtualY = mouse.Y / CanvasScale.Y;
 
-            if (!IsOverTimeline(virtualX, virtualY))
-                return;
+            if (!IsOverTimeline(virtualX, virtualY)) return;
 
             var bounds = Background.GetDesignBounds();
-            float virtualMouseX = virtualX; // уже в виртуальных координатах
-            float normMouse = Math.Clamp((virtualMouseX - bounds.designLeft) / bounds.effWidth, 0f, 1f);
+            float normMouse = Math.Clamp((virtualX - bounds.designLeft) / bounds.effWidth, 0f, 1f);
             float timeUnderCursor = _visibleStart + normMouse * (_visibleEnd - _visibleStart);
 
             float zoomFactor = scrollDelta > 0 ? 0.75f : 1.35f;
@@ -155,261 +486,10 @@ namespace TappiruCS.State.Edit.TimelineSystem
             RefreshAllVisuals();
         }
 
-        private void HandleMouseInteraction(MouseState mouse)
-        {
-            float virtualX = mouse.X / CanvasScale.X;
-            float virtualY = mouse.Y / CanvasScale.Y;
-
-            // === НОВОЕ: Обработка одиночного клика для выбора объекта ===
-            if (mouse.IsButtonPressed(MouseButton.Left))
-            {
-                // Сначала пытаемся выбрать слайдер (они находятся выше фраз)
-                if (TrySelectSlider(virtualX, virtualY, out SliderTiming? selectedSlider))
-                {
-                    OnObjectSelected?.Invoke(selectedSlider);
-                    return; // не запускаем pan или playhead
-                }
-
-                // Затем пытаемся выбрать фразу
-                if (TrySelectPhrase(virtualX, virtualY, out Phrase? selectedPhrase))
-                {
-                    OnObjectSelected?.Invoke(selectedPhrase);
-                    return; // не запускаем pan или playhead
-                }
-            }
-
-            // === Старый код drag-логики (остаётся почти без изменений) ===
-            if (mouse.IsButtonDown(MouseButton.Left))
-            {
-                if (!_draggingPlayhead && !_panning && !_draggingLeftHandle && !_draggingRightHandle &&
-                    !_draggingSliderLeftHandle && !_draggingSliderRightHandle)
-                {
-                    if (TryStartSliderHandleDrag(virtualX, virtualY, out bool isLeftSlider))
-                    {
-                        if (isLeftSlider) _draggingSliderLeftHandle = true;
-                        else _draggingSliderRightHandle = true;
-                    }
-                    else if (TryStartHandleDrag(virtualX, virtualY, out bool isLeft))
-                    {
-                        if (isLeft) _draggingLeftHandle = true;
-                        else _draggingRightHandle = true;
-                    }
-                    else if (Math.Abs(virtualX - (WorldPosition.X + Playhead.LocalPosition.X)) < 30f &&
-                             Math.Abs(virtualY - (WorldPosition.Y + Playhead.LocalPosition.Y)) < 45f)
-                    {
-                        _draggingPlayhead = true;
-                    }
-                    else if (IsOverTimeline(virtualX, virtualY))
-                    {
-                        _panning = true;
-                    }
-                    _lastMousePos = new Vector2(mouse.X, mouse.Y);
-                }
-
-                ProcessPlayheadDrag(virtualX, virtualY);
-                ProcessPan(virtualX, virtualY);
-                ProcessHandleDrag(virtualX, Background.GetDesignBounds());
-                ProcessSliderHandleDrag(virtualX, virtualY);
-            }
-            else
-            {
-                _draggingPlayhead = _panning = _draggingLeftHandle = _draggingRightHandle =
-                _draggingSliderLeftHandle = _draggingSliderRightHandle = false;
-                _draggedPhrase = null;
-                _draggedIndex = -1;
-                _draggedSliderPhrase = null;
-                _draggedSliderIndex = -1;
-            }
-
-            // Обычный клик по пустому месту таймлайна (playhead)
-            if (mouse.IsButtonPressed(MouseButton.Left) && IsOverTimeline(virtualX, virtualY) &&
-                !_draggingPlayhead && !_panning && !_draggingLeftHandle && !_draggingRightHandle &&
-                !_draggingSliderLeftHandle && !_draggingSliderRightHandle)
-            {
-                var bounds = Background.GetDesignBounds();
-                float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
-                OnTimeClicked?.Invoke(_visibleStart + norm * (_visibleEnd - _visibleStart));
-            }
-        }
-
-        private bool TryStartHandleDrag(float virtualX, float virtualY, out bool isLeft)
-        {
-            isLeft = false;
-
-            // Можно начинать drag только если фраза выбрана
-            if (SelectedObject is not Phrase selectedPhrase)
-                return false;
-
-            const float hit = 13f;
-            float phraseY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
-
-            // Безопасное количество: минимальное из левых хендлов и фраз
-            int minCount = Math.Min(_leftHandles.Count, _phrases.Count);
-
-            for (int i = 0; i < minCount; i++)
-            {
-                if (_phrases[i] != selectedPhrase) continue;
-
-                float hx = _leftHandles[i].WorldPosition.X;
-                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
-                {
-                    _draggedPhrase = _phrases[i];
-                    _draggedIndex = i;
-                    isLeft = true;
-                    return true;
-                }
-            }
-
-            for (int i = 0; i < minCount; i++)
-            {
-                if (_phrases[i] != selectedPhrase) continue;
-
-                float hx = _rightHandles[i].WorldPosition.X;
-                if (Math.Abs(virtualX - hx) < hit && Math.Abs(virtualY - phraseY) < 25f)
-                {
-                    _draggedPhrase = _phrases[i];
-                    _draggedIndex = i;
-                    isLeft = false;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private void ProcessHandleDrag(float virtualX, (float designLeft, float designTop, float effWidth, float effHeight) bounds)
-        {
-            if ((!_draggingLeftHandle && !_draggingRightHandle) || _draggedPhrase == null) return;
-            if (_draggedIndex < 0 || _draggedIndex >= _phrases.Count) return;
-            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
-            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
-
-            if (_draggingLeftHandle)
-            {
-                float minStart = _draggedIndex > 0 ? _phrases[_draggedIndex - 1].EndTime + 0.05f : 0f;
-                _draggedPhrase.StartTime = Math.Clamp(newTime, minStart, _draggedPhrase.EndTime - 0.2f);
-                RefreshAllVisuals();
-            }
-            else
-            {
-                float maxEnd = _draggedIndex < _phrases.Count - 1 ? _phrases[_draggedIndex + 1].StartTime - 0.05f : TotalDuration;
-                _draggedPhrase.EndTime = Math.Clamp(newTime, _draggedPhrase.StartTime + 0.2f, maxEnd);
-                RefreshAllVisuals();
-            }
-        }
-
-        private bool TryStartSliderHandleDrag(float virtualX, float virtualY, out bool isLeft)
-        {
-            isLeft = false;
-
-            // Можно начинать drag только если выбран именно этот слайдер
-            if (SelectedObject is not SliderTiming selectedSlider)
-                return false;
-
-            const float hit = 13f;
-
-            for (int i = 0; i < _sliderLeftHandles.Count; i++)
-            {
-                if (i >= _sliderReferences.Count) break;
-
-                var (phrase, index) = _sliderReferences[i];
-                if (phrase.Sliders?[index] != selectedSlider) continue; // ← только выбранный слайдер
-
-                var h = _sliderLeftHandles[i];
-                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
-                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
-                {
-                    _draggedSliderPhrase = phrase;
-                    _draggedSliderIndex = index;
-                    isLeft = true;
-                    return true;
-                }
-            }
-
-            for (int i = 0; i < _sliderRightHandles.Count; i++)
-            {
-                if (i >= _sliderReferences.Count) break;
-
-                var (phrase, index) = _sliderReferences[i];
-                if (phrase.Sliders?[index] != selectedSlider) continue;
-
-                var h = _sliderRightHandles[i];
-                if (Math.Abs(virtualX - h.WorldPosition.X) < hit &&
-                    Math.Abs(virtualY - h.WorldPosition.Y) < 25f)
-                {
-                    _draggedSliderPhrase = phrase;
-                    _draggedSliderIndex = index;
-                    isLeft = false;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void ProcessSliderHandleDrag(float virtualX, float virtualY)
-        {
-            if ((!_draggingSliderLeftHandle && !_draggingSliderRightHandle) || _draggedSliderPhrase == null || _draggedSliderIndex < 0)
-                return;
-            if (!IsOverTimeline(virtualX, virtualY)) return;
-
-            var bounds = Background.GetDesignBounds();
-            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
-            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
-            var sliders = _draggedSliderPhrase.Sliders;
-            if (sliders == null || _draggedSliderIndex >= sliders.Count) return;
-
-            var slider = sliders[_draggedSliderIndex];
-            float phraseStart = _draggedSliderPhrase.StartTime;
-            float phraseEnd = _draggedSliderPhrase.EndTime;
-
-            if (_draggingSliderLeftHandle)
-                slider.startTime = Math.Clamp(newTime, phraseStart, slider.endTime - 0.1f);
-            else
-                slider.endTime = Math.Clamp(newTime, slider.startTime + 0.1f, phraseEnd);
-
-            RefreshAllVisuals();
-        }
-
-        private void ProcessPlayheadDrag(float virtualX, float virtualY)
-        {
-            if (!_draggingPlayhead || !IsOverTimeline(virtualX, virtualY)) return;
-            var bounds = Background.GetDesignBounds();
-            float norm = (virtualX - bounds.designLeft) / bounds.effWidth;
-            float newTime = _visibleStart + norm * (_visibleEnd - _visibleStart);
-            OnTimeClicked?.Invoke(newTime);
-
-            float worldX = bounds.designLeft + norm * bounds.effWidth;
-            float localX = worldX - WorldPosition.X;
-            Playhead.LocalPosition = new Vector2(localX, Playhead.LocalPosition.Y);
-            _playheadLine.LocalPosition = new Vector2(localX, _playheadLine.LocalPosition.Y);
-        }
-
-        private void ProcessPan(float virtualX, float virtualY)
-        {
-            if (!_panning || !IsOverTimeline(virtualX, virtualY)) return;
-            var bounds = Background.GetDesignBounds();
-            float deltaPixels = virtualX - _lastMousePos.X / CanvasScale.X;
-            float deltaTime = deltaPixels / bounds.effWidth * (_visibleEnd - _visibleStart);
-
-            _visibleStart -= deltaTime;
-            _visibleEnd -= deltaTime;
-
-            if (_visibleStart < 0) { _visibleEnd += -_visibleStart; _visibleStart = 0; }
-            if (_visibleEnd > TotalDuration) { _visibleStart -= _visibleEnd - TotalDuration; _visibleEnd = TotalDuration; }
-
-            RefreshAllVisuals();
-            _lastMousePos = new Vector2(virtualX * CanvasScale.X, _lastMousePos.Y);
-        }
-
-        private bool IsOverTimeline(float virtualX, float virtualY)
-        {
-            var bounds = Background.GetDesignBounds();
-            return virtualX >= bounds.designLeft && virtualX <= bounds.designLeft + bounds.effWidth &&
-                   virtualY >= bounds.designTop && virtualY <= bounds.designTop + bounds.effHeight;
-        }
         #endregion
 
-        #region Visual Updates (local coordinates)
+        #region Visual Updates
+
         public void RefreshAllVisuals()
         {
             UpdateWaveformVisuals();
@@ -431,7 +511,6 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 Color = new Color4(0.25f, 0.65f, 1.0f, 0.92f),
                 Pivot = new Vector2(0.5f, 0.5f),
             });
-            // Добавляем в иерархию через EnsurePoolSize (там есть AddChild)
 
             float[] preview = AudioManager.Instance?.WaveformPreview ?? Array.Empty<float>();
             float visDur = _visibleEnd - _visibleStart;
@@ -445,6 +524,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
 
                 float barWorldX = leftWorld + i * (widthWorld / target) + (widthWorld / target) * 0.5f;
                 float barLocalX = barWorldX - WorldPosition.X;
+
                 _waveformBars[i].LocalPosition = new Vector2(barLocalX, centerYWorld - WorldPosition.Y);
                 _waveformBars[i].Scale = new Vector2(widthWorld / target * 0.85f, amp * maxH);
             }
@@ -488,9 +568,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     continue;
                 }
 
-                // Подсветка выбранной фразы
                 bool isSelected = SelectedObject == phrase;
-
                 _phraseBars[i].Color = isSelected
                     ? new Color4(0.95f, 0.75f, 0.25f, 0.9f)
                     : new Color4(0.55f, 0.25f, 0.85f, 0.5f);
@@ -539,7 +617,6 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     float visualWidth = Math.Max(widthWorld, 6f);
                     float localX = centerXWorld - WorldPosition.X;
 
-                    // ==================== ПОДСВЕТКА СЛАЙДЕРА ====================
                     bool isSliderSelected = SelectedObject == slider;
 
                     _sliderBars[sliderIdx].Color = isSliderSelected
@@ -576,6 +653,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             float nStart = Math.Max(0f, (start - _visibleStart) / visDur);
             float nEnd = Math.Min(1f, (end - _visibleStart) / visDur);
             if (nEnd - nStart < 0.001f) return (0, 0);
+
             var bounds = Background.GetDesignBounds();
             float leftWorld = bounds.designLeft;
             float widthWorld = bounds.effWidth;
@@ -586,7 +664,6 @@ namespace TappiruCS.State.Edit.TimelineSystem
 
         private void RefreshVisualTicks()
         {
-            // Удаляем старые
             foreach (var t in _tickLines) RemoveChild(t);
             foreach (var l in _timeLabels) RemoveChild(l);
             _tickLines.Clear();
@@ -607,13 +684,14 @@ namespace TappiruCS.State.Edit.TimelineSystem
             var bounds = Background.GetDesignBounds();
             float leftWorld = bounds.designLeft;
             float widthWorld = bounds.effWidth;
-            float bottomYWorld = Background.WorldPosition.Y ;
+            float bottomYWorld = Background.WorldPosition.Y;
             float baseLocalY = bottomYWorld - WorldPosition.Y;
 
             for (float t = (float)Math.Ceiling(_visibleStart / step) * step; t <= _visibleEnd + 0.01f; t += step)
             {
                 float norm = (t - _visibleStart) / dur;
                 if (norm < 0 || norm > 1) continue;
+
                 float worldX = leftWorld + norm * widthWorld;
                 float localX = worldX - WorldPosition.X;
                 bool major = Math.Abs(t % 5) < 0.01f || Math.Abs(t % 10) < 0.01f;
@@ -623,7 +701,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                     Color = major ? new Color4(0.8f, 0.8f, 0.9f, 1f) : new Color4(0.5f, 0.5f, 0.55f, 1f),
                     Pivot = new Vector2(0.5f, 0f),
                 };
-                AddChild(tick);   // ← добавил
+                AddChild(tick);
                 _tickLines.Add(tick);
 
                 if (major)
@@ -635,7 +713,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                         Align = TextAlign.Center,
                         ScaleMultiply = 0.33f,
                     };
-                    AddChild(label);  // ← добавил
+                    AddChild(label);
                     _timeLabels.Add(label);
                 }
             }
@@ -653,66 +731,6 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 pool[i].Active = i < targetSize;
         }
 
-
-        private bool TrySelectPhrase(float virtualX, float virtualY, out Phrase? phrase)
-        {
-            phrase = null;
-
-            float phraseCenterY = Background.WorldPosition.Y - Background.Scale.Y * 0.31f;
-            float phraseHalfHeight = Background.Scale.Y * 0.22f;
-
-            for (int i = 0; i < _phrases.Count; i++)
-            {
-                var ph = _phrases[i];
-                var (centerX, width) = GetTimeBarBounds(ph.StartTime, ph.EndTime);
-
-                if (width < 20f) continue; // слишком узкая — не выбираем
-
-                float halfWidth = width * 0.5f - 12f; // ← уменьшаем область выбора, чтобы не цепляло ручки
-
-                if (Math.Abs(virtualX - centerX) < halfWidth &&
-                    Math.Abs(virtualY - phraseCenterY) < phraseHalfHeight)
-                {
-                    phrase = ph;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool TrySelectSlider(float virtualX, float virtualY, out SliderTiming? slider)
-        {
-            slider = null;
-            int activeCount = _sliderReferences.Count;
-
-            for (int i = 0; i < activeCount && i < _sliderBars.Count; i++)
-            {
-                var bar = _sliderBars[i];
-                if (bar.Scale.X < 8f) continue;
-
-                float centerX = bar.WorldPosition.X;
-                // Уменьшаем область выбора, чтобы не цепляло ручки слайдера
-                float halfWidth = bar.Scale.X * 0.5f - 10f;
-
-                if (Math.Abs(virtualX - centerX) < halfWidth &&
-                    Math.Abs(virtualY - bar.WorldPosition.Y) < 26f)
-                {
-                    var (phrase, index) = _sliderReferences[i];
-                    if (phrase.Sliders != null && index >= 0 && index < phrase.Sliders.Count)
-                    {
-                        slider = phrase.Sliders[index];
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-
-        public override void Draw(Matrix4 projection)
-        {
-            base.Draw(projection);
-        }
         #endregion
     }
 }
