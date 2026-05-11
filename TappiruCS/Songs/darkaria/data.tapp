@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "DARK ARIA LV2",
   "artist": "SawanoHiroyuki[nZk]:XAI",
   "creator": "neroqwe",
@@ -18,193 +18,225 @@
       "startTime": 7.085000038146973,
       "endTime": 10.954999923706055,
       "text": "dark time has come",
-      "sliders": []
+      "sliders": [],
+      "transription": "dark time has come"
     },
     {
       "startTime": 10.954999923706055,
       "endTime": 18.704999923706055,
       "text": "to pack away all the joys",
-      "sliders": []
+      "sliders": [],
+      "transription": "to pack away all the joys"
     },
     {
       "startTime": 18.704999923706055,
       "endTime": 21.604999542236328,
       "text": "you dont wanna hear my apology",
-      "sliders": []
+      "sliders": [],
+      "transription": "you dont wanna hear my apology"
     },
     {
       "startTime": 21.604999542236328,
       "endTime": 23.235000610351562,
       "text": "get it off my chest",
-      "sliders": []
+      "sliders": [],
+      "transription": "get it off my chest"
     },
     {
       "startTime": 23.235000610351562,
       "endTime": 24.795000076293945,
       "text": "i would do my best",
-      "sliders": []
+      "sliders": [],
+      "transription": "i would do my best"
     },
     {
       "startTime": 24.795000076293945,
       "endTime": 26.21500015258789,
       "text": "i know what you fear",
-      "sliders": []
+      "sliders": [],
+      "transription": "i know what you fear"
     },
     {
       "startTime": 26.21500015258789,
       "endTime": 30.152000427246094,
       "text": "similarities we possess",
-      "sliders": []
+      "sliders": [],
+      "transription": "similarities we possess"
     },
     {
       "startTime": 30.152000427246094,
       "endTime": 34.301998138427734,
       "text": "never will i pass the test",
-      "sliders": []
+      "sliders": [],
+      "transription": "never will i pass the test"
     },
     {
       "startTime": 34.301998138427734,
       "endTime": 36.45199966430664,
       "text": "the scene is fading",
-      "sliders": []
+      "sliders": [],
+      "transription": "the scene is fading"
     },
     {
       "startTime": 36.45199966430664,
       "endTime": 41.43199920654297,
       "text": "can my soul be put to rest",
-      "sliders": []
+      "sliders": [],
+      "transription": "can my soul be put to rest"
     },
     {
       "startTime": 41.43199920654297,
       "endTime": 44.43199920654297,
       "text": "death is gonna come from me",
-      "sliders": []
+      "sliders": [],
+      "transription": "death is gonna come from me"
     },
     {
       "startTime": 44.43199920654297,
       "endTime": 47.60200119018555,
       "text": "be the change i couldnt be",
-      "sliders": []
+      "sliders": [],
+      "transription": "be the change i couldnt be"
     },
     {
       "startTime": 47.60200119018555,
       "endTime": 51.35200119018555,
       "text": "can you find a life thats like fairy tales",
-      "sliders": []
+      "sliders": [],
+      "transription": "can you find a life thats like fairy tales"
     },
     {
       "startTime": 51.35200119018555,
       "endTime": 53.50199890136719,
       "text": "far from this tragedy",
-      "sliders": []
+      "sliders": [],
+      "transription": "far from this tragedy"
     },
     {
       "startTime": 53.50199890136719,
       "endTime": 56.47200012207031,
       "text": "sad you had to wait for me",
-      "sliders": []
+      "sliders": [],
+      "transription": "sad you had to wait for me"
     },
     {
       "startTime": 56.47200012207031,
       "endTime": 59.494998931884766,
       "text": "feel like an eternity",
-      "sliders": []
+      "sliders": [],
+      "transription": "feel like an eternity"
     },
     {
       "startTime": 59.494998931884766,
       "endTime": 61.814998626708984,
       "text": "please forgive me for my sins",
-      "sliders": []
+      "sliders": [],
+      "transription": "please forgive me for my sins"
     },
     {
       "startTime": 61.814998626708984,
       "endTime": 77.46299743652344,
       "text": "angel wings lifting and setting me free",
-      "sliders": []
+      "sliders": [],
+      "transription": "angel wings lifting and setting me free"
     },
     {
       "startTime": 77.46299743652344,
       "endTime": 80.52300262451172,
       "text": "death is gonna come for me",
-      "sliders": []
+      "sliders": [],
+      "transription": "death is gonna come for me"
     },
     {
       "startTime": 80.52300262451172,
       "endTime": 83.44300079345703,
       "text": "be the change i couldnt be",
-      "sliders": []
+      "sliders": [],
+      "transription": "be the change i couldnt be"
     },
     {
       "startTime": 83.44300079345703,
       "endTime": 87.37300109863281,
       "text": "can you find a life thats like fairy tales",
-      "sliders": []
+      "sliders": [],
+      "transription": "can you find a life thats like fairy tales"
     },
     {
       "startTime": 87.37300109863281,
       "endTime": 89.4729995727539,
       "text": "far from this tragedy",
-      "sliders": []
+      "sliders": [],
+      "transription": "far from this tragedy"
     },
     {
       "startTime": 89.4729995727539,
       "endTime": 92.29299926757812,
       "text": "sad you had to wait for me",
-      "sliders": []
+      "sliders": [],
+      "transription": "sad you had to wait for me"
     },
     {
       "startTime": 92.29299926757812,
       "endTime": 95.58300018310547,
       "text": "feels like an eternity",
-      "sliders": []
+      "sliders": [],
+      "transription": "feels like an eternity"
     },
     {
       "startTime": 95.58300018310547,
       "endTime": 97.8030014038086,
       "text": "please forgive me for my sins",
-      "sliders": []
+      "sliders": [],
+      "transription": "please forgive me for my sins"
     },
     {
       "startTime": 97.8030014038086,
       "endTime": 101.99299621582031,
       "text": "angel wings lifting and setting me free",
-      "sliders": []
+      "sliders": [],
+      "transription": "angel wings lifting and setting me free"
     },
     {
       "startTime": 101.99299621582031,
       "endTime": 107.24299621582031,
       "text": "the question of my love",
-      "sliders": []
+      "sliders": [],
+      "transription": "the question of my love"
     },
     {
       "startTime": 107.24299621582031,
       "endTime": 110.9229965209961,
       "text": "slipping right through the cracks",
-      "sliders": []
+      "sliders": [],
+      "transription": "slipping right through the cracks"
     },
     {
       "startTime": 110.9229965209961,
       "endTime": 114.02300262451172,
       "text": "and crumbling to dust",
-      "sliders": []
+      "sliders": [],
+      "transription": "and crumbling to dust"
     },
     {
       "startTime": 114.02300262451172,
       "endTime": 119.52300262451172,
       "text": "the question of my love",
-      "sliders": []
+      "sliders": [],
+      "transription": "the question of my love"
     },
     {
       "startTime": 119.52300262451172,
       "endTime": 123.1729965209961,
       "text": "slipping right through the cracks",
-      "sliders": []
+      "sliders": [],
+      "transription": "slipping right through the cracks"
     },
     {
       "startTime": 123.1729965209961,
       "endTime": 133,
       "text": "and crumbling to dust",
-      "sliders": []
+      "sliders": [],
+      "transription": "and crumbling to dust"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

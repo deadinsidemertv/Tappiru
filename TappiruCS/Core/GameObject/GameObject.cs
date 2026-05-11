@@ -12,13 +12,13 @@ namespace TappiruCS.Core.GameObject
     public abstract class GameObject : IGameObject
     {
         //["Debug"]//
-        public bool Debug=false;
+        public bool Debug = false;
 
         public Vector2 WorldPosition { get; set; } = Vector2.Zero;
-        public Vector2 LocalPosition {  get; set; } = Vector2.Zero;
+        public Vector2 LocalPosition { get; set; } = Vector2.Zero;
 
         public string Description { get; set; } = string.Empty;
-        public Vector2 Scale { get; set; } = Vector2.One; //pixels  
+        public Vector2 Scale { get; set; } = Vector2.One;
         public float Opacity { get; set; } = 1f;
         public int Layer { get; set; } = 0;
         public bool Active { get; set; } = true;
@@ -45,7 +45,6 @@ namespace TappiruCS.Core.GameObject
 
         public RenderContext Context { get; protected set; }
 
-        // Удобные сокращения
         protected SpriteBatch SB => Context?.SpriteBatch;
         protected Game Game => Context?.Game;
         protected AudioManager Audio => Context?.Audio;
@@ -57,20 +56,14 @@ namespace TappiruCS.Core.GameObject
             Context = context;
             OnContextSet();
 
-            // Рекурсивно детям (на всякий случай)
             foreach (var child in _children)
                 child.SetRenderContext(context);
         }
 
         protected virtual void OnContextSet() { }
 
-        // ====================== ЗАЩИЩЁННЫЕ МЕТОДЫ ======================
-
-
-
         public virtual void Update(double deltaTime, MouseState mouse)
         {
-
             if (!Active || Context == null)
                 return;
 
@@ -82,7 +75,7 @@ namespace TappiruCS.Core.GameObject
                 if (!child.Active) continue;
 
                 child.CanvasScale = CanvasScale;
-                child.WorldPosition = child.GetWorldPosition();   // принудительно
+                child.WorldPosition = child.GetWorldPosition();
 
                 child.Update(deltaTime, mouse);
             }
@@ -93,12 +86,30 @@ namespace TappiruCS.Core.GameObject
             if (!Active || Context == null || SB == null)
                 return;
 
-            // Рисуем детей только если мы сами прошли проверку
+            // Ищем ClippingMask среди детей
+            ClippingMask clip = null;
+            foreach (var child in _children)
+            {
+                if (child is ClippingMask cm && child.Active)
+                {
+                    clip = cm;
+                    break;
+                }
+            }
+
+            // Если маска есть — включаем клиппинг перед рисованием детей
+            if (clip != null)
+                clip.BeginClip(projection);
+
             foreach (var child in _children)
             {
                 if (child.Active)
                     child.Draw(projection);
             }
+
+            // Выключаем клиппинг после всех детей
+            if (clip != null)
+                clip.EndClip(projection);
         }
 
         // ====================== ДЕТИ ======================
@@ -110,9 +121,7 @@ namespace TappiruCS.Core.GameObject
             _children.Add(child);
 
             if (Context != null)
-            {
                 child.SetRenderContext(Context);
-            }
         }
 
         public void RemoveChild(GameObject child)
@@ -179,18 +188,10 @@ namespace TappiruCS.Core.GameObject
             bool shouldBeHovered = (this == targetHover);
 
             if (IsHovered != shouldBeHovered)
-            {
                 SetHover(shouldBeHovered);
-                if (shouldBeHovered && !string.IsNullOrEmpty(Description))
-                {
-                    Console.WriteLine($"[HOVER] {GetType().Name} ({Description}) теперь под мышью");
-                }
-            }
-                
 
             foreach (var child in _children)
                 child.SetHoverRecursive(targetHover);
-
         }
 
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
@@ -203,7 +204,6 @@ namespace TappiruCS.Core.GameObject
             {
                 topLayer = Layer;
                 top = this;
-                Console.WriteLine($"Candidate: {GetType().Name}, Layer={Layer}, Desc={(string.IsNullOrEmpty(Description) ? "<empty>" : Description)}");
             }
 
             foreach (var child in _children)
@@ -212,7 +212,7 @@ namespace TappiruCS.Core.GameObject
 
         public Vector2 GetWorldPosition()
         {
-            if (Parent == null)return LocalPosition; 
+            if (Parent == null) return LocalPosition;
             return Parent.WorldPosition + LocalPosition;
         }
 

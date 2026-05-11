@@ -1,162 +1,347 @@
-﻿// EditState.cs — ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ (посимвольный текст + клик по букве + подсветка)
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
 using System.Linq;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 using TappiruCS.Core;
+using TappiruCS.Core.GameObject;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
-using TappiruCS.UI;
-using TappiruCS.Core.GameObject;
-using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.State.Edit.Core;
+using TappiruCS.State.Edit.Panels;
+using TappiruCS.State.Edit.SaveLoad;
+using TappiruCS.State.Edit.TimelineSystem;
+using TappiruCS.State.Edit.UI.Panels;
+using TappiruCS.UI;
+using TappiruCS.UI.TextAbstract;
+using TappiruCS.State.Menu;
 
 namespace TappiruCS.State.Edit
 {
-    internal class EditState : IGameState
+    public enum EditMode { None, Object, Mapping };
+    public class EditState : IGameState
     {
         private readonly RenderContext _context;
+        private readonly Scene _scene = new();
 
-        private readonly Scene _scene = new Scene();
-
-        private Background _background = null!;
-        private Background _darkOverlay = null!;
-
+        private SpriteObject _background = null!;
         private Timeline _timeline = null!;
-
-        private Button _addPhraseButton = null!;
+        private PhraseTextDisplay _phraseDisplay = null!;
+        private PhrasePropertiesPanel _propertiesPanel = null!;
         private Button _playPauseButton = null!;
-        private Button _saveProjectButton = null!;
+        private Button _addPhraseButton = null!;
+        private Button _saveButton = null!;
+        private Button _exitToMenuButton = null!;
 
-        private bool _inEditMode = false;
-        private bool _isMusicPlaying = true;
+        private Button _switchtomapping = null!;
+        private Button _switchtoobject = null!;
+
+
+        private readonly List<Phrase> _phrases = new();
+        private readonly ProjectIO _projectIO = new();
+        private readonly ColorPreviewPanel _colorPanel = new();
+
+        private bool _inEditMode;
+        private bool _isPlaying = true;
         private bool _isInputDialogOpen = false;
 
-        private string? _tappPath;
-        private readonly List<Phrase> _phrases = new();
+        
+        public EditMode currentEditMode = EditMode.None;
 
-        // Посимвольный текст
-        private readonly List<TextObject> _charTexts = new();
-        private Phrase? _currentActivePhrase = null;
+        private MappingPanel? mapping;
 
-        // Color Preview
-        private List<ColorGroup> _colorGroups = new();
-        private TextObject _demoNewT = null!;
-        private TextObject _demoE = null!;
-        private TextObject _demoXt = null!;
-        private TextObject _demoCompleteText = null!;
+        private Phrase? _activePhrase;
 
-        private string? _projectDir;
+        public ITimelineSelectable? SelectedObject { get; private set; }
+        public event Action? OnSelectionChanged;
+
+        public string title = string.Empty;
+        public string artist = string.Empty;
+        public double previewTime;
+        public double endTime;
+
+
         public EditState(RenderContext context)
         {
             _context = context;
+            mapping = new MappingPanel(_scene,this);
         }
 
         public void OnEnter()
         {
             _scene.Initialize(_context);
             _context.Audio.Stop();
-            CreateInitialUI();
+            BuildStartScreen();
         }
 
         public void OnExit()
         {
+            CleanupEditorUI();
             _scene.Clear();
-            _phrases.Clear();
-            ClearCharTexts();
+            _projectIO.Cleanup();
+        }
+
+        private void CleanupEditorUI()
+        {
             _inEditMode = false;
 
-            if (!string.IsNullOrEmpty(_projectDir) && Directory.Exists(_projectDir))
-            {
-                try
-                {
-                    Directory.Delete(_projectDir, true);   // true = удалить папку вместе с содержимым
-                    Console.WriteLine($"[INFO] Временная папка удалена: {_projectDir}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[WARNING] Не удалось удалить временную папку {_projectDir}: {ex.Message}");
-                    // Можно оставить папку, если она заблокирована (например, файл MP3 всё ещё проигрывается)
-                }
-            }
+            // Правильное удаление через Scene
+            if (_timeline != null) _scene.Remove(_timeline);
+            _phraseDisplay?.Dispose();
+            _propertiesPanel = null!;
 
-            _projectDir = null;
+            if (_playPauseButton != null) _scene.Remove(_playPauseButton);
+            if (_addPhraseButton != null) _scene.Remove(_addPhraseButton);
+            if (_saveButton != null) _scene.Remove(_saveButton);
+            if (_exitToMenuButton != null) _scene.Remove(_exitToMenuButton);
+
+            _timeline = null!;
+            _phraseDisplay = null!;
+            _phrases.Clear();
         }
 
-        private void CreateInitialUI()
+        private void BuildStartScreen()
         {
-            _background = new Background( TextureManager.GetTexture("defaultBG")) { ParalaxEffect = true };
-            _darkOverlay = new Background( 0) { Opacity = 0.75f };
+            currentEditMode = EditMode.None;
 
-            var createBtn = CreateTopButton(160, "Create Project", CreateProject);
-            var loadBtn = CreateTopButton(440, "Load Project", LoadProject);
+            var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay2"));
+            _background = new SpriteObject(TextureManager.GetTexture("defaultBG"), 960, 450, 1152, 648) { ScaleMultiply = 1.1f,AllowHover =false };
+            _background.Color = new Color4(0.2f, 0.2f, 0.2f, 1f);
 
-            _scene.Add(_background);
-            _scene.Add(_darkOverlay);
-            _scene.Add(createBtn);
-            _scene.Add(loadBtn);
-        }
-
-        private Button CreateTopButton(float x, string text, Action onClick)
-        {
-            var btn = new Button(  x, 30, 700, 120, "button", text)
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
             {
                 Layer = 1,
-                TextOffset = new Vector2(-180f, -60f),
-                Pivot = new Vector2(0.5f,0.5f),
+                TextOffset = new Vector2(0f, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
-                Tag = "topButton"
+            };
+            _exitToMenuButton.Label.Align = TextAlign.Center;
+            _exitToMenuButton.Label.Color = Color4.White;
+            _exitToMenuButton.Label.FontSize = 36f;
+            _exitToMenuButton.OnClick += ShowExitConfirmation;
+
+
+            _scene.Add(_background);
+            _scene.Add(_editor_overlay);
+            _scene.Add(MakeTopButton(325, "Create", OpenCreateDialog));
+            _scene.Add(MakeTopButton(450, "Load", OpenLoadDialog));
+            _scene.Add(_exitToMenuButton);
+        }
+
+        private Button MakeTopButton(float x, string label, Action onClick)
+        {
+            var btn = new Button(x, 50, 300, 210, "blue_panel", label)
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0f, 25f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+                Tag = "editbutton"
             };
             btn.Label.Align = TextAlign.Center;
             btn.Label.Color = Color4.White;
+            btn.Label.FontSize = 48f;
+            btn.Label.FontKey = "Game";
             btn.OnClick += onClick;
             return btn;
         }
 
-        #region Update & Render
+        private void OpenCreateDialog()
+        {
+            var module = new CreateProjectModule(_scene, OnProjectOpened);
+            _context.Game.CloseModalWindow();
+            _context.Game.OpenModalWindow(module);
+        }
+
+        private void OpenLoadDialog()
+        {
+            var filters = new[] { new SharpFileDialog.NativeFileDialog.Filter { Name = "Tappiru Project Files", Extensions = new[] { "tappz" } } };
+
+            if (SharpFileDialog.NativeFileDialog.OpenDialog(filters, "Edit\\", out string? path) && !string.IsNullOrEmpty(path))
+                OnProjectOpened(path);
+        }
+
+        private void OnProjectOpened(string tappzPath)
+        {
+            currentEditMode = EditMode.Object;
+            CleanupEditorUI();
+
+            JsonMap? map = _projectIO.Open(tappzPath);
+            if (map == null) return;
+
+            title = map.title;
+            artist = map.artist;
+            previewTime = map.previewTime;
+            endTime = map.endTime;
+
+            LoadAssets();
+            BuildEditorUI();
+
+            _phrases.Clear();
+            _phrases.AddRange(PhraseSerializer.FromEvents(map.events));
+
+            if (map != null) _colorPanel.LoadFrom(map);
+
+            _timeline.SetDuration((float)_context.Audio.Duration);
+            _timeline.SetPhrases(_phrases);
+            _timeline.RefreshAllVisuals();
+
+            _inEditMode = true;
+            Console.WriteLine($"[EditState] Загружен проект: {tappzPath} | Фраз: {_phrases.Count}");
+        }
+
+        private void BuildEditorUI()
+        {
+            _timeline = new Timeline(952, 820, 1220, 80);
+            _timeline.SetDuration((float)_context.Audio.Duration);
+            _timeline.OnTimeClicked += time => _context.Audio.SetCurrentTime(time);
+            _timeline.OnObjectSelected += obj => SelectObject(obj);
+            _scene.Add(_timeline);
+
+            _phraseDisplay = new PhraseTextDisplay(_scene);
+            _phraseDisplay.OnSliderRequested += AddSliderForChar;
+
+            _propertiesPanel = new PhrasePropertiesPanel(_scene, _phraseDisplay, _timeline,_phrases,this);
+            _propertiesPanel.Build();
+
+            OnSelectionChanged += () => _propertiesPanel?.Sync(SelectedObject);
+
+            _playPauseButton = new Button(960, 900, 50, 50, "pause", "") { Layer = 1 };
+            _playPauseButton.OnClick += TogglePlayPause;
+
+            _addPhraseButton = new Button(1200, 1000, 420, 100, "blue_panel", "add")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(-120, -30),
+                Tag = "noanim",
+                ScaleMultiply = 0.5f
+            };
+            _addPhraseButton.OnClick += BeginAddPhrase;
+
+            _saveButton = new Button(1855, 50, 300, 210, "blue_panel", "Save")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+            _saveButton.Label.FontSize = 48f;
+            _saveButton.Label.FontKey = "Game";
+            _saveButton.Label.Align = TextAlign.Center;
+            _saveButton.Label.Color = Color4.White;
+            _saveButton.OnClick += SaveProject;
+
+            _switchtomapping = new Button(170, 150, 850, 210, "blue_panel", "Mapping Mode")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+            _switchtomapping.Label.FontSize = 48f;
+            _switchtomapping.Label.FontKey = "Game";
+            _switchtomapping.Label.Align = TextAlign.Center;
+            _switchtomapping.Label.Color = Color4.White;
+            _switchtomapping.OnClick += () => SwitchEditMode(EditMode.Mapping);
+            _scene.Add(_switchtomapping);
+
+            _switchtoobject = new Button(170, 235, 850, 210, "blue_panel", "Object Mode")
+            {
+                Layer = 1,
+                TextOffset = new Vector2(0, 0f),
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+            _switchtoobject.Label.FontSize = 48f;
+            _switchtoobject.Label.FontKey = "Game";
+            _switchtoobject.Label.Align = TextAlign.Center;
+            _switchtoobject.Label.Color = Color4.White;
+            _switchtoobject.OnClick += () => SwitchEditMode(EditMode.Object);
+            _scene.Add(_switchtoobject);
+            
+
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
+            {
+                Layer = 1,
+                Pivot = new Vector2(0.5f, 0.5f),
+                ScaleMultiply = 0.4f,
+            };
+
+
+            _exitToMenuButton.Label.Align = TextAlign.Center;
+            _exitToMenuButton.Label.Color = Color4.White;
+            _exitToMenuButton.Label.FontSize = 36f;
+            _exitToMenuButton.Label.FontKey = "Game";
+            _exitToMenuButton.OnClick += ShowExitConfirmation;
+            _scene.Add(_exitToMenuButton);
+
+            _scene.Add(_playPauseButton);
+            _scene.Add(_addPhraseButton);
+            _scene.Add(_saveButton);
+            
+            
+        }
+
+        private void ShowExitConfirmation()
+        {
+            var confirmModule = new ConfirmDialogModule(
+                _scene,
+                "Вы действительно хотите выйти в меню?",
+                "Все несохранённые изменения будут потеряны.",
+                () => ExitToMainMenu());
+
+            _context.Game.CloseModalWindow();
+            _context.Game.OpenModalWindow(confirmModule);
+        }
+
+        private void ExitToMainMenu()
+        {
+            CleanupEditorUI();
+            _context.Game.ChangeState(new MenuState(_context));
+        }
+
+        public void SelectObject(ITimelineSelectable? obj)
+        {
+            SelectedObject = obj;
+            _timeline.SelectedObject = obj;
+            OnSelectionChanged?.Invoke();
+
+            if (obj is Phrase phrase)
+            {
+                _phraseDisplay.Sync(phrase);
+                _context.Audio.SetCurrentTime(phrase.StartTime);
+                if (currentEditMode == EditMode.Mapping)
+                    mapping.Show(obj);
+            }
+            else if (obj is TappiruCS.State.Edit.Core.SliderTiming slider)
+            {
+                var ownerPhrase = _phrases.FirstOrDefault(p => p.Sliders?.Contains(slider) == true);
+                _phraseDisplay.Sync(ownerPhrase);
+                if (ownerPhrase != null)
+                    _context.Audio.SetCurrentTime(ownerPhrase.StartTime);
+            }
+
+            _timeline.RefreshAllVisuals();
+        }
+
         public void Update(double deltaTime)
         {
-            var mouse = _context.Game.MouseState;
-            _scene.Update(deltaTime, mouse, _context.Game);
+            _scene.Update(deltaTime, _context.Game.MouseState, _context.Game);
 
             if (_inEditMode && _timeline != null)
             {
+                _timeline.CurrentEditMode = currentEditMode;
+
                 _timeline.SetCurrentTime((float)_context.Audio.GetCurrentTime());
-                UpdateRenderedMarkerText();
-                UpdateColorPreviews();
+                SyncActivePhraseText();
+                _colorPanel.Tick();
             }
         }
 
-        private void UpdateRenderedMarkerText()
-        {
-            if (_phrases.Count == 0)
-            {
-                ClearCharTexts();
-                _currentActivePhrase = null;
-                return;
-            }
-
-            double current = _context.Audio.GetCurrentTime();
-            var active = _phrases.LastOrDefault(p => p.ContainsTime((float)current));
-
-            if (active != _currentActivePhrase)
-            {
-                Console.WriteLine($"[DEBUG] Active phrase changed to: '{active?.Text}'");
-                _currentActivePhrase = active;
-                RebuildCharTexts();
-            }
-        }
-
-        public void Render(Matrix4 projection)
-        {
-            _scene.Draw(projection);
-        }
+        public void Render(Matrix4 projection) => _scene.Draw(projection);
 
         public void HandleKeyDown(KeyboardKeyEventArgs e)
         {
@@ -164,9 +349,40 @@ namespace TappiruCS.State.Edit
             if (e.Key == Keys.Space) TogglePlayPause();
         }
 
+        private void LoadAssets()
+        {
+            if (!string.IsNullOrEmpty(_projectIO.BgPath))
+                _background._textureId = TextureLoader.Load(_projectIO.BgPath);
+
+            if (!string.IsNullOrEmpty(_projectIO.Mp3Path))
+            {
+                _context.Audio.LoadMusic(_projectIO.Mp3Path);
+                _context.Audio.Play();
+                _context.Audio.SetLooping(true);
+            }
+        }
+
+        private void SyncActivePhraseText()
+        {
+            if (_phrases.Count == 0)
+            {
+                _phraseDisplay.Sync(null);
+                _activePhrase = null;
+                return;
+            }
+
+            float now = (float)_context.Audio.GetCurrentTime();
+            Phrase? active = _phrases.LastOrDefault(p => p.ContainsTime(now));
+
+            if (active == _activePhrase) return;
+
+            _activePhrase = active;
+            _phraseDisplay.Sync(active);
+        }
+
         private void TogglePlayPause()
         {
-            if (_isMusicPlaying)
+            if (_isPlaying)
             {
                 _context.Audio.Pause();
                 _playPauseButton.NormalColor = Color4.Orange;
@@ -176,470 +392,163 @@ namespace TappiruCS.State.Edit
                 _context.Audio.Resume();
                 _playPauseButton.NormalColor = Color4.White;
             }
-            _isMusicPlaying = !_isMusicPlaying;
+            _isPlaying = !_isPlaying;
         }
-        #endregion
 
-        #region Phrase & Slider Management
-        private void AddNewPhrase()
+        private void BeginAddPhrase()
         {
-            if (_isInputDialogOpen) return;
+            if (currentEditMode == EditMode.Object) 
+            {
+                if (_isInputDialogOpen) return;
 
-            _context.Audio.Pause();
-            _isMusicPlaying = false;
+                _context.Audio.Pause();
+                _isPlaying = false;
 
-            float time = (float)_context.Audio.GetCurrentTime();
+                float time = (float)_context.Audio.GetCurrentTime();
 
-            var dialog = new TextInputModule(_scene,
-                "Введите текст фразы",
-                text =>
-                {
-                    if (!string.IsNullOrWhiteSpace(text))
+                var dialog = new TextInputModule(
+                    _scene,
+                    "Добавить новую фразу",
+                    (mainText, transText) =>
                     {
-                        var phrase = new Phrase(time, time + 4f, text);
-                        AddPhraseToEditor(phrase);
-                    }
-                },
-                () => _isInputDialogOpen = false);
+                        if (!string.IsNullOrWhiteSpace(mainText))
+                        {
+                            string cleaned = CleanTranscription(transText);
+                            var phrase = new Phrase(time, time + 4f, mainText, cleaned);
+                            _phrases.Add(phrase);
+                            _timeline?.SetPhrases(_phrases);
+                        }
+                    },
+                    () => _isInputDialogOpen = false);
 
-            _isInputDialogOpen = true;
-
-            // Важно: всегда сначала закрываем текущее, потом открываем новое
-            _context.Game.CloseModalWindow();
-            _context.Game.OpenModalWindow(dialog);
+                _isInputDialogOpen = true;
+                _context.Game.CloseModalWindow();
+                _context.Game.OpenModalWindow(dialog);
+            } 
         }
 
-        private void AddPhraseToEditor(Phrase phrase)
+        private string CleanTranscription(string input)
         {
-            _phrases.Add(phrase);
-            RefreshTimelineVisuals();
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+            string lower = input.ToLowerInvariant();
+            return Regex.Replace(lower, @"[^\p{L}\p{N}\s\-']", "");
         }
 
-        private void RefreshTimelineVisuals()
+        private void CleanAllTranscriptions()
         {
-            _timeline?.SetPhrases(_phrases);
-        }
-
-        private void ClearCharTexts()
-        {
-            foreach (var t in _charTexts) _scene.Remove(t);
-            _charTexts.Clear();
-        }
-
-        private void RebuildCharTexts()
-        {
-            ClearCharTexts();
-            if (_currentActivePhrase == null || string.IsNullOrEmpty(_currentActivePhrase.Text)) return;
-
-            string text = _currentActivePhrase.Text;
-            float charSpacing = 42f;
-            float totalWidth = text.Length * charSpacing;
-            float startX = 960 - totalWidth / 2f;
-
-            for (int i = 0; i < text.Length; i++)
+            foreach (var phrase in _phrases)
             {
-                var charObj = new TextObject(text[i].ToString(),
-                                             startX + i * charSpacing, 480, 96)
-                {AllowHover =true };
-
-                bool hasSlider = _currentActivePhrase.Sliders.Any(s => s.charIndex == i);
-                charObj.FixedColor = hasSlider;
-
-                if (hasSlider)
-                    charObj.Color = Color4.Red;   // ← вот это главное изменение
-                else
-                    charObj.Color = Color4.White; // можно явно, но необязательно
-
-                int index = i;
-                charObj.OnClick = _ => CreateSliderForChar(_currentActivePhrase!, index);
-
-                _scene.Add(charObj);
-                _charTexts.Add(charObj);
-
+                if (!string.IsNullOrEmpty(phrase.Transcription))
+                    phrase.Transcription = CleanTranscription(phrase.Transcription);
             }
         }
 
-        private void CreateSliderForChar(Phrase phrase, int charIndex)
+        private void AddSliderForChar(Phrase phrase, int charIndex)
         {
-            Console.WriteLine("=== CreateSliderForChar called ===");
-            if (phrase == null)
+            if (currentEditMode == EditMode.Object)
             {
-                Console.WriteLine("ERROR: phrase is null!");
-                return;
+                if (phrase.Sliders.Any(s => s.charIndex == charIndex)) return;
+
+                float now = (float)_context.Audio.GetCurrentTime();
+                float endT = Math.Min(now + 2.0f, phrase.EndTime);
+                if (endT - now < 0.2f) endT = now + 0.2f;
+
+                phrase.Sliders.Add(new TappiruCS.State.Edit.Core.SliderTiming
+                {
+                    charIndex = charIndex,
+                    startTime = now,
+                    endTime = endT
+                });
+
+                _timeline?.SetPhrases(_phrases);
+                _phraseDisplay.Sync(phrase);
             }
-            float currentTime = (float)_context.Audio.GetCurrentTime();
-            float startT = currentTime;
-            float endT = Math.Min(startT + 2.0f, phrase.EndTime);
-            if (endT - startT < 0.2f) endT = startT + 0.2f;
-
-            var slider = new SliderTiming
-            {
-                charIndex = charIndex,
-                startTime = startT,
-                endTime = endT
-            };
-
-            phrase.Sliders.Add(slider);
-            RefreshTimelineVisuals();
-            RebuildCharTexts();
-
-            Console.WriteLine($"💕 Слайдер создан! Буква '{phrase.Text[charIndex]}' (индекс {charIndex})");
-        }
-        #endregion
-
-        #region Project Management
-        private void CreateProject()
-        {
-            var module = new CreateProjectModule(_scene, OnProjectCreated);
-
-            _context.Game.CloseModalWindow();   // на всякий случай
-            _context.Game.OpenModalWindow(module);
+            
         }
 
-        private void OnProjectCreated(string tappPath) => ActiveEditMode(tappPath);
-
-        private void LoadProject()
+        public void SaveProject()
         {
-            var filters = new[]
-            {
-        new SharpFileDialog.NativeFileDialog.Filter
-        {
-            Name = "Tappiru Project Files",
-            Extensions = new[] { "tappz" }
-        }
-    };
+            CleanAllTranscriptions();
 
-            if (SharpFileDialog.NativeFileDialog.OpenDialog(filters, "Edit\\", out string? path) && !string.IsNullOrEmpty(path))
-                ActiveEditMode(path);
-        }
-
-        private void ActiveEditMode(string tappzPath)
-        {
-            _tappPath = tappzPath;
-
-            string projectName = Path.GetFileNameWithoutExtension(tappzPath);
-            _projectDir = Path.Combine(Directory.GetCurrentDirectory(), "Edit", projectName);
-
-            Directory.CreateDirectory(_projectDir);
-
-            if (File.Exists(tappzPath))
-            {
-                ZipFile.ExtractToDirectory(tappzPath, _projectDir, overwriteFiles: true);
-            }
-
-            LoadProjectAssets(_projectDir);
-
-            CreateTimeline();
-            CreateEditorButtons();
-            CreateColorSliders();
-
-            // === ТВОЙ СТАРЫЙ КОД ===
-            string[] tappFiles = Directory.GetFiles(_projectDir, "*.tapp", SearchOption.TopDirectoryOnly);
-            string dataFilePath = tappFiles.Length > 0 ? tappFiles[0] : Path.Combine(_projectDir, "data.tapp");
-
-            JsonMap? map = LoadMapData(dataFilePath);
-
-            LoadPhrasesFromMap(map);
-            LoadColorsFromMap(map);
-
-            // === ЭТО ИСПРАВЛЯЕТ ПРОБЛЕМУ ===
-            if (_timeline != null)
-            {
-                _timeline.SetDuration((float)_context.Audio.Duration);
-                _timeline.SetPhrases(_phrases);           // повторно принудительно
-                _timeline.RefreshAllVisuals();            // ← нужно сделать публичным
-            }
-
-            _inEditMode = true;
-
-            Console.WriteLine($"[EditState] Проект загружен | Фраз загружено: {_phrases.Count}");
-        }
-
-        private void CreateTimeline()
-        {
-            _timeline = new Timeline(960, 850, 1600, 80);
-            _timeline.SetDuration((float)_context.Audio.Duration);
-            _timeline.OnTimeClicked += HandleTimelineClick;
-            _scene.Add(_timeline);
-        }
-
-        private void HandleTimelineClick(float clickedTime)
-        {
-            _context.Audio.SetCurrentTime(clickedTime);
-        }
-
-        private void CreateEditorButtons()
-        {
-            _playPauseButton = new Button( 960, 1000, 100, 100, "pause", "") { Layer = 1 };
-            _playPauseButton.OnClick += TogglePlayPause;
-
-            _addPhraseButton = new Button(1200, 1000, 420, 100, "button", "ADD PHRASE")
-            {
-                Layer = 1,
-                TextOffset = new Vector2(-120,-30),
-                Tag ="noanim",
-                ScaleMultiply = 0.5f
-            };
-            _addPhraseButton.OnClick += AddNewPhrase;
-
-            _saveProjectButton = new Button(1780, 30, 500, 100, "button", "Save Project")
-            {
-                Layer = 1,
-                TextOffset = new Vector2(-180f, -60f),
-                Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = 0.4f,
-                Tag = "topButton"
-            };
-            _saveProjectButton.Label.Align = TextAlign.Center;
-            _saveProjectButton.Label.Color = Color4.White;
-            _saveProjectButton.OnClick += SaveProject;
-
-            _scene.Add(_playPauseButton);
-            _scene.Add(_addPhraseButton);
-            _scene.Add(_saveProjectButton);
-        }
-        #endregion
-
-        #region Save / Load
-        private void SaveProject()
-        {
-            if (string.IsNullOrEmpty(_tappPath) || string.IsNullOrEmpty(_projectDir))
-                return;
+            var map = new JsonMap();
+            map.events = PhraseSerializer.ToEvents(_phrases);
+            map.title = title;
+            map.artist = artist;
+            map.previewTime = previewTime;
+            map.endTime = endTime;
+            _colorPanel.SaveTo(map);
 
             try
             {
-                // Находим .tapp файл в рабочей папке (любой)
-                string[] tappFiles = Directory.GetFiles(_projectDir, "*.tapp", SearchOption.TopDirectoryOnly);
-                string dataPath = tappFiles.Length > 0 ? tappFiles[0]
-                                 : Path.Combine(_projectDir, "data.tapp");
+                _projectIO.Save(map);
+                Console.WriteLine($"[AutoSave] Проект сохранён ({_phrases.Count} фраз)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AutoSave] Ошибка: {ex.Message}");
+            }
+        }
 
-                JsonMap? map;
-                if (File.Exists(dataPath))
+        public void SwitchEditMode(EditMode mode)
+        {
+            currentEditMode = mode;
+            Console.WriteLine(currentEditMode);
+
+            if (mode == EditMode.Mapping)
+            {
+                ApplyDefaultMappingToAllPhrases();
+
+                if (SelectedObject is Phrase p)
+                    p.ResizeMappingTo(p.Text.Length);
+
+                if (SelectedObject != null)
+                    mapping?.Show(SelectedObject);
+                else if (_phrases.Count > 0)
+                    mapping?.Show(_phrases[0]);
+            }
+            else
+            {
+                mapping?.Hide();
+            }
+        }
+
+        private void ApplyDefaultMappingToAllPhrases()
+        {
+            var defaults = MappingPanel.DefaultKanaLengths;
+
+            foreach (var phrase in _phrases)
+            {
+                phrase.ResizeMappingTo(phrase.Text.Length); // гарантируем правильную длину
+
+                // Применяем дефолт ТОЛЬКО к тем позициям, где значение всё ещё 0
+                for (int i = 0; i < phrase.Text.Length; i++)
                 {
-                    string json = File.ReadAllText(dataPath);
-                    map = JsonSerializer.Deserialize<JsonMap>(json) ?? new JsonMap();
-                }
-                else
-                {
-                    map = new JsonMap();
-                }
-
-                SavePhrasesToMap(map);
-                SaveColorsToMap(map);
-
-                string newJson = JsonSerializer.Serialize(map, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(dataPath, newJson);
-
-                // Обновляем ZIP-файл (.tappz)
-                using (var archive = ZipFile.Open(_tappPath, ZipArchiveMode.Update))
-                {
-                    // Удаляем старый .tapp файл (какое бы имя он ни имел)
-                    var oldEntry = archive.Entries.FirstOrDefault(e => e.FullName.EndsWith(".tapp", StringComparison.OrdinalIgnoreCase));
-                    oldEntry?.Delete();
-
-                    // Добавляем актуальный .tapp файл с тем же именем
-                    string entryName = Path.GetFileName(dataPath);
-                    var newEntry = archive.CreateEntry(entryName);
-
-                    using (var stream = newEntry.Open())
+                    if (phrase.Mapping[i] == 0)
                     {
-                        byte[] bytes = Encoding.UTF8.GetBytes(newJson);
-                        stream.Write(bytes, 0, bytes.Length);
+                        char ch = phrase.Text[i];
+                        if (phrase.IsJapaneseKana(ch)) // если сделаешь метод публичным, или скопируй
+                        {
+                            phrase.Mapping[i] = defaults.TryGetValue(ch, out int val) ? val : 1;
+                        }
+                        else
+                        {
+                            phrase.Mapping[i] = 0;
+                        }
                     }
+                    // Если значение уже != 0 — оставляем как есть (пользовательские правки)
                 }
-
-                Console.WriteLine($"Проект успешно сохранён (.tappz)!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка сохранения: {ex.Message}");
-            }
-        }
-
-        private void SavePhrasesToMap(JsonMap map)
-        {
-            map.events = _phrases.Select(p => new TimingEvent
-            {
-                startTime = p.StartTime,
-                endTime = p.EndTime,
-                text = p.Text,
-                sliders = p.Sliders?.Select(s => new SliderTiming
-                {
-                    charIndex = s.charIndex,
-                    startTime = s.startTime,
-                    endTime = s.endTime
-                }).ToList() ?? new List<SliderTiming>()
-            }).ToList();
-        }
-
-        private void LoadPhrasesFromMap(JsonMap? map)
-        {
-            _phrases.Clear();
-            if (map?.events == null) return;
-
-            foreach (var e in map.events)
-            {
-                float start = (float)e.startTime;
-                float end = (float)(e.endTime > 0 ? e.endTime : e.startTime + 4f);
-
-                var phrase = new Phrase(start, end, e.text ?? "");
-
-                if (e.sliders != null)
-                {
-                    phrase.Sliders = e.sliders.Select(s => new SliderTiming
-                    {
-                        charIndex = s.charIndex,
-                        startTime = s.startTime,
-                        endTime = s.endTime
-                    }).ToList();
-                }
-
-                _phrases.Add(phrase);
             }
 
-            RefreshTimelineVisuals();
+            Console.WriteLine($"[EditState] ApplyDefaultMappingToAllPhrases: применены дефолты только где было 0");
         }
 
-        private void SaveColorsToMap(JsonMap map)
+        public void RefreshMappingPanel(Phrase? phrase)
         {
-            if (_colorGroups.Count < 3) return;
-            var tapped = _colorGroups[0];
-            var need = _colorGroups[1];
-            var complete = _colorGroups[2];
+            if (currentEditMode != EditMode.Mapping || mapping == null || phrase == null)
+                return;
 
-            map.tappedR = tapped.R.Value;
-            map.tappedG = tapped.G.Value;
-            map.tappedB = tapped.B.Value;
-
-            map.needR = need.R.Value;
-            map.needG = need.G.Value;
-            map.needB = need.B.Value;
-
-            map.completeR = complete.R.Value;
-            map.completeG = complete.G.Value;
-            map.completeB = complete.B.Value;
+            mapping.Hide();
+            mapping.Show(phrase);
         }
-
-        private void LoadColorsFromMap(JsonMap map)
-        {
-            if (map == null || _colorGroups.Count < 3) return;
-
-            var tapped = _colorGroups[0];
-            var need = _colorGroups[1];
-            var complete = _colorGroups[2];
-
-            tapped.R.SetValue(map.tappedR);
-            tapped.G.SetValue(map.tappedG);
-            tapped.B.SetValue(map.tappedB);
-
-            need.R.SetValue(map.needR);
-            need.G.SetValue(map.needG);
-            need.B.SetValue(map.needB);
-
-            complete.R.SetValue(map.completeR);
-            complete.G.SetValue(map.completeG);
-            complete.B.SetValue(map.completeB);
-        }
-
-        private void LoadProjectAssets(string projectDir)
-        {
-            string mp3 = Directory.GetFiles(projectDir, "*.mp3").FirstOrDefault() ?? "";
-            string bg = Directory.GetFiles(projectDir, "*.png")
-                                 .Concat(Directory.GetFiles(projectDir, "*.jpg"))
-                                 .FirstOrDefault() ?? "";
-
-            if (!string.IsNullOrEmpty(bg))
-                _background._textureId = TextureLoader.Load(bg);
-
-            if (!string.IsNullOrEmpty(mp3))
-            {
-                _context.Audio.LoadMusic(mp3);
-                _context.Audio.Play();
-                _context.Audio.SetLooping(true);
-            }
-        }
-
-        private JsonMap? LoadMapData(string filePath)
-        {
-            try
-            {
-                if (!File.Exists(filePath))
-                    return new JsonMap();
-
-                string json = File.ReadAllText(filePath);
-                return JsonSerializer.Deserialize<JsonMap>(json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Не удалось загрузить .tapp файл: {ex.Message}");
-                return new JsonMap();
-            }
-        }
-        #endregion
-
-        #region Color Preview
-        private void CreateColorSliders()
-        {
-            _colorGroups.Clear();
-            float startX = 1620f;
-            float startY = 130f;
-            float groupSpacingX = 200f;
-            float groupVerticalSpacing = 200f;
-
-            CreateColorGroup("Tapped", startX, startY, 0.4f, 0.3f, 0.6f);
-            CreateColorGroup("Need", startX + groupSpacingX, startY, 0.7f, 0.3f, 0.8f);
-            CreateColorGroup("Complete", startX + groupSpacingX / 2, startY + groupVerticalSpacing, 0.2f, 0.1f, 0.4f);
-
-            CreateDemoTexts(startX, startY, groupSpacingX);
-        }
-
-        private void CreateColorGroup(string groupName, float x, float y, float defaultR, float defaultG, float defaultB)
-        {
-            float sliderSpacing = 45f;
-            float sliderWidth = 255f;
-
-            var sliderR = new Slider(0f, 1f, x, y, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
-            sliderR.SetValue(defaultR);
-            var sliderG = new Slider(0f, 1f, x, y + sliderSpacing, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
-            sliderG.SetValue(defaultG);
-            var sliderB = new Slider(0f, 1f, x, y + sliderSpacing * 2, sliderWidth) { ScaleMultiply = 0.72f, AllowHover = true };
-            sliderB.SetValue(defaultB);
-
-            _scene.Add(sliderR);
-            _scene.Add(sliderG);
-            _scene.Add(sliderB);
-
-            _colorGroups.Add(new ColorGroup(groupName, sliderR, sliderG, sliderB));
-        }
-
-        private void CreateDemoTexts(float startX, float startY, float groupSpacingX)
-        {
-            float centerXTop = startX + groupSpacingX / 2;
-            _demoNewT = new TextObject( "new t", centerXTop - 28, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextAlign.Center, Color = Color4.White };
-            _demoE = new TextObject( " e", centerXTop + 45, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextAlign.Center, Color = Color4.White };
-            _demoXt = new TextObject( "xt", centerXTop + 90, startY - 90, 86f) { ScaleMultiply = 0.6f, Align = TextAlign.Center, Color = Color4.White };
-            _demoCompleteText = new TextObject( "new text", startX + groupSpacingX / 2, startY + 90, 86f) { ScaleMultiply = 0.5f, Align = TextAlign.Center, Color = Color4.White };
-
-            _scene.Add(_demoNewT);
-            _scene.Add(_demoE);
-            _scene.Add(_demoXt);
-            _scene.Add(_demoCompleteText);
-        }
-
-        private void UpdateColorPreviews()
-        {
-            if (_colorGroups.Count < 3) return;
-            var tapped = _colorGroups[0];
-            var need = _colorGroups[1];
-            var complete = _colorGroups[2];
-
-            _demoNewT.Color = new Color4(tapped.R.Value, tapped.G.Value, tapped.B.Value, 1f);
-            _demoE.Color = new Color4(need.R.Value, need.G.Value, need.B.Value, 1f);
-            _demoXt.Color = Color4.White;
-            _demoCompleteText.Color = new Color4(complete.R.Value, complete.G.Value, complete.B.Value, 1f);
-        }
-
-        internal record ColorGroup(string Name, Slider R, Slider G, Slider B);
-        #endregion
     }
 }

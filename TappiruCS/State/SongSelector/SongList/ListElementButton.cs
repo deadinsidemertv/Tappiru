@@ -49,6 +49,8 @@ namespace TappiruCS.State.SongSelector.SongList
                 AllowHover = false
             };
 
+            _buttonBackground.Opacity = 0.5f;
+
             // Звёзды сложности
             Stars = BuildStars(mapdata.StarRating, width);
 

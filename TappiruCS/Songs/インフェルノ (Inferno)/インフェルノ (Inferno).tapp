@@ -1,0 +1,184 @@
+{
+  "title": "Inferno  (インフェルノ) ",
+  "artist": "Mrs. GREEN APPLE",
+  "creator": "neroqwe",
+  "previewTime": 0,
+  "endTime": 89.2,
+  "tappedR": 0.4,
+  "tappedG": 0.3,
+  "tappedB": 0.6,
+  "needR": 0.7,
+  "needG": 0.3,
+  "needB": 0.8,
+  "completeR": 0.2,
+  "completeG": 0.1,
+  "completeB": 0.4,
+  "events": [
+    {
+      "startTime": 5.3700457,
+      "endTime": 7.891022,
+      "text": "\u7167\u3089\u3059\u306F\u95C7\u50D5\u3089\u306F",
+      "transription": "terasu wa yami bokura wa",
+      "sliders": []
+    },
+    {
+      "startTime": 7.9551387,
+      "endTime": 10.400585,
+      "text": "\u6B69\u304D\u6163\u308C\u3066\u304D\u305F\u65E5\u3005\u3082\u6DD8\u6C70",
+      "transription": "arukinarete kita hibi matotta",
+      "sliders": []
+    },
+    {
+      "startTime": 10.422336,
+      "endTime": 13.06782,
+      "text": "\u5922\u306F\u5B89\u6CF0\u306A\u66AE\u3089\u3057\u3060\u304C",
+      "transription": "yume wa antai na kurashi da ga",
+      "sliders": []
+    },
+    {
+      "startTime": 13.092908,
+      "endTime": 15.521361,
+      "text": "\u523A\u6FC0\u4E0D\u8DB3\u6545\u306B\u30BF\u30E9\u30BF\u30E9",
+      "transription": "shigeki busoku yue ni daradara",
+      "sliders": []
+    },
+    {
+      "startTime": 15.584107,
+      "endTime": 18.325254,
+      "text": "\u7167\u3089\u3059\u306F\u7184\u307F\u50D5\u3089\u306E",
+      "transription": "terasu wa yami bokura no",
+      "sliders": []
+    },
+    {
+      "startTime": 18.4177,
+      "endTime": 20.789831,
+      "text": "\u6B69\u304D\u6163\u308C\u3066\u3044\u305F\u9053\u306F\u3069\u3053\u3060",
+      "transription": "arukinareteita michi wa doko da",
+      "sliders": []
+    },
+    {
+      "startTime": 20.86201,
+      "endTime": 23.454542,
+      "text": "\u6642\u306F\u305F\u307E\u306B\u766A\u3060\u304C",
+      "transription": "toki wa tama ni shaku da ga",
+      "sliders": []
+    },
+    {
+      "startTime": 23.547644,
+      "endTime": 25.767698,
+      "text": "\u6E29\u3082\u308A\u306B\u5305\u307E\u308C\u53EA",
+      "transription": "nukumori ni tsutsumare tada",
+      "sliders": []
+    },
+    {
+      "startTime": 25.950375,
+      "endTime": 28.025234,
+      "text": "\u708E\u304C\u7ACB\u3064",
+      "transription": "homura ga tatsu",
+      "sliders": []
+    },
+    {
+      "startTime": 28.13864,
+      "endTime": 30.682383,
+      "text": "\u5C0E\u306E\u65B9\u3078",
+      "transription": "shirube no hou e",
+      "sliders": []
+    },
+    {
+      "startTime": 30.760088,
+      "endTime": 36.218292,
+      "text": "\u601D\u3044\u51FA\u3059\u306F\u512A\u3057\u3044\u30E1\u30ED\u30C7\u30A3\u30FC",
+      "transription": "omoidasu wa yasashii merodii",
+      "sliders": []
+    },
+    {
+      "startTime": 37.90377,
+      "endTime": 42.577454,
+      "text": "\u6C38\u9060\u306F\u7121\u3044\u3093\u3060\u3068 \u7121\u3044\u3093\u3060\u3068\u4E91\u30D5",
+      "transription": "eien wa nain da to nain da to iu",
+      "sliders": []
+    },
+    {
+      "startTime": 42.89127,
+      "endTime": 47.449425,
+      "text": "\u305D\u308C\u3082\u307E\u305F\u30A4\u30A4\u306D\u3068\u7B11\u3063\u3066\u307F\u308B",
+      "transription": "sore mo mata ii ne to waratte miru",
+      "sliders": []
+    },
+    {
+      "startTime": 48.09434,
+      "endTime": 52.787907,
+      "text": "\u8F1D\u3051\u3070\u3044\u3064\u304B\u306F\u5149\u3082\u7D76\u3048\u308B",
+      "transription": "kagayakeba itsuka wa hikari mo taeru",
+      "sliders": []
+    },
+    {
+      "startTime": 52.913788,
+      "endTime": 55.234573,
+      "text": "\u50D5\u3089\u306F",
+      "transription": "bokura wa",
+      "sliders": []
+    },
+    {
+      "startTime": 55.366653,
+      "endTime": 58.550724,
+      "text": "\u547D\u306E\u706B\u304C",
+      "transription": "inochi no hi ga",
+      "sliders": []
+    },
+    {
+      "startTime": 58.612694,
+      "endTime": 63.240173,
+      "text": "\u6D88\u3048\u308B\u305D\u306E\u65E5\u307E\u3067\u6B69\u3044\u3066\u3086\u304F",
+      "transription": "kieru sono hi made aruite yuku",
+      "sliders": []
+    },
+    {
+      "startTime": 63.91406,
+      "endTime": 66.1957,
+      "text": "\u97F3\u304C\u51FA\u308B\u73A9\u5177\u3082",
+      "transription": "oto ga deru gangu mo",
+      "sliders": []
+    },
+    {
+      "startTime": 66.28956,
+      "endTime": 68.96988,
+      "text": "\u75DB\u307F\u3092\u98DB\u3070\u3059\u9B54\u6CD5\u3082",
+      "transription": "itami wo tobasu mahou mo",
+      "sliders": []
+    },
+    {
+      "startTime": 68.99586,
+      "endTime": 73.40753,
+      "text": "\u5168\u90E8\u50D5\u306B\u3068\u3063\u3066\u306E\u5B9D\u7269",
+      "transription": "zenbu boku ni totte no takaramono",
+      "sliders": []
+    },
+    {
+      "startTime": 74.15689,
+      "endTime": 78.698906,
+      "text": "\u6C38\u9060\u306F\u7121\u3044\u3093\u3060\u3068 \u7121\u3044\u3093\u3060\u3068\u4E91\u30D5",
+      "transription": "ien wa nain da to nain da to iu",
+      "sliders": []
+    },
+    {
+      "startTime": 78.73393,
+      "endTime": 84.34646,
+      "text": "\u50D5\u3089\u306F\u547D\u306E\u706B\u304C",
+      "transription": "bokura wa inochi no hi ga",
+      "sliders": []
+    },
+    {
+      "startTime": 84.53582,
+      "endTime": 88.78595,
+      "text": "\u6D88\u3048\u308B\u305D\u306E\u65E5\u307E\u3067\u6B69\u3044\u3066\u3086\u304F",
+      "transription": "kieru sono hi made aruite yuku",
+      "sliders": []
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

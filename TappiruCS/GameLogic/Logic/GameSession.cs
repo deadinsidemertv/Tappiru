@@ -8,7 +8,9 @@ namespace TappiruCS.GameLogic.Logic
     public class GameSession
     {
         public static Dictionary<char, Keys> CharToKeyMap { get; private set; }
+        public int[] CurrentPhaseMapping => _phaseManager.CurrentPhaseMapping;
 
+        public int GetDisplayProgressIndex(int transIndex) => _phaseManager.GetDisplayProgressIndex(transIndex);
         public static void InitCharToKeyMap(Dictionary<Keys, char[]> keyToCharsMap)
         {
             CharToKeyMap = new Dictionary<char, Keys>();
@@ -26,8 +28,14 @@ namespace TappiruCS.GameLogic.Logic
         // Публичные свойства — полностью совместимы со старым кодом
         public double CurrentPhaseStartTime => _phaseManager.CurrentPhaseStartTime;
         public double CurrentPhaseEndTime => _phaseManager.CurrentPhaseEndTime;
+
+
         public string CurrentPhaseText => _phaseManager.CurrentPhaseText;
         public char[] CurrentPhaseChars => _phaseManager.CurrentPhaseChars;
+
+        public string CurrentPhaseDisplayText => _phaseManager.CurrentPhaseDisplayText;
+        public char[] CurrentPhaseDisplayChars => _phaseManager.CurrentPhaseDisplayChar;
+
         public int CurrentCharIndex => _phaseManager.CurrentCharIndex;
         public bool PhaseComplete => _phaseManager.PhaseComplete;
 

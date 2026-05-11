@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "ALONES (Bleach OP6) -TV Size-",
   "artist": "ALONES",
   "creator": "neroqwe",
@@ -29,13 +29,15 @@
           "startTime": 3.839284,
           "endTime": 4.4675937
         }
-      ]
+      ],
+      "transription": "oreta awai tsubasa"
     },
     {
       "startTime": 4.547166,
       "endTime": 6.7105036,
       "text": "kimi wa sukoshi",
-      "sliders": []
+      "sliders": [],
+      "transription": "kimi wa sukoshi"
     },
     {
       "startTime": 6.8174553,
@@ -47,7 +49,8 @@
           "startTime": 11.270019,
           "endTime": 11.944714
         }
-      ]
+      ],
+      "transription": "aosugiru sora ni tsukareta dake sa"
     },
     {
       "startTime": 12.110715,
@@ -59,7 +62,8 @@
           "startTime": 13.905258,
           "endTime": 14.574646
         }
-      ]
+      ],
+      "transription": "mou dareka no"
     },
     {
       "startTime": 14.640884,
@@ -71,7 +75,8 @@
           "startTime": 16.388605,
           "endTime": 17.155058
         }
-      ]
+      ],
+      "transription": "tame janakute"
     },
     {
       "startTime": 17.187256,
@@ -83,121 +88,141 @@
           "startTime": 21.650679,
           "endTime": 23.650679
         }
-      ]
+      ],
+      "transription": "jibun no tame ni waratte ii yo"
     },
     {
       "startTime": 26.764938,
       "endTime": 29.773418,
       "text": "Izen toshite shinobiyoru kodoku",
-      "sliders": []
+      "sliders": [],
+      "transription": "izen toshite shinobiyoru kodoku"
     },
     {
       "startTime": 29.780714,
       "endTime": 32.458046,
       "text": "uchigawa ni tomaru rousoku",
-      "sliders": []
+      "sliders": [],
+      "transription": "uchigawa ni tomaru rousoku"
     },
     {
       "startTime": 32.50157,
       "endTime": 34.130196,
       "text": "Nigiwau ba ni koukana",
-      "sliders": []
+      "sliders": [],
+      "transription": "nigiwau ba ni koukana"
     },
     {
       "startTime": 34.145775,
       "endTime": 36.754566,
       "text": "chandelier to wa urahara ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "chandelier to wa urahara ni"
     },
     {
       "startTime": 36.785645,
       "endTime": 38.81675,
       "text": "Tarinai kotoba no",
-      "sliders": []
+      "sliders": [],
+      "transription": "tarinai kotoba no"
     },
     {
       "startTime": 38.852592,
       "endTime": 43.049023,
       "text": "kubomi o nanide umetara iin darou",
-      "sliders": []
+      "sliders": [],
+      "transription": "kubomi o nanide umetara iin darou"
     },
     {
       "startTime": 43.23988,
       "endTime": 46.165028,
       "text": "mou wakaranai yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "mou wakaranai yo"
     },
     {
       "startTime": 46.20663,
       "endTime": 51.192783,
       "text": "Semete yume no naka de",
-      "sliders": []
+      "sliders": [],
+      "transription": "semete yume no naka de"
     },
     {
       "startTime": 51.25936,
       "endTime": 53.898235,
       "text": "jiyuu ni oyogetara anna",
-      "sliders": []
+      "sliders": [],
+      "transription": "jiyuu ni oyogetara anna"
     },
     {
       "startTime": 53.91214,
       "endTime": 56.53926,
       "text": "sora mo iranai no ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "sora mo iranai no ni"
     },
     {
       "startTime": 56.613926,
       "endTime": 61.32687,
       "text": "Kinou made no koto o",
-      "sliders": []
+      "sliders": [],
+      "transription": "kinou made no koto o"
     },
     {
       "startTime": 61.49531,
       "endTime": 64.04092,
       "text": "nuritsubusa nakutemo,",
-      "sliders": []
+      "sliders": [],
+      "transription": "nuritsubusa nakutemo"
     },
     {
       "startTime": 64.06974,
       "endTime": 66.17555,
       "text": "asu ni mukaeru no ni",
-      "sliders": []
+      "sliders": [],
+      "transription": "asu ni mukaeru no ni"
     },
     {
       "startTime": 66.185455,
       "endTime": 70.07493,
       "text": "Oreta awai tsubasa",
-      "sliders": []
+      "sliders": [],
+      "transription": "oreta awai tsubasa"
     },
     {
       "startTime": 70.102905,
       "endTime": 72.28957,
       "text": "kimi wa sukoshi",
-      "sliders": []
+      "sliders": [],
+      "transription": "kimi wa sukoshi"
     },
     {
       "startTime": 72.32977,
       "endTime": 77.61716,
       "text": "aosugiru sora ni tsukareta dake sa",
-      "sliders": []
+      "sliders": [],
+      "transription": "aosugiru sora ni tsukareta dake sa"
     },
     {
       "startTime": 77.67428,
       "endTime": 80.27982,
       "text": "Mou dareka no",
-      "sliders": []
+      "sliders": [],
+      "transription": "mou dareka no"
     },
     {
       "startTime": 80.29644,
       "endTime": 82.73372,
       "text": "tame ja nakute",
-      "sliders": []
+      "sliders": [],
+      "transription": "tame ja nakute"
     },
     {
       "startTime": 82.74499,
       "endTime": 88.986145,
       "text": "jibun no tame ni waratte ii yo",
-      "sliders": []
+      "sliders": [],
+      "transription": "jibun no tame ni waratte ii yo"
     }
   ],
   "GlobalSliderPerfectStartWindow": 0.1,

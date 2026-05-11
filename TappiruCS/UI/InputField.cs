@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System;
 using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
@@ -11,35 +12,44 @@ namespace TappiruCS.UI
 {
     public class InputField : GameObject
     {
-        private readonly int _bgTextureId;
-
         private readonly SpriteObject InputBackground;
         private readonly SpriteObject _selectionBackground;
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
 
-
-        private int texIcon1;
-        private int texIcon2;
-        public SpriteObject ico1;
-        public SpriteObject ico2;
+        public SpriteObject? IconLeft { get; private set; }
+        public SpriteObject? IconRight { get; private set; }
 
         public string PlaceHolderText { get; set; } = "Введите текст...";
-        public Color4 PlaceHolderColor { get; set; } = Color4.DarkGray;
+        public Color4 PlaceHolderColor { get; set; } = new Color4(0.5f, 0.5f, 0.5f, 1f);
 
         private string _input = "";
-        public bool IsPassword = false;
+        public bool IsPassword { get; set; } = false;
         public bool IsFocused { get; private set; } = false;
 
         private bool _isAllSelected = false;
 
-        // Отступ текста от левого края фона
-        public float TextLeftPadding { get; set; } = 28f;
+        // Гибкие отступы
+        public float LeftPadding { get; set; } = 25f;
+        public float RightPadding { get; set; } = 120f;
+        public float IconSpacing { get; set; } = 8f;
+
+        public event Action<string>? OnTextChanged;
+        public event Action? OnEnterPressed;
+        public event Action? OnFocusGained;
+        public event Action? OnFocusLost;
 
         public string Text
         {
             get => _input;
-            set { _input = value ?? ""; UpdateDisplayedText(); }
+            set
+            {
+                var oldValue = _input;
+                _input = value ?? "";
+                if (oldValue != _input)
+                    OnTextChanged?.Invoke(_input);
+                UpdateDisplayedText();
+            }
         }
 
         public InputField(float x, float y, float width, float height)
@@ -47,74 +57,73 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            _bgTextureId = TextureManager.GetTexture("input-field");
-            // Основной фон
-            InputBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
+            // Фон
+            InputBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
             {
-                ScaleMultiply = 1f,
-                Color = new Color4(0.2f, 0.2f, 0.25f, 1f)
+                Color = "#0b0c16"
             };
 
-            // Фон выделения при Ctrl+A
-            _selectionBackground = new SpriteObject(_bgTextureId, 0, 0, width, height)
+            // Выделение при Ctrl+A
+            _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
             {
-                ScaleMultiply = 1f,
                 Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
                 Pivot = new Vector2(0f, 0f),
                 Active = false
             };
 
-            // Текст ввода — прижат к левому краю
-            InputText = new TextObject("", 0, 20, 24f)
+            // Основной текст
+            InputText = new TextObject("", 0, 0, 24f)
             {
-                ScaleMultiply = 1f,
                 Color = Color4.White,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0.5f),     // важно: Pivot.X = 0
+                Pivot = new Vector2(0f, 0.5f),
                 Layer = 5
             };
 
             // Placeholder
-            PlaceHolder = new TextObject(PlaceHolderText, 0, 20, 24f)
+            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 24f)
             {
-                ScaleMultiply = 1f,
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
-                Pivot = new Vector2(0f, 0.5f),
+                Pivot = new Vector2(0f, 0.5f)
             };
-
 
             AddChild(InputBackground);
             AddChild(_selectionBackground);
             AddChild(PlaceHolder);
             AddChild(InputText);
-
-
         }
-        public void SetupIcon()
+
+        /// <summary>
+        /// Установить иконку слева
+        /// </summary>
+        public void SetIconLeft(string textureName, Color4? color = null)
         {
-            if (Tag == "username")
+            if (IconLeft != null) RemoveChild(IconLeft);
+
+            var texId = TextureManager.GetTexture(textureName);
+            IconLeft = new SpriteObject(texId, 0, 0, 32, 32)
             {
-                texIcon1 = TextureManager.GetTexture("userico");
-                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
-                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Active = false };
-                AddChild(ico1);
-                AddChild(ico2);
-            }
-            else if (Tag == "password")
-            {
-                texIcon1 = TextureManager.GetTexture("locked");
-                texIcon2 = TextureManager.GetTexture("view");
-                ico1 = new SpriteObject(texIcon1, 0, 0, 35, 35) { Color = Color4.DarkGray };
-                ico2 = new SpriteObject(texIcon2, 0, 0, 35, 35) { Color = Color4.DarkGray };
-                AddChild(ico1);
-                AddChild(ico2);
-            }
-            else if (Tag == "email")
-                texIcon1 = TextureManager.GetTexture("emailico");
-            else
-                texIcon1 = TextureManager.GetTexture("default-icon"); 
+                Color = color ?? Color4.DarkGray
+            };
+            AddChild(IconLeft);
         }
+
+        /// <summary>
+        /// Установить иконку справа
+        /// </summary>
+        public void SetIconRight(string textureName, Color4? color = null)
+        {
+            if (IconRight != null) RemoveChild(IconRight);
+
+            var texId = TextureManager.GetTexture(textureName);
+            IconRight = new SpriteObject(texId, 0, 0, 32, 32)
+            {
+                Color = color ?? Color4.DarkGray
+            };
+            AddChild(IconRight);
+        }
+
         protected override void OnContextSet()
         {
             if (Game != null)
@@ -138,6 +147,7 @@ namespace TappiruCS.UI
                 }
                 _input += c;
                 UpdateDisplayedText();
+                OnTextChanged?.Invoke(_input);
             }
         }
 
@@ -160,6 +170,7 @@ namespace TappiruCS.UI
                             _input += clipboard;
                             _isAllSelected = false;
                             UpdateDisplayedText();
+                            OnTextChanged?.Invoke(_input);
                         }
                         return;
 
@@ -182,6 +193,7 @@ namespace TappiruCS.UI
                             _input = "";
                             _isAllSelected = false;
                             UpdateDisplayedText();
+                            OnTextChanged?.Invoke(_input);
                         }
                         return;
                 }
@@ -198,16 +210,20 @@ namespace TappiruCS.UI
                     else if (_input.Length > 0)
                         _input = _input[..^1];
                     UpdateDisplayedText();
+                    OnTextChanged?.Invoke(_input);
                     break;
 
                 case Keys.Enter:
                 case Keys.KeyPadEnter:
-                    OnEnterPressed();
+                    OnEnterPressed?.Invoke();
+                    this.OnEnterPressed?.Invoke();
+                    IsFocused = false;
                     break;
 
                 case Keys.Escape:
                     IsFocused = false;
                     _isAllSelected = false;
+                    OnFocusLost?.Invoke();
                     break;
             }
         }
@@ -228,17 +244,13 @@ namespace TappiruCS.UI
                 InputText.Text = displayed;
             }
 
-            InputText.Color = _isAllSelected && IsFocused ? new Color4(1f, 1f, 1f, 1f) : Color4.White;
-            PlaceHolder.Active = string.IsNullOrEmpty(_input);
+            PlaceHolder.Active = string.IsNullOrEmpty(_input) && !IsFocused;
+            PlaceHolder.Text = PlaceHolderText;
         }
 
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
-
-            PlaceHolder.Color = PlaceHolderColor;
-            PlaceHolder.Text = PlaceHolderText;
-
 
             // Обработка фокуса
             float designMouseX = mouse.X / CanvasScale.X;
@@ -247,37 +259,60 @@ namespace TappiruCS.UI
 
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
+                bool wasFocused = IsFocused;
                 IsFocused = hovered;
-                if (hovered) _isAllSelected = false;
+
+                if (IsFocused && !wasFocused) OnFocusGained?.Invoke();
+                if (!IsFocused && wasFocused) OnFocusLost?.Invoke();
+
+                if (IsFocused) _isAllSelected = false;
             }
 
-            // Позиционируем текст с отступом от левого края
-            var bounds = GetDesignBounds();
-            float textX = bounds.designLeft + TextLeftPadding;
-            float textXright = Scale.X - bounds.effWidth;
-
-            InputText.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
-            PlaceHolder.LocalPosition = new Vector2(textX + 10 - WorldPosition.X, 5);
-
-            if (ico1 != null && ico2 != null)
-            {
-                ico1.LocalPosition = new Vector2(textX - 7 - WorldPosition.X, 0);
-                ico2.LocalPosition = new Vector2(textXright, 0);
-            }
-
-            // Позиционируем фон выделения
-            _selectionBackground.WorldPosition = new Vector2(bounds.designLeft, bounds.designTop);
-            _selectionBackground.Scale = new Vector2(Scale.X, Scale.Y);
-
+            UpdateVisualPositions();
             UpdateDisplayedText();
+        }
+
+        private void UpdateVisualPositions()
+        {
+            var bounds = GetDesignBounds();
+
+            float currentLeftPadding = LeftPadding;
+
+            // Позиционируем левую иконку
+            if (IconLeft != null)
+            {
+                currentLeftPadding += IconLeft.Scale.X + IconSpacing;
+                IconLeft.LocalPosition = new Vector2(
+                    bounds.designLeft + LeftPadding - WorldPosition.X,
+                    0);
+            }
+
+            // Позиционируем правую иконку
+            if (IconRight != null)
+            {
+                IconRight.LocalPosition = new Vector2(
+                    bounds.designLeft + Scale.X - RightPadding - IconRight.Scale.X - WorldPosition.X,
+                    0);
+            }
+
+            // Позиция текста (учитывает наличие иконки)
+            float textX = bounds.designLeft + currentLeftPadding - WorldPosition.X;
+            float textY = 3f;
+
+            InputText.LocalPosition = new Vector2(textX, textY);
+            PlaceHolder.LocalPosition = new Vector2(textX, textY);
+
+            // Фон выделения
+            _selectionBackground.WorldPosition = new Vector2(bounds.designLeft, bounds.designTop);
+            _selectionBackground.Scale = Scale;
         }
 
         public void Clear() => Text = "";
 
-        public void OnEnterPressed()
+        public void Focus()
         {
-            IsFocused = false;
-            _isAllSelected = false;
+            IsFocused = true;
+            OnFocusGained?.Invoke();
         }
 
         public void Dispose()

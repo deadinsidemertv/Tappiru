@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using SharpFont;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace TappiruCS.Render.Text.FreeType
@@ -430,6 +431,92 @@ namespace TappiruCS.Render.Text.FreeType
                 if (g != null && g.TextureId > 0)
                     GL.DeleteTexture(g.TextureId);
             _face?.Dispose();
+        }
+
+        public RectangleF GetTextBounds(
+    string text,
+    float anchorX,
+    float anchorY,
+    float baseScale,
+    float scaleMultiply,
+    Vector2 canvasScale,
+    TextAlign align = TextAlign.Left,
+    Vector2? pivot = null)
+        {
+            if (string.IsNullOrEmpty(text))
+                return new RectangleF(anchorX, anchorY, 0, 0);
+
+            float scaleX = baseScale * scaleMultiply * canvasScale.X;
+            float scaleY = baseScale * scaleMultiply * canvasScale.Y;
+
+            // 1. Вычисляем ширину
+            float textWidth = CalculateTextWidth(text, scaleX);
+            if (textWidth <= 0)
+                return new RectangleF(anchorX, anchorY, 0, LineHeight * scaleY);
+
+            // 2. Начальная позиция пера с учётом alignment
+            float penX = anchorX;
+            switch (align)
+            {
+                case TextAlign.Center:
+                    penX -= textWidth * 0.5f;
+                    break;
+                case TextAlign.Right:
+                    penX -= textWidth;
+                    break;
+            }
+
+            // 3. Находим реальные min/max координаты с учётом bearing'ов
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+
+            char prev = '\0';
+            float currentPenX = penX;
+
+            foreach (char c in text)
+            {
+                if (TryGetRenderedGlyph(c, out var glyph) && glyph != null)
+                {
+                    if (prev != '\0')
+                        currentPenX += GetKerning(prev, c) * scaleX;
+
+                    float glyphLeft = currentPenX + glyph.Info.BearingX * scaleX;
+                    float glyphRight = glyphLeft + glyph.Info.Width * scaleX;
+                    float glyphTop = anchorY - glyph.Info.BearingY * scaleY;
+                    float glyphBottom = glyphTop + glyph.Info.Height * scaleY;
+
+                    minX = Math.Min(minX, glyphLeft);
+                    maxX = Math.Max(maxX, glyphRight);
+                    minY = Math.Min(minY, glyphTop);
+                    maxY = Math.Max(maxY, glyphBottom);
+
+                    currentPenX += glyph.Info.XAdvance * scaleX;
+                }
+                else
+                {
+                    // fallback для невидимого символа
+                    currentPenX += CalculateTextWidth(c.ToString(), scaleX);
+                }
+
+                prev = c;
+            }
+
+            float boundsWidth = maxX - minX;
+            float boundsHeight = maxY - minY;
+
+            // 4. Применяем Pivot (если указан)
+            if (pivot.HasValue)
+            {
+                float pivotOffsetX = boundsWidth * (0.5f - pivot.Value.X);
+                float pivotOffsetY = boundsHeight * (0.5f - pivot.Value.Y);
+
+                minX += pivotOffsetX;
+                minY += pivotOffsetY;
+            }
+
+            return new RectangleF(minX, minY, boundsWidth, boundsHeight);
         }
     }
 }

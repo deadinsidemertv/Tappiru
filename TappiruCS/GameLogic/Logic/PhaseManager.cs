@@ -14,8 +14,14 @@ namespace TappiruCS.GameLogic.Logic
 
         public string CurrentPhaseText { get; private set; } = string.Empty;
         public char[] CurrentPhaseChars { get; private set; } = Array.Empty<char>();
+
+        public string CurrentPhaseDisplayText { get; private set; } = string.Empty;
+        public char[] CurrentPhaseDisplayChar { get; private set; } = Array.Empty<char>();
         public double CurrentPhaseStartTime { get; private set; }
         public double CurrentPhaseEndTime { get; private set; }
+
+
+        public int[] CurrentPhaseMapping { get; private set; } = Array.Empty<int>();
 
         public bool IsMapCompleted => _currentPhaseIndex >= _mapData.Events.Count;
 
@@ -122,9 +128,18 @@ namespace TappiruCS.GameLogic.Logic
 
             if (currentTime < ev.startTime || currentTime >= _nextPhaseStartTime) return;
 
-            // Активируем фазу
-            CurrentPhaseText = ev.text;
-            CurrentPhaseChars = ev.text.ToCharArray();
+            // === ИСПРАВЛЕННАЯ ЗАГРУЗКА ===
+            CurrentPhaseText = ev.transription;
+            CurrentPhaseChars = ev.transription.ToCharArray();
+
+            CurrentPhaseDisplayText = ev.text;
+            CurrentPhaseDisplayChar = ev.text.ToCharArray();
+
+            // ←←← ЭТО БЫЛО СЛОМАНО
+            CurrentPhaseMapping = ev.mapping?.ToArray() ?? Array.Empty<int>();
+
+            Console.WriteLine($"[Phase Activate] Loaded mapping for phrase: [{string.Join(",", CurrentPhaseMapping)}]");
+
             CurrentPhaseStartTime = ev.startTime;
             CurrentPhaseEndTime = ev.endTime;
             CurrentCharIndex = 0;
@@ -132,11 +147,6 @@ namespace TappiruCS.GameLogic.Logic
             PhaseComplete = false;
             _phaseEndHandled = false;
 
-            // Сбрасываем слайдер предыдущей фазы если вдруг остался
-            if (_sliderManager.IsHoldingSlider)
-                _sliderManager.ResetHolding();
-
-            // БАГ ИСПРАВЛЕН: LoadPhaseSliders вызывается ОДИН раз
             var sliderMap = ev.sliders?.ToDictionary(s => s.charIndex) ?? new();
             _sliderManager.LoadPhaseSliders(sliderMap);
         }
@@ -252,6 +262,35 @@ namespace TappiruCS.GameLogic.Logic
             {
                 CurrentCharIndex++;
             }
+        }
+
+        public int GetDisplayProgressIndex(int transcriptionProgress)
+        {
+            if (CurrentPhaseMapping.Length == 0)
+                return transcriptionProgress;
+
+            int nonSpaceCount = 0;
+            int displayIdx = 0;
+            int accumulated = 0;
+
+            for (int i = 0; i < transcriptionProgress; i++)
+            {
+                if (CurrentPhaseChars[i] != ' ')
+                    nonSpaceCount++;
+            }
+
+            // Теперь nonSpaceCount — это сколько реальных ромадзи-символов введено
+            for (int i = 0; i < CurrentPhaseMapping.Length; i++)
+            {
+                accumulated += CurrentPhaseMapping[i];
+
+                if (nonSpaceCount < accumulated)
+                {
+                    return i;
+                }
+            }
+
+            return CurrentPhaseMapping.Length;
         }
     }
 }

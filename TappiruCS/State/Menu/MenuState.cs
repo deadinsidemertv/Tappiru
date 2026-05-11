@@ -109,7 +109,7 @@ namespace TappiruCS.State.Menu
                 Tag = "username"
                 
             };
-            _loginInput.SetupIcon();
+            _loginInput.SetIconLeft("userico");
 
             _passwordInput = new InputField(240, 795, 430, 60)
             {
@@ -117,18 +117,15 @@ namespace TappiruCS.State.Menu
                 IsPassword = true,
                 Layer = 4,
                 ScaleMultiply = 0.7f,
-                Tag = "password"
-
             };
-            _passwordInput.SetupIcon();
+            _passwordInput.SetIconRight("view");
+            _passwordInput.SetIconLeft("locked");
 
             _loginButton = new Button(240, 860, 425, 75, "buttonSignUp", "Sign In")
             {
                 Layer = 4,
                 TextOffset = new Vector2(-18, 10),
                 ScaleMultiply = 0.7f,
-                Tag = "SignIn"
-
             };
             _loginButton.Label.Color = Color4.White;
             _loginButton.Label.FontSize = 24f;

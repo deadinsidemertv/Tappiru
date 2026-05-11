@@ -24,6 +24,9 @@ namespace TappiruCS
     public class Game : GameWindow
     {
 
+        private float _lastClickTime = 0f;
+        private Vector2 _lastClickPos = Vector2.Zero;
+
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
         public static float WindowWidth;
@@ -63,7 +66,10 @@ namespace TappiruCS
         protected override void OnLoad()
         {
             base.OnLoad();
-            UpdateProjection();
+            string mapsRoot = "Songs"; 
+
+            //MapMigrator.MigrateAllMaps(mapsRoot);
+            //UpdateProjection();
 
 
             WindowWidth = ClientSize.X;
@@ -308,6 +314,20 @@ namespace TappiruCS
             moduleWND?.Close();
             moduleWND = null;
             _currentModalWindowType = null;
+        }
+
+        public bool IsDoubleClick(MouseState mouse, float maxTime = 0.35f, float maxDist = 30f)
+        {
+            float currentTime = (float)DateTime.Now.TimeOfDay.TotalSeconds;
+            Vector2 currentPos = new Vector2(mouse.X, mouse.Y);
+
+            bool isDouble = (currentTime - _lastClickTime < maxTime) &&
+                            Vector2.Distance(currentPos, _lastClickPos) < maxDist;
+
+            _lastClickTime = currentTime;
+            _lastClickPos = currentPos;
+
+            return isDouble;
         }
     }
 }
