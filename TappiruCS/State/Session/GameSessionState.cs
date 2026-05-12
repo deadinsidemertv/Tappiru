@@ -121,7 +121,7 @@ namespace TappiruCS.State.Session
             if (session == null) return;
 
 
-            progressbar.Value = session.Health;
+            progressbar.SetValue(session.Health);
             progressbar.MaxValue = 100f;
 
         

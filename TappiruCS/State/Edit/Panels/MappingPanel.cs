@@ -18,6 +18,8 @@ namespace TappiruCS.State.Edit.Panels
         private ScrollContainer? _scrollContainer;
         private readonly Dictionary<InputField, int> _inputToIndex = new();
 
+        private ProgressBar conversion;
+
         public static readonly Dictionary<char, int> DefaultKanaLengths = new()
         {
             // ==================== Хирагана (основные) ====================
@@ -231,7 +233,19 @@ namespace TappiruCS.State.Edit.Panels
                 AddMappingRow(phrase.Text[i], i);
             }
 
+
+            conversion = new ProgressBar(15, 950, 300, 20);
+            conversion.AllowOverMax = true;
+            conversion.UseEqualMode = true;
+            conversion.ColorEqual = "#00ff00";   // зелёный, когда сумма == MaxValue
+            conversion.ColorNotEqual = "#ffa500"; // оранжевый, когда сумма < MaxValue
+            conversion.ColorOverMax = "#ff0000";  // красный при превышении
+
+
+            _scene.Add(conversion);
             _scene.Add(_scrollContainer);
+
+            RecalculateProgressBar();
         }
 
         private void AddMappingRow(char ch, int index)
@@ -302,6 +316,9 @@ namespace TappiruCS.State.Edit.Panels
             else if (string.IsNullOrWhiteSpace(newText))
                 _currentPhrase.Mapping[index] = 0;
 
+            RecalculateProgressBar();
+            
+
             // ←←← СРАЗУ СОХРАНЯЕМ ПРОЕКТ
             _editState?.SaveProject();
         }
@@ -323,8 +340,36 @@ namespace TappiruCS.State.Edit.Panels
 
             _currentPhrase = null;
             _inputToIndex.Clear(); // если используешь
+
+            _scene.Remove(conversion);
+            conversion = null!;
+        }
+
+        private int GetTranscriptionLengthWithoutSpaces()
+        {
+            if (_currentPhrase == null) return 0;
+            // Убираем все пробелы (не только ' ', но и любые пробельные символы)
+            return Regex.Replace(_currentPhrase.Transcription, @"\s+", "").Length;
+        }
+
+        private void RecalculateProgressBar()
+        {
+            int maxLen = GetTranscriptionLengthWithoutSpaces();
+            conversion.MaxValue = maxLen > 0 ? maxLen : 1; // защита от деления на 0
+            conversion.MinValue = 0;
+
+
+            int currMappingSum = 0;
+            for (int i = 0; i < _currentPhrase.Mapping.Count; i++)
+            {
+                Console.WriteLine("[" + i + "]" + ": " + _currentPhrase.Mapping[i]);
+                currMappingSum += _currentPhrase.Mapping[i];
+            }
+            conversion.SetValueInstant(currMappingSum);
         }
     }
+
+
 
 }
 
