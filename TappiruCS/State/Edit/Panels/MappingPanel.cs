@@ -197,6 +197,7 @@ namespace TappiruCS.State.Edit.Panels
             {'プ', 2}, // pu
             {'ペ', 2}, // pe
             {'ポ', 2}, // po
+            {'っ', 1},
         };
 
         private readonly EditState _editState;
@@ -243,23 +244,40 @@ namespace TappiruCS.State.Edit.Panels
             TextObject charLabel = new TextObject(ch.ToString(), 0, 0, 36f) { Align = TextAlign.Left };
 
             bool isJapanese = IsJapaneseCharacter(ch);
+            bool isKana = DefaultKanaLengths.ContainsKey(ch);
 
-            if (isJapanese)
+            if (isJapanese && isKana)
             {
+                // Кана – фиксированная длина из словаря
+                int fixedLength = DefaultKanaLengths[ch];
+                // Принудительно устанавливаем значение в маппинге (для сохранения)
+                _currentPhrase.Mapping[index] = fixedLength;
+
+                TextObject lengthLabel = new TextObject(fixedLength.ToString(), 150, 0, 28f)
+                {
+                    Color = new Color4(0.8f, 0.8f, 0.2f, 1f) // другой цвет, чтобы пользователь видел, что это авто-значение
+                };
+                mappingCell.AddChild(lengthLabel);
+            }
+            else if (isJapanese && !isKana)
+            {
+                // Кандзи (или другие японские символы не из словаря) – редактируемое поле
                 InputField lengthInput = new InputField(150, 0, 100, 35);
                 lengthInput.PlaceHolderText = "len";
                 lengthInput.Text = _currentPhrase.Mapping[index].ToString();
 
-                // Захватываем индекс + отдельный обработчик
                 int capturedIndex = index;
-
                 lengthInput.OnTextChanged += (newText) =>
+                {
                     OnMappingLengthChanged(capturedIndex, newText);
+                    _editState?.SaveProject(); // сохраняем сразу, как было
+                };
 
                 mappingCell.AddChild(lengthInput);
             }
             else
             {
+                // Не-японские символы (латиница, цифры) – длина 0, не редактируется
                 _currentPhrase.Mapping[index] = 0;
                 TextObject zeroLabel = new TextObject("0", 150, 0, 28f)
                 {

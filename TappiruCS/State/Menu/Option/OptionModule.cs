@@ -9,6 +9,7 @@ using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Audio;
+using TappiruCS.UI.Toggle;
 
 namespace TappiruCS.State.Menu.Option
 {

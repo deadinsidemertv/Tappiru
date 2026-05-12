@@ -18,6 +18,7 @@ using TappiruCS.State.Edit.UI.Panels;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.State.Menu;
+using TappiruCS.UI.Toggle;
 
 namespace TappiruCS.State.Edit
 {
@@ -38,6 +39,12 @@ namespace TappiruCS.State.Edit
 
         private Button _switchtomapping = null!;
         private Button _switchtoobject = null!;
+
+        private RadioButton _switchToMapping = null!;
+        private TextObject _switchToMappingLabel;
+        private RadioButton _switchToObjects = null!;
+        private TextObject _switchToObjectsLabel;
+        private RadioButtonGroup<EditMode> modeGroup;
 
 
         private readonly List<Phrase> _phrases = new();
@@ -234,34 +241,30 @@ namespace TappiruCS.State.Edit
             _saveButton.Label.Color = Color4.White;
             _saveButton.OnClick += SaveProject;
 
-            _switchtomapping = new Button(170, 150, 850, 210, "blue_panel", "Mapping Mode")
-            {
-                Layer = 1,
-                TextOffset = new Vector2(0, 0f),
-                Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = 0.4f,
-            };
-            _switchtomapping.Label.FontSize = 48f;
-            _switchtomapping.Label.FontKey = "Game";
-            _switchtomapping.Label.Align = TextAlign.Center;
-            _switchtomapping.Label.Color = Color4.White;
-            _switchtomapping.OnClick += () => SwitchEditMode(EditMode.Mapping);
-            _scene.Add(_switchtomapping);
 
-            _switchtoobject = new Button(170, 235, 850, 210, "blue_panel", "Object Mode")
-            {
-                Layer = 1,
-                TextOffset = new Vector2(0, 0f),
-                Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = 0.4f,
-            };
-            _switchtoobject.Label.FontSize = 48f;
-            _switchtoobject.Label.FontKey = "Game";
-            _switchtoobject.Label.Align = TextAlign.Center;
-            _switchtoobject.Label.Color = Color4.White;
-            _switchtoobject.OnClick += () => SwitchEditMode(EditMode.Object);
-            _scene.Add(_switchtoobject);
-            
+            _switchToMapping = new RadioButton(170, 150, 850, 210, "blue_panel");
+            _switchToMapping.ScaleMultiply = 0.4f;
+            _switchToMappingLabel = new TextObject("Mapping Mode", 0, 0, 48f);
+            _switchToMappingLabel.FontKey = "Game";
+            _switchToMappingLabel.Align = TextAlign.Center;
+            _switchToMapping.AddChild(_switchToMappingLabel);
+            _scene.Add(_switchToMapping);
+
+            _switchToObjects = new RadioButton(170, 235, 850, 210, "blue_panel");
+            _switchToObjects.ScaleMultiply = 0.4f;
+            _switchToObjectsLabel = new TextObject("Objects Mode", 0, 0, 48f);
+            _switchToObjectsLabel.FontKey = "Game";
+            _switchToObjectsLabel.Align = TextAlign.Center;
+            _switchToObjects.AddChild(_switchToObjectsLabel);
+            _scene.Add(_switchToObjects);
+
+            modeGroup = new RadioButtonGroup<EditMode>();
+            modeGroup.Add(_switchToMapping,EditMode.Mapping);
+            modeGroup.Add(_switchToObjects,EditMode.Object);
+
+            modeGroup.SetValue(currentEditMode, raiseEvent: false);
+            modeGroup.SelectionChanged += mode => SwitchEditMode(mode);
+
 
             _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
             {
