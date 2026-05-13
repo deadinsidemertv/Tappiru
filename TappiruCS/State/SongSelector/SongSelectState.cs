@@ -104,11 +104,9 @@ namespace TappiruCS.State.SongSelector
 
         private void HandleSongOnEnter()
         {
-            Console.WriteLine($"[SongSelect] HandleSongOnEnter | CurrentPath: '{_currentSongPath}' | SelectedMap.Path: '{SelectedMap?.Path}'");
 
             if (SelectedMap == null)
             {
-                Console.WriteLine("[SongSelect] SelectedMap is null");
                 return;
             }
 
@@ -118,13 +116,11 @@ namespace TappiruCS.State.SongSelector
 
             if (isSameSong && _context.Audio.IsPlaying)
             {
-                Console.WriteLine("[SongSelect] Уже играет нужная песня → обновляем только UI");
                 _currentSongPath = SelectedMap.Path;        // ← важно!
                 ApplySelectedSongUIOnly(SelectedMap);
             }
             else
             {
-                Console.WriteLine("[SongSelect] Загружаем песню заново");
                 _ = SelectSongAsync(SelectedMap.Path);
             }
         }
@@ -152,11 +148,8 @@ namespace TappiruCS.State.SongSelector
         {
             if (string.IsNullOrEmpty(folderPath)) return;
 
-            Console.WriteLine($"[SelectSong] Запрос на загрузку: {folderPath} | Current: {_currentSongPath}");
-
             if (_currentSongPath == folderPath && _context.Audio.IsPlaying)
             {
-                Console.WriteLine("[SelectSong] Песня уже играет — пропускаем загрузку");
                 ApplySelectedSongUIOnly(SelectedMap);
                 return;
             }

@@ -79,16 +79,33 @@ namespace TappiruCS.UI
                 _debugArea.Opacity = 0.3f;
             }
 
-            if (Clipping)
-            {
-                _clippingMask = new ClippingMask(85, 300, width, height);
-                AddChild(_clippingMask);
-            }
 
 
             UpdateHoverAreaVisual();
+            UpdateClippingMask();
         }
+        private void UpdateClippingMask()
+        {
+            // Удаляем старую маску, если она есть
+            if (_clippingMask != null)
+            {
+                RemoveChild(_clippingMask);
+                _clippingMask = null;
+            }
 
+            if (Clipping)
+            {
+                _clippingMask = new ClippingMask(85, 300, _width, _height);
+                AddChild(_clippingMask);
+            }
+        }
+        public void SetClipping(bool enable)
+        {
+            if (Clipping == enable) return;
+
+            Clipping = enable;
+            UpdateClippingMask();
+        }
         private void UpdateHoverAreaVisual()
         {
             _hoverArea.LocalPosition = new Vector2(HoverAreaX, HoverAreaY);

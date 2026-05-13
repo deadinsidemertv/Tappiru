@@ -69,7 +69,7 @@ namespace TappiruCS.State.Edit.Panels
             _confirmButton = new Button(960, 740, 500, 110, "blue_panel", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
-                Layer = 2
+                Layer = 15
             };
             _confirmButton.OnClick += TryConfirm;
 
@@ -116,8 +116,5 @@ namespace TappiruCS.State.Edit.Panels
                 _onProjectCreated(tappzPath);
             }
         }
-
-        // Старая проверка больше не нужна, замена на более мягкую (только MP3 и BG обязательны)
-        // private bool IsFormComplete() => ...
     }
 }

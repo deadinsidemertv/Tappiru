@@ -156,19 +156,31 @@ namespace TappiruCS.State
             for (int i = 0; i < 6; i++)
                 gradetx[i] = TextureManager.GetTexture("grade" + i);
 
-            float acc = _playerScore._accuraci * 100f;
+            float acc = _playerScore._accuraci ;
             int fails = _playerScore._failChar;
 
-            int rank = (acc == 100f && fails == 0) ? 5 :
-                       (acc > 90f && fails == 0) ? 4 :
-                       ((acc > 80f && fails == 0) || acc > 90f) ? 3 :
-                       ((acc > 70f && fails == 0) || acc > 80f) ? 2 :
-                       (acc > 60f) ? 1 : 0;
+            int rank;
+
+            if (acc >= 100f)
+                rank = 5;  // SS
+            else if (acc >= 90f)
+                rank = 4;  // A (я сделал >= 90, а не >90)
+            else if (acc >= 80f)
+                rank = 3;  // B
+            else if (acc >= 70f)
+                rank = 2;  // C
+            else if (acc >= 60f)
+                rank = 1;  // D
+            else
+                rank = 0;  // F
 
             _gradeSprite = new SpriteObject(gradetx[rank], 1600, 440, 80, 100)
             {
                 ScaleMultiply = 8f
             };
+
+            // ========== ОТЛАДКА ==========
+            Console.WriteLine($"[GRADE] Accuracy: {acc:F2}% | Fails: {fails} | Rank: {rank} | Texture: grade{rank}");
         }
 
         private void AddChildrenToScoreList()
@@ -190,16 +202,7 @@ namespace TappiruCS.State
             _scene.Add(_gradeSprite);
 
 
-            _scene.Add(_scoreText);
-            _scene.Add(_accuraciText);
-            _scene.Add(_maxCombo);
-            _scene.Add(_maxComboX);
-            _scene.Add(_completePhase);
-            _scene.Add(_completeChar);
-            _scene.Add(_failChar);
-            _scene.Add(_hit300Sprite);
-            _scene.Add(_hit100Sprite);
-            _scene.Add(_hit0Sprite);
+            _scene.Add(_scoreList);
             
         }
 

@@ -87,12 +87,9 @@ namespace TappiruCS.State.Edit.Panels
             _windowContainer.AddChild(messageText);
             _windowContainer.AddChild(btnYes);
             _windowContainer.AddChild(btnNo);
+            _windowContainer.Layer = 20;
 
-            obj.Add(background);
-            obj.Add(titleText);
-            obj.Add(messageText);
-            obj.Add(btnYes);
-            obj.Add(btnNo);
+
             obj.Add(_windowContainer);
 
             base.Show();
