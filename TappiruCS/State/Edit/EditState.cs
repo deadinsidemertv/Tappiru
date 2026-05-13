@@ -23,7 +23,7 @@ using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit
 {
-    public enum EditMode { None, Object, Mapping };
+    public enum EditMode { None, Object, Mapping, Info };
     public class EditState : IGameState
     {
         private readonly RenderContext _context;
@@ -38,13 +38,12 @@ namespace TappiruCS.State.Edit
         private Button _saveButton = null!;
         private Button _exitToMenuButton = null!;
 
-        private Button _switchtomapping = null!;
-        private Button _switchtoobject = null!;
-
         private RadioButton _switchToMapping = null!;
         private TextObject _switchToMappingLabel;
         private RadioButton _switchToObjects = null!;
         private TextObject _switchToObjectsLabel;
+        private RadioButton _switchToInfo = null!;
+        private TextObject _switchToInfoLabel;
         private RadioButtonGroup<EditMode> modeGroup;
 
 
@@ -259,9 +258,18 @@ namespace TappiruCS.State.Edit
             _switchToObjects.AddChild(_switchToObjectsLabel);
             _scene.Add(_switchToObjects);
 
+            _switchToInfo = new RadioButton(170, 320, 850, 210, "blue_panel");
+            _switchToInfo.ScaleMultiply = 0.4f;
+            _switchToInfoLabel = new TextObject("Info Mode", 0, 0, 48f);
+            _switchToInfoLabel.FontKey = "Game";
+            _switchToInfoLabel.Align = TextAlign.Center;
+            _switchToInfo.AddChild(_switchToInfoLabel);
+            _scene.Add(_switchToInfo);
+
             modeGroup = new RadioButtonGroup<EditMode>();
             modeGroup.Add(_switchToMapping,EditMode.Mapping);
             modeGroup.Add(_switchToObjects,EditMode.Object);
+            modeGroup.Add(_switchToInfo, EditMode.Info);
 
             modeGroup.SetValue(currentEditMode, raiseEvent: false);
             modeGroup.SelectionChanged += mode => SwitchEditMode(mode);

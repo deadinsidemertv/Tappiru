@@ -52,7 +52,6 @@ namespace TappiruCS.State.Menu.Option
             int idx = 0;
             _SectionButtonList = new ScrollContainer(1875, 80, 100, 600,30);
             _SectionButtonList.Layer = 6;
-            _SectionButtonList.SetClipping(false);
             obj.Add(_SectionButtonList);
             foreach (SettingsSection sec in sections)
             {
@@ -70,8 +69,9 @@ namespace TappiruCS.State.Menu.Option
 
 
             _scrollContainer = new ScrollContainer(1540, 200, 500, 1080,20);
+            _scrollContainer.SetZone(35, 300, 530, 800);
+            _scrollContainer.Debug = true;
             _scrollContainer.Layer = 6;
-            _scrollContainer.SetClipping(false);
             obj.Add(_scrollContainer);
 
             // Определяем ширину секции с учётом отступов ScrollContainer

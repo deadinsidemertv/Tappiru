@@ -223,8 +223,10 @@ namespace TappiruCS.State.Edit.Panels
 
             _currentPhrase = phrase;
 
-            _scrollContainer = new ScrollContainer(50, 300, 400, 900, 20) { Layer = 10 };
-            _scrollContainer._clippingMask.MaskSprite.Scale = new Vector2(400, 600);
+            _scrollContainer = new ScrollContainer(70, 340, 400, 500, 20) { Layer = 10 };
+            _scrollContainer.SetZone(100, 300, 300, 500);
+            _scrollContainer.Debug = true;
+            
 
             _inputToIndex.Clear();
 
