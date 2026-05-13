@@ -6,13 +6,14 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.UI
 {
     public class InputField : GameObject
     {
-        private readonly SpriteObject InputBackground;
+        private readonly NineSliceSprite InputBackground;
         private readonly SpriteObject _selectionBackground;
         private readonly TextObject InputText;
         private readonly TextObject PlaceHolder;
@@ -57,9 +58,10 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            InputBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
+            InputBackground = new NineSliceSprite(TextureManager.GetTexture("input-field"), 0, 0, width, height)
             {
-                Color = "#0b0c16"
+                Color = "#0b0c16",
+                SliceBorders = new Vector4(40, 40, 40, 40)
             };
 
             _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)

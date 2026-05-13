@@ -10,6 +10,7 @@ using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Audio;
 using TappiruCS.UI.Toggle;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Menu.Option
 {

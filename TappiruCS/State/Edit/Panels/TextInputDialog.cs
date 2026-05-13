@@ -4,6 +4,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Edit.Panels

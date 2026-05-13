@@ -5,6 +5,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.State.Edit.SaveLoad;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.Panels
 {

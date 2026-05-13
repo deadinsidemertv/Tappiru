@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using TappiruCS.Render;
-using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.Core.GameObject

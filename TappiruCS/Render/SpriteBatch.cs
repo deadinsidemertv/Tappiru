@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 using TappiruCS.Server;
 using TappiruCS.UI;
 
@@ -77,11 +78,19 @@ namespace TappiruCS.Render
                  projection);
         }
 
-        public void Draw9Slice(int textureId,float x,float y,float width,float height,float sliceLeft,float sliceRight,float sliceTop,float sliceBottom,Color4 color, Matrix4 projection)
+        public void Draw9Slice(int textureId, float x, float y, float width, float height,
+                       Vector4 sliceBorders, Color4 color, Matrix4 projection)
         {
-            if (width <= 0 || height <= 0 ||width < sliceLeft + sliceRight ||height < sliceTop + sliceBottom)
+            float left = sliceBorders.X;
+            float top = sliceBorders.Z;
+            float right = sliceBorders.Y;
+            float bottom = sliceBorders.W;
+
+            if (width <= 0 || height <= 0 ||
+                width < left + right || height < top + bottom)
             {
-                Draw(textureId, x, y, width, height, 0, 0, 1, 1, color.R,color.G,color.B,color.A , projection);
+                Draw(textureId, x, y, width, height, 0, 0, 1, 1,
+                     color.R, color.G, color.B, color.A, projection);
                 return;
             }
 
@@ -89,43 +98,45 @@ namespace TappiruCS.Render
             GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int texWidth);
             GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int texHeight);
 
-            float invW = 1 / texWidth;
-            float invH = 1 / texHeight;
+            float invW = 1f / texWidth;
+            float invH = 1f / texHeight;
 
-            float u0 = 0;
-            float u1 = sliceLeft * invW;
-            float u2 = 1.0f - (sliceRight * invW); // правая граница
-            float u3 = 1.0f;
+            float u0 = 0f;
+            float u1 = left * invW;
+            float u2 = 1f - right * invW;
+            float u3 = 1f;
 
-            float v0 = 0.0f;
-            float v1 = sliceTop * invH;            // верхняя граница
-            float v2 = 1.0f - (sliceBottom * invH);// нижняя граница
-            float v3 = 1.0f;
+            float v0 = 0f;
+            float v1 = top * invH;
+            float v2 = 1f - bottom * invH;
+            float v3 = 1f;
 
             float x0 = x;
-            float x1 = x + sliceLeft;
-            float x2 = x + width - sliceRight;
+            float x1 = x + left;
+            float x2 = x + width - right;
             float x3 = x + width;
 
             float y0 = y;
-            float y1 = y + sliceTop;
-            float y2 = y + height - sliceBottom;
+            float y1 = y + top;
+            float y2 = y + height - bottom;
             float y3 = y + height;
 
-            DrawQuad(textureId, x0, y0, x1 - x0, y1 - y0, u0, v0, u1, v1, color.R, color.G, color.B, color.A, projection); // Левый верх
-            DrawQuad(textureId, x1, y0, x2 - x1, y1 - y0, u1, v0, u2, v1, color.R, color.G, color.B, color.A, projection); // Верх центр
-            DrawQuad(textureId, x2, y0, x3 - x2, y1 - y0, u2, v0, u3, v1, color.R, color.G, color.B, color.A, projection); // Правый верх
+            // 9 квадратов
+            DrawQuad(textureId, x0, y0, x1 - x0, y1 - y0, u0, v0, u1, v1, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x1, y0, x2 - x1, y1 - y0, u1, v0, u2, v1, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x2, y0, x3 - x2, y1 - y0, u2, v0, u3, v1, color.R, color.G, color.B, color.A, projection);
 
-            // Средняя полоса
-            DrawQuad(textureId, x0, y1, x1 - x0, y2 - y1, u0, v1, u1, v2, color.R, color.G, color.B, color.A, projection); // Левый центр
-            DrawQuad(textureId, x1, y1, x2 - x1, y2 - y1, u1, v1, u2, v2, color.R, color.G, color.B, color.A, projection); // Центр
-            DrawQuad(textureId, x2, y1, x3 - x2, y2 - y1, u2, v1, u3, v2, color.R, color.G, color.B, color.A, projection); // Правый центр
+            DrawQuad(textureId, x0, y1, x1 - x0, y2 - y1, u0, v1, u1, v2, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x1, y1, x2 - x1, y2 - y1, u1, v1, u2, v2, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x2, y1, x3 - x2, y2 - y1, u2, v1, u3, v2, color.R, color.G, color.B, color.A, projection);
 
-            // Нижняя полоса
-            DrawQuad(textureId, x0, y2, x1 - x0, y3 - y2, u0, v2, u1, v3, color.R, color.G, color.B, color.A, projection); // Левый низ
-            DrawQuad(textureId, x1, y2, x2 - x1, y3 - y2, u1, v2, u2, v3, color.R, color.G, color.B, color.A, projection); // Низ центр
-            DrawQuad(textureId, x2, y2, x3 - x2, y3 - y2, u2, v2, u3, v3, color.R, color.G, color.B, color.A, projection); // Правый низ
+            DrawQuad(textureId, x0, y2, x1 - x0, y3 - y2, u0, v2, u1, v3, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x1, y2, x2 - x1, y3 - y2, u1, v2, u2, v3, color.R, color.G, color.B, color.A, projection);
+            DrawQuad(textureId, x2, y2, x3 - x2, y3 - y2, u2, v2, u3, v3, color.R, color.G, color.B, color.A, projection);
+
+
         }
+
 
         private void DrawQuad(int textureId,
                       float x, float y, float w, float h,

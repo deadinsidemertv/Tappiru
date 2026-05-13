@@ -21,6 +21,7 @@ using TappiruCS.State.SongSelector.SongList;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.SongSelector
 {

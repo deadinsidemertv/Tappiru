@@ -9,6 +9,7 @@ using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.State.SongSelector;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State
 {

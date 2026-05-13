@@ -12,6 +12,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TappiruCS.State.Session

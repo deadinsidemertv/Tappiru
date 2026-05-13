@@ -5,6 +5,7 @@ using TappiruCS.Core;
 using TappiruCS.GameLogic;
 using TappiruCS.Render;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.SongSelector.SongList
 {

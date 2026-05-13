@@ -2,6 +2,7 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.UI
 {

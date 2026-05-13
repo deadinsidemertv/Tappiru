@@ -4,6 +4,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.UI
 {

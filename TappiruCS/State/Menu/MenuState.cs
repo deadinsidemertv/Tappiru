@@ -17,6 +17,7 @@ using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Tween;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Menu
 {
@@ -178,7 +179,6 @@ namespace TappiruCS.State.Menu
             _scene.Add(currentmusicLabel);
             _scene.Add(currentmusicLabelArtitst);
             _scene.Add(Logo);
-            
 
         }
 

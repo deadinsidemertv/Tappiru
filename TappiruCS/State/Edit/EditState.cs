@@ -19,6 +19,7 @@ using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.State.Menu;
 using TappiruCS.UI.Toggle;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit
 {

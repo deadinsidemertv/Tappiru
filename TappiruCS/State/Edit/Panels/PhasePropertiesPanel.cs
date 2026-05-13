@@ -7,6 +7,7 @@ using TappiruCS.State.Edit.Core;
 using TappiruCS.State.Edit.TimelineSystem;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.UI.Panels
 {
@@ -62,7 +63,7 @@ namespace TappiruCS.State.Edit.UI.Panels
             PhraseProperties = new Container(1743, 420);
 
             // Фон
-            var spriteBackground = new SpriteObject(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
+            var spriteBackground = new NineSliceSprite(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
             PhraseProperties.AddChild(spriteBackground);
 
             // Заголовок всегда "Свойства"
