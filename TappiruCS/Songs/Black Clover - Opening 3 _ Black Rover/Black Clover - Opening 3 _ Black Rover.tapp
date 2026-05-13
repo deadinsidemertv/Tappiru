@@ -1,0 +1,486 @@
+{
+  "title": "Black Clover - Opening 3 | Black Rover",
+  "artist": "",
+  "creator": "",
+  "previewTime": 0,
+  "endTime": 89.2,
+  "tappedR": 0.4,
+  "tappedG": 0.3,
+  "tappedB": 0.6,
+  "needR": 0.7,
+  "needG": 0.3,
+  "needB": 0.8,
+  "completeR": 0.2,
+  "completeG": 0.1,
+  "completeB": 0.4,
+  "events": [
+    {
+      "startTime": 15.350958,
+      "endTime": 18.022388,
+      "text": "\u5358\u7D14\u306A\u30B9\u30C6\u30FC\u30B8",
+      "transription": "tanjun na suteiji  ",
+      "sliders": [],
+      "mapping": [
+        3,
+        3,
+        2,
+        2,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "startTime": 18.050959,
+      "endTime": 20.414082,
+      "text": "\u6E07\u304F\u307B\u3069\u9858\u3044",
+      "transription": "kawaku hodo negai",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        2,
+        2,
+        4,
+        1
+      ]
+    },
+    {
+      "startTime": 20.432123,
+      "endTime": 22.756042,
+      "text": "\u6C34\u304C\u7CF8\u3092\u4F1D\u3044",
+      "transription": "mizu ga ito o tsutai",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        3,
+        1,
+        5,
+        1
+      ]
+    },
+    {
+      "startTime": 22.775692,
+      "endTime": 27.090841,
+      "text": "\u8AB0\u304B\u306B\u304B\u306A\u3046\u56F0\u96E3\u306A\u30B9\u30C6\u30FC\u30B8",
+      "transription": "dareka ni kanau konnan na suteiji",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        1,
+        3,
+        3,
+        2,
+        2,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "startTime": 27.12863,
+      "endTime": 29.485025,
+      "text": "\u9802\u4E0A\u3092\u793A\u3059\u6A21\u69D8",
+      "transription": "choujo o shimesu moyou",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        1,
+        5,
+        2,
+        2,
+        3
+      ]
+    },
+    {
+      "startTime": 29.49592,
+      "endTime": 31.869816,
+      "text": "\u6C34\u5E73\u7DDA\u304C\u5B99\u3092\u821E\u3046",
+      "transription": "suiheisen ga chuu o mau",
+      "sliders": [],
+      "mapping": [
+        3,
+        3,
+        3,
+        2,
+        4,
+        1,
+        2,
+        1
+      ]
+    },
+    {
+      "startTime": 31.893831,
+      "endTime": 34.45134,
+      "text": "\u4F55\u5EA6\u304F\u3058\u304B\u308C\u3066\u3082",
+      "transription": "nando kujikaretemo",
+      "sliders": [],
+      "mapping": [
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "startTime": 35.22057,
+      "endTime": 38.34221,
+      "text": "\u305D\u306E\u5E0C\u671B\u3092\u4E21\u624B\u306B",
+      "transription": "sono kibou o ryoute ni",
+      "sliders": [],
+      "mapping": [
+        2,
+        2,
+        2,
+        3,
+        1,
+        4,
+        2,
+        2
+      ]
+    },
+    {
+      "startTime": 38.36465,
+      "endTime": 40.642067,
+      "text": "\u50D5\u3089\u6CE2\u3092\u6253\u3063\u3066",
+      "transription": "bokura nami o utte",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "startTime": 40.667686,
+      "endTime": 47.984657,
+      "text": "\u3064\u3070\u3055\u3092\u307F\u305B\u308D\u3068\u53EB\u3076\u3093\u3060",
+      "transription": "tsubasa o miseru to sakebun da  ",
+      "sliders": [],
+      "mapping": [
+        3,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "startTime": 48.052483,
+      "endTime": 48.83358,
+      "text": "Get down",
+      "transription": "get down",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 48.840954,
+      "endTime": 51.25974,
+      "text": "We all let you know this time",
+      "transription": "we all let you know this time",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 51.279514,
+      "endTime": 52.6885,
+      "text": "Can you bring me down",
+      "transription": "can you bring me down",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 52.69767,
+      "endTime": 55.945656,
+      "text": "Back up, gets far of the sky",
+      "transription": "back up gets far of the sky",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 55.967606,
+      "endTime": 57.463715,
+      "text": "Black rover",
+      "transription": "black rover",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 57.48863,
+      "endTime": 59.722805,
+      "text": "\u3044\u3064\u304B\u3068\u3082\u306B\u307F\u3088\u3046",
+      "transription": "itsuka tomo ni miyou",
+      "sliders": [],
+      "mapping": [
+        1,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ]
+    },
+    {
+      "startTime": 59.735897,
+      "endTime": 62.1727,
+      "text": "\u4ECA\u306F\u9ED2\u306B\u67D3\u3081\u3088\u3046",
+      "transription": "ima wa kuro ni someyou",
+      "sliders": [],
+      "mapping": [
+        3,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        1
+      ]
+    },
+    {
+      "startTime": 62.18,
+      "endTime": 65.41575,
+      "text": "\u3053\u3093\u306A\u3075\u3056\u3051\u305F\u6642\u4EE3",
+      "transription": "konna fuzaketa jidai",
+      "sliders": [],
+      "mapping": [
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ]
+    },
+    {
+      "startTime": 65.43951,
+      "endTime": 66.59231,
+      "text": "Black rover",
+      "transription": "black rover",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "startTime": 66.59704,
+      "endTime": 68.84346,
+      "text": "\u7A7A\u865A\u306E\u9593\u306B",
+      "transription": "kuukyo no aida ni",
+      "sliders": [],
+      "mapping": [
+        3,
+        3,
+        2,
+        4,
+        2
+      ]
+    },
+    {
+      "startTime": 68.85756,
+      "endTime": 71.240616,
+      "text": "\u50D5\u3089\u4E26\u3073\u7ACB\u3063\u3066",
+      "transription": "bokura narabitatte",
+      "sliders": [],
+      "mapping": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        1,
+        2
+      ]
+    },
+    {
+      "startTime": 71.31171,
+      "endTime": 78.61849,
+      "text": "\u4ECA\u304B\u3089\u6249\u3092\u958B\u304F\u304B\u3089",
+      "transription": "ima kara tobira o hiraku kara ",
+      "sliders": [],
+      "mapping": [
+        3,
+        2,
+        2,
+        6,
+        1,
+        4,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "startTime": 83.6088,
+      "endTime": 86.697495,
+      "text": "Let\u0027s go next stage",
+      "transription": "lets go next stage",
+      "sliders": [],
+      "mapping": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "GlobalSliderPerfectStartWindow": 0.1,
+  "GlobalSliderGoodStartWindow": 0.35,
+  "GlobalSliderPerfectEndWindow": 0.15,
+  "GlobalSliderGoodEndWindow": 0.45,
+  "SliderApproachTime": 1.2
+}

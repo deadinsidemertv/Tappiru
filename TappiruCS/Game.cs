@@ -27,6 +27,9 @@ namespace TappiruCS
         private float _lastClickTime = 0f;
         private Vector2 _lastClickPos = Vector2.Zero;
 
+        public static InputField? FocusedInputField { get; set; }
+
+
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
         public static float WindowWidth;
