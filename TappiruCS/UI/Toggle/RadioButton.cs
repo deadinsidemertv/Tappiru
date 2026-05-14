@@ -2,7 +2,7 @@
 
 public class RadioButton : Toggle
 {
-    public RadioButton(float x, float y, float scaleX, float scaleY, string texName = "radiobutton-default")
+    public RadioButton(float x, float y, float scaleX, float scaleY, string texName = "blue_panel")
         : base(x, y, scaleX, scaleY, texName)
     {
     }

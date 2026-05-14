@@ -15,7 +15,7 @@ namespace TappiruCS.UI.Toggle
         public SpriteObject sprite;
 
         public Color4 idleColor = Color4.White;
-        public Color4 SelectedColor = new Color4(1.5f, 0, 1.5f, 1f);
+        public Color4 SelectedColor = Color4.Green;
 
         private const float HoverBrightness = 0.5f;
 

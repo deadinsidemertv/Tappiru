@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Atk;
+﻿using Atk;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System;
+using System.Collections.Generic;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.UI;
-using TappiruCS.UI.TextAbstract;
-using TappiruCS.Render.Text;
 using TappiruCS.Render.Audio;
-using TappiruCS.UI.Toggle;
+using TappiruCS.Render.Text;
+using TappiruCS.UI;
 using TappiruCS.UI.Sprite;
+using TappiruCS.UI.TextAbstract;
+using TappiruCS.UI.Toggle;
 
 namespace TappiruCS.State.Menu.Option
 {
@@ -68,9 +70,9 @@ namespace TappiruCS.State.Menu.Option
             }
 
 
-            _scrollContainer = new ScrollContainer(1540, 200, 500, 1080,20);
-            _scrollContainer.SetZone(35, 300, 530, 800);
-            _scrollContainer.Debug = true;
+            _scrollContainer = new ScrollContainer(1543, 70, 500, 700,20);
+            _scrollContainer.SetZone(35, 480, 560, 1070);
+            //_scrollContainer.Debug = true;
             _scrollContainer.Layer = 6;
             obj.Add(_scrollContainer);
 
@@ -108,6 +110,7 @@ namespace TappiruCS.State.Menu.Option
         {
             var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 240) { Color = Color4.Gray,Layer=8 };
             container.AddControl(decorationLine, -225, 20);
+            
 
             var Label = new TextObject("Звук", 0, 0, 64) { Align = TextAlign.Right, Color = Color4.Bisque };
             container.AddControl(Label, 270, -170);
@@ -147,108 +150,186 @@ namespace TappiruCS.State.Menu.Option
         private void CreateVideoControls(SectionContainer container)
         {
             // Декоративная вертикальная линия
-            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300)
-            {
-                Color = Color4.Gray,
-                Layer = 8
-            };
+            var decorationLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 3, 300);
+            decorationLine.Color = Color4.Gray;
+            decorationLine.Layer = 10;
             container.AddControl(decorationLine, -225, 0);
 
 
             // Заголовок "Видео"
-            var titleLabel = new TextObject("Видео", 0, 0, 64)
-            {
-                Align = TextAlign.Right,
-                Color = Color4.Bisque,
-                Layer = 8
-            };
+            var titleLabel = new TextObject("Видео", 0, 0, 64);
+            titleLabel.Align = TextAlign.Right;
+            titleLabel.Color = Color4.Bisque;
+            titleLabel.Layer = 8;
             container.AddControl(titleLabel, 270, -170);
 
 
-            // Декоративные фоны для трёх слайдеров (чёрные полосы)
-            var decorativeBrightness = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
+
+            var VideoSettinBlackCover_1 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50);
+            VideoSettinBlackCover_1.Color = Color4.Black;
+            VideoSettinBlackCover_1.Pivot = new Vector2(0, 0.5f);
+            VideoSettinBlackCover_1.Layer = 5;
+            VideoSettinBlackCover_1.Opacity = 0.4f;
+            container.AddControl(VideoSettinBlackCover_1, -225, -100);
+
+            var VideoSettinBlackCover_2 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50);
+            VideoSettinBlackCover_2.Color = Color4.Black;
+            VideoSettinBlackCover_2.Pivot = new Vector2(0, 0.5f);
+            VideoSettinBlackCover_2.Layer = 5;
+            VideoSettinBlackCover_2.Opacity = 0.4f;
+            container.AddControl(VideoSettinBlackCover_2, -225, -40);
+
+            var VideoSettinBlackCover_3 = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50);
+            VideoSettinBlackCover_3.Color = Color4.Black;
+            VideoSettinBlackCover_3.Pivot = new Vector2(0, 0.5f);
+            VideoSettinBlackCover_3.Layer = 5;
+            VideoSettinBlackCover_3.Opacity = 0.4f;
+            container.AddControl(VideoSettinBlackCover_3, -225, 20);
+
+
+            var radio1080 = new RadioButton(480, 0, 40, 40) { Layer = 8 };
+            VideoSettinBlackCover_1.AddChild(radio1080);
+
+            var radio720 = new RadioButton(480, 0, 40, 40) { Layer = 8 };
+            VideoSettinBlackCover_2.AddChild(radio720);
+
+            var radio600 = new RadioButton(480, 0, 40, 40) { Layer = 8 };
+            VideoSettinBlackCover_3.AddChild(radio600);
+
+            var text1080 = new TextObject("1920x1080", 20, 5, 36) { Color = Color4.White, Layer = 8,Align = TextAlign.Left,FontKey ="Game" };
+            VideoSettinBlackCover_1.AddChild(text1080);
+            var text720 = new TextObject("1280x720", 20, 5, 36) { Color = Color4.White, Layer = 8, Align = TextAlign.Left, FontKey = "Game" };
+            VideoSettinBlackCover_2.AddChild(text720);
+            var text600 = new TextObject("800x600", 20, 5, 36) { Color = Color4.White, Layer = 8, Align = TextAlign.Left, FontKey = "Game" };
+            VideoSettinBlackCover_3.AddChild(text600);
+
+
+            var resolutionGroup = new RadioButtonGroup<(int width, int height)>();
+            resolutionGroup.Add(radio1080, (1920, 1080));
+            resolutionGroup.Add(radio720, (1280, 720));
+            resolutionGroup.Add(radio600, (800, 600));
+
+            var currentRes = (OptionFile.ScreenWidth, OptionFile.ScreenHeight);
+            resolutionGroup.SetValue(currentRes, raiseEvent: false);
+
+            resolutionGroup.SelectionChanged += (res) =>
+            {
+                OptionFile.ScreenWidth = res.width;
+                OptionFile.ScreenHeight = res.height;
+                ApplyVideoSettings();
+            };
+
+
+
+
+
+
+            var modeTitle = new TextObject("Режим экрана", 0, 0, 36)
+            {
+                Color = Color4.White,
+                Align = TextAlign.Left,
+                Layer = 8,
+                FontKey = "Game"
+            };
+            container.AddControl(modeTitle, -200, 70);
+
+            // Фоновые полосы для трёх опций
+            var modeCoverFull = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
             {
                 Color = Color4.Black,
                 Pivot = new Vector2(0, 0.5f),
-                Layer = 7
+                Layer = 5,
+                Opacity = 0.4f
             };
-            var decorativeContrast = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
+            container.AddControl(modeCoverFull, -225, 110);
+
+            var modeCoverWindowed = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
             {
                 Color = Color4.Black,
                 Pivot = new Vector2(0, 0.5f),
-                Layer = 7
+                Layer = 5,
+                Opacity = 0.4f
             };
-            var decorativeSaturation = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
-            {
-                Color = Color4.Black,
-                Pivot = new Vector2(0, 0.5f),
-                Layer = 7
-            };
-            container.AddControl(decorativeBrightness, -225, -60);
-            container.AddControl(decorativeContrast, -225, 0);
-            container.AddControl(decorativeSaturation, -225, 60);
+            container.AddControl(modeCoverWindowed, -225, 170);
 
 
-            // Слайдеры
-            var brightnessSlider = new Slider(0f, 1f, 0, 0, 490) { Layer = 8 };
-            var contrastSlider = new Slider(0f, 1f, 0, 0, 490) { Layer = 8 };
-            var saturationSlider = new Slider(0f, 1f, 0, 0, 490) { Layer = 8 };
-
-            container.AddControl(brightnessSlider, 25, -60);
-            container.AddControl(contrastSlider, 25, 0);
-            container.AddControl(saturationSlider, 25, 60);
+            // Радиокнопки
+            var radioFull = new RadioButton(480, 0, 40, 40) { Layer = 8 };
+            var radioWindowed = new RadioButton(480, 0, 40, 40) { Layer = 8 };
 
 
+            modeCoverFull.AddChild(radioFull);
+            modeCoverWindowed.AddChild(radioWindowed);
 
-
-
-            brightnessSlider.OnValueChanged += (val) => {
-
-            };
-            contrastSlider.OnValueChanged += (val) => {
-
-            };
-            saturationSlider.OnValueChanged += (val) => {
-
-            };
-
-            // ----- Чекбокс полноэкранного режима (дополнительно, в том же стиле) -----
-            // Для красоты добавим отдельную декоративную полосу и метку под слайдерами
-            var decorativeFullscreen = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 512, 50)
-            {
-                Color = Color4.Black,
-                Pivot = new Vector2(0, 0.5f),
-                Layer = 7
-            };
-            container.AddControl(decorativeFullscreen, -225, 120);
-
-
-            var fullscreenLabel = new TextObject("Полный экран", 0, 0, 28)
+            // Текстовые метки
+            var textFull = new TextObject("Полный экран", 20, 5, 36)
             {
                 Color = Color4.White,
                 Layer = 8,
-                Align = TextAlign.Left
+                Align = TextAlign.Left,
+                FontKey = "Game"
             };
-            container.AddControl(fullscreenLabel, -200, 120);
+            modeCoverFull.AddChild(textFull);
 
-
-            var fullscreenToggle = new CheckBox(0, 0, 30, 30)
+            var textWindowed = new TextObject("Оконный", 20, 5, 36)
             {
+                Color = Color4.White,
                 Layer = 8,
-                //IsSelected = OptionFile.IsFullscreen
+                Align = TextAlign.Left,
+                FontKey = "Game"
             };
-            container.AddControl(fullscreenToggle, 200, 120);
+            modeCoverWindowed.AddChild(textWindowed);
 
 
-            fullscreenToggle.OnSelectedChanged += (isChecked) =>
+
+            // Создаём группу. Для хранения режима используем кортеж (WindowState, WindowBorder)
+            var modeGroup = new RadioButtonGroup<WindowState>();
+            modeGroup.Add(radioFull, (WindowState.Fullscreen));       // полный экран
+            modeGroup.Add(radioWindowed, (WindowState.Normal));      // оконный с рамкой
+
+
+            // Устанавливаем текущий режим из сохранённых настроек
+            var currentMode = (OptionFile.WindowState);
+
+            modeGroup.SetValue(default(WindowState), false);
+            modeGroup.SetValue(currentMode, raiseEvent: false);
+
+            modeGroup.SelectionChanged += (mode) =>
             {
-                //OptionFile.IsFullscreen = isChecked;
-                //ApplyVideoSettings(); // применение полноэкранного режима
+                OptionFile.WindowState = mode;
+                ApplyVideoSettings();   // твой метод в OptionModule или Game.Instance.ApplyVideoSettings()
             };
+
+
             container.RecalculateSize();
+            decorationLine.Scale = new Vector2(3, container.MaxHeight);
+            decorationLine.LocalPosition = new Vector2(-225, 50);
+            decorationLine.Pivot = new Vector2(0.5f, 0.5f);
         }
 
+        public void ApplyVideoSettings()
+        {
+            Game.Instance.ClientSize = new Vector2i(OptionFile.ScreenWidth, OptionFile.ScreenHeight);
+            Game.Instance.WindowState = OptionFile.WindowState;
 
+            if (OptionFile.WindowState == WindowState.Normal)
+            {
+                CenterWindowOnCurrentMonitor(Game.Instance);
+            }
+        }
+        private void CenterWindowOnCurrentMonitor(GameWindow window)
+        {
+            try
+            {
+            
+                window.CenterWindow();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка центрирования окна: {ex.Message}");
+            }
+        }
 
         private void ScrollToSection(int index)
         {

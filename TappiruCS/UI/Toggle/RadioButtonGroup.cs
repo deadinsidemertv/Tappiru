@@ -54,17 +54,17 @@ namespace TappiruCS.UI.Toggle
         // Опционально: установить значение без вызова события (для начальной инициализации)
         public void SetValue(T value, bool raiseEvent = false)
         {
-            if (Equals(_currentValue, value)) return;
+            bool valueChanged = !Equals(_currentValue, value);
 
             foreach (var (btn, val) in _items)
             {
-                if (Equals(val, value))
-                    btn.SetSelected(true, false);
-                else
-                    btn.SetSelected(false, false);
+                bool shouldBeSelected = Equals(val, value);
+                btn.SetSelected(shouldBeSelected, false);
             }
+
             _currentValue = value;
-            if (raiseEvent)
+
+            if (valueChanged && raiseEvent)
                 SelectionChanged?.Invoke(value);
         }
     }
