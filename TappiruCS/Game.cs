@@ -18,6 +18,7 @@ using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using TappiruCS.UI.API.LocalizationLanguage;
 
 namespace TappiruCS
 {
@@ -71,6 +72,7 @@ namespace TappiruCS
         }
         protected override void OnLoad()
         {
+            Localization.Initialize();
             base.OnLoad();
             string mapsRoot = "Songs"; 
 

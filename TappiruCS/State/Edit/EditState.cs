@@ -46,35 +46,46 @@ namespace TappiruCS.State.Edit
         private TextObject _switchToInfoLabel;
         private RadioButtonGroup<EditMode> modeGroup;
 
+////////////////////////MAP DATA////////////////////////////////////////
+        public string title = string.Empty;
+        public string artist = string.Empty;
+        public string creator = string.Empty;
 
-        private readonly List<Phrase> _phrases = new();
+        public double previewTime;
+        public double endTime;
+
+        private readonly List<Phrase> _phrases = new();       //events
+////////////////////////MAP DATA////////////////////////////////////////
+
+
+        //API
         private readonly ProjectIO _projectIO = new();
         private readonly ColorPreviewPanel _colorPanel = new();
 
+        //FLAGS
         private bool _inEditMode;
         private bool _isPlaying = true;
         private bool _isInputDialogOpen = false;
 
-        
+
         public EditMode currentEditMode = EditMode.None;
 
         private MappingPanel? mapping;
+        private InfoPanel? info;
 
         private Phrase? _activePhrase;
 
         public ITimelineSelectable? SelectedObject { get; private set; }
         public event Action? OnSelectionChanged;
 
-        public string title = string.Empty;
-        public string artist = string.Empty;
-        public double previewTime;
-        public double endTime;
+        
 
 
         public EditState(RenderContext context)
         {
             _context = context;
             mapping = new MappingPanel(_scene,this);
+            info = new InfoPanel(_scene,this);
         }
 
         public void OnEnter()
@@ -165,10 +176,12 @@ namespace TappiruCS.State.Edit
 
         private void OpenLoadDialog()
         {
+            Game.Instance.WindowState = WindowState.Normal;
             var filters = new[] { new SharpFileDialog.NativeFileDialog.Filter { Name = "Tappiru Project Files", Extensions = new[] { "tappz" } } };
 
             if (SharpFileDialog.NativeFileDialog.OpenDialog(filters, "Edit\\", out string? path) && !string.IsNullOrEmpty(path))
                 OnProjectOpened(path);
+            Game.Instance.WindowState = OptionFile.WindowState;
         }
 
         private void OnProjectOpened(string tappzPath)
@@ -482,6 +495,14 @@ namespace TappiruCS.State.Edit
         {
             CleanAllTranscriptions();
 
+            foreach (var phrase in _phrases)
+            {
+                if (!string.IsNullOrEmpty(phrase.Transcription))
+                {
+                    phrase.Transcription = phrase.Transcription.Trim();
+                }
+            }
+
             var map = new JsonMap();
             map.events = PhraseSerializer.ToEvents(_phrases);
             map.title = title;
@@ -521,6 +542,15 @@ namespace TappiruCS.State.Edit
             else
             {
                 mapping?.Hide();
+            }
+
+            if(mode == EditMode.Info)
+            {
+                info?.Show();
+            }
+            else
+            {
+                info?.Hide();
             }
         }
 

@@ -1,0 +1,21 @@
+{
+  "menu.play": "Играть",
+  "menu.edit": "Редактор карт",
+  "menu.options": "Настройки",
+  "menu.exit": "Выход",
+  "settings.audio": "Звук",
+  "settings.video": "Видео",
+  "settings.master": "Общая громкость",
+  "settings.music": "Музыка",
+  "settings.sfx": "Эффекты",
+  "settings.resolution": "Разрешение",
+  "settings.screenmode": "Режим экрана",
+  "settings.fullscreen": "Полный экран",
+  "settings.windowed": "Оконный",
+  "resolution.1920x1080": "1920x1080",
+  "resolution.1280x720": "1280x720",
+  "resolution.800x600": "800x600",
+  "login.title": "Аккаунт",
+  "input-field.username": "имя пользователя",
+  "login.signin": "Войти"
+}

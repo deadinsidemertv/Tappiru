@@ -3,12 +3,14 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.API.LocalizationLanguage;
 
 namespace TappiruCS.UI.TextAbstract
 {
     public class TextObject : GameObject
     {
-        public string Text { get; set; } = "";
+        private string _text = "";
+        private string _textKey = "";
         public float FontSize { get; set; } = 144f;
         public string FontKey { get; set; } = "UI";
 
@@ -26,6 +28,36 @@ namespace TappiruCS.UI.TextAbstract
             }
         }
 
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value ?? "";
+                _textKey = string.Empty;     // ручной текст сбрасывает ключ
+            }
+        }
+        public string TextKey
+        {
+            get => _textKey;
+            set
+            {
+                _textKey = value ?? "";
+                if (!string.IsNullOrEmpty(_textKey))
+                {
+                    Text = Localization.Get(_textKey);
+
+                    // Автоматически меняем шрифт под язык
+                    FontKey = Localization.GetFontKey();
+                }
+            }
+        }
+
+        public void SetLocalized(string key)
+        {
+            TextKey = key;
+        }
+
         public TextAlign Align { get; set; } = TextAlign.Center;
         public Action<Vector2>? OnClick { get; set; }
         public bool FixedColor { get; set; } = false;
@@ -41,7 +73,6 @@ namespace TappiruCS.UI.TextAbstract
 
         public TextObject(string text, float x, float y, float fontSize = 144f)
         {
-            Text = text;
             LocalPosition = new Vector2(x, y);
             FontKey = "UI";
             FontSize = fontSize;
@@ -51,6 +82,8 @@ namespace TappiruCS.UI.TextAbstract
             Layer = 5;
             _baseColor = Color4.White;
             _displayColor = Color4.White;
+
+            Text = text;
         }
 
         public override void Update(double deltaTime, MouseState mouse)

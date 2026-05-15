@@ -59,7 +59,7 @@ namespace TappiruCS.GameLogic
             // Normalization (stretched scale)
             float normFC = Math.Min(2.4f, avgFCDifficulty / 13.5f);   // main factor
             float normPeak = Math.Min(1.6f, peakNPS2s / 11.0f);
-            float normSliderRatio = Math.Min(1.4f, (float)totalSliders / totalEvents * 3.2f);
+            float normSliderRatio = Math.Min(1.4f, (float)totalSliders / totalEvents * 1.85f);
 
             float starRating =
                 normFC * 4.3f +

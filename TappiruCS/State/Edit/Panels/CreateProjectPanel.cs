@@ -87,12 +87,14 @@ namespace TappiruCS.State.Edit.Panels
         // ── Логика ───────────────────────────────────────────────────────────────
         private static void PickFile(string filter, Action<string> onSuccess)
         {
+            Game.Instance.WindowState = OpenTK.Windowing.Common.WindowState.Normal;
             // SharpFileDialog - ваш диалог выбора файлов
             if (SharpFileDialog.NativeFileDialog.OpenDialog(null, "", out string? path)
                 && path != null)
             {
                 onSuccess(path);
             }
+            Game.Instance.WindowState = OptionFile.WindowState;
         }
 
         private void TryConfirm()
