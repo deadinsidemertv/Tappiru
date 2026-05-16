@@ -37,7 +37,7 @@ namespace TappiruCS.State.SongSelector.SongList
             Tag = "List";
 
             // Затемнение (исчезает при выборе)
-            Fade = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, width, height - 10)
+            Fade = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, height - 10)
             {
                 Color = new Color4(0.212f, 0f, 0.106f, 1f)
             };

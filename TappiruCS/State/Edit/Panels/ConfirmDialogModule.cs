@@ -35,9 +35,9 @@ namespace TappiruCS.State.Edit.Panels
             };
 
             // Фон окна
-            var background = new NineSliceSprite(TextureManager.GetTexture("blue_panel"), 0, 0, 800, 420)
+            var background = new NineSliceSprite(TextureManager.GetTexture("module-window8"), 0, 0, 800, 420)
             {
-                Color = new Color4(0.12f, 0.12f, 0.18f, 0.98f),
+                Color = new Color4(0.5f, 0.5f, 0.5f, 1f),
                 Layer = 15,
                 AllowHover = false,
                 SliceBorders = new Vector4(10,10,10,10)
@@ -62,12 +62,15 @@ namespace TappiruCS.State.Edit.Panels
             };
 
             // Кнопка "Да"
-            var btnYes = new Button(-160, 80, 280, 90, "button", "ДА, ВЫЙТИ")
+            var btnYes = new Button(-160, 80, 280, 90, "SimpleGradientButton1", "ДА, ВЫЙТИ")
             {
                 Layer = 16,
-                ScaleMultiply = 0.55f
+                ScaleMultiply = 1f
             };
             btnYes.Label.Color = new Color4(0.9f, 0.3f, 0.3f, 1f);
+            btnYes.Label.FontKey = "Game";
+            btnYes.Label.ShadowOffset = new Vector2(-2, 1);
+            btnYes.TextOffset = new Vector2(0, 10);
             btnYes.OnClick += () =>
             {
                 _onConfirm?.Invoke();
@@ -76,11 +79,14 @@ namespace TappiruCS.State.Edit.Panels
             btnYes.Label.FontSize = 28f;
 
             // Кнопка "Нет"
-            var btnNo = new Button(160, 80, 280, 90, "button", "ОТМЕНА")
+            var btnNo = new Button(160, 80, 280, 90, "SimpleGradientButton1", "ОТМЕНА")
             {
                 Layer = 16,
-                ScaleMultiply = 0.55f
+                ScaleMultiply = 1f
             };
+            btnNo.Label.FontKey = "Game";
+            btnNo.Label.ShadowOffset = new Vector2(-2, 1);
+            btnNo.TextOffset = new Vector2(0, 10);
             btnNo.OnClick += Close;
             btnNo.Label.FontSize = 28f;
 

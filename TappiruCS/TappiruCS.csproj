@@ -46,11 +46,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
 
-    <!-- ВСЁ содержимое Textures (включая Sound, Font, grade и любые новые папки) -->
-    <Content Include="Textures\**\*.*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-
 	  <Content Include="Content\**\*.*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

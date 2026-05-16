@@ -19,11 +19,13 @@ using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.API.LocalizationLanguage;
+using static TappiruCS.UI.API.ContentPath;
 
 namespace TappiruCS
 {
     public class Game : GameWindow
     {
+
         public static Game? Instance { get; private set; }
 
         private float _lastClickTime = 0f;
@@ -74,7 +76,6 @@ namespace TappiruCS
         {
             Localization.Initialize();
             base.OnLoad();
-            string mapsRoot = "Songs"; 
 
             //MapMigrator.MigrateAllMaps(mapsRoot);
             //UpdateProjection();
@@ -89,10 +90,10 @@ namespace TappiruCS
 
             spriteBatch = new SpriteBatch(TextureLoader.shaderProgram);
            
-            FontManager.Add("UI", new FreeTypeRender(spriteBatch, "Textures\\Font\\NotoSansJP-Regular.otf", 64));
-            FontManager.Add("Game", new FreeTypeRender(spriteBatch, "Textures\\Font\\1738032194_FOT-RodinPro-B.otf", 64));
-            FontManager.Add("Menu", new FreeTypeRender(spriteBatch, "Textures\\Font\\LangithRegpersonal-GO0Ly.otf", 64));
-            FontManager.Add("GameOverlay", new FreeTypeRender(spriteBatch, "Textures\\Font\\neuropolxfree.ttf", 64));
+            FontManager.Add("UI", new FreeTypeRender(spriteBatch, CONTENT_TEXTURES_FONT.Combine("NotoSansJP-Regular.otf"), 64));
+            FontManager.Add("Game", new FreeTypeRender(spriteBatch, CONTENT_TEXTURES_FONT.Combine("1738032194_FOT-RodinPro-B.otf"), 64));
+            FontManager.Add("Menu", new FreeTypeRender(spriteBatch, CONTENT_TEXTURES_FONT.Combine("LangithRegpersonal-GO0Ly.otf"), 64));
+            FontManager.Add("GameOverlay", new FreeTypeRender(spriteBatch, CONTENT_TEXTURES_FONT.Combine("neuropolxfree.ttf"), 64));
             FontManager.SetDefault("UI");
 
 
@@ -102,9 +103,9 @@ namespace TappiruCS
 
             RenderContext = new RenderContext(this, spriteBatch, audio);
             //audio.LoadSoundEffect("hover", "Textures/hover.ogg");
-            audio.LoadSoundEffect("matchStart", "Textures/Sound/match-start.mp3");
-            audio.LoadSoundEffect("hover", "Textures/Sound/hover.mp3");
-            audio.LoadSoundEffect("hit", "Textures/Sound/hit-sound.mp3");
+            audio.LoadSoundEffect("matchStart", CONTENT_SOUND_SFX.Combine("match-start.mp3"));
+            audio.LoadSoundEffect("hover", CONTENT_SOUND_SFX.Combine("hover.mp3"));
+            audio.LoadSoundEffect("hit", CONTENT_SOUND_SFX.Combine("hit-sound.mp3"));
 
 
             currentState = new MenuState(RenderContext);

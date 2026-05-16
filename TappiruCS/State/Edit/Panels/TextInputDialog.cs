@@ -32,7 +32,7 @@ namespace TappiruCS.State.Edit.Panels
         {
             obj.Clear();
 
-            _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 1100, 520);
+            _panel = new SpriteObject(TextureManager.GetTexture("module-window7"), 960, 540, 1100, 520);
 
             // Заголовок
             var titleText = new TextObject(_title, 960, 380, 48f)
@@ -68,7 +68,7 @@ namespace TappiruCS.State.Edit.Panels
                 PlaceHolderText = "konnichiwa sekai (оставьте пустым для автозаполнения)"
             };
 
-            _okButton = new Button(960, 800, 300, 90, "button", "OK")
+            _okButton = new Button(960, 800, 300, 90, "SimpleGradientButton1", "OK")
             {
                 ScaleMultiply = 0.7f,
                 Layer = 2

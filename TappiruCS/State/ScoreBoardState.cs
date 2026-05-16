@@ -155,7 +155,7 @@ namespace TappiruCS.State
         {
             int[] gradetx = new int[6];
             for (int i = 0; i < 6; i++)
-                gradetx[i] = TextureManager.GetTexture("grade" + i);
+                gradetx[i] = TextureManager.GetTexture("BigGrade" + i);
 
             float acc = _playerScore._accuraci ;
             int fails = _playerScore._failChar;

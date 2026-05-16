@@ -58,12 +58,12 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            InputBackground = new SpriteObject(TextureManager.GetTexture("simple_inputfield"), 0, 0, width, height)
+            InputBackground = new SpriteObject(TextureManager.GetTexture("input-field2"), 0, 0, width, height)
             {
                 Opacity = 0.8f,
             };
 
-            _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
+            _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field1"), 0, 0, width, height)
             {
                 Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
                 Pivot = new Vector2(0f, 0f),

@@ -63,7 +63,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             LocalPosition = new Vector2(x, y);
             Layer = 5;
 
-            Background = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, width, height)
+            Background = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, width, height)
             {
                 Color = new Color4(0.13f, 0.13f, 0.19f, 0.5f),
                 Layer = 6,
@@ -78,7 +78,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             };
             AddChild(Playhead);
 
-            _playheadLine = new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 4, height)
+            _playheadLine = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 4, height)
             {
                 Color = new Color4(1f, 0.35f, 0.35f, 0.9f),
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -506,7 +506,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
             float maxH = Background.Scale.Y * 0.55f;
 
             int target = (int)Math.Clamp(widthWorld / 2.8f, 64, 1200);
-            EnsurePoolSize(_waveformBars, target, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+            EnsurePoolSize(_waveformBars, target, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 1, 1)
             {
                 Color = new Color4(0.25f, 0.65f, 1.0f, 0.92f),
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -533,7 +533,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
         private void UpdatePhrasesVisuals()
         {
             int phraseCount = _phrases.Count;
-            EnsurePoolSize(_phraseBars, phraseCount, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+            EnsurePoolSize(_phraseBars, phraseCount, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 1, 1)
             {
                 Color = new Color4(0.55f, 0.25f, 0.85f, 0.5f),
                 Opacity = 0.5f,
@@ -586,17 +586,17 @@ namespace TappiruCS.State.Edit.TimelineSystem
 
             // Слайдеры
             int totalSliders = _phrases.Sum(p => p.Sliders?.Count ?? 0);
-            EnsurePoolSize(_sliderBars, totalSliders, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 1, 1)
+            EnsurePoolSize(_sliderBars, totalSliders, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 1, 1)
             {
                 Color = new Color4(0.95f, 0.65f, 0.25f, 0.95f),
                 Pivot = new Vector2(0.5f, 0.5f),
             });
-            EnsurePoolSize(_sliderLeftHandles, totalSliders, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+            EnsurePoolSize(_sliderLeftHandles, totalSliders, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 8, 1)
             {
                 Color = new Color4(1f, 1f, 1f, 0.95f),
                 Pivot = new Vector2(0.5f, 0.5f),
             });
-            EnsurePoolSize(_sliderRightHandles, totalSliders, () => new SpriteObject(TextureManager.GetTexture("slider_line"), 0, 0, 8, 1)
+            EnsurePoolSize(_sliderRightHandles, totalSliders, () => new SpriteObject(TextureManager.GetTexture("white"), 0, 0, 8, 1)
             {
                 Color = new Color4(1f, 1f, 1f, 0.95f),
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -696,7 +696,7 @@ namespace TappiruCS.State.Edit.TimelineSystem
                 float localX = worldX - WorldPosition.X;
                 bool major = Math.Abs(t % 5) < 0.01f || Math.Abs(t % 10) < 0.01f;
 
-                var tick = new SpriteObject(TextureManager.GetTexture("slider_line"), localX, baseLocalY, 2, major ? 42 : 24)
+                var tick = new SpriteObject(TextureManager.GetTexture("white"), localX, baseLocalY, 2, major ? 42 : 24)
                 {
                     Color = major ? new Color4(0.8f, 0.8f, 0.9f, 1f) : new Color4(0.5f, 0.5f, 0.55f, 1f),
                     Pivot = new Vector2(0.5f, 0f),

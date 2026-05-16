@@ -131,7 +131,7 @@ namespace TappiruCS.State.Edit
             _background = new SpriteObject(TextureManager.GetTexture("defaultBG"), 960, 450, 1152, 648) { ScaleMultiply = 1.1f,AllowHover =false };
             _background.Color = new Color4(0.2f, 0.2f, 0.2f, 1f);
 
-            _exitToMenuButton = new Button(55, 1048, 400, 200, "simple_graybutton", "Back")
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "button1", "Back")
             {
                 Layer = 1,
                 TextOffset = new Vector2(0f, 0f),
@@ -153,7 +153,7 @@ namespace TappiruCS.State.Edit
 
         private Button MakeTopButton(float x, string label, Action onClick)
         {
-            var btn = new Button(x, 50, 300, 210, "blue_panel", label)
+            var btn = new Button(x, 50, 300, 210, "module-window7", label)
             {
                 Layer = 1,
                 TextOffset = new Vector2(0f, 25f),
@@ -235,7 +235,7 @@ namespace TappiruCS.State.Edit
             _playPauseButton = new Button(960, 900, 50, 50, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
 
-            _addPhraseButton = new Button(960, 1045, 512, 200, "simple_button", "+ Add")
+            _addPhraseButton = new Button(960, 1045, 512, 200, "SimpleGradientButton1", "+ Add")
             {
                 Layer = 7,
                 TextOffset = new Vector2(-10, 25),
@@ -323,7 +323,7 @@ namespace TappiruCS.State.Edit
             modeGroup.SelectionChanged += mode => SwitchEditMode(mode);
 
 
-            _exitToMenuButton = new Button(55, 1048, 400, 200, "simple_graybutton", "Back")
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "button1", "Back")
             {
                 Layer = 1,
                 Pivot = new Vector2(0.5f, 0.5f),

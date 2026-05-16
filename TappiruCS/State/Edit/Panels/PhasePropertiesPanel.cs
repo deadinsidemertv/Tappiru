@@ -63,7 +63,7 @@ namespace TappiruCS.State.Edit.UI.Panels
             PhraseProperties = new Container(1743, 420);
 
             // Фон
-            var spriteBackground = new NineSliceSprite(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
+            var spriteBackground = new NineSliceSprite(TextureManager.GetTexture("module-window7"), 0, -110, 345, 400);
             PhraseProperties.AddChild(spriteBackground);
 
             // Заголовок всегда "Свойства"

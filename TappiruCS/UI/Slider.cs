@@ -53,16 +53,16 @@ namespace TappiruCS.UI
             minValue = min;
             maxValue = max;
 
-            int lineTexture = TextureManager.GetTexture("slider_line");
+            int lineTexture = TextureManager.GetTexture("white");
 
-            line = new SpriteObject(lineTexture, 0, 0, width, 4)
+            line = new SpriteObject(lineTexture, 0, 0, width, 3)
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),
                 Description = "line"
             };
 
-            point = new SpriteObject(TextureManager.GetTexture("sliderpoint"), 0, 0, 50, 50)
+            point = new SpriteObject(TextureManager.GetTexture("slider_body"), 0, 0, 35, 35)
             {
                 Color = Color4.Pink,
                 Pivot = new Vector2(0.5f, 0.5f),

@@ -150,12 +150,12 @@ namespace TappiruCS.State.Session
             if (currentGameState == gameState.Play)
             {
                 LoseBG = new Background(TextureManager.GetTexture("pause-panel")) { Layer = 10,ParalaxEffect = true };
-                backButton = new Button(960, 540, 400, 100, "button", "back")
+                backButton = new Button(960, 540, 400, 100, "SimpleGradientButton1", "back")
                 {
                     Layer = 10,
                     TextOffset = new Vector2(-55f, 15f)
                 };
-                retryButton = new Button(960, 700, 400, 100, "button", "retry") 
+                retryButton = new Button(960, 700, 400, 100, "SimpleGradientButton1", "retry") 
                 { 
                     Layer = 10,
                     TextOffset = new Vector2(-55f, 15f)
@@ -194,12 +194,12 @@ namespace TappiruCS.State.Session
             if (currentGameState == gameState.GameOver)
             {
                 LoseBG = new Background(TextureManager.GetTexture("gameover-panel")) { Layer = 10, ParalaxEffect = true };
-                backButton = new Button(960, 540, 400, 100, "button", "back")
+                backButton = new Button(960, 540, 400, 100, "SimpleGradientButton1", "back")
                 {
                     Layer = 10,
                     TextOffset = new Vector2(-55f, 15f)
                 };
-                retryButton = new Button(960, 700, 400, 100, "button", "retry")
+                retryButton = new Button(960, 700, 400, 100, "SimpleGradientButton1", "retry")
                 {
                     Layer = 10,
                     TextOffset = new Vector2(-55f, 15f)

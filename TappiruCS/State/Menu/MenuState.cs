@@ -18,6 +18,7 @@ using TappiruCS.Tween;
 using TappiruCS.UI;
 using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
+using static TappiruCS.UI.API.ContentPath;
 
 namespace TappiruCS.State.Menu
 {
@@ -158,7 +159,7 @@ namespace TappiruCS.State.Menu
         private void AddBackgroundAndDecorations()
         {
             Random rnd = new Random();
-            string[] bgpatches = Directory.GetFiles("Textures\\Backgrounds");
+            string[] bgpatches = Directory.GetFiles(CONTENT_TEXTURES_BACKGROUNDS);
 
             int randomBG = rnd.Next(0,bgpatches.Length);
             string menubgpath = bgpatches[randomBG];
@@ -168,7 +169,7 @@ namespace TappiruCS.State.Menu
             var Logo = new SpriteObject(TextureManager.GetTexture("newlogo"), 350, 150, 630, 256);
 
             var currentmusicBg = new SpriteObject(TextureLoader.Load(SongSelectState.SelectedMap.backGroundPath), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.25f};
-            var currentmusicBord = new SpriteObject(TextureManager.GetTexture("module-window-borderonly"), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.26f };
+            var currentmusicBord = new SpriteObject(TextureManager.GetTexture("module-window6"), 550f, 1020f, 640f, 360f) { ScaleMultiply = 0.26f };
             var currentmusicLabel = new TextObject(SongSelectState.SelectedMap.title, 650, 1000, 36) { Align = TextAlign.Left};
             var currentmusicLabelArtitst = new TextObject(SongSelectState.SelectedMap.artist, 650, 1030, 28) { Align = TextAlign.Left };
 
@@ -297,7 +298,7 @@ namespace TappiruCS.State.Menu
             {
                 if (_avatarSprite == null)
                 {
-                    _avatarBackground = new SpriteObject(TextureManager.GetTexture("black"), 360, 540, 520, 150)
+                    _avatarBackground = new SpriteObject(TextureManager.GetTexture("white"), 360, 540, 520, 150)
                     {
                         Color = new Color4(1f, 1f, 1f, 0.5f)
                     };

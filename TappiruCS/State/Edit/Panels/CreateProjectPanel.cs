@@ -43,7 +43,7 @@ namespace TappiruCS.State.Edit.Panels
             obj.Clear();
 
             // Фоновая панель (можно заменить на более красивую текстуру, если есть)
-            _panel = new SpriteObject(TextureManager.GetTexture("module"), 960, 540, 620, 900);
+            _panel = new SpriteObject(TextureManager.GetTexture("module-window7"), 960, 540, 620, 900);
 
             // Поле названия карты (опционально)
             _titleInput = new InputField(960, 280, 520, 70)
@@ -66,8 +66,8 @@ namespace TappiruCS.State.Edit.Panels
             _mp3Button.OnClick += () => PickFile("*.mp3", path => _mp3Path = path);
             _bgButton.OnClick += () => PickFile("*.png;*.jpg", path => _bgPath = path);
 
-            // Кнопка подтверждения с красивой текстурой "blue_panel"
-            _confirmButton = new Button(960, 740, 500, 110, "blue_panel", "Создать карту")
+            
+            _confirmButton = new Button(960, 740, 500, 110, "module-window7", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
                 Layer = 15

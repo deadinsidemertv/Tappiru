@@ -10,6 +10,7 @@ using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.UI.Sprite;
+using static TappiruCS.UI.API.ContentPath;
 
 namespace TappiruCS.State.SongSelector.RankingPanel
 {
@@ -173,7 +174,7 @@ namespace TappiruCS.State.SongSelector.RankingPanel
         private static int ResolveGradeTexture(PlayerScore score)
         {
             string gradeName = CalculateGrade(score._accuraci);
-            return TextureLoader.Load($"Textures/grade/{gradeName}.png");
+            return TextureManager.GetTexture(gradeName);
         }
 
         private static string CalculateGrade(float accuracy)

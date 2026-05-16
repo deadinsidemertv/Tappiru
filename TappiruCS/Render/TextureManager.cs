@@ -1,4 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using TappiruCS.UI.API;
+using static TappiruCS.UI.API.ContentPath;
 
 namespace TappiruCS.Render
 {
@@ -6,24 +8,19 @@ namespace TappiruCS.Render
     {
         private static readonly Dictionary<string, int> _textures = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Загружает текстуру по имени актива (без расширения).
-        /// Поддерживает подпапки! Пример: "Font/MyFont_0"
-        /// </summary>
+
         public static int GetTexture(string assetPath)
         {
             if (_textures.TryGetValue(assetPath, out int id))
                 return id;
 
-            // Порядок расширений (TGA у тебя в приоритете)
             string[] extensions = { ".png", ".tga", ".jpg", ".jpeg" };
-
             string fullPath = null;
 
-            // 1. Пробуем как есть (с подпапкой)
+            // 1. Прямой путь с подпапками из assetPath
             foreach (var ext in extensions)
             {
-                string testPath = $"Textures/{assetPath}{ext}";
+                string testPath = TEXTURES_ROOT.Combine(assetPath + ext);
                 if (File.Exists(testPath))
                 {
                     fullPath = testPath;
@@ -31,16 +28,17 @@ namespace TappiruCS.Render
                 }
             }
 
-            // 2. Если не нашли — пробуем без подпапки (на всякий случай)
+            // 2. Если не нашли — ищем рекурсивно по всей папке Textures
             if (fullPath == null)
             {
-                string assetName = Path.GetFileName(assetPath);
-                foreach (var ext in extensions)
+                string fileName = Path.GetFileName(assetPath);
+                var files = Directory.GetFiles(TEXTURES_ROOT, fileName + ".*", SearchOption.AllDirectories);
+                foreach (var file in files)
                 {
-                    string testPath = $"Textures/{assetName}{ext}";
-                    if (File.Exists(testPath))
+                    string ext = Path.GetExtension(file);
+                    if (extensions.Contains(ext, StringComparer.OrdinalIgnoreCase))
                     {
-                        fullPath = testPath;
+                        fullPath = file;
                         break;
                     }
                 }
@@ -48,14 +46,12 @@ namespace TappiruCS.Render
 
             if (fullPath == null || !File.Exists(fullPath))
             {
-                Console.WriteLine($"[ERROR] Текстура не найдена: {assetPath} (проверяли .png/.tga/.jpg/.jpeg в Textures/ и подпапках)");
+                Console.WriteLine($"[ERROR] Текстура не найдена: {assetPath}");
                 return 0;
             }
 
             id = TextureLoader.Load(fullPath);
             _textures[assetPath] = id;
-
-            
             return id;
         }
 
