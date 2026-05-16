@@ -33,7 +33,7 @@ namespace TappiruCS.UI
 
         public float LeftPadding { get; set; } = 25f;
         public float RightPadding { get; set; } = 120f;
-        public float IconSpacing { get; set; } = 8f;
+        public float IconSpacing { get; set; } = 3f;
 
         public event Action<string>? OnTextChanged;
         public event Action? OnEnterPressed;
@@ -58,9 +58,9 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            InputBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
+            InputBackground = new SpriteObject(TextureManager.GetTexture("simple_inputfield"), 0, 0, width, height)
             {
-                Color = "#0b0c16"
+                Opacity = 0.8f,
             };
 
             _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)

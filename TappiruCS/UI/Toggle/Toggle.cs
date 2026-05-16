@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using GLib;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,8 @@ namespace TappiruCS.UI.Toggle
         public bool IsSelected = false;
         public SpriteObject sprite;
 
-        public Color4 idleColor = Color4.White;
-        public Color4 SelectedColor = Color4.Green;
+        public UIColor idleColor = Color4.White;
+        public UIColor SelectedColor = "#1d1e3c";
 
         private const float HoverBrightness = 0.5f;
 

@@ -113,5 +113,38 @@ namespace TappiruCS.State.Edit.SaveLoad
             using var stream = entry.Open();
             stream.Write(Encoding.UTF8.GetBytes(json));
         }
+
+        public void PublishMap(string songsRoot = "Songs", bool overwrite = true)
+        {
+            if (string.IsNullOrEmpty(ProjectDir) || !Directory.Exists(ProjectDir))
+                throw new InvalidOperationException("Проект не открыт — нечего копировать.");
+
+            string projectName = Path.GetFileNameWithoutExtension(TappzPath)
+                                 ?? Path.GetFileName(ProjectDir);
+
+            string targetDir = Path.Combine(songsRoot, projectName);
+
+            Directory.CreateDirectory(songsRoot);
+            CopyDirectory(ProjectDir, targetDir, overwrite);
+
+            Console.WriteLine($"[ProjectIO] Проект скопирован в Songs/{projectName}");
+        }
+
+        private static void CopyDirectory(string sourceDir, string targetDir, bool overwrite)
+        {
+            Directory.CreateDirectory(targetDir);
+
+            foreach (string file in Directory.GetFiles(sourceDir))
+            {
+                string destFile = Path.Combine(targetDir, Path.GetFileName(file));
+                File.Copy(file, destFile, overwrite);
+            }
+
+            foreach (string dir in Directory.GetDirectories(sourceDir))
+            {
+                string destDir = Path.Combine(targetDir, Path.GetFileName(dir));
+                CopyDirectory(dir, destDir, overwrite);
+            }
+        }
     }
 }

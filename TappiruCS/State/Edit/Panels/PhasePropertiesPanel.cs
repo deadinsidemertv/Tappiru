@@ -156,15 +156,17 @@ namespace TappiruCS.State.Edit.UI.Panels
             PhraseProperties.AddChild(_inputEndTime);
 
             // === Кнопка удаления ===
-            var delete = new Button(0, 150, 200, 70, "blue_panel", "удалить фразу");
+            var delete = new Button(0, 540, 502, 97, "delete_button", "удалить фразу");
             delete.Label.Color = Color4.Red;
-            delete.Label.FontSize = 28f;
+            delete.Label.FontSize = 36f;
+            delete.ScaleMultiply = 0.67f;
             delete.Label.FontKey = "Game";
             delete.Label.Align = TextAlign.Center;
+            delete.TextOffset = new Vector2(5, 5);
             delete.Layer = 5;
             delete.OnClick += DeleteObject;
 
-            PhraseProperties.AddChild(delete);     // ← Правильно: как ребёнок панели
+            PhraseProperties.AddChild(delete);    
             _currentDeleteButton = delete;
         }
 
@@ -201,10 +203,12 @@ namespace TappiruCS.State.Edit.UI.Panels
             PhraseProperties.AddChild(_inputSliderEndTime);
 
             // Кнопка удаления
-            var delete = new Button(0, 20, 200, 70, "blue_panel", "удалить слайдер");
+            var delete = new Button(0, 540, 502, 97, "delete_button", "удалить слайдер");
             delete.Label.Color = Color4.Red;
-            delete.Label.FontSize = 28f;
+            delete.Label.FontSize = 36f;
+            delete.ScaleMultiply = 0.67f;
             delete.Label.FontKey = "Game";
+            delete.TextOffset = new Vector2(5, 5);
             delete.Label.Align = TextAlign.Center;
             delete.Layer = 5;
             delete.OnClick += DeleteObject;

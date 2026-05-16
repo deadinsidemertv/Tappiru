@@ -223,9 +223,9 @@ namespace TappiruCS.State.Edit.Panels
 
             _currentPhrase = phrase;
 
-            _scrollContainer = new ScrollContainer(70, 380, 400, 500, 20) { Layer = 10 };
+            _scrollContainer = new ScrollContainer(70, 420, 400, 500, 20) { Layer = 10 };
             _scrollContainer.SetZone(100, 250, 300, 520);
-            _scrollContainer.Debug = true;
+            //_scrollContainer.Debug = true;
             
 
             _inputToIndex.Clear();

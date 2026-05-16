@@ -31,43 +31,47 @@ namespace TappiruCS.State.Edit.Panels
         {
 
             Hide();
-            infoContaner = new Container(160, 450);
+            infoContaner = new Container(160, 470);
             
 
-            var _titletext = new TextObject("Title", -150, -30, 36f);
+            var _titletext = new TextObject("TITLE", -150, -30, 36f);
             _titletext.FontKey = "Game";
             _titletext.Align = TextAlign.Left;
-            _titletext.Color = "#919bb8";
-            var _titleInputField = new InputField(0, 0, 300, 40);
+            _titletext.Color = "#8d9098";
+            var _titleInputField = new InputField(0, 0, 300, 38);
+            _titleInputField.LeftPadding = 8;
             _titleInputField.Text = _editState.title;
 
             _titleInputField.OnTextChanged += OnTitleChanged;
 
-            var _artisttext = new TextObject("Artist", -150, 70, 36f);
+            var _artisttext = new TextObject("ARTIST", -150, 70, 36f);
             _artisttext.FontKey = "Game";
             _artisttext.Align = TextAlign.Left;
-            _artisttext.Color = "#919bb8";
+            _artisttext.Color = "#8d9098";
             var _artistinputfield = new InputField(0, 100, 300, 40);
+            _artistinputfield.LeftPadding = 8;
             _artistinputfield.Text = _editState.artist;
 
             _artistinputfield.OnTextChanged += OnArtistChanged;
 
-            var _previewtimetext = new TextObject("Preview Time", -150, 170, 36f);
+            var _previewtimetext = new TextObject("START", -150, 170, 36f);
             _previewtimetext.FontKey = "Game";
             _previewtimetext.Align = TextAlign.Left;
-            _previewtimetext.Color = "#919bb8";
-            _previveTimeInputField = new InputField(0, 200, 120, 40);
+            _previewtimetext.Color = "#8d9098";
+            _previveTimeInputField = new InputField(-90, 200, 120, 35);
             _previveTimeInputField.PlaceHolderText = "...";
+            _previveTimeInputField.LeftPadding = 8;
             _previveTimeInputField.Text = _editState.previewTime.ToString();
             _previveTimeInputField.OnTextChanged += OnPreviewTimeChanged;
 
 
-            var _endtimetext = new TextObject("End Time", -150, 270, 36f);
+            var _endtimetext = new TextObject("END", -150, 270, 36f);
             _endtimetext.FontKey = "Game";
             _endtimetext.Align = TextAlign.Left;
-            _endtimetext.Color = "#919bb8";
-            _endTimeInputField = new InputField(0, 300, 120, 40);
+            _endtimetext.Color = "#8d9098";
+            _endTimeInputField = new InputField(-90, 300, 120, 35);
             _endTimeInputField.PlaceHolderText = "...";
+            _endTimeInputField.LeftPadding = 8;
             _endTimeInputField.Text = _editState.endTime.ToString();
             _endTimeInputField.OnTextChanged += OnEndTimeChanged;
 
