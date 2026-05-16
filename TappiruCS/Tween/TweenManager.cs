@@ -1,4 +1,4 @@
-﻿using TappiruCS.Core.GameObject;
+﻿using OpenTK.Mathematics;
 
 namespace TappiruCS.Tween
 {
@@ -14,8 +14,18 @@ namespace TappiruCS.Tween
 
         public void Update(double dt)
         {
-            foreach (var t in _tweens)
-                t.Update(dt);
+            for (int i = _tweens.Count - 1; i >= 0; i--)
+            {
+                var tween = _tweens[i];
+                tween.Update(dt);
+
+                // Удаляем завершённые твины, чтобы не копились в памяти
+                if (tween is Tween<float> ft && ft.IsCompleted ||
+                    tween is Tween<Vector2> vt && vt.IsCompleted)
+                {
+                    _tweens.RemoveAt(i);
+                }
+            }
         }
     }
 }

@@ -6,8 +6,8 @@ namespace TappiruCS.Tween
     {
         public static void AddHoverOpacity(this GameObject obj, Func<bool> isHovered, float duration = 0.2f)
         {
-            var anim = new OpacityHoverAnim(obj, isHovered, duration);
-            Scene.Current.TweenManager.Add(anim);
+            var hover = new HoverOpacityTween(obj, isHovered, duration);
+            Scene.Current.TweenManager.Add(hover);
         }
     }
 }

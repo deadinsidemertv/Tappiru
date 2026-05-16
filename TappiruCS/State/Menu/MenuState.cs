@@ -14,10 +14,10 @@ using TappiruCS.Server.Player;
 using TappiruCS.State.Edit;
 using TappiruCS.State.Menu.Option;
 using TappiruCS.State.SongSelector;
-using TappiruCS.UI;
-using TappiruCS.UI.TextAbstract;
 using TappiruCS.Tween;
+using TappiruCS.UI;
 using TappiruCS.UI.Sprite;
+using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Menu
 {
@@ -212,7 +212,8 @@ namespace TappiruCS.State.Menu
                 hintText.Color = hover ? new Color4(205, 58, 104, 255) : Color4.DarkSlateGray;
             };
 
-            btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered,0.5f);
+            btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered,0.25f);
+            
 
             btn.InitializeHoverState();
             
