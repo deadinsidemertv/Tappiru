@@ -34,7 +34,7 @@ namespace TappiruCS.State.Edit.Panels
 
             _panel = new NineSliceSprite(TextureManager.GetTexture("module-window9"), 960, 540, 1100, 520)
             {
-                SliceBorders = new Vector4(12, 12, 12, 12)
+                //SliceBorders = new Vector4(100, 100, 100, 100)
             };
             _panel.Layer = 15;
 

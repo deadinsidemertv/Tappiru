@@ -72,6 +72,9 @@ namespace TappiruCS.Render
         public void InvalidateTextureSize(int textureId)
             => _texSizeCache.Remove(textureId);
 
+        public float GetTextureWidth(int textureId) => GetTextureSize(textureId).w;
+        public float GetTextureHeight(int textureId) => GetTextureSize(textureId).h;
+
         // ── Draw ──────────────────────────────────────────────────────────────────
 
         public void Draw(int textureId,

@@ -114,6 +114,7 @@ namespace TappiruCS.State.Menu
                 Tag = "username"
                 
             };
+            _loginInput.InputBackground.SliceBorders = new Vector4(2, 2, 2, 2);
             _loginInput.SetIconLeft("userico");
 
             _passwordInput = new InputField(240, 795, 430, 60)
@@ -123,6 +124,7 @@ namespace TappiruCS.State.Menu
                 Layer = 4,
                 ScaleMultiply = 0.7f,
             };
+            _passwordInput.InputBackground.SliceBorders = new Vector4(2, 2, 2, 2);
             _passwordInput.SetIconRight("view");
             _passwordInput.SetIconLeft("locked");
 
