@@ -17,6 +17,8 @@ namespace TappiruCS.Render.Text.FreeType
 
         public float LineHeight { get; private set; }
         public float Ascender { get; private set; }
+        public float Descender { get; private set; } // отрицательное значение в FreeType
+
         public int CurrentSize { get; private set; }
 
         public FreeTypeRender(SpriteBatch sb, string fontPath, int pixelSize = 48)
@@ -36,7 +38,14 @@ namespace TappiruCS.Render.Text.FreeType
             var m = _face.Size.Metrics;
             LineHeight = m.Height.ToSingle();
             Ascender = m.Ascender.ToSingle();
+            Descender = m.Descender.ToSingle(); // < 0
         }
+
+        /// <summary>
+        /// Возвращает Descender (отрицательное число в FreeType метриках).
+        /// Используется для вертикального центрирования текста.
+        /// </summary>
+        public float GetDescender() => Descender;
 
         /// <summary>
         /// Возвращает scale такой, что текст с fontSize визуально совпадает
@@ -160,11 +169,7 @@ namespace TappiruCS.Render.Text.FreeType
         }
 
         // ── GetCharBounds ──────────────────────────────────────────────────────────
-        /// <summary>
-        /// Возвращает экранные bounds каждого символа строки.
-        /// x,y — верхний левый угол растра символа в экранных пикселях.
-        /// Используется в PhraseDisplayRenderer для рамок слайдеров и glow.
-        /// </summary>
+
         public (float x, float y, float width, float height)[]? GetCharBounds(
             string text,
             float centerX, float centerY,
@@ -283,10 +288,7 @@ namespace TappiruCS.Render.Text.FreeType
         }
 
         // ── DrawStringWithCharColors ───────────────────────────────────────────────
-        /// <summary>
-        /// Рисует строку где каждый символ может иметь свой цвет.
-        /// Используется в PhraseDisplayRenderer.
-        /// </summary>
+
         public void DrawStringWithCharColors(
             string text,
             float startX, float startY,
@@ -370,78 +372,58 @@ namespace TappiruCS.Render.Text.FreeType
             DrawString(text, startX, startY, scaleX, scaleY, r, g, b, a, projection, align);
         }
 
-        // ── Dispose ────────────────────────────────────────────────────────────────
+        // ── Вспомогательные ───────────────────────────────────────────────────────
+
         public void DrawSingleGlyph(
-    char c,
-    float screenX,      // левый край растра глифа (как в charBounds)
-    float screenY,      // верхний край растра глифа (как в charBounds)
-    float scaleX,
-    float scaleY,
-    float r, float g, float b, float a,
-    Matrix4 projection)
+            char c,
+            float screenX, float screenY,
+            float scaleX, float scaleY,
+            float r, float g, float b, float a,
+            Matrix4 projection)
         {
             if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null || glyph.TextureId <= 0)
                 return;
 
             var info = glyph.Info;
-
-            if (info.Width <= 0 || info.Height <= 0)
-                return;
+            if (info.Width <= 0 || info.Height <= 0) return;
 
             _spriteBatch.Draw(
                 glyph.TextureId,
-                screenX,                    // уже правильная X с bearing
-                screenY,                    // уже правильная Y с bearing
-                info.Width * scaleX,
-                info.Height * scaleY,
+                screenX, screenY,
+                info.Width * scaleX, info.Height * scaleY,
                 0f, 0f, 1f, 1f,
                 r, g, b, a, projection);
         }
+
         public float GetBaselineOffset(char c)
         {
             if (!TryGetRenderedGlyph(c, out var glyph) || glyph == null)
-                return Ascender * 0.7f; // приближение
-
-            return glyph.Info.BearingY; // BearingY обычно уже относительно baseline
+                return Ascender * 0.7f;
+            return glyph.Info.BearingY;
         }
+
         public float GetBearingY(char c)
         {
             if (TryGetRenderedGlyph(c, out var glyph) && glyph != null)
                 return glyph.Info.BearingY;
-
-            // Fallback
             return Ascender * 0.7f;
         }
 
         public Vector2 MeasureString(string text, float scaleX, float scaleY)
         {
-            if (string.IsNullOrEmpty(text))
-                return Vector2.Zero;
-
-            float width = CalculateTextWidth(text, scaleX);
-
-            // Высота = LineHeight (самый надёжный способ для FreeType)
-            float height = LineHeight * scaleY;
-
-            return new Vector2(width, height);
-        }
-        public void Dispose()
-        {
-            foreach (var g in _glyphCache.Values)
-                if (g != null && g.TextureId > 0)
-                    GL.DeleteTexture(g.TextureId);
-            _face?.Dispose();
+            if (string.IsNullOrEmpty(text)) return Vector2.Zero;
+            return new Vector2(
+                CalculateTextWidth(text, scaleX),
+                LineHeight * scaleY);
         }
 
         public RectangleF GetTextBounds(
-    string text,
-    float anchorX,
-    float anchorY,
-    float baseScale,
-    float scaleMultiply,
-    Vector2 canvasScale,
-    TextAlign align = TextAlign.Left,
-    Vector2? pivot = null)
+            string text,
+            float anchorX, float anchorY,
+            float baseScale, float scaleMultiply,
+            Vector2 canvasScale,
+            TextAlign align = TextAlign.Left,
+            Vector2? pivot = null)
         {
             if (string.IsNullOrEmpty(text))
                 return new RectangleF(anchorX, anchorY, 0, 0);
@@ -449,29 +431,19 @@ namespace TappiruCS.Render.Text.FreeType
             float scaleX = baseScale * scaleMultiply * canvasScale.X;
             float scaleY = baseScale * scaleMultiply * canvasScale.Y;
 
-            // 1. Вычисляем ширину
             float textWidth = CalculateTextWidth(text, scaleX);
             if (textWidth <= 0)
                 return new RectangleF(anchorX, anchorY, 0, LineHeight * scaleY);
 
-            // 2. Начальная позиция пера с учётом alignment
             float penX = anchorX;
             switch (align)
             {
-                case TextAlign.Center:
-                    penX -= textWidth * 0.5f;
-                    break;
-                case TextAlign.Right:
-                    penX -= textWidth;
-                    break;
+                case TextAlign.Center: penX -= textWidth * 0.5f; break;
+                case TextAlign.Right: penX -= textWidth; break;
             }
 
-            // 3. Находим реальные min/max координаты с учётом bearing'ов
-            float minX = float.MaxValue;
-            float maxX = float.MinValue;
-            float minY = float.MaxValue;
-            float maxY = float.MinValue;
-
+            float minX = float.MaxValue, maxX = float.MinValue;
+            float minY = float.MaxValue, maxY = float.MinValue;
             char prev = '\0';
             float currentPenX = penX;
 
@@ -496,27 +468,31 @@ namespace TappiruCS.Render.Text.FreeType
                 }
                 else
                 {
-                    // fallback для невидимого символа
                     currentPenX += CalculateTextWidth(c.ToString(), scaleX);
                 }
-
                 prev = c;
             }
 
             float boundsWidth = maxX - minX;
             float boundsHeight = maxY - minY;
 
-            // 4. Применяем Pivot (если указан)
             if (pivot.HasValue)
             {
-                float pivotOffsetX = boundsWidth * (0.5f - pivot.Value.X);
-                float pivotOffsetY = boundsHeight * (0.5f - pivot.Value.Y);
-
-                minX += pivotOffsetX;
-                minY += pivotOffsetY;
+                minX += boundsWidth * (0.5f - pivot.Value.X);
+                minY += boundsHeight * (0.5f - pivot.Value.Y);
             }
 
             return new RectangleF(minX, minY, boundsWidth, boundsHeight);
+        }
+
+        // ── Dispose ────────────────────────────────────────────────────────────────
+
+        public void Dispose()
+        {
+            foreach (var g in _glyphCache.Values)
+                if (g != null && g.TextureId > 0)
+                    GL.DeleteTexture(g.TextureId);
+            _face?.Dispose();
         }
     }
 }

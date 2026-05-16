@@ -450,9 +450,7 @@ namespace TappiruCS.State.SongSelector
         {
             var button = new ListElementButton(0, 0, 1400, 212, "SongButton", displayName, map)
             {
-                TextOffset = new Vector2(-440f, -40f),
-                ImageScale = new Vector2(0.16f, 0.75f),
-                ImageOffset = new Vector2(-570f, 0f),
+                TextOffset = new Vector2(-300f, -40f),
                 Layer = _mapList.Layer,
                 Tag = "List",
             };

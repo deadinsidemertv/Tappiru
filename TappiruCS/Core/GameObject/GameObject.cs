@@ -35,6 +35,8 @@ namespace TappiruCS.Core.GameObject
         // === PIVOT SYSTEM ===
         public Vector2 Pivot { get; set; } = new Vector2(0.5f, 0.5f);
 
+        // "Родной" ScaleMultiply объекта до умножения на родителя.
+        // -1f = ещё не инициализирован (запомним при первом Update).
         public float _baseScaleMultiply = -1f;
 
         // ====================== ИЕРАРХИЯ ======================
@@ -75,8 +77,19 @@ namespace TappiruCS.Core.GameObject
                 if (!child.Active) continue;
 
                 child.CanvasScale = CanvasScale;
-                child.WorldPosition = child.GetWorldPosition();
 
+                // ── Каскад ScaleMultiply ──────────────────────────────────────────
+                // При первом Update запоминаем "родной" ScaleMultiply ребёнка.
+                // Это позволяет объекту иметь собственный масштаб (например TextObject
+                // с FontSize-зависимым scale), который затем умножается на цепочку
+                // родителей — точно так же, как матрица трансформации.
+                if (child._baseScaleMultiply < 0f)
+                    child._baseScaleMultiply = child.ScaleMultiply;
+
+                child.ScaleMultiply = child._baseScaleMultiply * ScaleMultiply;
+                // ─────────────────────────────────────────────────────────────────
+
+                child.WorldPosition = child.GetWorldPosition();
                 child.Update(deltaTime, mouse);
             }
         }
@@ -157,8 +170,13 @@ namespace TappiruCS.Core.GameObject
 
         public virtual (float designLeft, float designTop, float effWidth, float effHeight) GetDesignBounds()
         {
-            float effWidth = Scale.X * EffectiveScaleMultiply;
-            float effHeight = Scale.Y * EffectiveScaleMultiply;
+            // ScaleMultiply уже каскадный после Update, поэтому используем его напрямую.
+            // EffectiveScaleMultiply оставлен как запасной вариант для случаев,
+            // когда GetDesignBounds вызывается до первого Update (например в редакторе).
+            float mul = _baseScaleMultiply >= 0f ? ScaleMultiply : EffectiveScaleMultiply;
+
+            float effWidth = Scale.X * mul;
+            float effHeight = Scale.Y * mul;
             float pivotOffsetX = effWidth * Pivot.X;
             float pivotOffsetY = effHeight * Pivot.Y;
 
@@ -168,6 +186,7 @@ namespace TappiruCS.Core.GameObject
             return (designLeft, designTop, effWidth, effHeight);
         }
 
+        // Оставляем как fallback — используется до первого Update или в редакторе.
         public float EffectiveScaleMultiply
         {
             get

@@ -15,7 +15,7 @@ namespace TappiruCS.State.Edit.Panels
         private readonly Action<string, string> _onOk;
         private readonly Action _onClose;
 
-        private SpriteObject _panel = null!;
+        private NineSliceSprite _panel = null!;
         private InputField _inputMain = null!;      // Основной текст
         private InputField _inputTrans = null!;     // Транскрипция
         private Button _okButton = null!;           // ← Добавили поле
@@ -32,57 +32,69 @@ namespace TappiruCS.State.Edit.Panels
         {
             obj.Clear();
 
-            _panel = new SpriteObject(TextureManager.GetTexture("module-window7"), 960, 540, 1100, 520);
+            _panel = new NineSliceSprite(TextureManager.GetTexture("module-window9"), 960, 540, 1100, 520)
+            {
+                SliceBorders = new Vector4(12, 12, 12, 12)
+            };
+            _panel.Layer = 15;
 
             // Заголовок
-            var titleText = new TextObject(_title, 960, 380, 48f)
+            var titleText = new TextObject(_title, 0, -200, 48f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Center,
-                FixedColor = true
+                FixedColor = true,
+                Layer = 16
             };
-
+            _panel.AddChild(titleText);
             // Верхнее поле
-            var labelMain = new TextObject("Текст песни (как в игре):", 960, 460, 36f)
+            var labelMain = new TextObject("Текст песни (как в игре):", 0, -100, 36f)
             {
                 Color = new Color4(0.7f, 0.9f, 1f, 1f),
                 Align = TextAlign.Center,
-                FixedColor = true
+                FixedColor = true,
+                Layer = 16
             };
+            _panel.AddChild(labelMain);
 
-            _inputMain = new InputField(960, 520, 900, 80)
+            _inputMain = new InputField(0, -30, 900, 82)
             {
-                PlaceHolderText = "Введите текст фразы..."
+                PlaceHolderText = "Введите текст фразы...",
+                Layer = 16
             };
-
+            _inputMain.InputText.FontSize = 64f;
+            _inputMain.PlaceHolder.FontSize = 48f;
+            _panel.AddChild(_inputMain);
             // Нижнее поле
-            var labelTrans = new TextObject("Транскрипция (romaji / lowercase):", 960, 620, 36f)
+            var labelTrans = new TextObject("Транскрипция (romaji / lowercase):", 0, 30, 36f)
             {
                 Color = new Color4(0.8f, 0.8f, 1f, 1f),
                 Align = TextAlign.Center,
-                FixedColor = true
+                FixedColor = true,
+                Layer = 16
             };
+            _panel.AddChild(labelTrans);
 
-            _inputTrans = new InputField(960, 680, 900, 80)
+            _inputTrans = new InputField(0, 100, 900, 80)
             {
-                PlaceHolderText = "konnichiwa sekai (оставьте пустым для автозаполнения)"
+                PlaceHolderText = "Введите транскрипцию",
+                Layer = 16
             };
+            _inputTrans.InputText.FontSize = 64f;
+            _inputTrans.PlaceHolder.FontSize = 48f;
+            _panel.AddChild(_inputTrans);
 
-            _okButton = new Button(960, 800, 300, 90, "SimpleGradientButton1", "OK")
+            _okButton = new Button(0, 190, 300, 90, "SimpleGradientButton1", "OK")
             {
-                ScaleMultiply = 0.7f,
-                Layer = 2
+                ScaleMultiply = 1f,
+                Layer = 16,
+                
             };
-
+            _okButton.Label.FontKey = "Game";
+            _panel.AddChild(_okButton);
             _okButton.OnClick += OnOkClicked;
 
             obj.Add(_panel);
-            obj.Add(titleText);
-            obj.Add(labelMain);
-            obj.Add(_inputMain);
-            obj.Add(labelTrans);
-            obj.Add(_inputTrans);
-            obj.Add(_okButton);
 
             base.Show();
         }

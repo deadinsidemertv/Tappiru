@@ -12,7 +12,9 @@ namespace TappiruCS.UI
 {
     public class Button : GameObject
     {
-        // Смещение текста относительно центра кнопки (в дизайн-единицах)
+        // Смещение текста относительно центра кнопки (в дизайн-единицах).
+        // Не умножать на ScaleMultiply — это делает каскад в GameObject.Update
+        // через GetWorldPosition() → WorldPosition = Parent.WorldPosition + LocalPosition.
         public Vector2 TextOffset { get; set; } = Vector2.Zero;
 
         public Color4 NormalColor { get; set; } = new Color4(1f, 1f, 1f, 1f);
@@ -65,8 +67,6 @@ namespace TappiruCS.UI
 
         public override void Update(double deltaTime, MouseState mouse)
         {
-            base.Update(deltaTime, mouse);
-
             // Цвет фона по состоянию
             _currentColor = IsHovered
                 ? mouse.IsButtonDown(MouseButton.Left) ? PressColor : HoverColor
@@ -77,12 +77,15 @@ namespace TappiruCS.UI
             if (IsHovered && mouse.IsButtonPressed(MouseButton.Left))
                 OnClick?.Invoke();
 
-            // TextOffset: смещаем LocalPosition лейбла, не WorldPosition
-            // Это безопасно — LocalPosition пересчитывается в Update каждый кадр
-            Label.LocalPosition = new Vector2(
-                TextOffset.X * ScaleMultiply,
-                TextOffset.Y * ScaleMultiply
-            );
+            // TextOffset задан в дизайн-единицах — присваиваем напрямую.
+            // ScaleMultiply НЕ нужен здесь: масштаб каскадируется через
+            // GameObject.Update → child.ScaleMultiply = base * parent,
+            // а WorldPosition пересчитывается через GetWorldPosition().
+            Label.LocalPosition = TextOffset;
+
+            // Вызываем base ПОСЛЕ того, как задали LocalPosition лейбла,
+            // чтобы base.Update обработал детей с уже актуальным offset.
+            base.Update(deltaTime, mouse);
         }
 
         public override void Draw(Matrix4 projection)

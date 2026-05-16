@@ -196,7 +196,7 @@ namespace TappiruCS.State.Menu
             var btn = new Button(300, y, 620, 120, "menuButton", text)
             {
                 Layer = 2,
-                TextOffset = new Vector2(-230f, 20f),
+                TextOffset = new Vector2(-230f, 0f),
                 ScaleMultiply = 0.8f,
                 Tag = "menuButtonn",
                 

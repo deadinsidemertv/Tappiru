@@ -22,10 +22,6 @@ namespace TappiruCS.State.SongSelector.SongList
             set => _thumbnail._textureId = value;
         }
 
-        // Параметры расположения картинки (настраиваются снаружи)
-        public Vector2 ImageOffset { get; set; } = new Vector2(-570f, 0f);
-        public Vector2 ImageScale { get; set; } = new Vector2(0.16f, 0.75f);
-
         public readonly SpriteObject Fade;
         public readonly List<SpriteObject> Stars;
 
@@ -43,11 +39,12 @@ namespace TappiruCS.State.SongSelector.SongList
             };
 
             // Картинка — только у этой кнопки
-            _thumbnail = new SpriteObject(0, 0, 0, 1f, 1f)
+            _thumbnail = new SpriteObject(0, -400, 0, 640f, 360f)
             {
                 Pivot = new Vector2(0.5f, 0.5f),
                 Active = false,
-                AllowHover = false
+                AllowHover = false,
+                ScaleMultiply = 0.38f
             };
 
             _buttonBackground.Opacity = 0.5f;
@@ -106,12 +103,9 @@ namespace TappiruCS.State.SongSelector.SongList
             _thumbnail.Active = true;
 
             float s = ScaleMultiply;
-            _thumbnail.WorldPosition = new Vector2(
-                WorldPosition.X + ImageOffset.X * s,
-                WorldPosition.Y + ImageOffset.Y * s
-            );
-            _thumbnail.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
-            _thumbnail.ScaleMultiply = 1f;
+
+            //_thumbnail.Scale = new Vector2(Scale.X * ImageScale.X, Scale.Y * ImageScale.Y);
+            //_thumbnail.ScaleMultiply = 1f;
         }
 
         private void UpdateStars()

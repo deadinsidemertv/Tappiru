@@ -156,14 +156,13 @@ namespace TappiruCS.State.Edit
             var btn = new Button(x, 50, 300, 210, "module-window7", label)
             {
                 Layer = 1,
-                TextOffset = new Vector2(0f, 25f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
                 Opacity = 0
             };
             btn.Label.Align = TextAlign.Center;
             btn.Label.Color = Color4.White;
-            btn.Label.FontSize = 48f;
+            btn.Label.FontSize = 72f;
             btn.Label.FontKey = "Game";
             btn.OnClick += onClick;
             btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered, 0.5f);
@@ -238,13 +237,12 @@ namespace TappiruCS.State.Edit
             _addPhraseButton = new Button(960, 1045, 512, 200, "SimpleGradientButton1", "+ Add")
             {
                 Layer = 7,
-                TextOffset = new Vector2(-10, 25),
                 Tag = "noanim",
                 ScaleMultiply = 0.35f
             };
             _addPhraseButton.Label.HasShadow = false;
             _addPhraseButton.Label.FontKey = "Game";
-            _addPhraseButton.Label.FontSize = 48f;
+            _addPhraseButton.Label.FontSize = 120f;
             _addPhraseButton.Label.HasShadow = true;
             _addPhraseButton.Label.ShadowOffset = new Vector2(-2, 2);
             _addPhraseButton.Label.ShadowOpacity = 0.5f;
@@ -253,11 +251,11 @@ namespace TappiruCS.State.Edit
             _saveButton = new Button(1800, 50, 512, 200, "save_button2", "Save")
             {
                 Layer = 1,
-                TextOffset = new Vector2(80, 22f),
+                TextOffset = new Vector2(20, 0),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
-            _saveButton.Label.FontSize = 20f;
+            _saveButton.Label.FontSize = 48f;
             _saveButton.Label.FontKey = "Menu";
             _saveButton.Label.Align = TextAlign.Center;
             _saveButton.Label.Color = Color4.White;
@@ -270,11 +268,11 @@ namespace TappiruCS.State.Edit
             _publishMap = new Button(1600, 50, 500, 200, "upload_button2", "Deploy")
             {
                 Layer = 1,
-                TextOffset = new Vector2(80, 20f),
+                TextOffset = new Vector2(30, 0),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
-            _publishMap.Label.FontSize = 20f;
+            _publishMap.Label.FontSize = 48f;
             _publishMap.Label.FontKey = "Menu";
             _publishMap.Label.Align = TextAlign.Center;
             _publishMap.Label.Color = Color4.White;
@@ -292,7 +290,7 @@ namespace TappiruCS.State.Edit
 
             _switchToMapping = new RadioButton(170, 210, 502, 97, "switch_mode_mapping");
             _switchToMapping.ScaleMultiply = 0.65f;
-            _switchToMappingLabel = new TextObject("Mapping Mode", -70, 8, 40f);
+            _switchToMappingLabel = new TextObject("Mapping Mode", -70, 0, 64f);
             _switchToMappingLabel.FontKey = "Game";
             _switchToMappingLabel.Align = TextAlign.Left;
             _switchToMapping.AddChild(_switchToMappingLabel);
@@ -300,7 +298,7 @@ namespace TappiruCS.State.Edit
 
             _switchToObjects = new RadioButton(170, 285, 502, 97, "switch_mode_objects");
             _switchToObjects.ScaleMultiply = 0.65f;
-            _switchToObjectsLabel = new TextObject("Objects Mode", -70, 8, 40f);
+            _switchToObjectsLabel = new TextObject("Objects Mode", -70, 0, 64f);
             _switchToObjectsLabel.FontKey = "Game";
             _switchToObjectsLabel.Align = TextAlign.Left;
             _switchToObjects.AddChild(_switchToObjectsLabel);
@@ -308,7 +306,7 @@ namespace TappiruCS.State.Edit
 
             _switchToInfo = new RadioButton(170, 365, 502, 97, "switch_mode_info");
             _switchToInfo.ScaleMultiply = 0.65f;
-            _switchToInfoLabel = new TextObject("Info Mode", -70, 8, 40f);
+            _switchToInfoLabel = new TextObject("Info Mode", -70, 0, 64f);
             _switchToInfoLabel.FontKey = "Game";
             _switchToInfoLabel.Align = TextAlign.Left;
             _switchToInfo.AddChild(_switchToInfoLabel);

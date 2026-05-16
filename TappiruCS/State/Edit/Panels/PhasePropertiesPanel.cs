@@ -158,11 +158,11 @@ namespace TappiruCS.State.Edit.UI.Panels
             // === Кнопка удаления ===
             var delete = new Button(0, 540, 502, 97, "delete_button", "удалить фразу");
             delete.Label.Color = Color4.Red;
-            delete.Label.FontSize = 36f;
+            delete.Label.FontSize = 48f;
             delete.ScaleMultiply = 0.67f;
             delete.Label.FontKey = "Game";
             delete.Label.Align = TextAlign.Center;
-            delete.TextOffset = new Vector2(5, 5);
+            delete.Label.ShadowOffset = new Vector2(-2, 1);
             delete.Layer = 5;
             delete.OnClick += DeleteObject;
 
@@ -205,10 +205,10 @@ namespace TappiruCS.State.Edit.UI.Panels
             // Кнопка удаления
             var delete = new Button(0, 540, 502, 97, "delete_button", "удалить слайдер");
             delete.Label.Color = Color4.Red;
-            delete.Label.FontSize = 36f;
+            delete.Label.FontSize = 48f;
             delete.ScaleMultiply = 0.67f;
             delete.Label.FontKey = "Game";
-            delete.TextOffset = new Vector2(5, 5);
+            delete.Label.ShadowOffset = new Vector2(-2, 1);
             delete.Label.Align = TextAlign.Center;
             delete.Layer = 5;
             delete.OnClick += DeleteObject;

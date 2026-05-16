@@ -15,8 +15,8 @@ namespace TappiruCS.UI
     {
         private readonly SpriteObject InputBackground;
         private readonly SpriteObject _selectionBackground;
-        private readonly TextObject InputText;
-        public readonly TextObject PlaceHolder;
+        public  TextObject InputText;
+        public  TextObject PlaceHolder;
 
         public SpriteObject? IconLeft { get; private set; }
         public SpriteObject? IconRight { get; private set; }
@@ -70,7 +70,7 @@ namespace TappiruCS.UI
                 Active = false
             };
 
-            InputText = new TextObject("", 0, 0, 24f)
+            InputText = new TextObject("", 0, -5, 48f)
             {
                 Color = Color4.White,
                 Align = TextAlign.Left,
@@ -78,7 +78,7 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 24f)
+            PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 48f)
             {
                 Color = PlaceHolderColor,
                 Align = TextAlign.Left,
