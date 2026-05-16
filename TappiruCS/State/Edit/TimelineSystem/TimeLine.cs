@@ -4,11 +4,11 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Audio;
 using TappiruCS.State.Edit.Core;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.TimelineSystem
 {

@@ -4,6 +4,7 @@ using TappiruCS.Render;
 using TappiruCS.Render.Text;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.Panels
 {
@@ -34,11 +35,12 @@ namespace TappiruCS.State.Edit.Panels
             };
 
             // Фон окна
-            var background = new SpriteObject(TextureManager.GetTexture("blue_panel"), 0, 0, 800, 420)
+            var background = new NineSliceSprite(TextureManager.GetTexture("blue_panel"), 0, 0, 800, 420)
             {
                 Color = new Color4(0.12f, 0.12f, 0.18f, 0.98f),
                 Layer = 15,
-                AllowHover = false
+                AllowHover = false,
+                SliceBorders = new Vector4(10,10,10,10)
             };
 
             // Заголовок
@@ -87,12 +89,9 @@ namespace TappiruCS.State.Edit.Panels
             _windowContainer.AddChild(messageText);
             _windowContainer.AddChild(btnYes);
             _windowContainer.AddChild(btnNo);
+            _windowContainer.Layer = 20;
 
-            obj.Add(background);
-            obj.Add(titleText);
-            obj.Add(messageText);
-            obj.Add(btnYes);
-            obj.Add(btnNo);
+
             obj.Add(_windowContainer);
 
             base.Show();

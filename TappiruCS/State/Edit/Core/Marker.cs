@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.Core
 {

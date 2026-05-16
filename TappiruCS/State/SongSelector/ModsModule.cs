@@ -8,6 +8,7 @@ using TappiruCS.GameLogic.Mod;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Toggle;
 
 namespace TappiruCS.State.SongSelector
 {
@@ -33,7 +34,7 @@ namespace TappiruCS.State.SongSelector
             };
 
 
-            NoFailBox = new CheckBox(470, 400, 86, 96)
+            NoFailBox = new CheckBox(470, 400, 86, 96,"NoFail")
             {
                 Description = "Вы не можете умереть как бы не старались.",
                 Layer = 11,

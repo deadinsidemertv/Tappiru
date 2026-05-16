@@ -17,6 +17,7 @@ using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Tween;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Menu
 {
@@ -95,12 +96,15 @@ namespace TappiruCS.State.Menu
 
 
             // Login fields
-            _loginText = new TextObject("LOGIN", 120, 720, 72)
+            _loginText = new TextObject("LOGIN", 85, 720, 72)
             {
                 FontKey = "Menu",
                 Color = "#ff5daf",
-                FontSize = 16,
+                FontSize = 24,
+                Align = TextAlign.Left
             };
+            _loginText.SetLocalized("login.title");
+            
             _loginInput = new InputField(240, 750, 430, 60)
             {
                 PlaceHolderText = "username",
@@ -130,13 +134,18 @@ namespace TappiruCS.State.Menu
             _loginButton.Label.Color = Color4.White;
             _loginButton.Label.FontSize = 24f;
             _loginButton.Label.FontKey = "Menu";
+            _loginButton.Label.SetLocalized("login.signin");
             _loginButton.OnClick += async () => await AttemptLoginAsync();
 
             // Main menu buttons (всегда видны)
             var playBtn = CreateMenuButton(305, "Play", StartGame,_text1);
+            playBtn.Label.SetLocalized("menu.play");
             var editBtn = CreateMenuButton(405, "Edit", GoEdit, _text2);
+            editBtn.Label.SetLocalized("menu.edit");
             var optionsBtn = CreateMenuButton(505, "Options", ToggleSettings, _text3);
+            optionsBtn.Label.SetLocalized("menu.options");
             var exitBtn = CreateMenuButton(605, "exit", ExitGame, _text4);
+            exitBtn.Label.SetLocalized("menu.exit");
 
             
 
@@ -178,7 +187,6 @@ namespace TappiruCS.State.Menu
             _scene.Add(currentmusicLabel);
             _scene.Add(currentmusicLabelArtitst);
             _scene.Add(Logo);
-            
 
         }
 

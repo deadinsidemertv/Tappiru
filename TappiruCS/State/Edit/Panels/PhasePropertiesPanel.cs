@@ -7,6 +7,7 @@ using TappiruCS.State.Edit.Core;
 using TappiruCS.State.Edit.TimelineSystem;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.UI.Panels
 {
@@ -52,17 +53,17 @@ namespace TappiruCS.State.Edit.UI.Panels
 
         private void RebuildPanel(ITimelineSelectable? selected)
         {
-            // Удаляем старую панель и старую кнопку (костыль)
-            _scene.Remove(PhraseProperties);
-            if (_currentDeleteButton != null)
-                _scene.Remove(_currentDeleteButton);
-            _currentDeleteButton = null;
+            if (PhraseProperties != null)
+            {
+                _scene.Remove(PhraseProperties);
+                PhraseProperties = null!;
+            }
 
             // Создаём новую панель
             PhraseProperties = new Container(1743, 420);
 
             // Фон
-            var spriteBackground = new SpriteObject(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
+            var spriteBackground = new NineSliceSprite(TextureManager.GetTexture("blue_panel"), 0, -110, 345, 400);
             PhraseProperties.AddChild(spriteBackground);
 
             // Заголовок всегда "Свойства"
@@ -75,122 +76,153 @@ namespace TappiruCS.State.Edit.UI.Panels
             if (selected == null)
             {
                 _scene.Add(PhraseProperties);
-                _currentSelectable = null;
-                _currentPhrase = null;
-                _inputDisplay = _inputTrans = _inputStartTime = _inputEndTime = null;
-                _inputSliderStartTime = _inputSliderEndTime = null;
+                ClearInputs();
                 return;
             }
 
-            // Выбран Phrase
             if (selected is Phrase phrase)
             {
                 _currentSelectable = phrase;
                 _currentPhrase = phrase;
 
-                var displayLabel = new TextObject("Текст", -160, -220, 28f);
-                displayLabel.Color = "#919bb8";
-                displayLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(displayLabel);
-
-                _inputDisplay = new InputField(-7, -190, 310, 35);
-                _inputDisplay.LeftPadding = 12f;
-                _inputDisplay.Text = phrase.Text ?? "";
-                _inputDisplay.OnTextChanged += OnDisplayTextChanged;
-                PhraseProperties.AddChild(_inputDisplay);
-
-                var transLabel = new TextObject("Транскрипция", -160, -150, 28f);
-                transLabel.Color = "#919bb8";
-                transLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(transLabel);
-
-                _inputTrans = new InputField(-7, -120, 310, 35);
-                _inputTrans.LeftPadding = 12f;
-                _inputTrans.Text = phrase.Transcription ?? "";
-                _inputTrans.OnTextChanged += OnTranscriptionChanged;
-                PhraseProperties.AddChild(_inputTrans);
-
-                var startLabel = new TextObject("Начало (сек)", -160, -80, 28f);
-                startLabel.Color = "#919bb8";
-                startLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(startLabel);
-
-                _inputStartTime = new InputField(-7, -50, 150, 35);
-                _inputStartTime.LeftPadding = 12f;
-                _inputStartTime.Text = phrase.StartTime.ToString("F2");
-                _inputStartTime.OnTextChanged += OnStartTimeChanged;
-                PhraseProperties.AddChild(_inputStartTime);
-
-                var endLabel = new TextObject("Конец (сек)", -160, -10, 28f);
-                endLabel.Color = "#919bb8";
-                endLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(endLabel);
-
-                _inputEndTime = new InputField(-7, 20, 150, 35);
-                _inputEndTime.LeftPadding = 12f;
-                _inputEndTime.Text = phrase.EndTime.ToString("F2");
-                _inputEndTime.OnTextChanged += OnEndTimeChanged;
-                PhraseProperties.AddChild(_inputEndTime);
-
-                // Кнопка удаления – добавляем и в контейнер, и в сцену (костыль)
-                var delete = new Button(0, 150, 200, 70, "blue_panel", "удалить фразу");
-                delete.Label.Color = Color4.Red;
-                delete.Label.FontSize = 28f;
-                delete.Label.FontKey = "Game";
-                delete.Label.Align = TextAlign.Center;
-                delete.Layer = 5;
-                delete.OnClick += DeleteObject;
-                PhraseProperties.AddChild(delete);
-                _scene.Add(delete);
-                _currentDeleteButton = delete;
+                AddPhraseControls(phrase);
             }
-            // Выбран SliderTiming
             else if (selected is SliderTiming slider)
             {
                 _currentSelectable = slider;
                 _currentPhrase = null;
 
-                var sliderLabel = new TextObject("Слайдер", -160, -220, 28f);
-                sliderLabel.Color = "#919bb8";
-                sliderLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(sliderLabel);
-
-                var startLabel = new TextObject("Начало (сек)", -160, -160, 28f);
-                startLabel.Color = "#919bb8";
-                startLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(startLabel);
-
-                _inputSliderStartTime = new InputField(-7, -130, 150, 35);
-                _inputSliderStartTime.LeftPadding = 12f;
-                _inputSliderStartTime.Text = slider.startTime.ToString("F2");
-                _inputSliderStartTime.OnTextChanged += OnSliderStartTimeChanged;
-                PhraseProperties.AddChild(_inputSliderStartTime);
-
-                var endLabel = new TextObject("Конец (сек)", -160, -90, 28f);
-                endLabel.Color = "#919bb8";
-                endLabel.Align = TextAlign.Left;
-                PhraseProperties.AddChild(endLabel);
-
-                _inputSliderEndTime = new InputField(-7, -60, 150, 35);
-                _inputSliderEndTime.LeftPadding = 12f;
-                _inputSliderEndTime.Text = slider.endTime.ToString("F2");
-                _inputSliderEndTime.OnTextChanged += OnSliderEndTimeChanged;
-                PhraseProperties.AddChild(_inputSliderEndTime);
-
-                // Кнопка удаления слайдера – тоже костыль
-                var delete = new Button(0, 20, 200, 70, "blue_panel", "удалить слайдер");
-                delete.Label.Color = Color4.Red;
-                delete.Label.FontSize = 28f;
-                delete.Label.FontKey = "Game";
-                delete.Label.Align = TextAlign.Center;
-                delete.Layer = 5;
-                delete.OnClick += DeleteObject;
-                PhraseProperties.AddChild(delete);
-                _scene.Add(delete);
-                _currentDeleteButton = delete;
+                AddSliderControls(slider);
             }
 
             _scene.Add(PhraseProperties);
+        }
+        private void AddPhraseControls(Phrase phrase)
+        {
+            // Текст
+            _inputDisplay = new InputField(-7, -190, 310, 35) { LeftPadding = 12f, Text = phrase.Text ?? "" };
+            _inputDisplay.OnTextChanged += OnDisplayTextChanged;
+            PhraseProperties.AddChild(_inputDisplay);
+
+            _inputTrans = new InputField(-7, -120, 310, 35) { LeftPadding = 12f, Text = phrase.Transcription ?? "" };
+            _inputTrans.OnTextChanged += OnTranscriptionChanged;
+            PhraseProperties.AddChild(_inputTrans);
+
+            _currentSelectable = phrase;
+            _currentPhrase = phrase;
+
+            var displayLabel = new TextObject("Текст", -160, -220, 28f);
+            displayLabel.Color = "#919bb8";
+            displayLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(displayLabel);
+
+            _inputDisplay = new InputField(-7, -190, 310, 35);
+            _inputDisplay.LeftPadding = 12f;
+            _inputDisplay.Text = phrase.Text ?? "";
+            _inputDisplay.OnTextChanged += OnDisplayTextChanged;
+            PhraseProperties.AddChild(_inputDisplay);
+
+            var transLabel = new TextObject("Транскрипция", -160, -150, 28f);
+            transLabel.Color = "#919bb8";
+            transLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(transLabel);
+
+            _inputTrans = new InputField(-7, -120, 310, 35);
+            _inputTrans.LeftPadding = 12f;
+            _inputTrans.Text = phrase.Transcription ?? "";
+            _inputTrans.OnTextChanged += OnTranscriptionChanged;
+            PhraseProperties.AddChild(_inputTrans);
+
+            var startLabel = new TextObject("Начало (сек)", -160, -80, 28f);
+            startLabel.Color = "#919bb8";
+            startLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(startLabel);
+
+            _inputStartTime = new InputField(-7, -50, 150, 35);
+            _inputStartTime.LeftPadding = 12f;
+            _inputStartTime.Text = phrase.StartTime.ToString("F2");
+            _inputStartTime.OnTextChanged += OnStartTimeChanged;
+            PhraseProperties.AddChild(_inputStartTime);
+
+            var endLabel = new TextObject("Конец (сек)", -160, -10, 28f);
+            endLabel.Color = "#919bb8";
+            endLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(endLabel);
+
+            _inputEndTime = new InputField(-7, 20, 150, 35);
+            _inputEndTime.LeftPadding = 12f;
+            _inputEndTime.Text = phrase.EndTime.ToString("F2");
+            _inputEndTime.OnTextChanged += OnEndTimeChanged;
+            PhraseProperties.AddChild(_inputEndTime);
+
+            // === Кнопка удаления ===
+            var delete = new Button(0, 540, 502, 97, "delete_button", "удалить фразу");
+            delete.Label.Color = Color4.Red;
+            delete.Label.FontSize = 36f;
+            delete.ScaleMultiply = 0.67f;
+            delete.Label.FontKey = "Game";
+            delete.Label.Align = TextAlign.Center;
+            delete.TextOffset = new Vector2(5, 5);
+            delete.Layer = 5;
+            delete.OnClick += DeleteObject;
+
+            PhraseProperties.AddChild(delete);    
+            _currentDeleteButton = delete;
+        }
+
+        private void AddSliderControls(SliderTiming slider)
+        {
+            _currentSelectable = slider;
+            _currentPhrase = null;
+
+            var sliderLabel = new TextObject("Слайдер", -160, -220, 28f);
+            sliderLabel.Color = "#919bb8";
+            sliderLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(sliderLabel);
+
+            var startLabel = new TextObject("Начало (сек)", -160, -160, 28f);
+            startLabel.Color = "#919bb8";
+            startLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(startLabel);
+
+            _inputSliderStartTime = new InputField(-7, -130, 150, 35);
+            _inputSliderStartTime.LeftPadding = 12f;
+            _inputSliderStartTime.Text = slider.startTime.ToString("F2");
+            _inputSliderStartTime.OnTextChanged += OnSliderStartTimeChanged;
+            PhraseProperties.AddChild(_inputSliderStartTime);
+
+            var endLabel = new TextObject("Конец (сек)", -160, -90, 28f);
+            endLabel.Color = "#919bb8";
+            endLabel.Align = TextAlign.Left;
+            PhraseProperties.AddChild(endLabel);
+
+            _inputSliderEndTime = new InputField(-7, -60, 150, 35);
+            _inputSliderEndTime.LeftPadding = 12f;
+            _inputSliderEndTime.Text = slider.endTime.ToString("F2");
+            _inputSliderEndTime.OnTextChanged += OnSliderEndTimeChanged;
+            PhraseProperties.AddChild(_inputSliderEndTime);
+
+            // Кнопка удаления
+            var delete = new Button(0, 540, 502, 97, "delete_button", "удалить слайдер");
+            delete.Label.Color = Color4.Red;
+            delete.Label.FontSize = 36f;
+            delete.ScaleMultiply = 0.67f;
+            delete.Label.FontKey = "Game";
+            delete.TextOffset = new Vector2(5, 5);
+            delete.Label.Align = TextAlign.Center;
+            delete.Layer = 5;
+            delete.OnClick += DeleteObject;
+
+            PhraseProperties.AddChild(delete);     // ← Правильно
+            _currentDeleteButton = delete;
+        }
+
+        private void ClearInputs()
+        {
+            _currentSelectable = null;
+            _currentPhrase = null;
+            _inputDisplay = _inputTrans = _inputStartTime = _inputEndTime = null;
+            _inputSliderStartTime = _inputSliderEndTime = null;
         }
 
         public void Sync(ITimelineSelectable? selected)

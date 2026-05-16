@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using TappiruCS.GameLogic;
 using TappiruCS.State.Edit.Core;
-using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.Core
 {

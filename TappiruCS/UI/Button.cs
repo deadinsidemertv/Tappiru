@@ -6,6 +6,7 @@ using TappiruCS.Tween;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
 using TappiruCS.Render.Audio;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.UI
 {

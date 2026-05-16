@@ -4,6 +4,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.UI
 {
@@ -26,20 +27,20 @@ namespace TappiruCS.UI
 
         private readonly List<GameObject> _items = new();
 
-        private readonly SpriteObject _debugArea;
-        private readonly SpriteObject _hoverArea;
-
+        // Единая зона: hover-область + clipping + debug-визуализация
+        private readonly SpriteObject _zone;
         public ClippingMask _clippingMask;
-
-        public bool Clipping { get; set; } = true;
-
-        public float HoverAreaX { get; set; }
-        public float HoverAreaY { get; set; }
-        public float HoverAreaWidth { get; set; }
-        public float HoverAreaHeight { get; set; }
 
         public float Width => _width;
         public float Height => _height;
+
+        // Размер и позиция зоны в локальных координатах
+        public float ZoneX => _zone.LocalPosition.X;
+        public float ZoneY => _zone.LocalPosition.Y;
+        public float ZoneWidth => _zone.Scale.X;
+        public float ZoneHeight => _zone.Scale.Y;
+
+        private bool _isPointerInsideZone = false;
 
         public ScrollContainer(float x, float y, float width, float height, float itemSpacing = 80f)
         {
@@ -48,61 +49,47 @@ namespace TappiruCS.UI
             _height = height;
             _itemSpacing = itemSpacing;
 
-            _debugArea = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, _width, _height)
+            // Единый объект зоны — по нему считается всё
+            _zone = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, _width, _height)
             {
-                Color = new Color4(0.2f, 0.5f, 0.8f, 0.3f),
+                Color = new Color4(0.2f, 0.8f, 0.4f, 0.3f),
                 Opacity = 0f,
                 AllowHover = false,
-                Layer = Layer - 1,
+                Layer = Layer + 1,
                 Parent = this
             };
-            AddChild(_debugArea);
+            AddChild(_zone);
 
-            _hoverArea = new SpriteObject(TextureManager.GetTexture("white"), 0, 0, _width, _height)
+            RebuildClippingMask();
+        }
+
+        public void SetZone(float x, float y, float w, float h)
+        {
+            _zone.LocalPosition = new Vector2(x, y);
+            _zone.Scale = new Vector2(w, h);
+            RebuildClippingMask();
+        }
+
+        private void RebuildClippingMask()
+        {
+            if (_clippingMask != null)
             {
-                Color = new Color4(1f, 0.4f, 0.7f, 0.3f),
-                Opacity = 0f,
-                AllowHover = false,
-                Layer = Layer - 1,
-                Parent = this
-            };
-            AddChild(_hoverArea);
-
-            HoverAreaX = 0;
-            HoverAreaY = 300;
-            HoverAreaWidth = _width;
-            HoverAreaHeight = _height + 500;
-
-            if (Debug)
-            {
-                _hoverArea.Opacity = 0.3f;
-                _debugArea.Opacity = 0.3f;
+                RemoveChild(_clippingMask);
+                _clippingMask = null;
             }
 
-            if (Clipping)
-            {
-                _clippingMask = new ClippingMask(85, 300, width, height);
-                AddChild(_clippingMask);
-            }
-
-
-            UpdateHoverAreaVisual();
+            _clippingMask = new ClippingMask(
+                _zone.LocalPosition.X,
+                _zone.LocalPosition.Y,
+                _zone.Scale.X,
+                _zone.Scale.Y
+            );
+            AddChild(_clippingMask);
         }
 
-        private void UpdateHoverAreaVisual()
-        {
-            _hoverArea.LocalPosition = new Vector2(HoverAreaX, HoverAreaY);
-            _hoverArea.Scale = new Vector2(HoverAreaWidth, HoverAreaHeight);
-        }
-
-        public void SetHoverArea(float x, float y, float w, float h)
-        {
-            HoverAreaX = x;
-            HoverAreaY = y;
-            HoverAreaWidth = w;
-            HoverAreaHeight = h;
-            UpdateHoverAreaVisual();
-        }
+        // =====================================================================
+        // Items
+        // =====================================================================
 
         public void AddItem(GameObject item)
         {
@@ -136,6 +123,10 @@ namespace TappiruCS.UI
             ApplyPositions();
         }
 
+        // =====================================================================
+        // Scroll
+        // =====================================================================
+
         public void Scroll(float deltaY)
         {
             _targetOffsetY -= deltaY * _scrollSpeed;
@@ -151,7 +142,7 @@ namespace TappiruCS.UI
                 targetY += GetItemHeight(_items[i]) + _itemSpacing;
 
             float itemCenter = targetY + GetItemHeight(_items[index]) / 2f;
-            _targetOffsetY = Math.Clamp(itemCenter - _height / 2f, 0f, _maxScroll);
+            _targetOffsetY = Math.Clamp(itemCenter - ZoneHeight / 2f, 0f, _maxScroll);
         }
 
         public void ResetScroll()
@@ -161,28 +152,43 @@ namespace TappiruCS.UI
             ApplyPositions();
         }
 
+        // =====================================================================
+        // Update
+        // =====================================================================
+
         public override void Update(double deltaTime, MouseState mouse)
         {
             base.Update(deltaTime, mouse);
+
             float dt = (float)deltaTime;
+
+            // Debug-рамка — через базовый флаг Debug из GameObject
+            _zone.Opacity = Debug ? 0.3f : 0f;
+
             RecalcMaxScroll();
             _currentOffsetY = MathHelper.Lerp(_currentOffsetY, _targetOffsetY, _smoothness * dt);
             ApplyPositions();
+
             HandleInput(mouse);
+            UpdateItemsInteractivity();
         }
+
+        // =====================================================================
+        // Input
+        // =====================================================================
 
         private void HandleInput(MouseState mouse)
         {
             float vx = mouse.X / CanvasScale.X;
             float vy = mouse.Y / CanvasScale.Y;
 
-            bool over = _hoverArea.IsPointInside(vx, vy);
+            _isPointerInsideZone = _zone.IsPointInside(vx, vy);
 
             float scrollDelta = mouse.ScrollDelta.Y;
-            if (Math.Abs(scrollDelta) > 0.01f && over)
+            if (Math.Abs(scrollDelta) > 0.01f && _isPointerInsideZone)
                 Scroll(scrollDelta);
 
-            if (mouse.IsButtonDown(MouseButton.Left) && over)
+            if (mouse.IsButtonDown(MouseButton.Left) && _isPointerInsideZone)
             {
                 if (!_isDragging)
                 {
@@ -203,29 +209,38 @@ namespace TappiruCS.UI
             }
         }
 
-        // ==================== ИСПРАВЛЕННАЯ ЛОГИКА ====================
+        private void UpdateItemsInteractivity()
+        {
+            foreach (var item in _items)
+            {
+                float worldCenterY = item.WorldPosition.Y;
+                float halfH = GetItemHeight(item) / 2f;
+                float itemTop = worldCenterY - halfH;
+                float itemBottom = worldCenterY + halfH;
+
+                float zoneWorldTop = WorldPosition.Y + ZoneY - ZoneHeight / 2f;
+                float zoneWorldBottom = WorldPosition.Y + ZoneY + ZoneHeight / 2f;
+
+                bool insideZone = itemBottom > zoneWorldTop && itemTop < zoneWorldBottom;
+
+                item.AllowHover = insideZone && _isPointerInsideZone;
+            }
+        }
+
+        // =====================================================================
+        // Layout
+        // =====================================================================
+
         private void ApplyPositions()
         {
-            float currentY = -_currentOffsetY;   // начинаем от верхней видимой границы
-
-            
+            float currentY = -_currentOffsetY;
 
             foreach (var item in _items)
             {
                 float itemHeight = GetItemHeight(item);
-
-                // Все GameObject позиционируются по ЦЕНТРУ
-                float centerY = currentY + (itemHeight / 2f);
-
-                item.LocalPosition = new Vector2(_horizontalPadding, centerY);
-
-               
-
-                // Переходим к следующему элементу
+                item.LocalPosition = new Vector2(_horizontalPadding, currentY + itemHeight / 2f);
                 currentY += itemHeight + _itemSpacing;
             }
-
-
         }
 
         private float GetItemHeight(GameObject item)
@@ -234,16 +249,8 @@ namespace TappiruCS.UI
             {
                 container.RecalculateSize();
                 float h = container.MaxHeight;
-
-                if (h < 50f)
-                {
-                   
-                    h = 250f;
-                }
-                return h;
+                return h < 50f ? 250f : h;
             }
-
-            // Для обычных SpriteObject и других GameObject
             return item.Scale.Y;
         }
 
@@ -252,19 +259,15 @@ namespace TappiruCS.UI
             _contentHeight = 0f;
 
             foreach (var item in _items)
-            {
                 _contentHeight += GetItemHeight(item) + _itemSpacing;
-            }
 
             if (_items.Count > 0)
                 _contentHeight -= _itemSpacing;
 
-            _maxScroll = Math.Max(0f, _contentHeight - _height / 2);
+            _maxScroll = Math.Max(0f, _contentHeight - ZoneHeight);
 
             _targetOffsetY = Math.Clamp(_targetOffsetY, 0f, _maxScroll);
             _currentOffsetY = Math.Clamp(_currentOffsetY, 0f, _maxScroll);
-
-           
         }
     }
 }

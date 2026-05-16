@@ -5,6 +5,7 @@ using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.State.Edit.SaveLoad;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.Edit.Panels
 {
@@ -69,7 +70,7 @@ namespace TappiruCS.State.Edit.Panels
             _confirmButton = new Button(960, 740, 500, 110, "blue_panel", "Создать карту")
             {
                 ScaleMultiply = 0.65f,
-                Layer = 2
+                Layer = 15
             };
             _confirmButton.OnClick += TryConfirm;
 
@@ -86,12 +87,14 @@ namespace TappiruCS.State.Edit.Panels
         // ── Логика ───────────────────────────────────────────────────────────────
         private static void PickFile(string filter, Action<string> onSuccess)
         {
+            Game.Instance.WindowState = OpenTK.Windowing.Common.WindowState.Normal;
             // SharpFileDialog - ваш диалог выбора файлов
             if (SharpFileDialog.NativeFileDialog.OpenDialog(null, "", out string? path)
                 && path != null)
             {
                 onSuccess(path);
             }
+            Game.Instance.WindowState = OptionFile.WindowState;
         }
 
         private void TryConfirm()
@@ -116,8 +119,5 @@ namespace TappiruCS.State.Edit.Panels
                 _onProjectCreated(tappzPath);
             }
         }
-
-        // Старая проверка больше не нужна, замена на более мягкую (только MP3 и BG обязательны)
-        // private bool IsFormComplete() => ...
     }
 }

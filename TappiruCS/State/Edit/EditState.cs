@@ -15,13 +15,16 @@ using TappiruCS.State.Edit.Panels;
 using TappiruCS.State.Edit.SaveLoad;
 using TappiruCS.State.Edit.TimelineSystem;
 using TappiruCS.State.Edit.UI.Panels;
-using TappiruCS.UI;
-using TappiruCS.UI.TextAbstract;
 using TappiruCS.State.Menu;
+using TappiruCS.Tween;
+using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
+using TappiruCS.UI.TextAbstract;
+using TappiruCS.UI.Toggle;
 
 namespace TappiruCS.State.Edit
 {
-    public enum EditMode { None, Object, Mapping };
+    public enum EditMode { None, Object, Mapping, Info };
     public class EditState : IGameState
     {
         private readonly RenderContext _context;
@@ -34,40 +37,57 @@ namespace TappiruCS.State.Edit
         private Button _playPauseButton = null!;
         private Button _addPhraseButton = null!;
         private Button _saveButton = null!;
+        private Button _publishMap = null!;
         private Button _exitToMenuButton = null!;
 
-        private Button _switchtomapping = null!;
-        private Button _switchtoobject = null!;
+        private RadioButton _switchToMapping = null!;
+        private TextObject _switchToMappingLabel;
+        private RadioButton _switchToObjects = null!;
+        private TextObject _switchToObjectsLabel;
+        private RadioButton _switchToInfo = null!;
+        private TextObject _switchToInfoLabel;
+        private RadioButtonGroup<EditMode> modeGroup;
+
+////////////////////////MAP DATA////////////////////////////////////////
+        public string title = string.Empty;
+        public string artist = string.Empty;
+        public string creator = string.Empty;
+
+        public double previewTime;
+        public double endTime;
+
+        private readonly List<Phrase> _phrases = new();       //events
+////////////////////////MAP DATA////////////////////////////////////////
 
 
-        private readonly List<Phrase> _phrases = new();
+        //API
         private readonly ProjectIO _projectIO = new();
         private readonly ColorPreviewPanel _colorPanel = new();
 
+        //FLAGS
         private bool _inEditMode;
         private bool _isPlaying = true;
         private bool _isInputDialogOpen = false;
 
-        
+
         public EditMode currentEditMode = EditMode.None;
 
         private MappingPanel? mapping;
+        private InfoPanel? info;
 
         private Phrase? _activePhrase;
 
         public ITimelineSelectable? SelectedObject { get; private set; }
         public event Action? OnSelectionChanged;
 
-        public string title = string.Empty;
-        public string artist = string.Empty;
-        public double previewTime;
-        public double endTime;
+        
 
 
         public EditState(RenderContext context)
         {
             _context = context;
             mapping = new MappingPanel(_scene,this);
+            info = new InfoPanel(_scene,this);
         }
 
         public void OnEnter()
@@ -107,11 +127,11 @@ namespace TappiruCS.State.Edit
         {
             currentEditMode = EditMode.None;
 
-            var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay2"));
+            var _editor_overlay = new Background(TextureManager.GetTexture("editor_overlay3"));
             _background = new SpriteObject(TextureManager.GetTexture("defaultBG"), 960, 450, 1152, 648) { ScaleMultiply = 1.1f,AllowHover =false };
             _background.Color = new Color4(0.2f, 0.2f, 0.2f, 1f);
 
-            _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "simple_graybutton", "Back")
             {
                 Layer = 1,
                 TextOffset = new Vector2(0f, 0f),
@@ -139,13 +159,14 @@ namespace TappiruCS.State.Edit
                 TextOffset = new Vector2(0f, 25f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
-                Tag = "editbutton"
+                Opacity = 0
             };
             btn.Label.Align = TextAlign.Center;
             btn.Label.Color = Color4.White;
             btn.Label.FontSize = 48f;
             btn.Label.FontKey = "Game";
             btn.OnClick += onClick;
+            btn._buttonBackground.AddHoverOpacity(() => btn.IsHovered, 0.5f);
             return btn;
         }
 
@@ -158,10 +179,12 @@ namespace TappiruCS.State.Edit
 
         private void OpenLoadDialog()
         {
+            Game.Instance.WindowState = WindowState.Normal;
             var filters = new[] { new SharpFileDialog.NativeFileDialog.Filter { Name = "Tappiru Project Files", Extensions = new[] { "tappz" } } };
 
             if (SharpFileDialog.NativeFileDialog.OpenDialog(filters, "Edit\\", out string? path) && !string.IsNullOrEmpty(path))
                 OnProjectOpened(path);
+            Game.Instance.WindowState = OptionFile.WindowState;
         }
 
         private void OnProjectOpened(string tappzPath)
@@ -212,58 +235,95 @@ namespace TappiruCS.State.Edit
             _playPauseButton = new Button(960, 900, 50, 50, "pause", "") { Layer = 1 };
             _playPauseButton.OnClick += TogglePlayPause;
 
-            _addPhraseButton = new Button(1200, 1000, 420, 100, "blue_panel", "add")
+            _addPhraseButton = new Button(960, 1045, 512, 200, "simple_button", "+ Add")
             {
-                Layer = 1,
-                TextOffset = new Vector2(-120, -30),
+                Layer = 7,
+                TextOffset = new Vector2(-10, 25),
                 Tag = "noanim",
-                ScaleMultiply = 0.5f
+                ScaleMultiply = 0.35f
             };
+            _addPhraseButton.Label.HasShadow = false;
+            _addPhraseButton.Label.FontKey = "Game";
+            _addPhraseButton.Label.FontSize = 48f;
+            _addPhraseButton.Label.HasShadow = true;
+            _addPhraseButton.Label.ShadowOffset = new Vector2(-2, 2);
+            _addPhraseButton.Label.ShadowOpacity = 0.5f;
             _addPhraseButton.OnClick += BeginAddPhrase;
 
-            _saveButton = new Button(1855, 50, 300, 210, "blue_panel", "Save")
+            _saveButton = new Button(1800, 50, 512, 200, "save_button2", "Save")
             {
                 Layer = 1,
-                TextOffset = new Vector2(0, 0f),
+                TextOffset = new Vector2(80, 22f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
-            _saveButton.Label.FontSize = 48f;
-            _saveButton.Label.FontKey = "Game";
+            _saveButton.Label.FontSize = 20f;
+            _saveButton.Label.FontKey = "Menu";
             _saveButton.Label.Align = TextAlign.Center;
             _saveButton.Label.Color = Color4.White;
+            _saveButton.Label.HasShadow = true;
+            _saveButton.Label.ShadowOffset = new Vector2(-2,2);
+            _saveButton.Label.ShadowOpacity = 0.5f;
             _saveButton.OnClick += SaveProject;
 
-            _switchtomapping = new Button(170, 150, 850, 210, "blue_panel", "Mapping Mode")
+
+            _publishMap = new Button(1600, 50, 500, 200, "upload_button2", "Deploy")
             {
                 Layer = 1,
-                TextOffset = new Vector2(0, 0f),
+                TextOffset = new Vector2(80, 20f),
                 Pivot = new Vector2(0.5f, 0.5f),
                 ScaleMultiply = 0.4f,
             };
-            _switchtomapping.Label.FontSize = 48f;
-            _switchtomapping.Label.FontKey = "Game";
-            _switchtomapping.Label.Align = TextAlign.Center;
-            _switchtomapping.Label.Color = Color4.White;
-            _switchtomapping.OnClick += () => SwitchEditMode(EditMode.Mapping);
-            _scene.Add(_switchtomapping);
+            _publishMap.Label.FontSize = 20f;
+            _publishMap.Label.FontKey = "Menu";
+            _publishMap.Label.Align = TextAlign.Center;
+            _publishMap.Label.Color = Color4.White;
+            _publishMap.Label.HasShadow = true;
+            _publishMap.Label.ShadowOffset = new Vector2(-2, 2);
+            _publishMap.Label.ShadowOpacity = 0.5f;
+            _publishMap.OnClick += PublicProject;
 
-            _switchtoobject = new Button(170, 235, 850, 210, "blue_panel", "Object Mode")
-            {
-                Layer = 1,
-                TextOffset = new Vector2(0, 0f),
-                Pivot = new Vector2(0.5f, 0.5f),
-                ScaleMultiply = 0.4f,
-            };
-            _switchtoobject.Label.FontSize = 48f;
-            _switchtoobject.Label.FontKey = "Game";
-            _switchtoobject.Label.Align = TextAlign.Center;
-            _switchtoobject.Label.Color = Color4.White;
-            _switchtoobject.OnClick += () => SwitchEditMode(EditMode.Object);
-            _scene.Add(_switchtoobject);
-            
 
-            _exitToMenuButton = new Button(55, 1048, 400, 200, "blue_panel", "Back")
+            var editmodelabe = new TextObject("MODE", 15, 160, 36f);
+            editmodelabe.Align = TextAlign.Left;
+            editmodelabe.Color = "#8d9098";
+            editmodelabe.FontKey = "Game";
+            _scene.Add(editmodelabe);
+
+            _switchToMapping = new RadioButton(170, 210, 502, 97, "switch_mode_mapping");
+            _switchToMapping.ScaleMultiply = 0.65f;
+            _switchToMappingLabel = new TextObject("Mapping Mode", -70, 8, 40f);
+            _switchToMappingLabel.FontKey = "Game";
+            _switchToMappingLabel.Align = TextAlign.Left;
+            _switchToMapping.AddChild(_switchToMappingLabel);
+            _scene.Add(_switchToMapping);
+
+            _switchToObjects = new RadioButton(170, 285, 502, 97, "switch_mode_objects");
+            _switchToObjects.ScaleMultiply = 0.65f;
+            _switchToObjectsLabel = new TextObject("Objects Mode", -70, 8, 40f);
+            _switchToObjectsLabel.FontKey = "Game";
+            _switchToObjectsLabel.Align = TextAlign.Left;
+            _switchToObjects.AddChild(_switchToObjectsLabel);
+            _scene.Add(_switchToObjects);
+
+            _switchToInfo = new RadioButton(170, 365, 502, 97, "switch_mode_info");
+            _switchToInfo.ScaleMultiply = 0.65f;
+            _switchToInfoLabel = new TextObject("Info Mode", -70, 8, 40f);
+            _switchToInfoLabel.FontKey = "Game";
+            _switchToInfoLabel.Align = TextAlign.Left;
+            _switchToInfo.AddChild(_switchToInfoLabel);
+            _scene.Add(_switchToInfo);
+
+            modeGroup = new RadioButtonGroup<EditMode>();
+            modeGroup.Add(_switchToMapping,EditMode.Mapping);
+            modeGroup.Add(_switchToObjects,EditMode.Object);
+            modeGroup.Add(_switchToInfo, EditMode.Info);
+
+            modeGroup.SetValue(currentEditMode, raiseEvent: false);
+            modeGroup.SelectionChanged += mode => SwitchEditMode(mode);
+
+
+            _exitToMenuButton = new Button(55, 1048, 400, 200, "simple_graybutton", "Back")
             {
                 Layer = 1,
                 Pivot = new Vector2(0.5f, 0.5f),
@@ -281,6 +341,8 @@ namespace TappiruCS.State.Edit
             _scene.Add(_playPauseButton);
             _scene.Add(_addPhraseButton);
             _scene.Add(_saveButton);
+            _scene.Add(_publishMap);
+            
             
             
         }
@@ -470,6 +532,14 @@ namespace TappiruCS.State.Edit
         {
             CleanAllTranscriptions();
 
+            foreach (var phrase in _phrases)
+            {
+                if (!string.IsNullOrEmpty(phrase.Transcription))
+                {
+                    phrase.Transcription = phrase.Transcription.Trim();
+                }
+            }
+
             var map = new JsonMap();
             map.events = PhraseSerializer.ToEvents(_phrases);
             map.title = title;
@@ -489,6 +559,11 @@ namespace TappiruCS.State.Edit
             }
         }
 
+        public void PublicProject()
+        {
+            SaveProject();
+            _projectIO.PublishMap();
+        }
         public void SwitchEditMode(EditMode mode)
         {
             currentEditMode = mode;
@@ -509,6 +584,15 @@ namespace TappiruCS.State.Edit
             else
             {
                 mapping?.Hide();
+            }
+
+            if(mode == EditMode.Info)
+            {
+                info?.Show();
+            }
+            else
+            {
+                info?.Hide();
             }
         }
 

@@ -9,6 +9,7 @@ using TappiruCS.Server.Player;
 using TappiruCS.UI;
 using TappiruCS.UI.TextAbstract;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Sprite;
 
 namespace TappiruCS.State.SongSelector.RankingPanel
 {
@@ -171,23 +172,28 @@ namespace TappiruCS.State.SongSelector.RankingPanel
 
         private static int ResolveGradeTexture(PlayerScore score)
         {
-            string gradeName = CalculateGrade(score._accuraci, score._failChar);
+            string gradeName = CalculateGrade(score._accuraci);
             return TextureLoader.Load($"Textures/grade/{gradeName}.png");
         }
 
-        private static string CalculateGrade(float accuracy, int failCount)
+        private static string CalculateGrade(float accuracy)
         {
-            bool noFail = failCount == 0;
+            if (accuracy >= 100f)
+                return "grade5";        // SS
 
-            if (accuracy == 100f && noFail) return "grade5";
-            if (accuracy > 90f && noFail) return "grade4";
-            if ((accuracy > 80f && noFail) ||
-                accuracy > 90f) return "grade3";
-            if ((accuracy > 70f && noFail) ||
-                accuracy > 80f) return "grade2";
-            if (accuracy > 60f) return "grade1";
+            if (accuracy >= 90f)
+                return "grade4";        // S
 
-            return "grade0";
+            if (accuracy >= 80f)
+                return "grade3";        // A
+
+            if (accuracy >= 70f)
+                return "grade2";        // B
+
+            if (accuracy >= 60f)
+                return "grade1";        // C
+
+            return "grade0";            // D / F
         }
     }
 }

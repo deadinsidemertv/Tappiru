@@ -18,14 +18,19 @@ using TappiruCS.State.Menu;
 using TappiruCS.State.Session;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using TappiruCS.UI.API.LocalizationLanguage;
 
 namespace TappiruCS
 {
     public class Game : GameWindow
     {
+        public static Game? Instance { get; private set; }
 
         private float _lastClickTime = 0f;
         private Vector2 _lastClickPos = Vector2.Zero;
+
+        public static InputField? FocusedInputField { get; set; }
+
 
         private readonly Queue<Action> _mainThreadActions = new Queue<Action>();
 
@@ -51,11 +56,13 @@ namespace TappiruCS
 
         public Game(GameWindowSettings gwSettings, NativeWindowSettings nwSetting) : base(gwSettings,nwSetting)
         {
-            
+            Instance = this;
+
             this.ClientSize = new Vector2i(1280, 720);
-            this.WindowState = WindowState.Normal;
+            this.WindowState = OptionFile._data.WindowState;
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
-            
+
+            ApplyInitialVideoSettings();
         }
         protected override void OnResize(ResizeEventArgs e)
         {
@@ -65,6 +72,7 @@ namespace TappiruCS
         }
         protected override void OnLoad()
         {
+            Localization.Initialize();
             base.OnLoad();
             string mapsRoot = "Songs"; 
 
@@ -86,12 +94,6 @@ namespace TappiruCS
             FontManager.Add("Menu", new FreeTypeRender(spriteBatch, "Textures\\Font\\LangithRegpersonal-GO0Ly.otf", 64));
             FontManager.Add("GameOverlay", new FreeTypeRender(spriteBatch, "Textures\\Font\\neuropolxfree.ttf", 64));
             FontManager.SetDefault("UI");
-
-
-
-
-
-
 
 
             audio = new AudioManager();
@@ -197,10 +199,6 @@ namespace TappiruCS
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             // === ТЕСТ ОТРИСОВКИ FREETYPE ГЛИФОВ (нажми F1) ===
-
-
-            
-
 
 
             currentState.Render(projection);
@@ -328,6 +326,22 @@ namespace TappiruCS
             _lastClickPos = currentPos;
 
             return isDouble;
+        }
+
+        private void ApplyInitialVideoSettings()
+        {
+            Console.WriteLine($"[Game] Applying initial settings: {OptionFile.ScreenWidth}x{OptionFile.ScreenHeight} | {OptionFile.WindowState}");
+
+            // Важно: сначала размер, потом WindowState (или наоборот — иногда порядок важен)
+            ClientSize = new Vector2i(OptionFile.ScreenWidth, OptionFile.ScreenHeight);
+            WindowState = OptionFile.WindowState;
+
+            if (WindowState == WindowState.Normal)
+            {
+                CenterWindow();           // или твой метод центрирования
+            }
+
+            Console.WriteLine($"[Game] After apply -> ClientSize: {ClientSize}, WindowState: {WindowState}");
         }
     }
 }

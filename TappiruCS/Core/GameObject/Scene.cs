@@ -13,7 +13,9 @@ namespace TappiruCS.Core.GameObject
 
         public RenderContext RenderContext { get; private set; }
 
-        public List<GameObject> _objects = new List<GameObject>();
+        private readonly List<GameObject> _objects = new List<GameObject>();
+
+        public IReadOnlyList<GameObject> Objects => _objects.AsReadOnly();
 
         public const float DesignWidth = 1920f;
         public const float DesignHeight = 1080f;
@@ -29,18 +31,24 @@ namespace TappiruCS.Core.GameObject
             RenderContext = renderContext ?? throw new ArgumentNullException(nameof(renderContext));
 
             foreach (var obj in _objects)
-            {
                 obj.SetRenderContext(renderContext);
-            }
         }
         public void Add(GameObject obj)
         {
             if (obj == null) return;
 
+            if (obj.Parent != null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add '{obj.GetType().Name}' directly to Scene. " +
+                    $"It already has a parent. Use parent.AddChild() instead.");
+            }
+
             if (RenderContext != null)
                 obj.SetRenderContext(RenderContext);
 
-            _objects.Add(obj);
+            if (!_objects.Contains(obj))
+                _objects.Add(obj);
         }
         public void Remove(GameObject obj) => _objects.Remove(obj);
         public void Clear() => _objects.Clear();
@@ -59,20 +67,18 @@ namespace TappiruCS.Core.GameObject
             {
                 var obj = _objects[i];
                 if (!obj.Active) continue;
+
                 obj.CanvasScale = CanvasScale;
-                obj.Update(deltaTime,mouse);   
-
+                obj.Update(deltaTime, mouse);
             }
-
 
             CanvasScale = new Vector2(_game.ClientSize.X / DesignWidth,
                                       _game.ClientSize.Y / DesignHeight);
+
             var virtualMouse = GetVirtualMousePosition(mouse);
             UpdateHover(virtualMouse.X, virtualMouse.Y);
 
-
-            LogicMouse = new Vector2(virtualMouse.X, virtualMouse.Y);
-
+            LogicMouse = virtualMouse;
             TweenManager.Update(deltaTime);
         }
         public void Update(double deltaTime,MouseState mouse)
@@ -94,13 +100,12 @@ namespace TappiruCS.Core.GameObject
                 .OrderBy(o => o.Layer)
                 .ToList();
 
-            foreach (var obj in sorted)
+            foreach (var root in sorted)
             {
-                
-                obj.CanvasScale = CanvasScale;
-                obj.Draw(projection);
+                root.CanvasScale = CanvasScale;
+                root.Draw(projection);
             }
-                
+
         }
 
         public void UpdateHover(float virtualMouseX, float virtualMouseY)
@@ -108,16 +113,14 @@ namespace TappiruCS.Core.GameObject
             GameObject top = null;
             int topLayer = int.MinValue;
 
-            // Находим самый верхний объект под курсором
             foreach (var root in _objects)
             {
                 root.CollectHoverCandidates(virtualMouseX, virtualMouseY, ref top, ref topLayer);
             }
 
-            // === ИСПРАВЛЕНИЕ: Правильный сброс и установка ===
             foreach (var root in _objects)
             {
-                root.SetHoverRecursive(top);   // ← передаём top вместо bool
+                root.SetHoverRecursive(top);
             }
 
             if (MouseNotification != null)
@@ -132,7 +135,6 @@ namespace TappiruCS.Core.GameObject
                     MouseNotification.Active = false;
                 }
             }
-            
 
         }
 

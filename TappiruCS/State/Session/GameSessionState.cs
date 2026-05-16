@@ -12,6 +12,7 @@ using TappiruCS.Server;
 using TappiruCS.Server.Player;
 using TappiruCS.State.SongSelector;
 using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TappiruCS.State.Session
@@ -121,7 +122,7 @@ namespace TappiruCS.State.Session
             if (session == null) return;
 
 
-            progressbar.Value = session.Health;
+            progressbar.SetValue(session.Health);
             progressbar.MaxValue = 100f;
 
         

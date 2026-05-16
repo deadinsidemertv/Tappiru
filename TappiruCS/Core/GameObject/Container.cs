@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using TappiruCS.Render;
-using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.Core.GameObject
@@ -15,7 +15,7 @@ namespace TappiruCS.Core.GameObject
         public Container(float x, float y)
         {
             LocalPosition = new Vector2(x, y);
-
+            //Debug = true;
             if (Debug)
             {
                 // Создаём отладочный фон (будет обновляться в RecalculateSize)

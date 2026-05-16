@@ -195,12 +195,13 @@ namespace TappiruCS.Core.GameObject
         }
 
         public virtual void CollectHoverCandidates(float virtualX, float virtualY,
-                                                   ref GameObject top, ref int topLayer)
+                                           ref GameObject top, ref int topLayer)
         {
-            if (!Active || !AllowHover)
-                return;
+            if (!Active) return;
 
-            if (IsPointInside(virtualX, virtualY) && Layer >= topLayer)
+            bool isInside = IsPointInside(virtualX, virtualY);
+
+            if (AllowHover && isInside && Layer >= topLayer)
             {
                 topLayer = Layer;
                 top = this;

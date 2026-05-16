@@ -6,6 +6,7 @@ using TappiruCS.Core;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
 using TappiruCS.Render.Text;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.UI
@@ -15,7 +16,7 @@ namespace TappiruCS.UI
         private readonly SpriteObject InputBackground;
         private readonly SpriteObject _selectionBackground;
         private readonly TextObject InputText;
-        private readonly TextObject PlaceHolder;
+        public readonly TextObject PlaceHolder;
 
         public SpriteObject? IconLeft { get; private set; }
         public SpriteObject? IconRight { get; private set; }
@@ -25,14 +26,14 @@ namespace TappiruCS.UI
 
         private string _input = "";
         public bool IsPassword { get; set; } = false;
-        public bool IsFocused { get; private set; } = false;
+
+        public bool IsFocused => Game.FocusedInputField == this;
 
         private bool _isAllSelected = false;
 
-        // Гибкие отступы
         public float LeftPadding { get; set; } = 25f;
         public float RightPadding { get; set; } = 120f;
-        public float IconSpacing { get; set; } = 8f;
+        public float IconSpacing { get; set; } = 3f;
 
         public event Action<string>? OnTextChanged;
         public event Action? OnEnterPressed;
@@ -57,13 +58,11 @@ namespace TappiruCS.UI
             LocalPosition = new Vector2(x, y);
             Scale = new Vector2(width, height);
 
-            // Фон
-            InputBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
+            InputBackground = new SpriteObject(TextureManager.GetTexture("simple_inputfield"), 0, 0, width, height)
             {
-                Color = "#0b0c16"
+                Opacity = 0.8f,
             };
 
-            // Выделение при Ctrl+A
             _selectionBackground = new SpriteObject(TextureManager.GetTexture("input-field"), 0, 0, width, height)
             {
                 Color = new Color4(0.3f, 0.6f, 1.0f, 0.35f),
@@ -71,7 +70,6 @@ namespace TappiruCS.UI
                 Active = false
             };
 
-            // Основной текст
             InputText = new TextObject("", 0, 0, 24f)
             {
                 Color = Color4.White,
@@ -80,7 +78,6 @@ namespace TappiruCS.UI
                 Layer = 5
             };
 
-            // Placeholder
             PlaceHolder = new TextObject(PlaceHolderText, 0, 0, 24f)
             {
                 Color = PlaceHolderColor,
@@ -94,9 +91,6 @@ namespace TappiruCS.UI
             AddChild(InputText);
         }
 
-        /// <summary>
-        /// Установить иконку слева
-        /// </summary>
         public void SetIconLeft(string textureName, Color4? color = null)
         {
             if (IconLeft != null) RemoveChild(IconLeft);
@@ -109,9 +103,6 @@ namespace TappiruCS.UI
             AddChild(IconLeft);
         }
 
-        /// <summary>
-        /// Установить иконку справа
-        /// </summary>
         public void SetIconRight(string textureName, Color4? color = null)
         {
             if (IconRight != null) RemoveChild(IconRight);
@@ -135,7 +126,7 @@ namespace TappiruCS.UI
 
         private void HandleTextInput(TextInputEventArgs e)
         {
-            if (!IsFocused) return;
+            if (Game.FocusedInputField != this) return;
 
             char c = (char)e.Unicode;
             if (c >= ' ' && c != 127)
@@ -153,7 +144,7 @@ namespace TappiruCS.UI
 
         private void HandleKeyDown(KeyboardKeyEventArgs e)
         {
-            if (!IsFocused) return;
+            if (Game.FocusedInputField != this) return;
 
             bool ctrlPressed = e.Modifiers.HasFlag(KeyModifiers.Control) ||
                                e.Modifiers.HasFlag(KeyModifiers.Super);
@@ -217,11 +208,11 @@ namespace TappiruCS.UI
                 case Keys.KeyPadEnter:
                     OnEnterPressed?.Invoke();
                     this.OnEnterPressed?.Invoke();
-                    IsFocused = false;
+                    if (Game != null) Game.FocusedInputField = null;
                     break;
 
                 case Keys.Escape:
-                    IsFocused = false;
+                    if (Game != null) Game.FocusedInputField = null;
                     _isAllSelected = false;
                     OnFocusLost?.Invoke();
                     break;
@@ -252,20 +243,25 @@ namespace TappiruCS.UI
         {
             base.Update(deltaTime, mouse);
 
-            // Обработка фокуса
             float designMouseX = mouse.X / CanvasScale.X;
             float designMouseY = mouse.Y / CanvasScale.Y;
             bool hovered = IsPointInside(designMouseX, designMouseY);
 
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
-                bool wasFocused = IsFocused;
-                IsFocused = hovered;
+                if (hovered)
+                {
+                    if (Game != null)
+                        Game.FocusedInputField = this;
 
-                if (IsFocused && !wasFocused) OnFocusGained?.Invoke();
-                if (!IsFocused && wasFocused) OnFocusLost?.Invoke();
-
-                if (IsFocused) _isAllSelected = false;
+                    _isAllSelected = false;
+                    OnFocusGained?.Invoke();
+                }
+                else if (Game.FocusedInputField == this)
+                {
+                    Game.FocusedInputField = null;
+                    OnFocusLost?.Invoke();
+                }
             }
 
             UpdateVisualPositions();
@@ -275,34 +271,27 @@ namespace TappiruCS.UI
         private void UpdateVisualPositions()
         {
             var bounds = GetDesignBounds();
-
             float currentLeftPadding = LeftPadding;
 
-            // Позиционируем левую иконку
             if (IconLeft != null)
             {
                 currentLeftPadding += IconLeft.Scale.X + IconSpacing;
                 IconLeft.LocalPosition = new Vector2(
-                    bounds.designLeft + LeftPadding - WorldPosition.X,
-                    0);
+                    bounds.designLeft + LeftPadding - WorldPosition.X, 0);
             }
 
-            // Позиционируем правую иконку
             if (IconRight != null)
             {
                 IconRight.LocalPosition = new Vector2(
-                    bounds.designLeft + Scale.X - RightPadding - IconRight.Scale.X - WorldPosition.X,
-                    0);
+                    bounds.designLeft + Scale.X - RightPadding - IconRight.Scale.X - WorldPosition.X, 0);
             }
 
-            // Позиция текста (учитывает наличие иконки)
             float textX = bounds.designLeft + currentLeftPadding - WorldPosition.X;
             float textY = 3f;
 
             InputText.LocalPosition = new Vector2(textX, textY);
             PlaceHolder.LocalPosition = new Vector2(textX, textY);
 
-            // Фон выделения
             _selectionBackground.WorldPosition = new Vector2(bounds.designLeft, bounds.designTop);
             _selectionBackground.Scale = Scale;
         }
@@ -311,7 +300,8 @@ namespace TappiruCS.UI
 
         public void Focus()
         {
-            IsFocused = true;
+            if (Game != null)
+                Game.FocusedInputField = this;
             OnFocusGained?.Invoke();
         }
 
@@ -321,6 +311,9 @@ namespace TappiruCS.UI
             {
                 Game.KeyDown -= HandleKeyDown;
                 Game.TextInput -= HandleTextInput;
+
+                if (Game.FocusedInputField == this)
+                    Game.FocusedInputField = null;
             }
         }
     }

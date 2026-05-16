@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using TappiruCS.Core.GameObject;
 using TappiruCS.Render;
-using TappiruCS.UI;
+using TappiruCS.UI.Sprite;
 using TappiruCS.UI.TextAbstract;
 
 namespace TappiruCS.State.Menu.Option

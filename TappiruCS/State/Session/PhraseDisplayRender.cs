@@ -142,21 +142,15 @@ namespace TappiruCS.State.Session
             if (session.CurrentSliders == null || session.CurrentSliders.Count == 0)
                 return;
 
-            (float x, float y, float width, float height)[] boundsToUse;
+            string textForBounds = shouldShowTranscription && session.CurrentPhaseChars != null
+                ? new string(session.CurrentPhaseChars)
+                : originalText;
 
-            if (shouldShowTranscription && charBoundsTrans.Length > 0)
-            {
-                boundsToUse = charBoundsTrans;
-            }
-            else
-            {
-                // Если транскрипция не показывается — используем bounds основного текста
-                boundsToUse = FT.GetCharBounds(
-                    originalText, centerX, y,
-                    Scene.CanvasScale, originalScale, 1.0f, TextAlign.Center);
-            }
+            var boundsToUse = shouldShowTranscription && charBoundsTrans != null && charBoundsTrans.Length > 0
+                ? charBoundsTrans
+                : FT.GetCharBounds(originalText, centerX, y, Scene.CanvasScale, originalScale, 1.0f, TextAlign.Center);
 
-            DrawSliderFrames(originalText, boundsToUse, session, currentTime, projection);
+            DrawSliderFrames(textForBounds, boundsToUse, session, currentTime, projection);
         }
         private float CalculateBestTextScale(string text, float maxPixelWidth)
         {

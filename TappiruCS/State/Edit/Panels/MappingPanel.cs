@@ -18,6 +18,8 @@ namespace TappiruCS.State.Edit.Panels
         private ScrollContainer? _scrollContainer;
         private readonly Dictionary<InputField, int> _inputToIndex = new();
 
+        private ProgressBar conversion;
+
         public static readonly Dictionary<char, int> DefaultKanaLengths = new()
         {
             // ==================== Хирагана (основные) ====================
@@ -197,6 +199,7 @@ namespace TappiruCS.State.Edit.Panels
             {'プ', 2}, // pu
             {'ペ', 2}, // pe
             {'ポ', 2}, // po
+            {'っ', 1},
         };
 
         private readonly EditState _editState;
@@ -220,8 +223,10 @@ namespace TappiruCS.State.Edit.Panels
 
             _currentPhrase = phrase;
 
-            _scrollContainer = new ScrollContainer(50, 300, 400, 900, 20) { Layer = 10 };
-            _scrollContainer._clippingMask.MaskSprite.Scale = new Vector2(400, 600);
+            _scrollContainer = new ScrollContainer(70, 420, 400, 500, 20) { Layer = 10 };
+            _scrollContainer.SetZone(100, 250, 300, 520);
+            //_scrollContainer.Debug = true;
+            
 
             _inputToIndex.Clear();
 
@@ -230,7 +235,19 @@ namespace TappiruCS.State.Edit.Panels
                 AddMappingRow(phrase.Text[i], i);
             }
 
+
+            conversion = new ProgressBar(15, 950, 300, 20);
+            conversion.AllowOverMax = true;
+            conversion.UseEqualMode = true;
+            conversion.ColorEqual = "#00ff00";   // зелёный, когда сумма == MaxValue
+            conversion.ColorNotEqual = "#ffa500"; // оранжевый, когда сумма < MaxValue
+            conversion.ColorOverMax = "#ff0000";  // красный при превышении
+
+
+            _scene.Add(conversion);
             _scene.Add(_scrollContainer);
+
+            RecalculateProgressBar();
         }
 
         private void AddMappingRow(char ch, int index)
@@ -243,23 +260,40 @@ namespace TappiruCS.State.Edit.Panels
             TextObject charLabel = new TextObject(ch.ToString(), 0, 0, 36f) { Align = TextAlign.Left };
 
             bool isJapanese = IsJapaneseCharacter(ch);
+            bool isKana = DefaultKanaLengths.ContainsKey(ch);
 
-            if (isJapanese)
+            if (isJapanese && isKana)
             {
+                // Кана – фиксированная длина из словаря
+                int fixedLength = DefaultKanaLengths[ch];
+                // Принудительно устанавливаем значение в маппинге (для сохранения)
+                _currentPhrase.Mapping[index] = fixedLength;
+
+                TextObject lengthLabel = new TextObject(fixedLength.ToString(), 150, 0, 28f)
+                {
+                    Color = new Color4(0.8f, 0.8f, 0.2f, 1f) // другой цвет, чтобы пользователь видел, что это авто-значение
+                };
+                mappingCell.AddChild(lengthLabel);
+            }
+            else if (isJapanese && !isKana)
+            {
+                // Кандзи (или другие японские символы не из словаря) – редактируемое поле
                 InputField lengthInput = new InputField(150, 0, 100, 35);
                 lengthInput.PlaceHolderText = "len";
                 lengthInput.Text = _currentPhrase.Mapping[index].ToString();
 
-                // Захватываем индекс + отдельный обработчик
                 int capturedIndex = index;
-
                 lengthInput.OnTextChanged += (newText) =>
+                {
                     OnMappingLengthChanged(capturedIndex, newText);
+                    _editState?.SaveProject(); // сохраняем сразу, как было
+                };
 
                 mappingCell.AddChild(lengthInput);
             }
             else
             {
+                // Не-японские символы (латиница, цифры) – длина 0, не редактируется
                 _currentPhrase.Mapping[index] = 0;
                 TextObject zeroLabel = new TextObject("0", 150, 0, 28f)
                 {
@@ -284,6 +318,9 @@ namespace TappiruCS.State.Edit.Panels
             else if (string.IsNullOrWhiteSpace(newText))
                 _currentPhrase.Mapping[index] = 0;
 
+            RecalculateProgressBar();
+            
+
             // ←←← СРАЗУ СОХРАНЯЕМ ПРОЕКТ
             _editState?.SaveProject();
         }
@@ -305,8 +342,36 @@ namespace TappiruCS.State.Edit.Panels
 
             _currentPhrase = null;
             _inputToIndex.Clear(); // если используешь
+
+            _scene.Remove(conversion);
+            conversion = null!;
+        }
+
+        private int GetTranscriptionLengthWithoutSpaces()
+        {
+            if (_currentPhrase == null) return 0;
+            // Убираем все пробелы (не только ' ', но и любые пробельные символы)
+            return Regex.Replace(_currentPhrase.Transcription, @"\s+", "").Length;
+        }
+
+        private void RecalculateProgressBar()
+        {
+            int maxLen = GetTranscriptionLengthWithoutSpaces();
+            conversion.MaxValue = maxLen > 0 ? maxLen : 1; // защита от деления на 0
+            conversion.MinValue = 0;
+
+
+            int currMappingSum = 0;
+            for (int i = 0; i < _currentPhrase.Mapping.Count; i++)
+            {
+                Console.WriteLine("[" + i + "]" + ": " + _currentPhrase.Mapping[i]);
+                currMappingSum += _currentPhrase.Mapping[i];
+            }
+            conversion.SetValueInstant(currMappingSum);
         }
     }
+
+
 
 }
 

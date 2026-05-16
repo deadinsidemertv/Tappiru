@@ -1,9 +1,13 @@
 ﻿using System.Text.Json;
 using TappiruCS.Core;
+using OpenTK.Windowing.Common;
+
 
 public static class OptionFile
 {
-    private static SettingsData _data = new();
+    public static event Action? VideoSettingsChanged;
+
+    public static SettingsData _data = new();
 
     private static readonly string ConfigPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -55,4 +59,41 @@ public static class OptionFile
         get => _data.MasterVolume;
         set { _data.MasterVolume = value; Save(); }
     }
+
+    public static int ScreenWidth
+    {
+        get => _data.ScreenWidth;
+        set
+        {
+            if (_data.ScreenWidth == value) return;
+            _data.ScreenWidth = value;
+            Save();
+            VideoSettingsChanged?.Invoke();
+        }
+    }
+
+    public static int ScreenHeight
+    {
+        get => _data.ScreenHeight;
+        set
+        {
+            if (_data.ScreenHeight == value) return;
+            _data.ScreenHeight = value;
+            Save();
+            VideoSettingsChanged?.Invoke();
+        }
+    }
+
+    public static WindowState WindowState
+    {
+        get => _data.WindowState;
+        set
+        {
+            if (_data.WindowState == value) return;
+            _data.WindowState = value;
+            Save();
+            VideoSettingsChanged?.Invoke();
+        }
+    }
+
 }

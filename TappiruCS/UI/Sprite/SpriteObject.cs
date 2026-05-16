@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using TappiruCS.Core.GameObject;
 
-namespace TappiruCS.UI
+namespace TappiruCS.UI.Sprite
 {
     public class SpriteObject : GameObject
     {
